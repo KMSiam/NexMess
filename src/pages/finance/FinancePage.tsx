@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { Expense, Deposit, FixedCost } from '../../types/database'
 import {
   Wallet, Plus, TrendingUp, Receipt, PiggyBank,
-  DollarSign, CheckCircle2, X, Filter, Download,
+  DollarSign, CheckCircle2, X, Filter, Download, Image as ImageIcon,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { formatCurrency, getInitials } from '../../lib/utils'
@@ -27,6 +27,7 @@ export default function FinancePage() {
   const [expAmount, setExpAmount] = useState('')
   const [expDesc, setExpDesc] = useState('')
   const [expCategory, setExpCategory] = useState('bazaar')
+  const [expFile, setExpFile] = useState<File | null>(null)
 
   // Deposit form
   const [showAddDeposit, setShowAddDeposit] = useState(false)
@@ -91,13 +92,27 @@ export default function FinancePage() {
     e.preventDefault()
     if (!currentMess?.id || !user?.id) return
     setLoading(true)
+
+    let receiptUrl = null
+    if (expFile) {
+      const ext = expFile.name.split('.').pop()
+      const fileName = `${currentMess.id}/${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage.from('receipts').upload(fileName, expFile)
+      if (uploadError) {
+        toast.error('Failed to upload receipt')
+        setLoading(false)
+        return
+      }
+      receiptUrl = supabase.storage.from('receipts').getPublicUrl(fileName).data.publicUrl
+    }
+
     const { error } = await supabase.from('expenses').insert({
       mess_id: currentMess.id, amount: parseFloat(expAmount), description: expDesc.trim(),
       category: expCategory, expense_type: expCategory === 'bazaar' ? 'bazaar' : 'other',
-      created_by: user.id, date: format(new Date(), 'yyyy-MM-dd'),
+      created_by: user.id, date: format(new Date(), 'yyyy-MM-dd'), receipt_url: receiptUrl,
     })
     if (error) toast.error('Failed to add expense')
-    else { toast.success('Expense added!'); setShowAddExpense(false); setExpAmount(''); setExpDesc(''); fetchAllData() }
+    else { toast.success('Expense added!'); setShowAddExpense(false); setExpAmount(''); setExpDesc(''); setExpFile(null); fetchAllData() }
     setLoading(false)
   }
 
@@ -204,7 +219,15 @@ export default function FinancePage() {
                   <label className="block text-sm font-medium text-nex-text mb-1">Description</label>
                   <input type="text" value={expDesc} onChange={e => setExpDesc(e.target.value)} className="nex-input" placeholder="e.g., Fish, vegetables" />
                 </div>
-                <div className="flex gap-2">
+                <div>
+                  <label className="block text-sm font-medium text-nex-text mb-1">Receipt (optional)</label>
+                  <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-nex-border rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                    <ImageIcon className="w-4 h-4 text-nex-muted" />
+                    <span className="text-sm text-nex-muted">{expFile ? expFile.name : 'Upload receipt photo'}</span>
+                    <input type="file" accept="image/*" onChange={e => setExpFile(e.target.files?.[0] || null)} className="hidden" />
+                  </label>
+                </div>
+                <div className="flex gap-2 pt-2">
                   <button type="submit" disabled={loading} className="nex-btn-primary disabled:opacity-50">Save</button>
                   <button type="button" onClick={() => setShowAddExpense(false)} className="nex-btn-secondary">Cancel</button>
                 </div>
@@ -223,7 +246,15 @@ export default function FinancePage() {
                     {exp.category === 'bazaar' ? '🛒' : exp.category === 'rent' ? '🏠' : exp.category === 'utilities' ? '💡' : '📋'}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-nex-text">{exp.description || exp.category}</p>
+                    <p className="text-sm font-medium text-nex-text flex items-center gap-2">
+                      {exp.description || exp.category}
+                      {exp.receipt_url && (
+                        <a href={exp.receipt_url} target="_blank" rel="noreferrer" title="View Receipt"
+                          className="text-nex-primary hover:text-blue-700 transition-colors">
+                          <Receipt className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </p>
                     <p className="text-xs text-nex-muted">{format(new Date(exp.date), 'MMM d')} · {(exp as any).profiles?.username}</p>
                   </div>
                 </div>

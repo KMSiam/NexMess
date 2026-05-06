@@ -14,6 +14,7 @@ interface MessState {
   fetchMembers: (messId: string) => Promise<void>
   createMess: (name: string, userId: string) => Promise<Mess | null>
   joinMess: (code: string, userId: string) => Promise<{ success: boolean; error?: string }>
+  reset: () => void
 }
 
 export const useMessStore = create<MessState>()(
@@ -42,11 +43,14 @@ export const useMessStore = create<MessState>()(
           // Auto-select first mess if none selected
           const current = get().currentMess
           if (!current && messes.length > 0) {
-            set({ currentMess: messes[0] })
+            get().setCurrentMess(messes[0])
           } else if (current) {
             // Refresh current mess data
             const refreshed = messes.find(m => m.id === current.id)
-            if (refreshed) set({ currentMess: refreshed })
+            if (refreshed) {
+              set({ currentMess: refreshed })
+              get().fetchMembers(refreshed.id)
+            }
           }
         }
         set({ loading: false })
@@ -122,6 +126,10 @@ export const useMessStore = create<MessState>()(
 
         if (error) return { success: false, error: 'Failed to join. Try again.' }
         return { success: true }
+      },
+
+      reset: () => {
+        set({ currentMess: null, messes: [], members: [], loading: false })
       },
     }),
     {

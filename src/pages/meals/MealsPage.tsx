@@ -7,6 +7,7 @@ import { Utensils, ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react'
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval,
   addMonths, subMonths, isToday, isSameMonth, startOfWeek, endOfWeek,
+  isBefore, startOfDay,
 } from 'date-fns'
 import toast from 'react-hot-toast'
 
@@ -53,6 +54,11 @@ export default function MealsPage() {
   const toggleMeal = async (date: string, type: 'lunch' | 'dinner') => {
     if (!user?.id || !currentMess?.id) return
 
+    if (isBefore(new Date(date), startOfDay(new Date()))) {
+      toast.error('Cannot update meals for past days')
+      return
+    }
+
     const existing = meals.find(m => m.user_id === user.id && m.date === date)
     const currentLunch = existing?.lunch || false
     const currentDinner = existing?.dinner || false
@@ -91,8 +97,8 @@ export default function MealsPage() {
   // Monthly stats
   const monthlyStats = useMemo(() => {
     const userMeals = meals.filter(m => m.user_id === user?.id && m.date.startsWith(monthStr))
-    const lunchCount = userMeals.filter(m => m.lunch).length
-    const dinnerCount = userMeals.filter(m => m.dinner).length
+    const lunchCount = userMeals.reduce((acc, m) => acc + (m.lunch ? 1 : 0) + (m.guest_lunch || 0), 0)
+    const dinnerCount = userMeals.reduce((acc, m) => acc + (m.dinner ? 1 : 0) + (m.guest_dinner || 0), 0)
     return { total: lunchCount + dinnerCount, lunch: lunchCount, dinner: dinnerCount }
   }, [meals, user?.id, monthStr])
 
@@ -176,6 +182,7 @@ export default function MealsPage() {
             const allMeals = viewMode === 'all' ? getAllMealsForDate(day) : []
             const inMonth = isSameMonth(day, currentDate)
             const today = isToday(day)
+            const isPastDate = isBefore(day, startOfDay(new Date()))
 
             return (
               <div
@@ -195,25 +202,27 @@ export default function MealsPage() {
                   <div className="flex flex-col gap-0.5">
                     <button
                       onClick={() => toggleMeal(dateStr, 'lunch')}
+                      disabled={isPastDate}
                       className={`flex items-center justify-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium transition-colors ${
-                        meal?.lunch
+                        meal?.lunch || (meal?.guest_lunch || 0) > 0
                           ? 'bg-amber-100 text-amber-700'
                           : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
-                      }`}
-                      title="Toggle Lunch"
+                      } ${isPastDate ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      title={isPastDate ? "Cannot update past meals" : "Toggle Lunch"}
                     >
-                      <Sun className="w-2.5 h-2.5" /> L
+                      <Sun className="w-2.5 h-2.5" /> L {(meal?.guest_lunch || 0) > 0 && `+${meal?.guest_lunch}`}
                     </button>
                     <button
                       onClick={() => toggleMeal(dateStr, 'dinner')}
+                      disabled={isPastDate}
                       className={`flex items-center justify-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium transition-colors ${
-                        meal?.dinner
+                        meal?.dinner || (meal?.guest_dinner || 0) > 0
                           ? 'bg-indigo-100 text-indigo-700'
                           : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
-                      }`}
-                      title="Toggle Dinner"
+                      } ${isPastDate ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      title={isPastDate ? "Cannot update past meals" : "Toggle Dinner"}
                     >
-                      <Moon className="w-2.5 h-2.5" /> D
+                      <Moon className="w-2.5 h-2.5" /> D {(meal?.guest_dinner || 0) > 0 && `+${meal?.guest_dinner}`}
                     </button>
                   </div>
                 )}
@@ -221,7 +230,7 @@ export default function MealsPage() {
                 {inMonth && viewMode === 'all' && allMeals.length > 0 && (
                   <div className="text-center">
                     <p className="text-[10px] font-bold text-nex-primary">
-                      {allMeals.reduce((s, m) => s + (m.lunch ? 1 : 0) + (m.dinner ? 1 : 0), 0)}
+                      {allMeals.reduce((s, m) => s + (m.lunch ? 1 : 0) + (m.dinner ? 1 : 0) + (m.guest_lunch || 0) + (m.guest_dinner || 0), 0)}
                     </p>
                     <p className="text-[8px] text-nex-muted">meals</p>
                   </div>

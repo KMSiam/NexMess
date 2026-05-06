@@ -34,6 +34,8 @@ export interface Meal {
   date: string
   lunch: boolean
   dinner: boolean
+  guest_lunch: number
+  guest_dinner: number
 }
 
 export interface Expense {

@@ -8,6 +8,7 @@ import {
   PanelLeftClose, PanelLeft, Users,
 } from 'lucide-react'
 import NotificationBell from '../NotificationBell'
+import GlobalErrorBoundary from '../GlobalErrorBoundary'
 import { getInitials } from '../../lib/utils'
 
 const navItems = [
@@ -22,13 +23,14 @@ const navItems = [
 export default function AppLayout() {
   const navigate = useNavigate()
   const { profile, signOut } = useAuthStore()
-  const { currentMess, messes, setCurrentMess } = useMessStore()
+  const { currentMess, messes, setCurrentMess, reset: resetMess } = useMessStore()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [showMessDropdown, setShowMessDropdown] = useState(false)
 
   const handleSignOut = async () => {
+    resetMess()
     await signOut()
-    navigate('/login')
+    navigate('/login', { replace: true })
   }
 
   return (
@@ -150,7 +152,9 @@ export default function AppLayout() {
 
         {/* Page Content */}
         <main className="flex-1 p-4 lg:p-6">
-          <Outlet />
+          <GlobalErrorBoundary>
+            <Outlet />
+          </GlobalErrorBoundary>
         </main>
       </div>
 

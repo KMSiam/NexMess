@@ -17,7 +17,10 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const [lunchOn, setLunchOn] = useState(false)
   const [dinnerOn, setDinnerOn] = useState(false)
+  const [guestLunch, setGuestLunch] = useState(0)
+  const [guestDinner, setGuestDinner] = useState(0)
   const [mealLoading, setMealLoading] = useState(false)
+  const [dataLoaded, setDataLoaded] = useState(false)
   const [stats, setStats] = useState({ totalMeals: 0, balance: 0, mealRate: 0, deposits: 0 })
   const [isBazaarMan, setIsBazaarMan] = useState(false)
   const today = format(new Date(), 'yyyy-MM-dd')
@@ -30,7 +33,7 @@ export default function DashboardPage() {
     const fetchMeal = async () => {
       const { data } = await supabase
         .from('meals')
-        .select('lunch, dinner')
+        .select('lunch, dinner, guest_lunch, guest_dinner')
         .eq('user_id', profile.id)
         .eq('mess_id', currentMess.id)
         .eq('date', today)
@@ -39,6 +42,8 @@ export default function DashboardPage() {
       if (data) {
         setLunchOn(data.lunch)
         setDinnerOn(data.dinner)
+        setGuestLunch(data.guest_lunch || 0)
+        setGuestDinner(data.guest_dinner || 0)
       }
     }
     fetchMeal()
@@ -71,6 +76,7 @@ export default function DashboardPage() {
           deposits: data.total_deposits || 0,
         })
       }
+      setDataLoaded(true)
     }
     fetchBalance()
 
@@ -86,6 +92,8 @@ export default function DashboardPage() {
         if (payload.new && (payload.new as any).date === today) {
           setLunchOn((payload.new as any).lunch)
           setDinnerOn((payload.new as any).dinner)
+          setGuestLunch((payload.new as any).guest_lunch || 0)
+          setGuestDinner((payload.new as any).guest_dinner || 0)
         }
       })
       .subscribe()
@@ -109,12 +117,42 @@ export default function DashboardPage() {
         date: today,
         lunch: type === 'lunch' ? newValue : lunchOn,
         dinner: type === 'dinner' ? newValue : dinnerOn,
+        guest_lunch: guestLunch,
+        guest_dinner: guestDinner,
       }, { onConflict: 'user_id,mess_id,date' })
 
     if (error) {
       toast.error('Failed to update meal')
       if (type === 'lunch') setLunchOn(!newValue)
       else setDinnerOn(!newValue)
+    }
+    setMealLoading(false)
+  }
+
+  const updateGuest = async (type: 'lunch' | 'dinner', delta: number) => {
+    if (!profile?.id || !currentMess?.id) return
+    setMealLoading(true)
+    
+    const newVal = Math.max(0, (type === 'lunch' ? guestLunch : guestDinner) + delta)
+    if (type === 'lunch') setGuestLunch(newVal)
+    else setGuestDinner(newVal)
+
+    const { error } = await supabase
+      .from('meals')
+      .upsert({
+        user_id: profile.id,
+        mess_id: currentMess.id,
+        date: today,
+        lunch: lunchOn,
+        dinner: dinnerOn,
+        guest_lunch: type === 'lunch' ? newVal : guestLunch,
+        guest_dinner: type === 'dinner' ? newVal : guestDinner,
+      }, { onConflict: 'user_id,mess_id,date' })
+
+    if (error) {
+      toast.error('Failed to update guests')
+      if (type === 'lunch') setGuestLunch(guestLunch)
+      else setGuestDinner(guestDinner)
     }
     setMealLoading(false)
   }
@@ -130,6 +168,20 @@ export default function DashboardPage() {
         <div className="flex gap-3 justify-center">
           <Link to="/mess/create" className="nex-btn-primary"><Plus className="w-4 h-4" /> Create Mess</Link>
           <Link to="/mess/join" className="nex-btn-secondary">Join Mess</Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (!dataLoaded) {
+    return (
+      <div className="max-w-5xl mx-auto space-y-5 animate-pulse">
+        <div className="nex-card p-5 h-20 bg-slate-100"></div>
+        <div className="nex-card p-5 h-40 bg-slate-100"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="nex-card p-5 h-24 bg-slate-100"></div>
+          <div className="nex-card p-5 h-24 bg-slate-100"></div>
+          <div className="nex-card p-5 h-24 bg-slate-100"></div>
         </div>
       </div>
     )
@@ -169,33 +221,45 @@ export default function DashboardPage() {
         <h4 className="text-sm font-semibold text-nex-text uppercase tracking-wider mb-4">Today's Meals</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
-            { type: 'lunch' as const, emoji: '☀️', on: lunchOn, label: 'Lunch' },
-            { type: 'dinner' as const, emoji: '🌙', on: dinnerOn, label: 'Dinner' },
-          ].map(({ type, emoji, on, label }) => (
-            <div key={type} className={`flex items-center justify-between p-4 rounded-xl border transition-colors duration-200 ${
-              on ? 'bg-nex-success-light border-emerald-200' : 'bg-slate-50 border-nex-border'
+            { type: 'lunch' as const, emoji: '☀️', on: lunchOn, label: 'Lunch', guests: guestLunch },
+            { type: 'dinner' as const, emoji: '🌙', on: dinnerOn, label: 'Dinner', guests: guestDinner },
+          ].map(({ type, emoji, on, label, guests }) => (
+            <div key={type} className={`flex flex-col p-4 rounded-xl border transition-colors duration-200 ${
+              on || guests > 0 ? 'bg-nex-success-light border-emerald-200' : 'bg-slate-50 border-nex-border'
             }`}>
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{emoji}</span>
-                <div>
-                  <p className="text-sm font-medium text-nex-text">{label}</p>
-                  <p className={`text-xs font-medium ${on ? 'text-emerald-600' : 'text-nex-muted'}`}>
-                    {on ? 'Eating today' : 'Skipping'}
-                  </p>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{emoji}</span>
+                  <div>
+                    <p className="text-sm font-medium text-nex-text">{label}</p>
+                    <p className={`text-xs font-medium ${on ? 'text-emerald-600' : 'text-nex-muted'}`}>
+                      {on ? 'Eating today' : 'Skipping'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => toggleMeal(type)}
+                  disabled={mealLoading}
+                  className={`relative w-12 h-7 rounded-full transition-colors duration-200 focus:outline-none ${
+                    on ? 'nex-toggle-on' : 'nex-toggle-off'
+                  }`}
+                  id={`${type}-toggle`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                    on ? 'translate-x-5' : 'translate-x-0'
+                  }`} />
+                </button>
+              </div>
+              
+              {/* Guest Controls */}
+              <div className="flex items-center justify-between pt-3 border-t border-emerald-100/50">
+                <p className="text-xs font-medium text-slate-500">Guests</p>
+                <div className="flex items-center gap-3">
+                  <button onClick={() => updateGuest(type, -1)} disabled={mealLoading || guests === 0} className="w-6 h-6 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 disabled:opacity-50">-</button>
+                  <span className="text-sm font-semibold w-4 text-center">{guests}</span>
+                  <button onClick={() => updateGuest(type, 1)} disabled={mealLoading} className="w-6 h-6 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 disabled:opacity-50">+</button>
                 </div>
               </div>
-              <button
-                onClick={() => toggleMeal(type)}
-                disabled={mealLoading}
-                className={`relative w-12 h-7 rounded-full transition-colors duration-200 focus:outline-none ${
-                  on ? 'nex-toggle-on' : 'nex-toggle-off'
-                }`}
-                id={`${type}-toggle`}
-              >
-                <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-                  on ? 'translate-x-5' : 'translate-x-0'
-                }`} />
-              </button>
             </div>
           ))}
         </div>
