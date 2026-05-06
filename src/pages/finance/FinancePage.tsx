@@ -193,11 +193,9 @@ export default function FinancePage() {
       {/* ── Expenses Tab ──────────────────── */}
       {activeTab === 'expenses' && (
         <div className="space-y-4">
-          {isManager && (
-            <button onClick={() => setShowAddExpense(!showAddExpense)} className="nex-btn-primary text-sm">
-              <Plus className="w-4 h-4" /> Add Expense
-            </button>
-          )}
+          <button onClick={() => setShowAddExpense(!showAddExpense)} className="nex-btn-primary text-sm">
+            <Plus className="w-4 h-4" /> Add Expense
+          </button>
           {showAddExpense && (
             <div className="nex-card p-5 animate-slide-up">
               <form onSubmit={handleAddExpense} className="space-y-3">

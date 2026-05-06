@@ -96,11 +96,11 @@ export default function MealsPage() {
 
   // Monthly stats
   const monthlyStats = useMemo(() => {
-    const userMeals = meals.filter(m => m.user_id === user?.id && m.date.startsWith(monthStr))
-    const lunchCount = userMeals.reduce((acc, m) => acc + (m.lunch ? 1 : 0) + (m.guest_lunch || 0), 0)
-    const dinnerCount = userMeals.reduce((acc, m) => acc + (m.dinner ? 1 : 0) + (m.guest_dinner || 0), 0)
+    const relevantMeals = meals.filter(m => m.date.startsWith(monthStr) && (viewMode === 'all' || m.user_id === user?.id))
+    const lunchCount = relevantMeals.reduce((acc, m) => acc + (m.lunch ? 1 : 0) + (m.guest_lunch || 0), 0)
+    const dinnerCount = relevantMeals.reduce((acc, m) => acc + (m.dinner ? 1 : 0) + (m.guest_dinner || 0), 0)
     return { total: lunchCount + dinnerCount, lunch: lunchCount, dinner: dinnerCount }
-  }, [meals, user?.id, monthStr])
+  }, [meals, user?.id, monthStr, viewMode])
 
   // Get meal for a specific date
   const getMealForDate = (date: Date) => {
@@ -228,11 +228,15 @@ export default function MealsPage() {
                 )}
 
                 {inMonth && viewMode === 'all' && allMeals.length > 0 && (
-                  <div className="text-center">
-                    <p className="text-[10px] font-bold text-nex-primary">
-                      {allMeals.reduce((s, m) => s + (m.lunch ? 1 : 0) + (m.dinner ? 1 : 0) + (m.guest_lunch || 0) + (m.guest_dinner || 0), 0)}
-                    </p>
-                    <p className="text-[8px] text-nex-muted">meals</p>
+                  <div className="flex flex-col gap-0.5 mt-1 items-center">
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded w-full justify-center">
+                      <span>L:</span>
+                      <span>{allMeals.reduce((s, m) => s + (m.lunch ? 1 : 0) + (m.guest_lunch || 0), 0)}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded w-full justify-center">
+                      <span>D:</span>
+                      <span>{allMeals.reduce((s, m) => s + (m.dinner ? 1 : 0) + (m.guest_dinner || 0), 0)}</span>
+                    </div>
                   </div>
                 )}
               </div>

@@ -6,10 +6,11 @@ import { ChatMessage } from '../../types/database'
 import { Send, MessageSquare } from 'lucide-react'
 import { format } from 'date-fns'
 import { getInitials } from '../../lib/utils'
+import toast from 'react-hot-toast'
 
 export default function ChatPage() {
   const { profile } = useAuthStore()
-  const { currentMess } = useMessStore()
+  const { currentMess, members } = useMessStore()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
@@ -35,13 +36,19 @@ export default function ChatPage() {
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'chat_messages',
         filter: `mess_id=eq.${currentMess.id}`,
-      }, async (payload) => {
-        const { data } = await supabase
-          .from('chat_messages')
-          .select('*, profiles(username, avatar_url)')
-          .eq('id', (payload.new as any).id)
-          .single()
-        if (data) setMessages(prev => [...prev, data as ChatMessage])
+      }, (payload) => {
+        const newMsg = payload.new as any
+        setMessages(prev => {
+          if (prev.some(m => m.id === newMsg.id)) return prev
+          
+          // Look up sender from local members store to avoid DB read-replica lag
+          const senderProfile = members.find(m => m.user_id === newMsg.sender_id)?.profiles
+          const completeMsg = {
+            ...newMsg,
+            profiles: senderProfile || { username: 'Unknown' }
+          }
+          return [...prev, completeMsg as ChatMessage]
+        })
       })
       .subscribe()
 
@@ -57,15 +64,38 @@ export default function ChatPage() {
     if (!newMessage.trim() || !profile?.id || !currentMess?.id) return
     setSending(true)
 
-    await supabase.from('chat_messages').insert({
+    const tempId = 'temp-' + Date.now()
+    const msgText = newMessage.trim()
+    
+    // Optimistic UI update
+    const optimisticMsg = {
+      id: tempId,
       mess_id: currentMess.id,
       sender_id: profile.id,
-      text: newMessage.trim(),
+      text: msgText,
       message_type: 'text',
-    })
-
+      created_at: new Date().toISOString(),
+      profiles: { username: profile.username, avatar_url: profile.avatar_url }
+    }
+    setMessages(prev => [...prev, optimisticMsg as any])
     setNewMessage('')
     setSending(false)
+
+    // Actual DB Insert
+    const { data, error } = await supabase.from('chat_messages').insert({
+      mess_id: currentMess.id,
+      sender_id: profile.id,
+      text: msgText,
+      message_type: 'text',
+    }).select('*, profiles(username, avatar_url)').single()
+
+    if (data && !error) {
+      setMessages(prev => prev.map(m => m.id === tempId ? (data as ChatMessage) : m))
+    } else {
+      // If error, remove the optimistic message
+      setMessages(prev => prev.filter(m => m.id !== tempId))
+      toast.error('Failed to send message')
+    }
   }
 
   if (!currentMess) return null
