@@ -49,7 +49,7 @@ export default function FinancePage() {
   useEffect(() => {
     if (!currentMess?.id) return
     fetchAllData()
-  }, [currentMess?.id])
+  }, [currentMess?.id, members.length])
 
   const fetchAllData = async () => {
     if (!currentMess?.id) return
@@ -63,7 +63,7 @@ export default function FinancePage() {
   }
 
   const fetchDeposits = async () => {
-    const { data } = await supabase.from('deposits').select('*, profiles(username)')
+    const { data } = await supabase.from('deposits').select('*, profiles!deposits_user_id_fkey(username)')
       .eq('mess_id', currentMess!.id).order('date', { ascending: false }).limit(100)
     if (data) setDeposits(data as Deposit[])
   }
