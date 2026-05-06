@@ -1,0 +1,265 @@
+@import "tailwindcss";
+
+/* ───────────────────────────────────────────
+   NexMess — Modern Ocean Blue Minimalist
+   Tailwind v4 CSS-Based Design System
+   ─────────────────────────────────────────── */
+
+@theme {
+  /* ── Color Tokens ─────────────────────── */
+  --color-nex-bg:            #F8FAFC;
+  --color-nex-surface:       #FFFFFF;
+  --color-nex-primary:       #3B82F6;
+  --color-nex-primary-dark:  #2563EB;
+  --color-nex-primary-light: #EFF6FF;
+  --color-nex-text:          #0F172A;
+  --color-nex-muted:         #64748B;
+  --color-nex-border:        #E2E8F0;
+  --color-nex-success:       #10B981;
+  --color-nex-success-light: #ECFDF5;
+  --color-nex-danger:        #F43F5E;
+  --color-nex-danger-light:  #FFF1F2;
+  --color-nex-warning:       #F59E0B;
+
+  /* ── Font Family ──────────────────────── */
+  --font-sans: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* ── Border Radius ────────────────────── */
+  --radius-card: 16px;
+  --radius-btn:  8px;
+
+  /* ── Shadows ──────────────────────────── */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+
+  /* ── Animations ───────────────────────── */
+  --animate-fade-in: fadeIn 0.3s ease-out;
+  --animate-slide-up: slideUp 0.3s ease-out;
+  --animate-pulse-soft: pulseSoft 2s ease-in-out infinite;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+}
+
+/* ── Base Styles ───────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-nex-bg);
+    font-family: var(--font-sans);
+    color: var(--color-nex-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: var(--color-nex-text);
+    letter-spacing: -0.025em;
+  }
+
+  p {
+    color: var(--color-nex-muted);
+    line-height: 1.625;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+}
+
+/* ── Component Classes ─────────────────── */
+@layer components {
+  /* Card */
+  .nex-card {
+    background-color: var(--color-nex-surface);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-nex-border);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s ease;
+  }
+  .nex-card:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* Glassmorphism */
+  .nex-glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-glass);
+  }
+
+  /* Primary Button */
+  .nex-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-btn);
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: white;
+    background: linear-gradient(135deg, #2563EB, #3B82F6);
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease-out;
+  }
+  .nex-btn-primary:hover {
+    background: linear-gradient(135deg, #1D4ED8, #2563EB);
+  }
+  .nex-btn-primary:active {
+    transform: scale(0.98);
+  }
+  .nex-btn-primary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  }
+
+  /* Secondary Button */
+  .nex-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-btn);
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--color-nex-muted);
+    background-color: var(--color-nex-surface);
+    border: 1px solid var(--color-nex-border);
+    cursor: pointer;
+    transition: all 0.15s ease-out;
+  }
+  .nex-btn-secondary:hover {
+    background-color: #F8FAFC;
+    color: var(--color-nex-text);
+  }
+  .nex-btn-secondary:active {
+    transform: scale(0.98);
+  }
+
+  /* Danger Button */
+  .nex-btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-btn);
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: white;
+    background-color: var(--color-nex-danger);
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease-out;
+  }
+  .nex-btn-danger:hover {
+    background-color: #E11D48;
+  }
+
+  /* Input */
+  .nex-input {
+    width: 100%;
+    padding: 0.625rem 1rem;
+    border-radius: var(--radius-btn);
+    font-size: 0.875rem;
+    background-color: var(--color-nex-surface);
+    border: 1px solid var(--color-nex-border);
+    color: var(--color-nex-text);
+    transition: all 0.15s ease;
+  }
+  .nex-input::placeholder {
+    color: #94A3B8;
+  }
+  .nex-input:focus {
+    outline: none;
+    border-color: var(--color-nex-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  /* Badges */
+  .nex-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .nex-badge-success {
+    background-color: var(--color-nex-success-light);
+    color: #065F46;
+  }
+  .nex-badge-danger {
+    background-color: var(--color-nex-danger-light);
+    color: #9F1239;
+  }
+  .nex-badge-primary {
+    background-color: var(--color-nex-primary-light);
+    color: #1D4ED8;
+  }
+
+  /* Nav States */
+  .nex-nav-active {
+    background-color: var(--color-nex-primary-light);
+    border-left: 4px solid var(--color-nex-primary);
+    color: var(--color-nex-primary);
+    font-weight: 500;
+  }
+  .nex-nav-inactive {
+    border-left: 4px solid transparent;
+    color: var(--color-nex-muted);
+    transition: all 0.15s ease;
+  }
+  .nex-nav-inactive:hover {
+    background-color: #F8FAFC;
+    color: var(--color-nex-text);
+  }
+
+  /* Meal Toggles */
+  .nex-toggle-on {
+    background-color: var(--color-nex-success);
+  }
+  .nex-toggle-off {
+    background-color: #CBD5E1;
+  }
+
+  /* Verified Badge */
+  .nex-verified {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    background-color: var(--color-nex-success);
+    color: white;
+  }
+}

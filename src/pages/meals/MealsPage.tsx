@@ -1,0 +1,236 @@
+import { useEffect, useState, useMemo } from 'react'
+import { useAuthStore } from '../../stores/authStore'
+import { useMessStore } from '../../stores/messStore'
+import { supabase } from '../../lib/supabase'
+import { Meal } from '../../types/database'
+import { Utensils, ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react'
+import {
+  format, startOfMonth, endOfMonth, eachDayOfInterval,
+  addMonths, subMonths, isToday, isSameMonth, startOfWeek, endOfWeek,
+} from 'date-fns'
+import toast from 'react-hot-toast'
+
+export default function MealsPage() {
+  const { profile, user } = useAuthStore()
+  const { currentMess, members } = useMessStore()
+  const [meals, setMeals] = useState<Meal[]>([])
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [loading, setLoading] = useState(false)
+  const [viewMode, setViewMode] = useState<'personal' | 'all'>('personal')
+
+  const monthStart = startOfMonth(currentDate)
+  const monthEnd = endOfMonth(currentDate)
+  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 6 }) // Saturday
+  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 6 })
+  const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd })
+  const monthStr = format(currentDate, 'yyyy-MM')
+
+  useEffect(() => {
+    if (!currentMess?.id || !user?.id) return
+    fetchMeals()
+  }, [currentMess?.id, user?.id, monthStr, viewMode])
+
+  const fetchMeals = async () => {
+    if (!currentMess?.id) return
+    setLoading(true)
+
+    let query = supabase
+      .from('meals')
+      .select('*')
+      .eq('mess_id', currentMess.id)
+      .gte('date', format(calendarStart, 'yyyy-MM-dd'))
+      .lte('date', format(calendarEnd, 'yyyy-MM-dd'))
+
+    if (viewMode === 'personal') {
+      query = query.eq('user_id', user!.id)
+    }
+
+    const { data } = await query
+    if (data) setMeals(data as Meal[])
+    setLoading(false)
+  }
+
+  const toggleMeal = async (date: string, type: 'lunch' | 'dinner') => {
+    if (!user?.id || !currentMess?.id) return
+
+    const existing = meals.find(m => m.user_id === user.id && m.date === date)
+    const currentLunch = existing?.lunch || false
+    const currentDinner = existing?.dinner || false
+
+    const newValue = type === 'lunch' ? !currentLunch : !currentDinner
+
+    // Optimistic update
+    setMeals(prev => {
+      const idx = prev.findIndex(m => m.user_id === user.id && m.date === date)
+      const updated = {
+        ...(existing || { id: 'temp', user_id: user.id, mess_id: currentMess.id, date, lunch: false, dinner: false }),
+        [type]: newValue,
+      } as Meal
+      if (idx >= 0) {
+        const copy = [...prev]
+        copy[idx] = updated
+        return copy
+      }
+      return [...prev, updated]
+    })
+
+    const { error } = await supabase.from('meals').upsert({
+      user_id: user.id,
+      mess_id: currentMess.id,
+      date,
+      lunch: type === 'lunch' ? newValue : currentLunch,
+      dinner: type === 'dinner' ? newValue : currentDinner,
+    }, { onConflict: 'user_id,mess_id,date' })
+
+    if (error) {
+      toast.error('Failed to update meal')
+      fetchMeals() // Revert
+    }
+  }
+
+  // Monthly stats
+  const monthlyStats = useMemo(() => {
+    const userMeals = meals.filter(m => m.user_id === user?.id && m.date.startsWith(monthStr))
+    const lunchCount = userMeals.filter(m => m.lunch).length
+    const dinnerCount = userMeals.filter(m => m.dinner).length
+    return { total: lunchCount + dinnerCount, lunch: lunchCount, dinner: dinnerCount }
+  }, [meals, user?.id, monthStr])
+
+  // Get meal for a specific date
+  const getMealForDate = (date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd')
+    return meals.find(m => m.user_id === user?.id && m.date === dateStr)
+  }
+
+  // Get all member meals for a date (for "all" view)
+  const getAllMealsForDate = (date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd')
+    return meals.filter(m => m.date === dateStr)
+  }
+
+  if (!currentMess) return null
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Utensils className="w-6 h-6 text-nex-primary" />
+          <h1 className="text-2xl font-bold text-nex-text">Meal Calendar</h1>
+        </div>
+        <div className="flex gap-1 bg-slate-100 p-1 rounded-btn">
+          <button onClick={() => setViewMode('personal')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              viewMode === 'personal' ? 'bg-white text-nex-text shadow-sm' : 'text-nex-muted'
+            }`}>My Meals</button>
+          <button onClick={() => setViewMode('all')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              viewMode === 'all' ? 'bg-white text-nex-text shadow-sm' : 'text-nex-muted'
+            }`}>All Members</button>
+        </div>
+      </div>
+
+      {/* Month Navigator + Stats */}
+      <div className="nex-card p-5">
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+            className="p-2 rounded-btn hover:bg-slate-100 text-nex-muted transition-colors">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <h2 className="text-lg font-semibold text-nex-text">{format(currentDate, 'MMMM yyyy')}</h2>
+          <button onClick={() => setCurrentDate(addMonths(currentDate, 1))}
+            className="p-2 rounded-btn hover:bg-slate-100 text-nex-muted transition-colors">
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          <div className="bg-nex-primary-light rounded-xl p-3 text-center">
+            <p className="text-2xl font-bold text-nex-primary">{monthlyStats.total}</p>
+            <p className="text-[10px] text-blue-600 uppercase tracking-wider font-medium">Total Meals</p>
+          </div>
+          <div className="bg-amber-50 rounded-xl p-3 text-center">
+            <p className="text-2xl font-bold text-amber-600">{monthlyStats.lunch}</p>
+            <p className="text-[10px] text-amber-600 uppercase tracking-wider font-medium">Lunch</p>
+          </div>
+          <div className="bg-indigo-50 rounded-xl p-3 text-center">
+            <p className="text-2xl font-bold text-indigo-600">{monthlyStats.dinner}</p>
+            <p className="text-[10px] text-indigo-600 uppercase tracking-wider font-medium">Dinner</p>
+          </div>
+        </div>
+
+        {/* Calendar Grid */}
+        <div className="grid grid-cols-7 gap-1">
+          {/* Day Headers */}
+          {['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map(d => (
+            <div key={d} className="text-center text-[10px] font-semibold text-nex-muted uppercase tracking-wider py-2">
+              {d}
+            </div>
+          ))}
+
+          {/* Days */}
+          {calendarDays.map(day => {
+            const dateStr = format(day, 'yyyy-MM-dd')
+            const meal = getMealForDate(day)
+            const allMeals = viewMode === 'all' ? getAllMealsForDate(day) : []
+            const inMonth = isSameMonth(day, currentDate)
+            const today = isToday(day)
+
+            return (
+              <div
+                key={dateStr}
+                className={`relative min-h-[72px] p-1.5 rounded-xl border transition-colors ${
+                  today ? 'border-nex-primary bg-blue-50/50' :
+                  inMonth ? 'border-nex-border bg-white' : 'border-transparent bg-slate-50/50'
+                }`}
+              >
+                <p className={`text-xs font-medium text-center mb-1 ${
+                  today ? 'text-nex-primary' : inMonth ? 'text-nex-text' : 'text-slate-300'
+                }`}>
+                  {format(day, 'd')}
+                </p>
+
+                {inMonth && viewMode === 'personal' && (
+                  <div className="flex flex-col gap-0.5">
+                    <button
+                      onClick={() => toggleMeal(dateStr, 'lunch')}
+                      className={`flex items-center justify-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium transition-colors ${
+                        meal?.lunch
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                      }`}
+                      title="Toggle Lunch"
+                    >
+                      <Sun className="w-2.5 h-2.5" /> L
+                    </button>
+                    <button
+                      onClick={() => toggleMeal(dateStr, 'dinner')}
+                      className={`flex items-center justify-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium transition-colors ${
+                        meal?.dinner
+                          ? 'bg-indigo-100 text-indigo-700'
+                          : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                      }`}
+                      title="Toggle Dinner"
+                    >
+                      <Moon className="w-2.5 h-2.5" /> D
+                    </button>
+                  </div>
+                )}
+
+                {inMonth && viewMode === 'all' && allMeals.length > 0 && (
+                  <div className="text-center">
+                    <p className="text-[10px] font-bold text-nex-primary">
+                      {allMeals.reduce((s, m) => s + (m.lunch ? 1 : 0) + (m.dinner ? 1 : 0), 0)}
+                    </p>
+                    <p className="text-[8px] text-nex-muted">meals</p>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}

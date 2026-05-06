@@ -1,0 +1,68 @@
+# FINAL MASTER DOCUMENTATION & PROMPT: NexMess System
+
+## 1. PROJECT VISION
+NexMess is a next-generation, real-time, multi-tenant Mess Management System. It aims to solve the complexity of shared living by providing clear financial tracking, duty assignments, and real-time meal coordination in a gorgeous, minimalist package.
+
+## 2. TECHNICAL SPECIFICATIONS
+* **Frontend Framework:** React.js (Vite-based for speed).
+* **Styling:** Tailwind CSS (Utility-first, responsive design).
+* **Backend-as-a-Service:** Supabase (Free Tier).
+    * **Database:** PostgreSQL (Relational tables).
+    * **Auth:** Google OAuth (Continue with Google) & Email (Confirmation required).
+    * **Real-time:** PostgreSQL CDC (Change Data Capture) for Chat and Meal Toggles.
+* **State Management:** React Context API or Zustand (for lightweight state).
+
+## 3. CORE ARCHITECTURE & MULTI-TENANCY
+* **Isolation:** Every Mess is an independent entity. One user account can be linked to multiple Messes.
+* **Unique ID System:** Each mess has a `unique_mess_code` (e.g., NEX-A12B).
+* **Public Landing Page:** A route `/mess/:id` where anyone can see the Mess Name, Member Count, and Public Notices without logging in.
+
+## 4. AUTHENTICATION & IDENTITY
+* **Verification Flow:** * Login via Google (Automatically Verified).
+    * Login via Email (Must click verification link in inbox).
+* **Verification UI:** A green checkmark badge next to verified usernames.
+* **Onboarding:** New users must set a Username and Profile Picture before joining a Mess.
+
+## 5. USER DASHBOARD (MEMBER LEVEL)
+* **Profile Control:** User can change their **Username** and **Avatar** at any time.
+* **Meal Toggle:** A prominent real-time switch for "Today's Meal" (Lunch/Dinner).
+* **Stats View:** Personal cost vs. deposit balance, total personal meals this month.
+* **Market Alert:** Notification if the user is the assigned 'Bazaar Man' for today.
+
+## 6. MANAGER CONTROL PANEL (ADMIN LEVEL)
+* **Member Management:** * Approve/Reject new join requests.
+    * **Remove/Evict** any member from the mess instantly.
+    * **Update Member Info:** Only the manager can correct a member's manual data errors.
+* **Market Scheduler:** Assign 5-6 bazaar dates per month to each member using a calendar interface.
+* **Finances:**
+    * Define Fixed Costs (Rent, Utilities, Maid).
+    * Input Daily Bazaar Costs.
+    * Verify member deposits.
+* **Role Switch:** Transfer 'Manager' status to another member.
+
+## 7. FINANCIAL LOGIC & CALCULATIONS
+* **Meal Rate:** (Total Monthly Bazaar Cost) / (Total Monthly Meals of all members).
+* **Individual Cost:** (Personal Meals * Meal Rate) + (Shared Fixed Costs).
+* **Balance:** (Total Deposit) - (Individual Cost).
+
+## 8. UI/UX DESIGN GUIDELINES
+* **Aesthetic:** Modern Minimalist / SaaS-style.
+* **Palette:** * Main: White / Zinc-50.
+    * Accent: Emerald-500 (Success/Money) or Royal Blue.
+* **Layout:**
+    * Sidebar (Desktop): Collapsible, Glassmorphism blur (`backdrop-blur-md`).
+    * Navigation (Mobile): Sleek bottom-tab bar (Home, Meals, Chat, Settings).
+* **Feedback:** Toast notifications for success/error actions.
+
+## 9. DATABASE SCHEMA (POSTGRESQL)
+* `profiles`: id, username, avatar_url, is_verified, contact_no.
+* `messes`: id, name, unique_code, manager_id, public_info.
+* `mess_members`: mess_id, user_id, status (pending/approved).
+* `meals`: user_id, mess_id, date, lunch, dinner.
+* `expenses`: id, mess_id, amount, category, date.
+* `market_schedules`: mess_id, user_id, assigned_date.
+* `chat_messages`: id, mess_id, sender_id, text, created_at.
+
+## 10. AI AGENT EXECUTION COMMAND
+"Generate a full-stack React application with Supabase integration. Use Tailwind CSS for a premium minimalist UI. Implement Row Level Security (RLS) so users can only edit their own profile and meal status, while the Manager has full update rights over the mess records. Ensure the Google Auth and Email Verification flows are implemented as the first step."
+the website should be secure form the hacking. and ui should be responsive and beautifull. try to use the best ui libraries and best practices. try to use the best practices for the security and the best practices for the ui. try to use the best practices for the database. try to use the best practices for the backend. try to use the best practices for the frontend. try to use the best practices for the security. try to use the best practices for the ui. try to use the best practices for the database. try to use the best practices for the backend. try to use the best practices for the frontend. try to use the best practices for the security. try to use the best practices for the ui. try to use the best practices for the database. try to use the best practices for the backend. try to use the best practices for the frontend.
