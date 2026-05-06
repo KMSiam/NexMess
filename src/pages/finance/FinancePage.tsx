@@ -175,6 +175,8 @@ export default function FinancePage() {
   }
 
   const markFixedCostPaid = async (id: string) => {
+    if (!window.confirm("Are you sure you want to mark this as paid? You won't be able to edit it afterward.")) return
+    
     const { error } = await supabase.from('fixed_costs').update({ is_paid: true }).eq('id', id)
     if (error) toast.error('Failed to mark as paid')
     else {
