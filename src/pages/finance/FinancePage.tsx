@@ -83,7 +83,11 @@ export default function FinancePage() {
         p_mess_id: currentMess.id,
         p_month: currentMonth,
       })
-      if (data) results[member.user_id] = data
+      if (data && Array.isArray(data) && data.length > 0) {
+        results[member.user_id] = data[0]
+      } else if (data && !Array.isArray(data)) {
+        results[member.user_id] = data
+      }
     }
     setBalances(results)
   }
