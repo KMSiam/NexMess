@@ -72,6 +72,7 @@ export interface FixedCost {
   label: string | null
   amount: number
   month: string
+  is_paid: boolean
   created_by: string | null
   created_at: string
 }

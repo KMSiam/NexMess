@@ -37,6 +37,7 @@ export default function FinancePage() {
 
   // Fixed cost form
   const [showAddFixed, setShowAddFixed] = useState(false)
+  const [editFixedCostId, setEditFixedCostId] = useState<string | null>(null)
   const [fixCategory, setFixCategory] = useState('rent')
   const [fixAmount, setFixAmount] = useState('')
   const [fixLabel, setFixLabel] = useState('')
@@ -137,13 +138,49 @@ export default function FinancePage() {
     e.preventDefault()
     if (!currentMess?.id || !user?.id) return
     setLoading(true)
-    const { error } = await supabase.from('fixed_costs').upsert({
-      mess_id: currentMess.id, category: fixCategory, amount: parseFloat(fixAmount),
-      label: fixLabel.trim() || null, month: currentMonth, created_by: user.id,
-    }, { onConflict: 'mess_id,category,month' })
+    
+    let error;
+    if (editFixedCostId) {
+      const res = await supabase.from('fixed_costs').update({
+        category: fixCategory, amount: parseFloat(fixAmount), label: fixLabel.trim() || null
+      }).eq('id', editFixedCostId)
+      error = res.error
+    } else {
+      const res = await supabase.from('fixed_costs').insert({
+        mess_id: currentMess.id, category: fixCategory, amount: parseFloat(fixAmount),
+        label: fixLabel.trim() || null, month: currentMonth, created_by: user.id,
+      })
+      error = res.error
+    }
+
     if (error) toast.error('Failed to save')
-    else { toast.success('Fixed cost saved!'); setShowAddFixed(false); setFixAmount(''); setFixLabel(''); fetchAllData() }
+    else { 
+      toast.success('Fixed cost saved!')
+      setShowAddFixed(false)
+      setFixAmount('')
+      setFixLabel('')
+      setFixCategory('rent')
+      setEditFixedCostId(null)
+      fetchAllData() 
+    }
     setLoading(false)
+  }
+
+  const startEditFixedCost = (fc: FixedCost) => {
+    setFixCategory(fc.category)
+    setFixAmount(fc.amount.toString())
+    setFixLabel(fc.label || '')
+    setEditFixedCostId(fc.id)
+    setShowAddFixed(true)
+  }
+
+  const markFixedCostPaid = async (id: string) => {
+    const { error } = await supabase.from('fixed_costs').update({ is_paid: true }).eq('id', id)
+    if (error) toast.error('Failed to mark as paid')
+    else {
+      toast.success('Marked as paid!')
+      fetchAllData()
+    }
   }
 
   const totalExpenses = expenses.filter(e => e.date.startsWith(currentMonth)).reduce((s, e) => s + Number(e.amount), 0)
@@ -361,8 +398,8 @@ export default function FinancePage() {
                   <input type="text" value={fixLabel} onChange={e => setFixLabel(e.target.value)} className="nex-input" placeholder="e.g., Electric bill May" />
                 </div>
                 <div className="flex gap-2">
-                  <button type="submit" disabled={loading} className="nex-btn-primary disabled:opacity-50">Save</button>
-                  <button type="button" onClick={() => setShowAddFixed(false)} className="nex-btn-secondary">Cancel</button>
+                  <button type="submit" disabled={loading} className="nex-btn-primary disabled:opacity-50">{editFixedCostId ? 'Update' : 'Save'}</button>
+                  <button type="button" onClick={() => { setShowAddFixed(false); setEditFixedCostId(null); setFixCategory('rent'); setFixAmount(''); setFixLabel('') }} className="nex-btn-secondary">Cancel</button>
                 </div>
               </form>
             </div>
@@ -381,7 +418,17 @@ export default function FinancePage() {
                       <p className="text-xs text-nex-muted">{fc.month}</p>
                     </div>
                   </div>
-                  <p className="text-sm font-semibold text-amber-600">{formatCurrency(Number(fc.amount))}</p>
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-sm font-semibold text-amber-600">{formatCurrency(Number(fc.amount))}</p>
+                    {fc.is_paid ? (
+                      <span className="text-[10px] text-nex-success flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" />Paid</span>
+                    ) : isManager && (
+                      <div className="flex gap-2 mt-1">
+                        <button onClick={() => startEditFixedCost(fc)} className="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors">Edit</button>
+                        <button onClick={() => markFixedCostPaid(fc.id)} className="text-xs font-medium text-emerald-600 hover:text-emerald-800 transition-colors flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" /> Mark Paid</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )
             })}
