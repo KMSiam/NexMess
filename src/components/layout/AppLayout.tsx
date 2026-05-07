@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import {
@@ -23,6 +23,7 @@ const navItems = [
 
 export default function AppLayout() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { profile, signOut } = useAuthStore()
   const { currentMess, messes, setCurrentMess, reset: resetMess } = useMessStore()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -154,7 +155,9 @@ export default function AppLayout() {
         {/* Page Content */}
         <main className="flex-1 p-4 lg:p-6">
           <GlobalErrorBoundary>
-            <Outlet />
+            <div key={location.pathname} className="animate-fade-in h-full w-full">
+              <Outlet />
+            </div>
           </GlobalErrorBoundary>
         </main>
       </div>
