@@ -5,7 +5,7 @@ import { useMessStore } from '../../stores/messStore'
 import {
   Home, Utensils, MessageSquare, Wallet, ShoppingBag,
   Settings, Zap, LogOut, ChevronDown, CheckCircle2,
-  PanelLeftClose, PanelLeft, Users,
+  PanelLeftClose, PanelLeft, MoreHorizontal, X,
 } from 'lucide-react'
 import NotificationBell from '../NotificationBell'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
@@ -159,9 +159,47 @@ export default function AppLayout() {
       </div>
 
       {/* ── Mobile Bottom Nav ──────────────── */}
+      <MobileBottomNav handleSignOut={handleSignOut} />
+    </div>
+  )
+}
+
+/* ── Mobile Bottom Navigation with "More" Menu ── */
+function MobileBottomNav({ handleSignOut }: { handleSignOut: () => void }) {
+  const [showMore, setShowMore] = useState(false)
+
+  const mainTabs = navItems.slice(0, 4) // Dashboard, Meals, Chat, Finance
+
+  return (
+    <>
+      {/* Overlay */}
+      {showMore && (
+        <div className="lg:hidden fixed inset-0 z-20 bg-black/20 backdrop-blur-sm" onClick={() => setShowMore(false)} />
+      )}
+
+      {/* More Menu Popup */}
+      {showMore && (
+        <div className="lg:hidden fixed bottom-16 right-2 left-2 z-30 nex-card p-2 shadow-xl border border-nex-border animate-slide-up safe-area-bottom">
+          <NavLink to="/market" onClick={() => setShowMore(false)}
+            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-slate-50'}`}>
+            <ShoppingBag className="w-5 h-5" /> Market Schedule
+          </NavLink>
+          <NavLink to="/settings" onClick={() => setShowMore(false)}
+            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-slate-50'}`}>
+            <Settings className="w-5 h-5" /> Settings
+          </NavLink>
+          <div className="border-t border-nex-border my-1" />
+          <button onClick={() => { setShowMore(false); handleSignOut() }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-600 hover:bg-red-50 transition-colors">
+            <LogOut className="w-5 h-5" /> Sign Out
+          </button>
+        </div>
+      )}
+
+      {/* Bottom Tab Bar */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 nex-glass border-t border-nex-border/50 z-20 safe-area-bottom">
         <div className="flex items-center justify-around py-1.5">
-          {navItems.slice(0, 5).map(({ to, icon: Icon, label }) => (
+          {mainTabs.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -175,8 +213,16 @@ export default function AppLayout() {
               <span className="text-[10px] font-medium">{label}</span>
             </NavLink>
           ))}
+          {/* More Button */}
+          <button
+            onClick={() => setShowMore(!showMore)}
+            className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${showMore ? 'text-nex-primary' : 'text-nex-muted'}`}
+          >
+            {showMore ? <X className="w-5 h-5" /> : <MoreHorizontal className="w-5 h-5" />}
+            <span className="text-[10px] font-medium">More</span>
+          </button>
         </div>
       </nav>
-    </div>
+    </>
   )
 }
