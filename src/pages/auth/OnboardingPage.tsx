@@ -2,7 +2,8 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 import { supabase } from '../../lib/supabase'
-import { Camera, ArrowRight, Zap } from 'lucide-react'
+import { Camera, ArrowRight } from 'lucide-react'
+import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 import { getInitials } from '../../lib/utils'
 
@@ -73,8 +74,8 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-nex-bg flex items-center justify-center p-6">
       <div className="nex-card p-8 max-w-md w-full">
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-lg overflow-hidden">
+            <img src={logoIcon} alt="NexMess" className="w-full h-full" />
           </div>
           <span className="text-sm font-semibold text-nex-primary">NexMess</span>
         </div>

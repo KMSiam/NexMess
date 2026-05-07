@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { Mail, Lock, Eye, EyeOff, Zap, ArrowRight } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import logo from '../../assets/logo.svg'
+import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
@@ -40,8 +42,8 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-col justify-center items-center w-1/2 bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 text-white p-12">
         <div className="max-w-md">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
-              <Zap className="w-7 h-7" />
+            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden">
+              <img src={logoIcon} alt="NexMess" className="w-10 h-10" />
             </div>
             <h1 className="text-3xl font-bold">NexMess</h1>
           </div>
@@ -67,8 +69,8 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden">
+              <img src={logoIcon} alt="NexMess" className="w-full h-full" />
             </div>
             <h1 className="text-2xl font-bold text-nex-text">NexMess</h1>
           </div>

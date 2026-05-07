@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { MailCheck, Zap } from 'lucide-react'
+import { MailCheck } from 'lucide-react'
 
 export default function VerifyEmailPage() {
   return (

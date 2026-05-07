@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded square background -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="url(#bg)"/>
+  
+  <!-- Subtle inner glow -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="white" opacity="0.05"/>
+  
+  <!-- Stylized "N" letterform -->
+  <path d="M148 368V164C148 155.163 155.163 148 164 148H188C194.627 148 200.762 151.686 203.94 157.6L308 348V164C308 155.163 315.163 148 324 148H348C356.837 148 364 155.163 364 164V368C364 376.837 356.837 384 348 384H324C317.373 384 311.238 380.314 308.06 374.4L204 184V348C204 356.837 196.837 364 188 364H164C155.163 364 148 356.837 148 348V368Z" fill="white"/>
+  
+  <!-- Three community dots representing mess members -->
+  <circle cx="180" cy="420" r="18" fill="white" opacity="0.5"/>
+  <circle cx="256" cy="420" r="18" fill="white" opacity="0.7"/>
+  <circle cx="332" cy="420" r="18" fill="white" opacity="0.5"/>
+  
+  <!-- Connecting line between dots (community bond) -->
+  <line x1="198" y1="420" x2="314" y2="420" stroke="white" stroke-width="4" opacity="0.3" stroke-linecap="round"/>
+  
+  <!-- Small utensil accent on top-right -->
+  <path d="M380 88C380 88 384 72 396 72C408 72 412 88 412 88" stroke="white" stroke-width="5" stroke-linecap="round" opacity="0.4"/>
+  <line x1="396" y1="72" x2="396" y2="100" stroke="white" stroke-width="5" stroke-linecap="round" opacity="0.4"/>
+</svg>

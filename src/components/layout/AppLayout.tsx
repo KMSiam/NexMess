@@ -10,6 +10,7 @@ import {
 import NotificationBell from '../NotificationBell'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
 import { getInitials } from '../../lib/utils'
+import logoIcon from '../../assets/logo-icon.svg'
 
 const navItems = [
   { to: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -44,9 +45,7 @@ export default function AppLayout() {
       }`}>
         {/* Logo */}
         <div className={`flex items-center border-b border-nex-border/50 ${sidebarCollapsed ? 'flex-col gap-2 px-2 py-3' : 'gap-3 px-4 py-4'}`}>
-          <div className="w-9 h-9 rounded-card bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center shrink-0">
-            <Zap className="w-5 h-5 text-white" />
-          </div>
+          <img src={logoIcon} alt="NexMess" className="w-9 h-9 rounded-card shrink-0" />
           {!sidebarCollapsed && <h1 className="text-lg font-bold text-nex-text tracking-tight flex-1">NexMess</h1>}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
