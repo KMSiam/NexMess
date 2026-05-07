@@ -15,6 +15,8 @@ import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import VerifyEmailPage from './pages/auth/VerifyEmailPage'
 import OnboardingPage from './pages/auth/OnboardingPage'
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
+import UpdatePasswordPage from './pages/auth/UpdatePasswordPage'
 
 // App Pages
 import DashboardPage from './pages/dashboard/DashboardPage'
@@ -54,11 +56,13 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           </Route>
 
           {/* Protected routes */}
           <Route element={<AuthGuard />}>
             <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route path="/update-password" element={<UpdatePasswordPage />} />
             <Route path="/mess/create" element={<CreateMessPage />} />
             <Route path="/mess/join" element={<JoinMessPage />} />
 
