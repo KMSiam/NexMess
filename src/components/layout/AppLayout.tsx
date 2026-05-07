@@ -40,14 +40,14 @@ export default function AppLayout() {
         sidebarCollapsed ? 'w-[72px]' : 'w-64'
       }`}>
         {/* Logo */}
-        <div className="flex items-center gap-3 px-4 py-4 border-b border-nex-border/50">
+        <div className={`flex items-center border-b border-nex-border/50 ${sidebarCollapsed ? 'flex-col gap-2 px-2 py-3' : 'gap-3 px-4 py-4'}`}>
           <div className="w-9 h-9 rounded-card bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center shrink-0">
             <Zap className="w-5 h-5 text-white" />
           </div>
-          {!sidebarCollapsed && <h1 className="text-lg font-bold text-nex-text tracking-tight">NexMess</h1>}
+          {!sidebarCollapsed && <h1 className="text-lg font-bold text-nex-text tracking-tight flex-1">NexMess</h1>}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="ml-auto p-1.5 rounded-btn text-nex-muted hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-btn text-nex-muted hover:bg-slate-100 transition-colors"
           >
             {sidebarCollapsed ? <PanelLeft className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
           </button>

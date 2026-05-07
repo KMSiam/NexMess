@@ -111,17 +111,18 @@ export default function MarketPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-5">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
         <div className="flex items-center gap-3">
           <ShoppingBag className="w-6 h-6 text-nex-primary" />
           <h1 className="text-2xl font-bold text-nex-text">Bazaar Schedule</h1>
         </div>
         {isManager && (
           <div className="flex gap-2">
-            <button onClick={autoAssign} disabled={loading} className="nex-btn-secondary text-xs" id="auto-assign-btn">
+            <button onClick={autoAssign} disabled={loading} className="nex-btn-secondary text-xs flex-1 sm:flex-none justify-center" id="auto-assign-btn">
               <ArrowRightLeft className="w-4 h-4" /> Auto Assign
             </button>
-            <button onClick={() => setShowAdd(!showAdd)} className="nex-btn-primary text-xs" id="add-schedule-btn">
+            <button onClick={() => setShowAdd(!showAdd)} className="nex-btn-primary text-xs flex-1 sm:flex-none justify-center" id="add-schedule-btn">
               <Plus className="w-4 h-4" /> Assign
             </button>
           </div>
@@ -157,7 +158,7 @@ export default function MarketPage() {
             className="p-2 rounded-btn hover:bg-slate-100 text-nex-muted transition-colors">
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <h2 className="text-base font-semibold text-nex-text">
+          <h2 className="text-sm sm:text-base font-semibold text-nex-text">
             {format(weekStart, 'MMM d')} – {format(weekEnd, 'MMM d, yyyy')}
           </h2>
           <button onClick={() => setCurrentWeek(addWeeks(currentWeek, 1))}
@@ -166,29 +167,24 @@ export default function MarketPage() {
           </button>
         </div>
 
-        {/* Weekly Grid */}
-        <div className="grid grid-cols-7 gap-2">
+        {/* Desktop: Grid view (hidden on small screens) */}
+        <div className="hidden sm:grid grid-cols-7 gap-2">
           {weekDays.map(day => {
             const dateStr = format(day, 'yyyy-MM-dd')
             const daySchedule = schedules.find(s => s.assigned_date === dateStr)
             const assignee = daySchedule?.profiles as any
-            const today = isToday(day)
-            const past = isBefore(day, new Date()) && !today
+            const todayFlag = isToday(day)
+            const past = isBefore(day, new Date()) && !todayFlag
 
             return (
               <div key={dateStr} className={`rounded-xl border p-3 text-center transition-colors ${
-                today ? 'border-nex-primary bg-blue-50/50' :
+                todayFlag ? 'border-nex-primary bg-blue-50/50' :
                 past ? 'border-transparent bg-slate-50/50' : 'border-nex-border bg-white'
               }`}>
                 <p className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${
-                  today ? 'text-nex-primary' : 'text-nex-muted'
-                }`}>
-                  {format(day, 'EEE')}
-                </p>
-                <p className={`text-lg font-bold mb-2 ${today ? 'text-nex-primary' : 'text-nex-text'}`}>
-                  {format(day, 'd')}
-                </p>
-
+                  todayFlag ? 'text-nex-primary' : 'text-nex-muted'
+                }`}>{format(day, 'EEE')}</p>
+                <p className={`text-lg font-bold mb-2 ${todayFlag ? 'text-nex-primary' : 'text-nex-text'}`}>{format(day, 'd')}</p>
                 {daySchedule ? (
                   <div className="space-y-1.5">
                     <div className="w-10 h-10 rounded-full mx-auto bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
@@ -198,8 +194,7 @@ export default function MarketPage() {
                     </div>
                     <p className="text-xs font-medium text-nex-text truncate">{assignee?.username}</p>
                     {isManager && (
-                      <button onClick={() => handleDelete(daySchedule.id)}
-                        className="text-nex-muted hover:text-nex-danger transition-colors">
+                      <button onClick={() => handleDelete(daySchedule.id)} className="text-nex-muted hover:text-nex-danger transition-colors">
                         <Trash2 className="w-3 h-3 mx-auto" />
                       </button>
                     )}
@@ -208,6 +203,57 @@ export default function MarketPage() {
                   <div className="py-2">
                     <Calendar className="w-5 h-5 mx-auto text-slate-300" />
                     <p className="text-[10px] text-slate-300 mt-1">Unassigned</p>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Mobile: Card list view (shown only on small screens) */}
+        <div className="sm:hidden space-y-2">
+          {weekDays.map(day => {
+            const dateStr = format(day, 'yyyy-MM-dd')
+            const daySchedule = schedules.find(s => s.assigned_date === dateStr)
+            const assignee = daySchedule?.profiles as any
+            const todayFlag = isToday(day)
+            const past = isBefore(day, new Date()) && !todayFlag
+
+            return (
+              <div key={dateStr} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${
+                todayFlag ? 'border-nex-primary bg-blue-50/50' :
+                past ? 'border-transparent bg-slate-50/50 opacity-60' : 'border-nex-border bg-white'
+              }`}>
+                {/* Date Column */}
+                <div className={`w-12 text-center shrink-0 ${todayFlag ? 'text-nex-primary' : 'text-nex-text'}`}>
+                  <p className="text-[10px] font-semibold uppercase">{format(day, 'EEE')}</p>
+                  <p className="text-lg font-bold leading-tight">{format(day, 'd')}</p>
+                </div>
+
+                <div className="w-px h-10 bg-slate-200 shrink-0"></div>
+
+                {/* Assignee */}
+                {daySchedule ? (
+                  <div className="flex-1 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                      {assignee?.avatar_url ? (
+                        <img src={assignee.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                      ) : getInitials(assignee?.username || '?')}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-nex-text truncate">{assignee?.username}</p>
+                      <p className="text-[10px] text-nex-muted">Bazaar Duty</p>
+                    </div>
+                    {isManager && (
+                      <button onClick={() => handleDelete(daySchedule.id)} className="p-1.5 text-nex-muted hover:text-nex-danger transition-colors">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center gap-2 text-slate-300">
+                    <Calendar className="w-4 h-4" />
+                    <p className="text-xs">Unassigned</p>
                   </div>
                 )}
               </div>
