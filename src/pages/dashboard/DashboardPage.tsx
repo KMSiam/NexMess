@@ -7,7 +7,7 @@ import { format, addDays, isToday, isTomorrow } from 'date-fns'
 import {
   LayoutDashboard, ShoppingBag, Utensils, Wallet,
   MessageSquare, Users, AlertTriangle, Activity, CalendarDays, ChefHat, Plus,
-  Megaphone, Pencil, X, Send, UtensilsCrossed
+  Megaphone, Pencil, X, Send, UtensilsCrossed, PhoneCall, Trash2, ShieldAlert
 } from 'lucide-react'
 import { getGreeting, formatCurrency } from '../../lib/utils'
 import { getFoodEmoji } from '../routine/RoutinePage'
@@ -38,6 +38,13 @@ export default function DashboardPage() {
   const [showNoticeForm, setShowNoticeForm] = useState(false)
   const [noticeText, setNoticeText] = useState('')
   const [noticeLoading, setNoticeLoading] = useState(false)
+  
+  // Emergency Contacts
+  const [emergencyContacts, setEmergencyContacts] = useState<{id: string, name: string, phone: string}[]>([])
+  const [showECForm, setShowECForm] = useState(false)
+  const [ecName, setEcName] = useState('')
+  const [ecPhone, setEcPhone] = useState('')
+
   const { members } = useMessStore()
   const isManager = members.some(m => m.user_id === profile?.id && m.role === 'manager')
 
@@ -119,6 +126,10 @@ export default function DashboardPage() {
           tomorrow: { lunch: tomorrowR?.lunch || '', dinner: tomorrowR?.dinner || '' }
         })
       }
+
+      // 9. Emergency Contacts
+      const { data: ecData } = await supabase.from('emergency_contacts').select('id, name, phone').eq('mess_id', currentMess.id).order('created_at', { ascending: true })
+      if (ecData) setEmergencyContacts(ecData)
       
       setDataLoaded(true)
     }
@@ -153,6 +164,31 @@ export default function DashboardPage() {
     await supabase.from('notices').update({ is_active: false }).eq('id', notice.id)
     setNotice(null)
     toast.success('Notice removed')
+  }
+
+  const handleAddEC = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!currentMess?.id || !ecName.trim() || !ecPhone.trim()) return
+    
+    const { data, error } = await supabase.from('emergency_contacts').insert({
+      mess_id: currentMess.id, name: ecName.trim(), phone: ecPhone.trim()
+    }).select('id, name, phone').single()
+
+    if (error) toast.error('Failed to add contact')
+    else {
+      toast.success('Contact added!')
+      setEmergencyContacts(prev => [...prev, data])
+      setShowECForm(false)
+      setEcName('')
+      setEcPhone('')
+    }
+  }
+
+  const handleDeleteEC = async (id: string) => {
+    if (!confirm('Remove this contact?')) return
+    await supabase.from('emergency_contacts').delete().eq('id', id)
+    setEmergencyContacts(prev => prev.filter(ec => ec.id !== id))
+    toast.success('Contact removed')
   }
 
   const toggleMeal = async (type: 'lunch' | 'dinner') => {
@@ -451,6 +487,54 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Emergency Contacts Footer */}
+      <div className="nex-card p-5 border-t-4 border-red-400">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5 text-red-500" />
+            <h4 className="text-sm font-semibold text-nex-text uppercase tracking-wider">Emergency Contacts</h4>
+          </div>
+          {isManager && (
+            <button onClick={() => setShowECForm(!showECForm)} className="nex-btn-secondary text-xs py-1 px-2">
+              <Plus className="w-3.5 h-3.5" /> Add
+            </button>
+          )}
+        </div>
+
+        {showECForm && isManager && (
+          <form onSubmit={handleAddEC} className="flex flex-col sm:flex-row gap-2 mb-4 p-3 bg-red-50/50 rounded-xl border border-red-100">
+            <input type="text" placeholder="Name (e.g., Manager, House Owner)" value={ecName} onChange={e => setEcName(e.target.value)} required className="nex-input flex-1 text-sm py-1.5" />
+            <input type="tel" placeholder="Phone Number" value={ecPhone} onChange={e => setEcPhone(e.target.value)} required className="nex-input flex-1 text-sm py-1.5" />
+            <button type="submit" className="nex-btn-primary py-1.5 px-4 text-sm whitespace-nowrap">Save</button>
+          </form>
+        )}
+
+        {emergencyContacts.length === 0 ? (
+          <p className="text-xs text-nex-muted">No emergency contacts added yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {emergencyContacts.map(ec => (
+              <div key={ec.id} className="flex items-center justify-between p-3 rounded-xl border border-nex-border bg-slate-50 hover:bg-slate-100 transition-colors">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                    <PhoneCall className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-nex-text truncate">{ec.name}</p>
+                    <a href={`tel:${ec.phone}`} className="text-xs font-semibold text-nex-primary hover:underline">{ec.phone}</a>
+                  </div>
+                </div>
+                {isManager && (
+                  <button onClick={() => handleDeleteEC(ec.id)} className="p-1.5 text-slate-400 hover:text-red-500 transition-colors shrink-0">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
