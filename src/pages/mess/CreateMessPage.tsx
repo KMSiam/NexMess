@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
-import { Zap, ArrowRight, Home } from 'lucide-react'
+import { ArrowRight, Home } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function CreateMessPage() {

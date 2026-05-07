@@ -21,7 +21,7 @@ export interface Mess {
 export interface MessMember {
   mess_id: string
   user_id: string
-  status: 'pending' | 'approved'
+  status: 'pending' | 'approved' | 'left'
   role: 'member' | 'manager'
   joined_at: string
   profiles?: Profile

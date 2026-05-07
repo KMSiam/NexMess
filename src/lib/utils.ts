@@ -27,6 +27,22 @@ export function getInitials(name: string): string {
     .slice(0, 2)
 }
 
+export function getFoodEmoji(foodName: string) {
+  const lower = foodName.toLowerCase()
+  if (lower.includes('chicken') || lower.includes('মুরগি')) return '🍗'
+  if (lower.includes('beef') || lower.includes('গরু')) return '🥩'
+  if (lower.includes('fish') || lower.includes('মাছ')) return '🐟'
+  if (lower.includes('egg') || lower.includes('ডিম')) return '🥚'
+  if (lower.includes('veg') || lower.includes('সবজি') || lower.includes('শাক')) return '🥬'
+  if (lower.includes('dal') || lower.includes('ডাল') || lower.includes('lentil')) return '🥣'
+  if (lower.includes('mutton') || lower.includes('খাসি')) return '🍖'
+  if (lower.includes('biryani') || lower.includes('বিরিয়ানি') || lower.includes('polao')) return '🍲'
+  if (lower.includes('khichuri') || lower.includes('খিচুড়ি')) return '🍛'
+  if (lower.includes('rice') || lower.includes('ভাত')) return '🍚'
+  if (lower.includes('potato') || lower.includes('আলু')) return '🥔'
+  return '🍽️'
+}
+
 export function getGreeting(): string {
   const hour = new Date().getHours()
   if (hour < 12) return 'Good morning'

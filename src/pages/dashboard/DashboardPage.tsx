@@ -5,12 +5,11 @@ import { supabase } from '../../lib/supabase'
 import { Link } from 'react-router-dom'
 import { format, addDays, isToday, isTomorrow } from 'date-fns'
 import {
-  LayoutDashboard, ShoppingBag, Utensils, Wallet,
-  MessageSquare, Users, AlertTriangle, Activity, CalendarDays, ChefHat, Plus,
-  Megaphone, Pencil, X, Send, UtensilsCrossed, PhoneCall, Trash2, ShieldAlert
+  LayoutDashboard, Activity, CalendarDays, Plus,
+  Megaphone, PhoneCall, Trash2, ShieldAlert,
+  Users, Send, X, AlertTriangle, Wallet, ShoppingBag, ChefHat, UtensilsCrossed,
 } from 'lucide-react'
-import { getGreeting, formatCurrency } from '../../lib/utils'
-import { getFoodEmoji } from '../routine/RoutinePage'
+import { getGreeting, formatCurrency, getFoodEmoji } from '../../lib/utils'
 import toast from 'react-hot-toast'
 
 export default function DashboardPage() {

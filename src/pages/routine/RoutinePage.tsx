@@ -3,18 +3,10 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { CalendarClock, Pencil, Save, X } from 'lucide-react'
+import { getFoodEmoji } from '../../lib/utils'
 import toast from 'react-hot-toast'
 
 const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-const DAY_SHORT = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri']
-
-const FOOD_EMOJI_MAP: Record<string, string> = {
-  chicken: '🍗', fish: '🐟', egg: '🥚', vegetables: '🥬', beef: '🍖',
-  mutton: '🍖', dal: '🫘', rice: '🍚', potato: '🥔', shrimp: '🍤',
-  prawn: '🍤', curry: '🍛', soup: '🍲', noodles: '🍜', bread: '🍞',
-  roti: '🫓', paneer: '🧀', milk: '🥛', salad: '🥗', fruit: '🍎',
-  biryani: '🍚', khichuri: '🍚', polao: '🍚',
-}
 
 const PRESET_ITEMS = [
   { label: 'Chicken', emoji: '🍗' },
@@ -28,15 +20,6 @@ const PRESET_ITEMS = [
   { label: 'Rice', emoji: '🍚' },
   { label: 'Khichuri', emoji: '🍚' },
 ]
-
-export function getFoodEmoji(text: string): string {
-  if (!text) return ''
-  const lower = text.toLowerCase()
-  for (const [key, emoji] of Object.entries(FOOD_EMOJI_MAP)) {
-    if (lower.includes(key)) return emoji
-  }
-  return '🍽️'
-}
 
 interface RoutineRow {
   day_of_week: number
@@ -56,12 +39,7 @@ export default function RoutinePage() {
   const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager')
   const todayDow = (new Date().getDay() + 1) % 7 // JS: 0=Sun → our mapping: 0=Sat
 
-  useEffect(() => {
-    if (!currentMess?.id) return
-    fetchRoutines()
-  }, [currentMess?.id])
-
-  const fetchRoutines = async () => {
+  async function fetchRoutines() {
     if (!currentMess?.id) return
     const { data } = await supabase
       .from('meal_routines')
@@ -69,13 +47,17 @@ export default function RoutinePage() {
       .eq('mess_id', currentMess.id)
       .order('day_of_week', { ascending: true })
 
-    // Fill in all 7 days even if some are missing
     const full: RoutineRow[] = Array.from({ length: 7 }, (_, i) => {
       const found = data?.find(d => d.day_of_week === i)
       return found || { day_of_week: i, lunch: '', dinner: '' }
     })
     setRoutines(full)
   }
+
+  useEffect(() => {
+    if (!currentMess?.id) return
+    fetchRoutines()
+  }, [currentMess?.id])
 
   const startEditing = () => {
     setEditData(routines.map(r => ({ ...r })))

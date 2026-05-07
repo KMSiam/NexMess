@@ -123,12 +123,13 @@ export const useMessStore = create<MessState>()(
 
         if (existing) {
           if (existing.status === 'approved') return { success: false, error: 'You are already a member.' }
-          return { success: false, error: 'Your request is already pending.' }
+          if (existing.status === 'pending') return { success: false, error: 'Your request is already pending.' }
+          // If 'left', allow re-joining
         }
 
         const { error } = await supabase
           .from('mess_members')
-          .insert({ mess_id: mess.id, user_id: userId, status: 'pending', role: 'member' })
+          .upsert({ mess_id: mess.id, user_id: userId, status: 'pending', role: 'member' })
 
         if (error) return { success: false, error: 'Failed to join. Try again.' }
         return { success: true }

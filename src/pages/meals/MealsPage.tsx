@@ -12,11 +12,11 @@ import {
 import toast from 'react-hot-toast'
 
 export default function MealsPage() {
-  const { profile, user } = useAuthStore()
-  const { currentMess, members } = useMessStore()
+  const { user } = useAuthStore()
+  const { currentMess } = useMessStore()
+  
   const [meals, setMeals] = useState<Meal[]>([])
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [loading, setLoading] = useState(false)
   const [viewMode, setViewMode] = useState<'personal' | 'all'>('personal')
 
   const monthStart = startOfMonth(currentDate)
@@ -31,9 +31,8 @@ export default function MealsPage() {
     fetchMeals()
   }, [currentMess?.id, user?.id, monthStr, viewMode])
 
-  const fetchMeals = async () => {
+  async function fetchMeals() {
     if (!currentMess?.id) return
-    setLoading(true)
 
     let query = supabase
       .from('meals')
@@ -48,7 +47,6 @@ export default function MealsPage() {
 
     const { data } = await query
     if (data) setMeals(data as Meal[])
-    setLoading(false)
   }
 
   const toggleMeal = async (date: string, type: 'lunch' | 'dinner') => {

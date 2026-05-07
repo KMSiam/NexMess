@@ -4,8 +4,8 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import {
   Home, Utensils, MessageSquare, Wallet, ShoppingBag,
-  Settings, Zap, LogOut, ChevronDown, CheckCircle2,
-  PanelLeftClose, PanelLeft, MoreHorizontal, X, CalendarClock,
+  Settings, Zap, LogOut, CheckCircle2,
+  CalendarClock, PanelLeft, PanelLeftClose, ChevronDown, X, MoreHorizontal,
 } from 'lucide-react'
 import NotificationBell from '../NotificationBell'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
@@ -30,6 +30,7 @@ export default function AppLayout() {
   const [showMessDropdown, setShowMessDropdown] = useState(false)
 
   const handleSignOut = async () => {
+    if (!window.confirm("Are you sure you want to sign out?")) return
     resetMess()
     await signOut()
     navigate('/login', { replace: true })
@@ -69,7 +70,6 @@ export default function AppLayout() {
                 <p className="text-sm font-medium text-nex-text truncate">{currentMess.name}</p>
                 <p className="text-[10px] text-nex-muted">{currentMess.unique_code}</p>
               </div>
-              <ChevronDown className="w-4 h-4 text-nex-muted shrink-0" />
             </button>
 
             {showMessDropdown && messes.length > 1 && (

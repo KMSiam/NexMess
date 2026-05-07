@@ -3,7 +3,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { useNavigate } from 'react-router-dom'
-import { Settings, UserCheck, UserX, Shield, Copy, CheckCircle2, Camera, Trash2, AlertTriangle } from 'lucide-react'
+import { Settings, UserCheck, UserX, Copy, CheckCircle2, Trash2, AlertTriangle, LogOut } from 'lucide-react'
 import { getInitials } from '../../lib/utils'
 import toast from 'react-hot-toast'
 
@@ -52,12 +52,12 @@ export default function SettingsPage() {
   }
 
   const handleRemove = async (userId: string) => {
-    if (!currentMess?.id || !confirm('Remove this member?')) return
+    if (!currentMess?.id || !window.confirm('Remove this member? Their info will be kept for the monthly statement.')) return
     await supabase.from('mess_members')
-      .delete()
+      .update({ status: 'left' })
       .eq('mess_id', currentMess.id)
       .eq('user_id', userId)
-    toast.success('Member removed')
+    toast.success('Member removed but past data saved')
     fetchMembers(currentMess.id)
   }
 
@@ -108,17 +108,44 @@ export default function SettingsPage() {
 
   const handleDeleteMess = async () => {
     if (!currentMess?.id || !user?.id) return
-    const confirmMsg = `WARNING: Are you absolutely sure you want to permanently delete the mess "${currentMess.name}"?\n\nThis will instantly delete ALL meals, finances, and data for all members. This action CANNOT be undone.`
-    if (!confirm(confirmMsg)) return
-    if (!confirm(`FINAL WARNING: Deleting ${currentMess.name}. Press OK to proceed.`)) return
+    const confirmName = window.prompt(`DANGER: Type "${currentMess.name}" to delete the mess permanently.`)
+    if (confirmName !== currentMess.name) {
+      if (confirmName !== null) toast.error('Name did not match. Deletion cancelled.')
+      return
+    }
 
     const { error } = await supabase.from('messes').delete().eq('id', currentMess.id)
     if (error) {
       toast.error('Failed to delete mess')
     } else {
-      toast.success('Mess permanently deleted')
+      toast.success('Mess permanently deleted.')
       await fetchUserMesses(user.id)
-      navigate('/dashboard')
+      navigate('/')
+    }
+  }
+
+  const handleLeaveMess = async () => {
+    if (!currentMess || !user) return
+    const managersCount = approvedMembers.filter(m => m.role === 'manager').length
+    if (isManager && managersCount === 1) {
+      toast.error('You are the only manager. Make someone else manager or delete the mess to leave.')
+      return
+    }
+
+    if (!window.confirm('Are you sure you want to leave this mess? You will lose access immediately, but your past data will be kept for the monthly statement.')) return
+
+    const { error } = await supabase.from('mess_members')
+      .update({ status: 'left' })
+      .eq('mess_id', currentMess.id)
+      .eq('user_id', user.id)
+
+    if (error) {
+      console.error('Leave mess error:', error)
+      toast.error('Failed to leave mess: ' + error.message)
+    } else {
+      toast.success('You have left the mess.')
+      await fetchUserMesses(user.id)
+      navigate('/')
     }
   }
 
@@ -246,6 +273,26 @@ export default function SettingsPage() {
           })}
         </div>
       </div>
+
+      {/* Leave Mess Zone */}
+      {currentMess && (
+        <div className="nex-card p-6 border border-amber-100 mt-6">
+          <h3 className="text-lg font-semibold text-amber-600 mb-4 flex items-center gap-2">
+            <LogOut className="w-5 h-5" /> Leave Mess
+          </h3>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-amber-50/50 rounded-xl">
+            <div>
+              <p className="text-sm font-medium text-amber-800">Leave your current mess</p>
+              <p className="text-xs text-amber-600/80 mt-1 max-w-sm">
+                This will remove your access to the mess. You must create or join another mess afterwards.
+              </p>
+            </div>
+            <button onClick={handleLeaveMess} className="nex-btn-secondary text-sm shrink-0 flex items-center justify-center gap-2 !text-amber-700 !border-amber-200 hover:!bg-amber-100">
+              <LogOut className="w-4 h-4" /> Leave Mess
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Delete Mess Zone */}
       {isManager && currentMess && (

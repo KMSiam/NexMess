@@ -47,6 +47,7 @@ export default function FinancePage() {
   const [loading, setLoading] = useState(false)
   const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager')
   const approvedMembers = members.filter(m => m.status === 'approved')
+  const financeMembers = members.filter(m => m.status === 'approved' || m.status === 'left')
   const currentMonth = format(new Date(), 'yyyy-MM')
 
   useEffect(() => {
@@ -80,7 +81,7 @@ export default function FinancePage() {
   const fetchBalances = async () => {
     if (!currentMess?.id) return
     const results: Record<string, any> = {}
-    for (const member of approvedMembers) {
+    for (const member of financeMembers) {
       const { data } = await supabase.rpc('calculate_member_balance', {
         p_user_id: member.user_id,
         p_mess_id: currentMess.id,
@@ -230,12 +231,12 @@ export default function FinancePage() {
     }
 
     // Member Breakdowns
-    const perPersonFixedCost = approvedMembers.length > 0 ? totalFixed / approvedMembers.length : 0
+    const perPersonFixedCost = financeMembers.length > 0 ? totalFixed / financeMembers.length : 0
 
     autoTable(doc, {
       startY,
       head: [['Member', 'Meals', 'Meal Cost', 'Fixed Cost', 'Total Exp', 'Deposited', 'Balance']],
-      body: approvedMembers.map(member => {
+      body: financeMembers.map(member => {
         const p = member.profiles as any
         const b = balances[member.user_id] || {}
         const mealCost = Number(b.individual_cost || 0)
@@ -244,7 +245,7 @@ export default function FinancePage() {
         const realBalance = deposited - totalExp
         
         return [
-          p?.username || 'Unknown',
+          (p?.username || 'Unknown') + (member.status === 'left' ? ' (Left)' : ''),
           Number(b.personal_meals || 0).toString(),
           `Tk ${mealCost.toFixed(2)}`,
           `Tk ${perPersonFixedCost.toFixed(2)}`,
@@ -535,12 +536,12 @@ export default function FinancePage() {
               <span className="text-right">Deposited</span>
               <span className="text-right">Balance</span>
             </div>
-          </div>
-          {approvedMembers.map(member => {
+            </div>
+          {financeMembers.map(member => {
             const p = member.profiles as any
             const b = balances[member.user_id] || {}
             const mealCost = Number(b.individual_cost || 0)
-            const perPersonFixedCost = approvedMembers.length > 0 ? totalFixed / approvedMembers.length : 0
+            const perPersonFixedCost = financeMembers.length > 0 ? totalFixed / financeMembers.length : 0
             const totalExp = mealCost + perPersonFixedCost
             const deposited = Number(b.total_deposits || 0)
             const realBalance = deposited - totalExp
@@ -553,7 +554,10 @@ export default function FinancePage() {
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
                       {getInitials(p?.username || '?')}
                     </div>
-                    <span className="text-sm font-medium text-nex-text truncate">{p?.username || 'Member'}</span>
+                    <span className="text-sm font-medium text-nex-text truncate">
+                      {p?.username || 'Member'}
+                      {member.status === 'left' && <span className="ml-2 text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Left</span>}
+                    </span>
                   </div>
                   <p className="text-sm text-nex-text text-right">{b.personal_meals || 0}</p>
                   <p className="text-sm text-nex-text text-right">{formatCurrency(totalExp)}</p>
@@ -569,7 +573,10 @@ export default function FinancePage() {
                       {getInitials(p?.username || '?')}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-nex-text truncate">{p?.username || 'Member'}</p>
+                      <p className="text-sm font-medium text-nex-text truncate flex items-center gap-2">
+                        {p?.username || 'Member'}
+                        {member.status === 'left' && <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Left</span>}
+                      </p>
                       <p className="text-[10px] text-nex-muted">{b.personal_meals || 0} meals</p>
                     </div>
                     <p className={`text-sm font-bold ${realBalance >= 0 ? 'text-nex-success' : 'text-nex-danger'}`}>
