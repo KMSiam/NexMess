@@ -23,6 +23,7 @@ import ChatPage from './pages/chat/ChatPage'
 import FinancePage from './pages/finance/FinancePage'
 import MarketPage from './pages/market/MarketPage'
 import SettingsPage from './pages/settings/SettingsPage'
+import RoutinePage from './pages/routine/RoutinePage'
 import CreateMessPage from './pages/mess/CreateMessPage'
 import JoinMessPage from './pages/mess/JoinMessPage'
 
@@ -68,6 +69,7 @@ function App() {
               <Route path="/chat" element={<ChatPage />} />
               <Route path="/finance" element={<FinancePage />} />
               <Route path="/market" element={<MarketPage />} />
+              <Route path="/routine" element={<RoutinePage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>
           </Route>

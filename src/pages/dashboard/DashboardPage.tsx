@@ -6,9 +6,11 @@ import { Link } from 'react-router-dom'
 import { format, addDays, isToday, isTomorrow } from 'date-fns'
 import {
   LayoutDashboard, ShoppingBag, Utensils, Wallet,
-  MessageSquare, Users, AlertTriangle, Activity, CalendarDays, ChefHat, Plus
+  MessageSquare, Users, AlertTriangle, Activity, CalendarDays, ChefHat, Plus,
+  Megaphone, Pencil, X, Send, UtensilsCrossed
 } from 'lucide-react'
 import { getGreeting, formatCurrency } from '../../lib/utils'
+import { getFoodEmoji } from '../routine/RoutinePage'
 import toast from 'react-hot-toast'
 
 export default function DashboardPage() {
@@ -20,6 +22,10 @@ export default function DashboardPage() {
     today: { lunch: false, dinner: false, gl: 0, gd: 0 },
     tomorrow: { lunch: false, dinner: false, gl: 0, gd: 0 }
   })
+  const [routines, setRoutines] = useState({
+    today: { lunch: '', dinner: '' },
+    tomorrow: { lunch: '', dinner: '' }
+  })
   const [cookSummary, setCookSummary] = useState({ todayL: 0, todayD: 0, tomorrowL: 0, tomorrowD: 0 })
   const [upcomingBazaar, setUpcomingBazaar] = useState<{date: string, username: string}[]>([])
   const [unpaidFixed, setUnpaidFixed] = useState(0)
@@ -28,6 +34,12 @@ export default function DashboardPage() {
   const [isBazaarMan, setIsBazaarMan] = useState(false)
   const [mealLoading, setMealLoading] = useState(false)
   const [dataLoaded, setDataLoaded] = useState(false)
+  const [notice, setNotice] = useState<{id: string, message: string} | null>(null)
+  const [showNoticeForm, setShowNoticeForm] = useState(false)
+  const [noticeText, setNoticeText] = useState('')
+  const [noticeLoading, setNoticeLoading] = useState(false)
+  const { members } = useMessStore()
+  const isManager = members.some(m => m.user_id === profile?.id && m.role === 'manager')
 
   const today = format(new Date(), 'yyyy-MM-dd')
   const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
@@ -89,11 +101,59 @@ export default function DashboardPage() {
           setStats({ totalMeals: b.personal_meals || 0, balance: b.balance || 0, mealRate: b.meal_rate || 0, messTotalSpent: b.total_mess_bazaar || 0 })
         }
       }
+
+      // 7. Active Notice
+      const { data: noticeData } = await supabase.from('notices').select('id, message').eq('mess_id', currentMess.id).eq('is_active', true).single()
+      if (noticeData) setNotice(noticeData)
+      else setNotice(null)
+
+      // 8. Meal Routine
+      const todayDow = (new Date(today).getDay() + 1) % 7
+      const tomorrowDow = (new Date(tomorrow).getDay() + 1) % 7
+      const { data: routineData } = await supabase.from('meal_routines').select('day_of_week, lunch, dinner').eq('mess_id', currentMess.id).in('day_of_week', [todayDow, tomorrowDow])
+      if (routineData) {
+        const todayR = routineData.find(r => r.day_of_week === todayDow)
+        const tomorrowR = routineData.find(r => r.day_of_week === tomorrowDow)
+        setRoutines({
+          today: { lunch: todayR?.lunch || '', dinner: todayR?.dinner || '' },
+          tomorrow: { lunch: tomorrowR?.lunch || '', dinner: tomorrowR?.dinner || '' }
+        })
+      }
       
       setDataLoaded(true)
     }
     fetchDashboardData()
   }, [profile?.id, currentMess?.id, today, tomorrow, currentMonth])
+
+  const handleSaveNotice = async () => {
+    if (!currentMess?.id || !profile?.id || !noticeText.trim()) return
+    setNoticeLoading(true)
+
+    // Deactivate any existing notice first
+    if (notice) {
+      await supabase.from('notices').update({ is_active: false }).eq('id', notice.id)
+    }
+
+    const { data, error } = await supabase.from('notices').insert({
+      mess_id: currentMess.id, message: noticeText.trim(), created_by: profile.id
+    }).select('id, message').single()
+
+    if (error) toast.error('Failed to post notice')
+    else {
+      toast.success('Notice posted!')
+      setNotice(data)
+      setShowNoticeForm(false)
+      setNoticeText('')
+    }
+    setNoticeLoading(false)
+  }
+
+  const handleDismissNotice = async () => {
+    if (!notice) return
+    await supabase.from('notices').update({ is_active: false }).eq('id', notice.id)
+    setNotice(null)
+    toast.success('Notice removed')
+  }
 
   const toggleMeal = async (type: 'lunch' | 'dinner') => {
     if (!profile?.id || !currentMess?.id) return
@@ -182,7 +242,40 @@ export default function DashboardPage() {
           <h3 className="text-xl font-semibold text-nex-text">{getGreeting()}, {profile?.username} 👋</h3>
           <p className="mt-0.5 text-sm text-nex-muted">{format(new Date(), 'EEEE, MMMM d')}</p>
         </div>
+        {isManager && (
+          <button onClick={() => { setShowNoticeForm(!showNoticeForm); setNoticeText(notice?.message || '') }} className="p-2 rounded-btn text-nex-muted hover:bg-slate-100 transition-colors" title="Post a notice">
+            <Megaphone className="w-5 h-5" />
+          </button>
+        )}
       </div>
+
+      {/* Manager Notice Form */}
+      {showNoticeForm && isManager && (
+        <div className="nex-card p-4 animate-slide-up border-l-4 border-nex-primary">
+          <div className="flex items-center gap-2 mb-3">
+            <Megaphone className="w-4 h-4 text-nex-primary" />
+            <p className="text-sm font-semibold text-nex-text">Post a Notice</p>
+          </div>
+          <div className="flex gap-2">
+            <input type="text" value={noticeText} onChange={e => setNoticeText(e.target.value)} className="nex-input flex-1 text-base" placeholder="e.g., No dinner tomorrow, deposit ৳2000 by Friday..." maxLength={200} />
+            <button onClick={handleSaveNotice} disabled={noticeLoading || !noticeText.trim()} className="nex-btn-primary px-3 disabled:opacity-50"><Send className="w-4 h-4" /></button>
+            <button onClick={() => setShowNoticeForm(false)} className="nex-btn-secondary px-3"><X className="w-4 h-4" /></button>
+          </div>
+        </div>
+      )}
+
+      {/* Pinned Notice */}
+      {notice && (
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 shadow-md flex items-start gap-3">
+          <Megaphone className="w-5 h-5 text-white/80 shrink-0 mt-0.5" />
+          <p className="flex-1 text-sm text-white font-medium leading-relaxed">{notice.message}</p>
+          {isManager && (
+            <button onClick={handleDismissNotice} className="p-1 rounded-full hover:bg-white/20 transition-colors text-white/60 hover:text-white shrink-0" title="Remove notice">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Warnings & Alerts */}
       <div className="space-y-3">
@@ -243,9 +336,21 @@ export default function DashboardPage() {
 
       {/* My Meals Selection */}
       <div className="nex-card p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-sm font-semibold text-nex-text uppercase tracking-wider">My Meals</h4>
-          <div className="flex gap-1 bg-slate-100 p-1 rounded-btn">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-nex-text uppercase tracking-wider">My Meals</h4>
+            {routines[mealTab].lunch || routines[mealTab].dinner ? (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 rounded-full border border-amber-100">
+                <UtensilsCrossed className="w-3 h-3 text-amber-600" />
+                <span className="text-[10px] font-medium text-amber-700">
+                  {mealTab === 'today' ? 'Today' : 'Tomorrow'}: {routines[mealTab].lunch ? `${getFoodEmoji(routines[mealTab].lunch)} ${routines[mealTab].lunch} (L)` : ''} 
+                  {routines[mealTab].lunch && routines[mealTab].dinner ? ' · ' : ''}
+                  {routines[mealTab].dinner ? `${getFoodEmoji(routines[mealTab].dinner)} ${routines[mealTab].dinner} (D)` : ''}
+                </span>
+              </div>
+            ) : null}
+          </div>
+          <div className="flex gap-1 bg-slate-100 p-1 rounded-btn self-start sm:self-auto">
             <button onClick={() => setMealTab('today')} className={`px-3 py-1 text-xs font-medium rounded transition-colors ${mealTab === 'today' ? 'bg-white text-nex-text shadow-sm' : 'text-nex-muted'}`}>Today</button>
             <button onClick={() => setMealTab('tomorrow')} className={`px-3 py-1 text-xs font-medium rounded transition-colors ${mealTab === 'tomorrow' ? 'bg-white text-nex-text shadow-sm' : 'text-nex-muted'}`}>Tomorrow</button>
           </div>

@@ -40,17 +40,23 @@ export const useMessStore = create<MessState>()(
           
           set({ messes })
           
-          // Auto-select first mess if none selected
           const current = get().currentMess
-          if (!current && messes.length > 0) {
-            get().setCurrentMess(messes[0])
-          } else if (current) {
-            // Refresh current mess data
-            const refreshed = messes.find(m => m.id === current.id)
-            if (refreshed) {
-              set({ currentMess: refreshed })
-              get().fetchMembers(refreshed.id)
+          if (current) {
+            // Verify the persisted mess actually belongs to this user
+            const stillMember = messes.find(m => m.id === current.id)
+            if (stillMember) {
+              set({ currentMess: stillMember })
+              get().fetchMembers(stillMember.id)
+            } else {
+              // User switched accounts — clear stale data
+              if (messes.length > 0) {
+                get().setCurrentMess(messes[0])
+              } else {
+                set({ currentMess: null, members: [] })
+              }
             }
+          } else if (messes.length > 0) {
+            get().setCurrentMess(messes[0])
           }
         }
         set({ loading: false })

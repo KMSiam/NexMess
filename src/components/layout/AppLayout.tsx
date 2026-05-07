@@ -5,7 +5,7 @@ import { useMessStore } from '../../stores/messStore'
 import {
   Home, Utensils, MessageSquare, Wallet, ShoppingBag,
   Settings, Zap, LogOut, ChevronDown, CheckCircle2,
-  PanelLeftClose, PanelLeft, MoreHorizontal, X,
+  PanelLeftClose, PanelLeft, MoreHorizontal, X, CalendarClock,
 } from 'lucide-react'
 import NotificationBell from '../NotificationBell'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
@@ -17,6 +17,7 @@ const navItems = [
   { to: '/chat', icon: MessageSquare, label: 'Chat' },
   { to: '/finance', icon: Wallet, label: 'Finance' },
   { to: '/market', icon: ShoppingBag, label: 'Market' },
+  { to: '/routine', icon: CalendarClock, label: 'Routine' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
 
@@ -183,6 +184,10 @@ function MobileBottomNav({ handleSignOut }: { handleSignOut: () => void }) {
           <NavLink to="/market" onClick={() => setShowMore(false)}
             className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-slate-50'}`}>
             <ShoppingBag className="w-5 h-5" /> Market Schedule
+          </NavLink>
+          <NavLink to="/routine" onClick={() => setShowMore(false)}
+            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-slate-50'}`}>
+            <CalendarClock className="w-5 h-5" /> Meal Routine
           </NavLink>
           <NavLink to="/settings" onClick={() => setShowMore(false)}
             className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-slate-50'}`}>
