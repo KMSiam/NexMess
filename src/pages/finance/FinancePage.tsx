@@ -441,7 +441,8 @@ export default function FinancePage() {
       {/* ── Summary Tab ───────────────────── */}
       {activeTab === 'summary' && (
         <div className="nex-card divide-y divide-nex-border">
-          <div className="px-5 py-3 bg-slate-50">
+          {/* Desktop Table Header */}
+          <div className="hidden sm:block px-5 py-3 bg-slate-50">
             <div className="grid grid-cols-6 gap-2 text-[10px] font-semibold text-nex-muted uppercase tracking-wider">
               <span className="col-span-2">Member</span>
               <span className="text-right">Meals</span>
@@ -454,8 +455,9 @@ export default function FinancePage() {
             const p = member.profiles as any
             const b = balances[member.user_id]
             return (
-              <div key={member.user_id} className="px-5 py-3 hover:bg-slate-50/50 transition-colors">
-                <div className="grid grid-cols-6 gap-2 items-center">
+              <div key={member.user_id} className="px-4 sm:px-5 py-3 hover:bg-slate-50/50 transition-colors">
+                {/* Desktop Row */}
+                <div className="hidden sm:grid grid-cols-6 gap-2 items-center">
                   <div className="col-span-2 flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
                       {getInitials(p?.username || '?')}
@@ -468,6 +470,25 @@ export default function FinancePage() {
                   <p className={`text-sm font-semibold text-right ${(b?.balance || 0) >= 0 ? 'text-nex-success' : 'text-nex-danger'}`}>
                     {formatCurrency(b?.balance || 0)}
                   </p>
+                </div>
+                {/* Mobile Card */}
+                <div className="sm:hidden">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
+                      {getInitials(p?.username || '?')}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-nex-text truncate">{p?.username || 'Member'}</p>
+                      <p className="text-[10px] text-nex-muted">{b?.personal_meals || 0} meals</p>
+                    </div>
+                    <p className={`text-sm font-bold ${(b?.balance || 0) >= 0 ? 'text-nex-success' : 'text-nex-danger'}`}>
+                      {formatCurrency(b?.balance || 0)}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 ml-12">
+                    <div className="text-[10px] text-nex-muted">Cost: <span className="font-medium text-nex-text">{formatCurrency(b?.individual_cost || 0)}</span></div>
+                    <div className="text-[10px] text-nex-muted">Deposited: <span className="font-medium text-nex-success">{formatCurrency(b?.total_deposits || 0)}</span></div>
+                  </div>
                 </div>
               </div>
             )

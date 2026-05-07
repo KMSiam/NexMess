@@ -101,14 +101,14 @@ export default function ChatPage() {
   if (!currentMess) return null
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100vh-10rem)] lg:h-[calc(100vh-6rem)]">
-      <div className="flex items-center gap-3 mb-4">
-        <MessageSquare className="w-6 h-6 text-nex-primary" />
-        <h1 className="text-2xl font-bold text-nex-text">Group Chat</h1>
+    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-8rem)] lg:h-[calc(100vh-6rem)]">
+      <div className="flex items-center gap-3 mb-3">
+        <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-nex-primary" />
+        <h1 className="text-xl sm:text-2xl font-bold text-nex-text">Group Chat</h1>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 nex-card p-4 overflow-y-auto space-y-3">
+      <div className="flex-1 nex-card p-3 sm:p-4 overflow-y-auto space-y-3">
         {messages.length === 0 && (
           <p className="text-center text-nex-muted py-12 text-sm">No messages yet. Start the conversation!</p>
         )}
@@ -118,13 +118,13 @@ export default function ChatPage() {
           return (
             <div key={msg.id} className={`flex gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
               {!isOwn && (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-[10px] sm:text-xs font-semibold shrink-0">
                   {sender?.avatar_url ? (
                     <img src={sender.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
                   ) : getInitials(sender?.username || '?')}
                 </div>
               )}
-              <div className={`max-w-[70%] ${isOwn ? 'order-1' : ''}`}>
+              <div className={`max-w-[80%] sm:max-w-[70%] ${isOwn ? 'order-1' : ''}`}>
                 {!isOwn && <p className="text-[10px] text-nex-muted mb-0.5 ml-1">{sender?.username}</p>}
                 <div className={`px-3 py-2 rounded-2xl text-sm ${
                   isOwn
@@ -144,10 +144,10 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSend} className="mt-3 flex gap-2">
+      <form onSubmit={handleSend} className="mt-2 flex gap-2">
         <input
           type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)}
-          className="nex-input flex-1" placeholder="Type a message..."
+          className="nex-input flex-1 text-base" placeholder="Type a message..."
           id="chat-input"
         />
         <button type="submit" disabled={sending || !newMessage.trim()}
