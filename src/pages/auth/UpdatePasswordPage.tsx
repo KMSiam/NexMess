@@ -49,10 +49,8 @@ export default function UpdatePasswordPage() {
       setLoading(false)
     } else {
       toast.success('Password updated! Redirecting...')
-      // Small delay to let the toast show, then redirect
-      setTimeout(() => {
-        navigate('/dashboard', { replace: true })
-      }, 500)
+      setLoading(false)
+      navigate('/dashboard', { replace: true })
     }
   }
 
