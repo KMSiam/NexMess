@@ -32,15 +32,19 @@ export default function MealsPage() {
 
     // Real-time subscription for meals
     const channel = supabase
-      .channel('meals-realtime')
+      .channel(`meals-${currentMess.id}-${user.id}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'meals', filter: `mess_id=eq.${currentMess.id}` },
         () => {
-          fetchMeals()
+          console.log('Realtime: Meals changed, refreshing...')
+          setTimeout(fetchMeals, 300)
         }
       )
-      .subscribe()
+      .subscribe((status, err) => {
+        if (status === 'SUBSCRIBED') console.log('✅ Meals Realtime connected')
+        if (status === 'CHANNEL_ERROR') console.error('❌ Meals Realtime error:', err)
+      })
 
     return () => {
       supabase.removeChannel(channel)
