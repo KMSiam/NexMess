@@ -57,6 +57,20 @@ export default function RoutinePage() {
   useEffect(() => {
     if (!currentMess?.id) return
     fetchRoutines()
+
+    // Real-time subscription for routine
+    const channel = supabase
+      .channel('routine-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'meal_routines', filter: `mess_id=eq.${currentMess.id}` },
+        () => fetchRoutines()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [currentMess?.id])
 
   const startEditing = () => {

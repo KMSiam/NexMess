@@ -53,7 +53,36 @@ export default function FinancePage() {
   useEffect(() => {
     if (!currentMess?.id) return
     fetchAllData()
-  }, [currentMess?.id, members.length])
+
+    // Real-time subscription for financial records
+    const channel = supabase
+      .channel('finance-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'expenses', filter: `mess_id=eq.${currentMess.id}` },
+        () => fetchAllData()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'deposits', filter: `mess_id=eq.${currentMess.id}` },
+        () => fetchAllData()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'fixed_costs', filter: `mess_id=eq.${currentMess.id}` },
+        () => fetchAllData()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'meals', filter: `mess_id=eq.${currentMess.id}` },
+        () => fetchBalances() // Refresh balances when meals change
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [currentMess?.id, members.length, currentMonth])
 
   const fetchAllData = async () => {
     if (!currentMess?.id) return

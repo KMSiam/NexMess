@@ -34,6 +34,20 @@ export default function MarketPage() {
   useEffect(() => {
     if (!currentMess?.id) return
     fetchSchedules()
+
+    // Real-time subscription for schedules
+    const channel = supabase
+      .channel('market-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'market_schedules', filter: `mess_id=eq.${currentMess.id}` },
+        () => fetchSchedules()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [currentMess?.id, format(weekStart, 'yyyy-MM-dd')])
 
   const fetchSchedules = async () => {

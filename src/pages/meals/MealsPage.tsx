@@ -29,6 +29,22 @@ export default function MealsPage() {
   useEffect(() => {
     if (!currentMess?.id || !user?.id) return
     fetchMeals()
+
+    // Real-time subscription for meals
+    const channel = supabase
+      .channel('meals-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'meals', filter: `mess_id=eq.${currentMess.id}` },
+        () => {
+          fetchMeals()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [currentMess?.id, user?.id, monthStr, viewMode])
 
   async function fetchMeals() {

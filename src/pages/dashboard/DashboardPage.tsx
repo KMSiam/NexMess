@@ -132,7 +132,27 @@ export default function DashboardPage() {
       
       setDataLoaded(true)
     }
+
     fetchDashboardData()
+
+    // ─────────────────────────────────────────────
+    // REALTIME SUBSCRIPTION
+    // ─────────────────────────────────────────────
+    const channel = supabase
+      .channel('dashboard_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', filter: `mess_id=eq.${currentMess.id}` },
+        () => {
+          // Whenever anything in the current mess changes, refresh dashboard data
+          fetchDashboardData()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [profile?.id, currentMess?.id, today, tomorrow, currentMonth])
 
   const handleSaveNotice = async () => {
