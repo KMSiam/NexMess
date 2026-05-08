@@ -314,11 +314,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Cook's Summary Skeleton */}
-        <div className="nex-card p-5 h-32 bg-slate-800">
-          <Skeleton className="h-4 w-40 mb-4 bg-slate-700" />
+        <div className="nex-card p-5 h-32 bg-slate-100 dark:bg-slate-800/50">
+          <Skeleton className="h-4 w-40 mb-4" />
           <div className="grid grid-cols-2 gap-4">
-            <Skeleton className="h-16 rounded-xl bg-slate-700" />
-            <Skeleton className="h-16 rounded-xl bg-slate-700" />
+            <Skeleton className="h-16 rounded-xl" />
+            <Skeleton className="h-16 rounded-xl" />
           </div>
         </div>
 
@@ -422,26 +422,26 @@ export default function DashboardPage() {
       </div>
 
       {/* Cook's Summary Panel */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-5 shadow-lg border border-slate-700">
+      <div className="bg-gradient-to-br from-blue-600 to-blue-700 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 shadow-lg border border-blue-500/20 dark:border-slate-700">
         <div className="flex items-center gap-2 mb-4">
-          <ChefHat className="w-5 h-5 text-emerald-400" />
+          <ChefHat className="w-5 h-5 text-blue-100 dark:text-emerald-400" />
           <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Cook's Summary (Entire Mess)</h4>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-            <p className="text-xs text-slate-400 mb-2 font-medium">Today</p>
+          <div className="bg-white/10 dark:bg-slate-800/50 rounded-xl p-3 border border-white/10 dark:border-slate-700/50">
+            <p className="text-xs text-blue-100 dark:text-slate-400 mb-2 font-medium">Today</p>
             <div className="flex justify-between items-center">
-              <div className="text-center"><p className="text-lg font-bold text-amber-400">{cookSummary.todayL}</p><p className="text-[10px] text-slate-400 uppercase">Lunch</p></div>
-              <div className="w-px h-8 bg-slate-700"></div>
-              <div className="text-center"><p className="text-lg font-bold text-indigo-400">{cookSummary.todayD}</p><p className="text-[10px] text-slate-400 uppercase">Dinner</p></div>
+              <div className="text-center"><p className="text-lg font-bold text-white dark:text-amber-400">{cookSummary.todayL}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Lunch</p></div>
+              <div className="w-px h-8 bg-white/20 dark:bg-slate-700"></div>
+              <div className="text-center"><p className="text-lg font-bold text-white dark:text-indigo-400">{cookSummary.todayD}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Dinner</p></div>
             </div>
           </div>
-          <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-            <p className="text-xs text-slate-400 mb-2 font-medium">Tomorrow</p>
+          <div className="bg-white/10 dark:bg-slate-800/50 rounded-xl p-3 border border-white/10 dark:border-slate-700/50">
+            <p className="text-xs text-blue-100 dark:text-slate-400 mb-2 font-medium">Tomorrow</p>
             <div className="flex justify-between items-center">
-              <div className="text-center"><p className="text-lg font-bold text-amber-400">{cookSummary.tomorrowL}</p><p className="text-[10px] text-slate-400 uppercase">Lunch</p></div>
-              <div className="w-px h-8 bg-slate-700"></div>
-              <div className="text-center"><p className="text-lg font-bold text-indigo-400">{cookSummary.tomorrowD}</p><p className="text-[10px] text-slate-400 uppercase">Dinner</p></div>
+              <div className="text-center"><p className="text-lg font-bold text-white dark:text-amber-400">{cookSummary.tomorrowL}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Lunch</p></div>
+              <div className="w-px h-8 bg-white/20 dark:bg-slate-700"></div>
+              <div className="text-center"><p className="text-lg font-bold text-white dark:text-indigo-400">{cookSummary.tomorrowD}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Dinner</p></div>
             </div>
           </div>
         </div>
