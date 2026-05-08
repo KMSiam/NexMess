@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
@@ -11,6 +11,21 @@ export default function UpdatePasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [ready, setReady] = useState(false)
+
+  // Wait for the PASSWORD_RECOVERY event from the email link
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+        setReady(true)
+      }
+    })
+    // Also check if we already have a session (user clicked link and is already authed)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,11 +46,14 @@ export default function UpdatePasswordPage() {
 
     if (error) {
       toast.error(error.message)
+      setLoading(false)
     } else {
-      toast.success('Password updated successfully!')
-      navigate('/dashboard')
+      toast.success('Password updated! Redirecting...')
+      // Small delay to let the toast show, then redirect
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true })
+      }, 500)
     }
-    setLoading(false)
   }
 
   return (
@@ -72,56 +90,63 @@ export default function UpdatePasswordPage() {
           <h2 className="text-2xl font-bold text-nex-text mb-1">Set new password</h2>
           <p className="text-nex-muted mb-8">Almost done! Enter your new secure password.</p>
           
-          <form onSubmit={handleUpdate} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-nex-text mb-1.5">New Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nex-muted" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="nex-input pl-10 pr-10"
-                  placeholder="Min. 6 characters"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-nex-muted hover:text-nex-text"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
+          {!ready ? (
+            <div className="flex flex-col items-center gap-3 py-8">
+              <div className="w-8 h-8 border-3 border-nex-primary border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-nex-muted">Verifying your reset link...</p>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-nex-text mb-1.5">Confirm New Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nex-muted" />
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  className="nex-input pl-10"
-                  placeholder="••••••••"
-                  required
-                />
+          ) : (
+            <form onSubmit={handleUpdate} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-nex-text mb-1.5">New Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nex-muted" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    className="nex-input pl-10 pr-10"
+                    placeholder="Min. 6 characters"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-nex-muted hover:text-nex-text"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="nex-btn-primary w-full py-3 disabled:opacity-50 mt-6"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>Update Password <ArrowRight className="w-4 h-4" /></>
-              )}
-            </button>
-          </form>
+              <div>
+                <label className="block text-sm font-medium text-nex-text mb-1.5">Confirm New Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nex-muted" />
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    className="nex-input pl-10"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="nex-btn-primary w-full py-3 disabled:opacity-50 mt-6"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>Update Password <ArrowRight className="w-4 h-4" /></>
+                )}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

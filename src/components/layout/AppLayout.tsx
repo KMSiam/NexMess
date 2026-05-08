@@ -34,13 +34,9 @@ export default function AppLayout() {
   const handleSignOut = async () => {
     if (signingOut) return
     setSigningOut(true)
-    try {
-      resetMess()
-      await signOut()
-      navigate('/login', { replace: true })
-    } catch {
-      setSigningOut(false)
-    }
+    resetMess()
+    await signOut()
+    navigate('/login', { replace: true })
   }
 
   return (

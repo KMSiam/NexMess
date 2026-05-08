@@ -34,12 +34,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       // Listen for auth changes
-      supabase.auth.onAuthStateChange(async (_event, session) => {
-        set({ session, user: session?.user ?? null })
-        if (session?.user) {
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        // On sign out, clear everything immediately
+        if (event === 'SIGNED_OUT' || !session) {
+          set({ session: null, user: null, profile: null })
+          return
+        }
+
+        // Update session & user for all other events
+        set({ session, user: session.user })
+
+        // Fetch profile on login/token refresh/password recovery
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
           await get().fetchProfile()
-        } else {
-          set({ profile: null })
         }
       })
     } finally {
@@ -83,7 +90,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
-    await supabase.auth.signOut()
+    // Clear state first so UI updates immediately
     set({ session: null, user: null, profile: null })
+    // Then tell Supabase to sign out (scope: 'local' avoids network issues)
+    await supabase.auth.signOut({ scope: 'local' })
   },
 }))
