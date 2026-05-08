@@ -20,7 +20,23 @@ export default function SettingsPage() {
   const approvedMembers = members.filter(m => m.status === 'approved')
 
   useEffect(() => {
-    if (currentMess?.id) fetchMembers(currentMess.id)
+    if (currentMess?.id) {
+      fetchMembers(currentMess.id)
+
+      // Real-time listener for members (approvals/requests)
+      const channel = supabase
+        .channel(`members-${currentMess.id}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'mess_members', filter: `mess_id=eq.${currentMess.id}` },
+          () => fetchMembers(currentMess.id)
+        )
+        .subscribe()
+
+      return () => {
+        supabase.removeChannel(channel)
+      }
+    }
   }, [currentMess?.id])
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
@@ -140,7 +156,6 @@ export default function SettingsPage() {
       .eq('user_id', user.id)
 
     if (error) {
-      console.error('Leave mess error:', error)
       toast.error('Failed to leave mess: ' + error.message)
     } else {
       toast.success('You have left the mess.')

@@ -39,6 +39,30 @@ export default function AppLayout() {
     navigate('/login', { replace: true })
   }
 
+  // ─────────────────────────────────────────────
+  // GLOBAL MEMBERSHIP LISTENER
+  // ─────────────────────────────────────────────
+  // Listen for changes to the user's OWN membership (e.g., when they get approved)
+  useEffect(() => {
+    if (!profile?.id) return
+    
+    const channel = supabase
+      .channel(`user-membership-${profile.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'mess_members', filter: `user_id=eq.${profile.id}` },
+        () => {
+          // If status changes (like being approved), refresh the mess list
+          fetchUserMesses(profile.id)
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [profile?.id, fetchUserMesses])
+
   return (
     <div className="min-h-screen bg-nex-bg flex">
       {/* ── Desktop Sidebar ────────────────── */}

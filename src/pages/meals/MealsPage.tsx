@@ -37,14 +37,10 @@ export default function MealsPage() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'meals', filter: `mess_id=eq.${currentMess.id}` },
         () => {
-          console.log('Realtime: Meals changed, refreshing...')
           setTimeout(fetchMeals, 300)
         }
       )
-      .subscribe((status, err) => {
-        if (status === 'SUBSCRIBED') console.log('✅ Meals Realtime connected')
-        if (status === 'CHANNEL_ERROR') console.error('❌ Meals Realtime error:', err)
-      })
+      .subscribe()
 
     return () => {
       supabase.removeChannel(channel)

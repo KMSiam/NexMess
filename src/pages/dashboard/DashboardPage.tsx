@@ -144,7 +144,6 @@ export default function DashboardPage() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'meals', filter: `mess_id=eq.${currentMess.id}` },
         () => {
-          console.log('Realtime: Meals changed')
           setTimeout(fetchDashboardData, 300)
         }
       )
@@ -152,7 +151,6 @@ export default function DashboardPage() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notices', filter: `mess_id=eq.${currentMess.id}` },
         () => {
-          console.log('Realtime: Notice changed')
           setTimeout(fetchDashboardData, 300)
         }
       )
@@ -160,7 +158,6 @@ export default function DashboardPage() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'expenses', filter: `mess_id=eq.${currentMess.id}` },
         () => {
-          console.log('Realtime: Expense added')
           setTimeout(fetchDashboardData, 300)
         }
       )
@@ -168,7 +165,6 @@ export default function DashboardPage() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'deposits', filter: `mess_id=eq.${currentMess.id}` },
         () => {
-          console.log('Realtime: Deposit added')
           setTimeout(fetchDashboardData, 300)
         }
       )
@@ -176,21 +172,12 @@ export default function DashboardPage() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'fixed_costs', filter: `mess_id=eq.${currentMess.id}` },
         () => {
-          console.log('Realtime: Fixed cost changed')
           setTimeout(fetchDashboardData, 300)
         }
       )
-      .subscribe((status, err) => {
-        if (status === 'SUBSCRIBED') {
-          console.log('✅ Realtime connected for mess:', currentMess.id)
-        }
-        if (status === 'CHANNEL_ERROR') {
-          console.error('❌ Realtime connection error:', err)
-        }
-      })
+      .subscribe()
 
     return () => {
-      console.log('Unsubscribing from realtime')
       supabase.removeChannel(channel)
     }
   }, [profile?.id, currentMess?.id, today, tomorrow, currentMonth])
