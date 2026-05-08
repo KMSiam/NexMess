@@ -49,3 +49,32 @@ export function getGreeting(): string {
   if (hour < 17) return 'Good afternoon'
   return 'Good evening'
 }
+
+// Meal cut-off times — Asia/Dhaka. After cut-off, the meal for *today* can't be toggled.
+// Past dates are blocked elsewhere; future dates are always editable.
+export const MEAL_CUTOFF_HOURS = { lunch: 10, dinner: 16 } as const
+
+function dhakaParts(d: Date = new Date()) {
+  // en-GB gives YYYY-MM-DD via formatToParts in 24h
+  const fmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Dhaka',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  })
+  const parts = Object.fromEntries(fmt.formatToParts(d).map(p => [p.type, p.value]))
+  return {
+    dateStr: `${parts.year}-${parts.month}-${parts.day}`,
+    hour: Number(parts.hour),
+    minute: Number(parts.minute),
+  }
+}
+
+export function isMealCutoffPassed(dateStr: string, type: 'lunch' | 'dinner'): boolean {
+  const { dateStr: todayDhaka, hour } = dhakaParts()
+  if (dateStr !== todayDhaka) return false
+  return hour >= MEAL_CUTOFF_HOURS[type]
+}
+
+export function mealCutoffLabel(type: 'lunch' | 'dinner'): string {
+  return type === 'lunch' ? '10:00 AM' : '4:00 PM'
+}

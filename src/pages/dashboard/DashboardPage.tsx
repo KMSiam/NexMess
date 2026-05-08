@@ -9,7 +9,7 @@ import {
   Megaphone, PhoneCall, Trash2, ShieldAlert,
   Users, Send, X, AlertTriangle, Wallet, ShoppingBag, ChefHat, UtensilsCrossed,
 } from 'lucide-react'
-import { getGreeting, formatCurrency, getFoodEmoji } from '../../lib/utils'
+import { getGreeting, formatCurrency, getFoodEmoji, isMealCutoffPassed, mealCutoffLabel } from '../../lib/utils'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 
@@ -240,11 +240,17 @@ export default function DashboardPage() {
 
   const toggleMeal = async (type: 'lunch' | 'dinner') => {
     if (!profile?.id || !currentMess?.id) return
-    setMealLoading(true)
     const targetDate = mealTab === 'today' ? today : tomorrow
+
+    if (isMealCutoffPassed(targetDate, type)) {
+      toast.error(`${type === 'lunch' ? 'Lunch' : 'Dinner'} cut-off (${mealCutoffLabel(type)}) has passed`)
+      return
+    }
+
+    setMealLoading(true)
     const mData = mealsData[mealTab]
     const newValue = type === 'lunch' ? !mData.lunch : !mData.dinner
-    
+
     setMealsData(prev => ({ ...prev, [mealTab]: { ...prev[mealTab], [type]: newValue } }))
 
     const { error } = await supabase.from('meals').upsert({
@@ -263,8 +269,14 @@ export default function DashboardPage() {
 
   const updateGuest = async (type: 'lunch' | 'dinner', delta: number) => {
     if (!profile?.id || !currentMess?.id) return
-    setMealLoading(true)
     const targetDate = mealTab === 'today' ? today : tomorrow
+
+    if (isMealCutoffPassed(targetDate, type)) {
+      toast.error(`${type === 'lunch' ? 'Lunch' : 'Dinner'} cut-off (${mealCutoffLabel(type)}) has passed`)
+      return
+    }
+
+    setMealLoading(true)
     const mData = mealsData[mealTab]
     const key = type === 'lunch' ? 'gl' : 'gd'
     const newVal = Math.max(0, mData[key] + delta)
@@ -472,30 +484,37 @@ export default function DashboardPage() {
           {[
             { type: 'lunch' as const, emoji: '☀️', on: currentMData.lunch, label: 'Lunch', guests: currentMData.gl },
             { type: 'dinner' as const, emoji: '🌙', on: currentMData.dinner, label: 'Dinner', guests: currentMData.gd },
-          ].map(({ type, emoji, on, label, guests }) => (
+          ].map(({ type, emoji, on, label, guests }) => {
+            const targetDate = mealTab === 'today' ? today : tomorrow
+            const locked = isMealCutoffPassed(targetDate, type)
+            const lockTitle = locked ? `${label} cut-off (${mealCutoffLabel(type)}) has passed` : ''
+            return (
             <div key={type} className={`flex flex-col p-4 rounded-xl border transition-colors duration-200 ${on || guests > 0 ? 'bg-nex-success-light border-emerald-200' : 'bg-nex-elevated border-nex-border'}`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{emoji}</span>
                   <div>
                     <p className="text-sm font-medium text-nex-text">{label}</p>
-                    <p className={`text-xs font-medium ${on ? 'text-emerald-600' : 'text-nex-muted'}`}>{on ? 'Eating' : 'Skipping'}</p>
+                    <p className={`text-xs font-medium ${locked ? 'text-nex-muted' : on ? 'text-emerald-600' : 'text-nex-muted'}`}>
+                      {locked ? `Locked · ${mealCutoffLabel(type)}` : on ? 'Eating' : 'Skipping'}
+                    </p>
                   </div>
                 </div>
-                <button onClick={() => toggleMeal(type)} disabled={mealLoading} className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${on ? 'nex-toggle-on' : 'nex-toggle-off'}`}>
+                <button onClick={() => toggleMeal(type)} disabled={mealLoading || locked} title={lockTitle} className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${on ? 'nex-toggle-on' : 'nex-toggle-off'} ${locked ? 'opacity-50 cursor-not-allowed' : ''}`}>
                   <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-sm transition-transform duration-200 ${on ? 'translate-x-5' : 'translate-x-0'}`} />
                 </button>
               </div>
               <div className="flex items-center justify-between pt-3 border-t border-emerald-100/50">
                 <p className="text-xs font-medium text-slate-500">Guests</p>
                 <div className="flex items-center gap-3">
-                  <button onClick={() => updateGuest(type, -1)} disabled={mealLoading || guests === 0} className="w-6 h-6 rounded-md bg-nex-surface border border-nex-border flex items-center justify-center text-nex-muted hover:bg-nex-hover disabled:opacity-50">-</button>
+                  <button onClick={() => updateGuest(type, -1)} disabled={mealLoading || locked || guests === 0} title={lockTitle} className="w-6 h-6 rounded-md bg-nex-surface border border-nex-border flex items-center justify-center text-nex-muted hover:bg-nex-hover disabled:opacity-50">-</button>
                   <span className="text-sm font-semibold w-4 text-center">{guests}</span>
-                  <button onClick={() => updateGuest(type, 1)} disabled={mealLoading} className="w-6 h-6 rounded-md bg-nex-surface border border-nex-border flex items-center justify-center text-nex-muted hover:bg-nex-hover disabled:opacity-50">+</button>
+                  <button onClick={() => updateGuest(type, 1)} disabled={mealLoading || locked} title={lockTitle} className="w-6 h-6 rounded-md bg-nex-surface border border-nex-border flex items-center justify-center text-nex-muted hover:bg-nex-hover disabled:opacity-50">+</button>
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
