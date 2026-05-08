@@ -16,7 +16,7 @@ export function Skeleton({ className }: SkeletonProps) {
       initial={{ opacity: 0.5 }}
       animate={{ opacity: [0.5, 1, 0.5] }}
       transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-      className={cn('bg-slate-200 rounded-lg', className)}
+      className={cn('bg-slate-200 dark:bg-slate-700 rounded-lg', className)}
     />
   )
 }
