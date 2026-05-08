@@ -62,10 +62,12 @@ export default function ChatPage() {
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newMessage.trim() || !profile?.id || !currentMess?.id) return
+
+    const msgText = newMessage.trim().slice(0, 2000)
+    if (msgText.length === 0) return
     setSending(true)
 
     const tempId = 'temp-' + Date.now()
-    const msgText = newMessage.trim()
     
     // Optimistic UI update
     const optimisticMsg = {
@@ -126,7 +128,7 @@ export default function ChatPage() {
               )}
               <div className={`max-w-[80%] sm:max-w-[70%] ${isOwn ? 'order-1' : ''}`}>
                 {!isOwn && <p className="text-[10px] text-nex-muted mb-0.5 ml-1">{sender?.username}</p>}
-                <div className={`px-3 py-2 rounded-2xl text-sm ${
+                <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${
                   isOwn
                     ? 'bg-nex-primary text-white rounded-br-sm'
                     : 'bg-nex-elevated text-nex-text rounded-bl-sm'
@@ -147,6 +149,7 @@ export default function ChatPage() {
       <form onSubmit={handleSend} className="mt-2 flex gap-2">
         <input
           type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)}
+          maxLength={2000}
           className="nex-input flex-1 text-base" placeholder="Type a message..."
           id="chat-input"
         />

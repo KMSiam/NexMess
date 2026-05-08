@@ -20,8 +20,12 @@ export default function RegisterPage() {
       toast.error('Passwords do not match')
       return
     }
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters')
+    if (password.length < 8) {
+      toast.error('Password must be at least 8 characters')
+      return
+    }
+    if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+      toast.error('Password must include at least one letter and one number')
       return
     }
 
@@ -118,7 +122,7 @@ export default function RegisterPage() {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nex-muted" />
                 <input type={showPassword ? 'text' : 'password'} value={password}
                   onChange={e => setPassword(e.target.value)} className="nex-input pl-10 pr-10"
-                  placeholder="Min. 6 characters" required id="register-password" />
+                  placeholder="Min. 8 chars, letters + numbers" required id="register-password" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-nex-muted hover:text-nex-text">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

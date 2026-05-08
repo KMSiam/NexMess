@@ -112,18 +112,22 @@ export default function FinancePage() {
 
   const fetchBalances = async () => {
     if (!currentMess?.id) return
-    const results: Record<string, any> = {}
-    for (const member of financeMembers) {
-      const { data } = await supabase.rpc('calculate_member_balance', {
-        p_user_id: member.user_id,
-        p_mess_id: currentMess.id,
-        p_month: currentMonth,
+    const messId = currentMess.id
+    const month = currentMonth
+    const settled = await Promise.all(
+      financeMembers.map(async (member) => {
+        const { data } = await supabase.rpc('calculate_member_balance', {
+          p_user_id: member.user_id,
+          p_mess_id: messId,
+          p_month: month,
+        })
+        const row = Array.isArray(data) ? data[0] : data
+        return [member.user_id, row] as const
       })
-      if (data && Array.isArray(data) && data.length > 0) {
-        results[member.user_id] = data[0]
-      } else if (data && !Array.isArray(data)) {
-        results[member.user_id] = data
-      }
+    )
+    const results: Record<string, any> = {}
+    for (const [uid, row] of settled) {
+      if (row) results[uid] = row
     }
     setBalances(results)
   }
@@ -158,10 +162,26 @@ export default function FinancePage() {
   const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!currentMess?.id || !user?.id) return
+
+    const amount = parseFloat(expAmount)
+    if (!isFinite(amount) || amount <= 0) {
+      toast.error('Enter a valid amount greater than 0')
+      return
+    }
     setLoading(true)
 
     let receiptUrl = null
     if (expFile) {
+      if (!expFile.type.startsWith('image/')) {
+        toast.error('Receipt must be an image')
+        setLoading(false)
+        return
+      }
+      if (expFile.size > 5 * 1024 * 1024) {
+        toast.error('Receipt must be under 5MB')
+        setLoading(false)
+        return
+      }
       const ext = expFile.name.split('.').pop()
       const fileName = `${currentMess.id}/${Date.now()}.${ext}`
       const { error: uploadError } = await supabase.storage.from('receipts').upload(fileName, expFile)
@@ -174,7 +194,7 @@ export default function FinancePage() {
     }
 
     const { error } = await supabase.from('expenses').insert({
-      mess_id: currentMess.id, amount: parseFloat(expAmount), description: expDesc.trim(),
+      mess_id: currentMess.id, amount, description: expDesc.trim().slice(0, 500),
       category: expCategory, expense_type: expCategory === 'bazaar' ? 'bazaar' : 'other',
       created_by: user.id, date: format(new Date(), 'yyyy-MM-dd'), receipt_url: receiptUrl,
     })
@@ -186,10 +206,19 @@ export default function FinancePage() {
   const handleAddDeposit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!currentMess?.id || !user?.id) return
+    const amount = parseFloat(depAmount)
+    if (!isFinite(amount) || amount <= 0) {
+      toast.error('Enter a valid amount greater than 0')
+      return
+    }
+    if (!depUserId) {
+      toast.error('Choose a member')
+      return
+    }
     setLoading(true)
     const { error } = await supabase.from('deposits').insert({
-      mess_id: currentMess.id, user_id: depUserId, amount: parseFloat(depAmount),
-      note: depNote.trim(), date: format(new Date(), 'yyyy-MM-dd'), verified: true, verified_by: user.id,
+      mess_id: currentMess.id, user_id: depUserId, amount,
+      note: depNote.trim().slice(0, 500), date: format(new Date(), 'yyyy-MM-dd'), verified: true, verified_by: user.id,
     })
     if (error) toast.error('Failed to add deposit')
     else { toast.success('Deposit recorded!'); setShowAddDeposit(false); setDepAmount(''); setDepNote(''); setDepUserId(''); fetchAllData() }

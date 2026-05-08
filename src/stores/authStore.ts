@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { Session, User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { Profile } from '../types/database'
+import { useMessStore } from './messStore'
 
 interface AuthState {
   session: Session | null
@@ -92,6 +93,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signOut: async () => {
     // Clear state first so UI updates immediately
     set({ session: null, user: null, profile: null })
+    // Clear mess data so the next account on this device doesn't see stale state
+    useMessStore.getState().reset()
+    try { localStorage.removeItem('nexmess-store') } catch { /* storage unavailable */ }
     // Then tell Supabase to sign out (scope: 'local' avoids network issues)
     await supabase.auth.signOut({ scope: 'local' })
   },
