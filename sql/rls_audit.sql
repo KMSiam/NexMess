@@ -71,9 +71,12 @@ FROM storage.buckets
 ORDER BY name;
 
 SELECT
-  bucket_id,
-  name             AS policy_name,
-  definition
-FROM storage.policies
-WHERE bucket_id IN ('receipts')   -- adjust if you have more buckets
-ORDER BY bucket_id, name;
+  policyname       AS policy_name,
+  cmd              AS command,
+  roles,
+  CASE WHEN qual       IS NULL THEN 'NULL' ELSE qual       END AS using_clause,
+  CASE WHEN with_check IS NULL THEN 'NULL' ELSE with_check END AS with_check_clause
+FROM pg_policies
+WHERE schemaname = 'storage'
+  AND tablename  = 'objects'
+ORDER BY policyname;
