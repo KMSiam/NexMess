@@ -416,7 +416,7 @@ export default function FinancePage() {
             {expenses.length === 0 ? (
               <p className="p-8 text-center text-nex-muted text-sm">No expenses recorded yet.</p>
             ) : expenses.map(exp => (
-              <div key={exp.id} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50/50 transition-colors">
+              <div key={exp.id} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg ${
                     exp.category === 'bazaar' ? 'bg-emerald-50' : exp.category === 'rent' ? 'bg-blue-50' : 'bg-amber-50'
@@ -486,7 +486,7 @@ export default function FinancePage() {
             {deposits.length === 0 ? (
               <p className="p-8 text-center text-nex-muted text-sm">No deposits recorded yet.</p>
             ) : deposits.map(dep => (
-              <div key={dep.id} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50/50 transition-colors">
+              <div key={dep.id} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
                     <PiggyBank className="w-4 h-4 text-emerald-600" />
@@ -549,7 +549,7 @@ export default function FinancePage() {
             ) : fixedCosts.map(fc => {
               const icons: Record<string, string> = { rent: '🏠', utilities: '💡', maid: '🧹', internet: '🌐', gas: '🔥', other: '📋' }
               return (
-                <div key={fc.id} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50/50 transition-colors">
+                <div key={fc.id} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">{icons[fc.category] || '📋'}</span>
                     <div>
@@ -587,7 +587,7 @@ export default function FinancePage() {
           )}
           <div className="nex-card divide-y divide-nex-border">
             {/* Desktop Table Header */}
-            <div className="hidden sm:block px-5 py-3 bg-slate-50">
+            <div className="hidden sm:block px-5 py-3 bg-slate-50 dark:bg-slate-800/50">
             <div className="grid grid-cols-6 gap-2 text-[10px] font-semibold text-nex-muted uppercase tracking-wider">
               <span className="col-span-2">Member</span>
               <span className="text-right">Meals</span>
@@ -606,7 +606,7 @@ export default function FinancePage() {
             const realBalance = deposited - totalExp
 
             return (
-              <div key={member.user_id} className="px-4 sm:px-5 py-3 hover:bg-slate-50/50 transition-colors">
+              <div key={member.user_id} className="px-4 sm:px-5 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                 {/* Desktop Row */}
                 <div className="hidden sm:grid grid-cols-6 gap-2 items-center">
                   <div className="col-span-2 flex items-center gap-2">

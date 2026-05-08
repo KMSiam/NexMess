@@ -473,7 +473,7 @@ export default function DashboardPage() {
             { type: 'lunch' as const, emoji: '☀️', on: currentMData.lunch, label: 'Lunch', guests: currentMData.gl },
             { type: 'dinner' as const, emoji: '🌙', on: currentMData.dinner, label: 'Dinner', guests: currentMData.gd },
           ].map(({ type, emoji, on, label, guests }) => (
-            <div key={type} className={`flex flex-col p-4 rounded-xl border transition-colors duration-200 ${on || guests > 0 ? 'bg-nex-success-light border-emerald-200' : 'bg-slate-50 border-nex-border'}`}>
+            <div key={type} className={`flex flex-col p-4 rounded-xl border transition-colors duration-200 ${on || guests > 0 ? 'bg-nex-success-light border-emerald-200' : 'bg-slate-50 dark:bg-slate-800/50 border-nex-border'}`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{emoji}</span>
@@ -489,9 +489,9 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between pt-3 border-t border-emerald-100/50">
                 <p className="text-xs font-medium text-slate-500">Guests</p>
                 <div className="flex items-center gap-3">
-                  <button onClick={() => updateGuest(type, -1)} disabled={mealLoading || guests === 0} className="w-6 h-6 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 disabled:opacity-50">-</button>
+                  <button onClick={() => updateGuest(type, -1)} disabled={mealLoading || guests === 0} className="w-6 h-6 rounded-md bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 disabled:opacity-50">-</button>
                   <span className="text-sm font-semibold w-4 text-center">{guests}</span>
-                  <button onClick={() => updateGuest(type, 1)} disabled={mealLoading} className="w-6 h-6 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 disabled:opacity-50">+</button>
+                  <button onClick={() => updateGuest(type, 1)} disabled={mealLoading} className="w-6 h-6 rounded-md bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 disabled:opacity-50">+</button>
                 </div>
               </div>
             </div>
@@ -593,7 +593,7 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {emergencyContacts.map(ec => (
-              <div key={ec.id} className="flex items-center justify-between p-3 rounded-xl border border-nex-border bg-slate-50 hover:bg-slate-100 transition-colors">
+              <div key={ec.id} className="flex items-center justify-between p-3 rounded-xl border border-nex-border bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                 <div className="flex items-center gap-3 overflow-hidden">
                   <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
                     <PhoneCall className="w-4 h-4" />
