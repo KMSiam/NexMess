@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { getGreeting, formatCurrency, getFoodEmoji } from '../../lib/utils'
 import toast from 'react-hot-toast'
+import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 
 export default function DashboardPage() {
   const { profile } = useAuthStore()
@@ -302,13 +303,43 @@ export default function DashboardPage() {
 
   if (!dataLoaded) {
     return (
-      <div className="max-w-5xl mx-auto space-y-5 animate-pulse">
-        <div className="nex-card p-5 h-20 bg-slate-100"></div>
-        <div className="nex-card p-5 h-40 bg-slate-100"></div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="nex-card p-5 h-24 bg-slate-100"></div>
-          <div className="nex-card p-5 h-24 bg-slate-100"></div>
-          <div className="nex-card p-5 h-24 bg-slate-100"></div>
+      <div className="max-w-5xl mx-auto space-y-5">
+        {/* Welcome Skeleton */}
+        <div className="nex-card p-5 flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-48" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <Skeleton className="w-10 h-10 rounded-lg" />
+        </div>
+
+        {/* Cook's Summary Skeleton */}
+        <div className="nex-card p-5 h-32 bg-slate-800">
+          <Skeleton className="h-4 w-40 mb-4 bg-slate-700" />
+          <div className="grid grid-cols-2 gap-4">
+            <Skeleton className="h-16 rounded-xl bg-slate-700" />
+            <Skeleton className="h-16 rounded-xl bg-slate-700" />
+          </div>
+        </div>
+
+        {/* Stats Grid Skeleton */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+
+        {/* Lower Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="nex-card p-5 space-y-4">
+            <Skeleton className="h-4 w-32" />
+            <ListSkeleton count={3} />
+          </div>
+          <div className="nex-card p-5 space-y-4">
+            <Skeleton className="h-4 w-32" />
+            <ListSkeleton count={3} />
+          </div>
         </div>
       </div>
     )

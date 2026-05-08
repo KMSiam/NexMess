@@ -12,6 +12,7 @@ import { formatCurrency, getInitials } from '../../lib/utils'
 import toast from 'react-hot-toast'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 
 type Tab = 'expenses' | 'deposits' | 'fixed' | 'summary'
 
@@ -23,6 +24,7 @@ export default function FinancePage() {
   const [deposits, setDeposits] = useState<Deposit[]>([])
   const [fixedCosts, setFixedCosts] = useState<FixedCost[]>([])
   const [balances, setBalances] = useState<Record<string, any>>({})
+  const [loadingData, setLoadingData] = useState(true)
 
   // Expense form
   const [showAddExpense, setShowAddExpense] = useState(false)
@@ -52,7 +54,8 @@ export default function FinancePage() {
 
   useEffect(() => {
     if (!currentMess?.id) return
-    fetchAllData()
+    setLoadingData(true)
+    fetchAllData().finally(() => setLoadingData(false))
 
     // Real-time subscription for financial records
     const channel = supabase
@@ -123,6 +126,33 @@ export default function FinancePage() {
       }
     }
     setBalances(results)
+  }
+
+  if (loadingData) {
+    return (
+      <div className="max-w-5xl mx-auto space-y-6">
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-8 h-8 rounded-lg" />
+          <Skeleton className="h-8 w-48" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+        <div className="nex-card p-2 flex gap-1">
+          <Skeleton className="h-10 w-1/4 rounded-lg" />
+          <Skeleton className="h-10 w-1/4 rounded-lg" />
+          <Skeleton className="h-10 w-1/4 rounded-lg" />
+          <Skeleton className="h-10 w-1/4 rounded-lg" />
+        </div>
+        <div className="nex-card p-5 space-y-4">
+          <Skeleton className="h-10 w-32 rounded-lg" />
+          <ListSkeleton count={5} />
+        </div>
+      </div>
+    )
   }
 
   const handleAddExpense = async (e: React.FormEvent) => {

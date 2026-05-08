@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
+import { supabase } from '../../lib/supabase'
 import {
   Home, Utensils, MessageSquare, Wallet, ShoppingBag,
   Settings, Zap, LogOut, CheckCircle2,
   CalendarClock, PanelLeft, PanelLeftClose, ChevronDown, X, MoreHorizontal,
+  Sun, Moon
 } from 'lucide-react'
 import NotificationBell from '../NotificationBell'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
@@ -26,10 +29,25 @@ export default function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { profile, signOut } = useAuthStore()
-  const { currentMess, messes, setCurrentMess, reset: resetMess } = useMessStore()
+  const { currentMess, messes, setCurrentMess, fetchUserMesses, reset: resetMess } = useMessStore()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [showMessDropdown, setShowMessDropdown] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
+  
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('nexmess-theme')
+    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
+  })
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('nexmess-theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('nexmess-theme', 'light')
+    }
+  }, [isDark])
 
   const handleSignOut = async () => {
     if (signingOut) return
@@ -173,16 +191,34 @@ export default function AppLayout() {
               </div>
             </div>
             <div className="hidden lg:block" />
-            <NotificationBell />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsDark(!isDark)}
+                className="p-2 rounded-btn text-nex-muted hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
+                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <NotificationBell />
+            </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-4 lg:p-6 overflow-hidden">
           <GlobalErrorBoundary>
-            <div key={location.pathname} className="animate-fade-in h-full w-full">
-              <Outlet />
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="h-full w-full"
+              >
+                <Outlet />
+              </motion.div>
+            </AnimatePresence>
           </GlobalErrorBoundary>
         </main>
       </div>

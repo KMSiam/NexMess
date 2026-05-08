@@ -7,18 +7,18 @@
 
 @theme {
   /* ── Color Tokens ─────────────────────── */
-  --color-nex-bg:            #F8FAFC;
-  --color-nex-surface:       #FFFFFF;
+  --color-nex-bg:            var(--nex-bg);
+  --color-nex-surface:       var(--nex-surface);
   --color-nex-primary:       #3B82F6;
   --color-nex-primary-dark:  #2563EB;
-  --color-nex-primary-light: #EFF6FF;
-  --color-nex-text:          #0F172A;
-  --color-nex-muted:         #64748B;
-  --color-nex-border:        #E2E8F0;
+  --color-nex-primary-light: var(--nex-primary-light);
+  --color-nex-text:          var(--nex-text);
+  --color-nex-muted:         var(--nex-muted);
+  --color-nex-border:        var(--nex-border);
   --color-nex-success:       #10B981;
-  --color-nex-success-light: #ECFDF5;
+  --color-nex-success-light: var(--nex-success-light);
   --color-nex-danger:        #F43F5E;
-  --color-nex-danger-light:  #FFF1F2;
+  --color-nex-danger-light:  var(--nex-danger-light);
   --color-nex-warning:       #F59E0B;
 
   /* ── Font Family ──────────────────────── */
@@ -55,6 +55,28 @@
 }
 
 /* ── Base Styles ───────────────────────── */
+:root {
+  --nex-bg: #F8FAFC;
+  --nex-surface: #FFFFFF;
+  --nex-primary-light: #EFF6FF;
+  --nex-text: #0F172A;
+  --nex-muted: #64748B;
+  --nex-border: #E2E8F0;
+  --nex-success-light: #ECFDF5;
+  --nex-danger-light: #FFF1F2;
+}
+
+.dark {
+  --nex-bg: #0F172A;
+  --nex-surface: #1E293B;
+  --nex-primary-light: rgba(59, 130, 246, 0.1);
+  --nex-text: #F1F5F9;
+  --nex-muted: #94A3B8;
+  --nex-border: #334155;
+  --nex-success-light: rgba(16, 185, 129, 0.1);
+  --nex-danger-light: rgba(244, 63, 94, 0.1);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -72,6 +94,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior-y: contain;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   /* Safe area for notched phones (iPhone etc.) */
@@ -99,6 +122,7 @@
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+  .dark ::-webkit-scrollbar-thumb { background: #334155; }
   ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 }
 
