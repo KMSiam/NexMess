@@ -12,7 +12,7 @@ export default function VerifyEmailPage() {
         <p className="text-nex-muted mb-6 leading-relaxed">
           We've sent a verification link to your email address. Click the link to verify your account and start using NexMess.
         </p>
-        <div className="nex-card bg-slate-50 p-4 mb-6">
+        <div className="nex-card bg-nex-elevated p-4 mb-6">
           <p className="text-sm text-nex-muted">
             📧 Didn't receive the email? Check your spam folder or{' '}
             <button className="text-nex-primary font-medium hover:underline">resend it</button>.

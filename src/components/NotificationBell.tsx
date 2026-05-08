@@ -84,7 +84,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
     <div className={`relative ${className || ''}`} ref={panelRef}>
       <button
         onClick={() => setShowPanel(!showPanel)}
-        className="relative p-2 rounded-btn text-nex-muted hover:bg-slate-100 transition-colors"
+        className="relative p-2 rounded-btn text-nex-muted hover:bg-nex-hover transition-colors"
         id="notification-bell"
       >
         <Bell className="w-5 h-5" />
@@ -117,14 +117,14 @@ export default function NotificationBell({ className }: NotificationBellProps) {
           <div className="overflow-y-auto flex-1 divide-y divide-nex-border">
             {notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                <Bell className="w-8 h-8 text-nex-muted/30 mx-auto mb-2" />
                 <p className="text-sm text-nex-muted">No notifications yet</p>
               </div>
             ) : notifications.map(n => (
               <div
                 key={n.id}
-                className={`px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer ${
-                  !n.is_read ? 'bg-blue-50/30' : ''
+                className={`px-4 py-3 hover:bg-nex-hover transition-colors cursor-pointer ${
+                  !n.is_read ? 'bg-nex-primary-light' : ''
                 }`}
                 onClick={() => !n.is_read && markRead(n.id)}
               >
@@ -140,7 +140,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
                     </p>
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); deleteNotification(n.id) }}
-                    className="text-slate-300 hover:text-nex-danger shrink-0 self-start transition-colors">
+                    className="text-nex-muted/40 hover:text-nex-danger shrink-0 self-start transition-colors">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>

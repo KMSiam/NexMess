@@ -156,7 +156,7 @@ export default function RoutinePage() {
       {/* Empty state */}
       {!hasAnyData && !editing && (
         <div className="nex-card p-12 text-center">
-          <CalendarClock className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+          <CalendarClock className="w-12 h-12 text-nex-muted/30 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-nex-text mb-1">No Meal Routine Set</h3>
           <p className="text-sm text-nex-muted">
             {isManager ? 'Click "Edit Routine" to set up the weekly meal menu.' : 'The manager hasn\'t set a weekly meal routine yet.'}
@@ -175,7 +175,7 @@ export default function RoutinePage() {
               <button
                 key={item.label}
                 onClick={() => addPresetToCell(activeEditCell.day, activeEditCell.type, item.label)}
-                className="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-medium text-nex-text transition-colors"
+                className="px-3 py-1.5 rounded-full bg-nex-elevated hover:bg-nex-hover text-xs font-medium text-nex-text transition-colors"
               >
                 {item.emoji} {item.label}
               </button>
@@ -189,10 +189,10 @@ export default function RoutinePage() {
         <div className="hidden sm:block nex-card overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="bg-slate-50 border-b border-nex-border">
+              <tr className="bg-nex-elevated border-b border-nex-border">
                 <th className="px-4 py-3 text-left text-[10px] font-semibold text-nex-muted uppercase tracking-wider w-20"></th>
                 {DAYS.map((day, i) => (
-                  <th key={day} className={`px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-wider ${todayDow === i ? 'text-nex-primary bg-blue-50/50' : 'text-nex-muted'}`}>
+                  <th key={day} className={`px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-wider ${todayDow === i ? 'text-nex-primary bg-nex-primary-light' : 'text-nex-muted'}`}>
                     {day}
                   </th>
                 ))}
@@ -210,14 +210,14 @@ export default function RoutinePage() {
                     const isActive = activeEditCell?.day === r.day_of_week && activeEditCell?.type === type
 
                     return (
-                      <td key={r.day_of_week} className={`px-2 py-3 text-center ${isToday ? 'bg-blue-50/30' : ''}`}>
+                      <td key={r.day_of_week} className={`px-2 py-3 text-center ${isToday ? 'bg-nex-primary-light' : ''}`}>
                         {editing ? (
                           <input
                             type="text"
                             value={value}
                             onChange={e => updateEditCell(r.day_of_week, type, e.target.value)}
                             onFocus={() => setActiveEditCell({ day: r.day_of_week, type })}
-                            className={`w-full text-center text-xs rounded-lg px-2 py-2 border transition-colors ${isActive ? 'border-nex-primary bg-blue-50' : 'border-nex-border bg-white'} focus:outline-none focus:border-nex-primary`}
+                            className={`w-full text-center text-xs rounded-lg px-2 py-2 border transition-colors ${isActive ? 'border-nex-primary bg-nex-primary-light' : 'border-nex-border bg-nex-surface'} focus:outline-none focus:border-nex-primary`}
                             placeholder="—"
                           />
                         ) : value ? (
@@ -226,7 +226,7 @@ export default function RoutinePage() {
                             <span className="text-xs font-medium text-nex-text">{value}</span>
                           </div>
                         ) : (
-                          <span className="text-xs text-slate-300">—</span>
+                          <span className="text-xs text-nex-muted/40">—</span>
                         )}
                       </td>
                     )
@@ -256,7 +256,7 @@ export default function RoutinePage() {
                     const value = r[type]
                     const isActive = activeEditCell?.day === r.day_of_week && activeEditCell?.type === type
                     return (
-                      <div key={type} className={`rounded-xl p-3 ${type === 'lunch' ? 'bg-amber-50 border border-amber-100' : 'bg-indigo-50 border border-indigo-100'}`}>
+                      <div key={type} className={`rounded-xl p-3 ${type === 'lunch' ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-indigo-500/10 border border-indigo-500/20'}`}>
                         <p className="text-[10px] font-semibold uppercase tracking-wider mb-1.5 ${type === 'lunch' ? 'text-amber-600' : 'text-indigo-600'}">
                           {type === 'lunch' ? '☀️ Lunch' : '🌙 Dinner'}
                         </p>
@@ -266,13 +266,13 @@ export default function RoutinePage() {
                             value={value}
                             onChange={e => updateEditCell(r.day_of_week, type, e.target.value)}
                             onFocus={() => setActiveEditCell({ day: r.day_of_week, type })}
-                            className={`w-full text-sm rounded-lg px-2 py-1.5 border bg-white transition-colors ${isActive ? 'border-nex-primary' : 'border-transparent'} focus:outline-none focus:border-nex-primary`}
+                            className={`w-full text-sm rounded-lg px-2 py-1.5 border bg-nex-surface transition-colors ${isActive ? 'border-nex-primary' : 'border-transparent'} focus:outline-none focus:border-nex-primary`}
                             placeholder="Set menu..."
                           />
                         ) : value ? (
                           <p className="text-sm font-medium text-nex-text">{getFoodEmoji(value)} {value}</p>
                         ) : (
-                          <p className="text-xs text-slate-400">Not set</p>
+                          <p className="text-xs text-nex-muted/50">Not set</p>
                         )}
                       </div>
                     )

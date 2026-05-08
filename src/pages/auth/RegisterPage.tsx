@@ -84,7 +84,7 @@ export default function RegisterPage() {
 
           <button
             onClick={handleGoogleSignup}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-btn border border-nex-border bg-nex-surface text-nex-text font-medium text-sm hover:bg-slate-50 transition-colors mb-6"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-btn border border-nex-border bg-nex-surface text-nex-text font-medium text-sm hover:bg-nex-hover transition-colors mb-6"
             id="google-register-btn"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">

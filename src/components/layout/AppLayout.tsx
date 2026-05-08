@@ -93,7 +93,7 @@ export default function AppLayout() {
           {!sidebarCollapsed && <h1 className="text-lg font-bold text-nex-text tracking-tight flex-1">NexMess</h1>}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1.5 rounded-btn text-nex-muted hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-btn text-nex-muted hover:bg-nex-hover transition-colors"
           >
             {sidebarCollapsed ? <PanelLeft className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
           </button>
@@ -104,7 +104,7 @@ export default function AppLayout() {
           <div className="px-3 py-3 border-b border-nex-border/50">
             <button
               onClick={() => setShowMessDropdown(!showMessDropdown)}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-btn bg-slate-50 hover:bg-slate-100 transition-colors text-left"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-btn bg-nex-elevated hover:bg-nex-hover transition-colors text-left"
             >
               <div className="w-7 h-7 rounded-lg bg-nex-primary-light text-nex-primary flex items-center justify-center text-xs font-bold shrink-0">
                 {currentMess.name[0]}
@@ -119,8 +119,8 @@ export default function AppLayout() {
               <div className="mt-1 nex-card p-1 space-y-0.5">
                 {messes.filter(m => m.id !== currentMess.id).map(mess => (
                   <button key={mess.id} onClick={() => { setCurrentMess(mess); setShowMessDropdown(false) }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-btn hover:bg-slate-50 text-left text-sm">
-                    <div className="w-6 h-6 rounded bg-slate-100 text-nex-muted flex items-center justify-center text-xs font-bold">
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-btn hover:bg-nex-hover text-left text-sm">
+                    <div className="w-6 h-6 rounded bg-nex-elevated text-nex-muted flex items-center justify-center text-xs font-bold">
                       {mess.name[0]}
                     </div>
                     <span className="text-nex-text truncate">{mess.name}</span>
@@ -194,7 +194,7 @@ export default function AppLayout() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsDark(!isDark)}
-                className="p-2 rounded-btn text-nex-muted hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="p-2 rounded-btn hover:bg-nex-hover text-nex-muted transition-colors"
                 title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               >
                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -246,20 +246,20 @@ function MobileBottomNav({ handleSignOut, signingOut }: { handleSignOut: () => v
       {showMore && (
         <div className="lg:hidden fixed bottom-16 right-2 left-2 z-30 nex-card p-2 shadow-xl border border-nex-border animate-slide-up safe-area-bottom">
           <NavLink to="/market" onClick={() => setShowMore(false)}
-            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-slate-50'}`}>
+            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
             <ShoppingBag className="w-5 h-5" /> Market Schedule
           </NavLink>
           <NavLink to="/routine" onClick={() => setShowMore(false)}
-            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-slate-50'}`}>
+            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
             <CalendarClock className="w-5 h-5" /> Meal Routine
           </NavLink>
           <NavLink to="/settings" onClick={() => setShowMore(false)}
-            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-slate-50'}`}>
+            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
             <Settings className="w-5 h-5" /> Settings
           </NavLink>
           <div className="border-t border-nex-border my-1" />
           <button onClick={handleSignOut} disabled={signingOut}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50">
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-600 hover:bg-nex-danger-light transition-colors disabled:opacity-50">
             <LogOut className="w-5 h-5" /> {signingOut ? 'Signing out...' : 'Sign Out'}
           </button>
         </div>

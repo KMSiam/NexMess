@@ -129,7 +129,7 @@ export default function ChatPage() {
                 <div className={`px-3 py-2 rounded-2xl text-sm ${
                   isOwn
                     ? 'bg-nex-primary text-white rounded-br-sm'
-                    : 'bg-slate-100 dark:bg-slate-800 text-nex-text rounded-bl-sm'
+                    : 'bg-nex-elevated text-nex-text rounded-bl-sm'
                 }`}>
                   {msg.text}
                 </div>

@@ -56,7 +56,7 @@ export default function LoginPage() {
           <div className="flex gap-6 mt-10">
             {['Real-time Meals', 'Auto Billing', 'Group Chat'].map(f => (
               <div key={f} className="flex items-center gap-2 text-sm text-blue-100">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <div className="w-1.5 h-1.5 rounded-full bg-nex-success" />
                 {f}
               </div>
             ))}
@@ -81,7 +81,7 @@ export default function LoginPage() {
           {/* Google Button */}
           <button
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-btn border border-nex-border bg-nex-surface text-nex-text font-medium text-sm hover:bg-slate-50 transition-colors mb-6"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-btn border border-nex-border bg-nex-surface text-nex-text font-medium text-sm hover:bg-nex-hover transition-colors mb-6"
             id="google-login-btn"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">

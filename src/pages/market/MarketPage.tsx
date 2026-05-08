@@ -169,14 +169,14 @@ export default function MarketPage() {
       <div className="nex-card p-5">
         <div className="flex items-center justify-between mb-5">
           <button onClick={() => setCurrentWeek(subWeeks(currentWeek, 1))}
-            className="p-2 rounded-btn hover:bg-slate-100 text-nex-muted transition-colors">
+            className="p-2 rounded-btn hover:bg-nex-hover text-nex-muted transition-colors">
             <ChevronLeft className="w-5 h-5" />
           </button>
           <h2 className="text-sm sm:text-base font-semibold text-nex-text">
             {format(weekStart, 'MMM d')} – {format(weekEnd, 'MMM d, yyyy')}
           </h2>
           <button onClick={() => setCurrentWeek(addWeeks(currentWeek, 1))}
-            className="p-2 rounded-btn hover:bg-slate-100 text-nex-muted transition-colors">
+            className="p-2 rounded-btn hover:bg-nex-hover text-nex-muted transition-colors">
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
@@ -192,8 +192,8 @@ export default function MarketPage() {
 
             return (
               <div key={dateStr} className={`rounded-xl border p-3 text-center transition-colors ${
-                todayFlag ? 'border-nex-primary bg-blue-50/50' :
-                past ? 'border-transparent bg-slate-50/50' : 'border-nex-border bg-white'
+                todayFlag ? 'border-nex-primary bg-nex-primary-light' :
+                past ? 'border-transparent bg-nex-elevated/50' : 'border-nex-border bg-nex-surface'
               }`}>
                 <p className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${
                   todayFlag ? 'text-nex-primary' : 'text-nex-muted'
@@ -215,8 +215,8 @@ export default function MarketPage() {
                   </div>
                 ) : (
                   <div className="py-2">
-                    <Calendar className="w-5 h-5 mx-auto text-slate-300" />
-                    <p className="text-[10px] text-slate-300 mt-1">Unassigned</p>
+                    <Calendar className="w-5 h-5 mx-auto text-nex-muted/40" />
+                    <p className="text-[10px] text-nex-muted/40 mt-1">Unassigned</p>
                   </div>
                 )}
               </div>
@@ -235,8 +235,8 @@ export default function MarketPage() {
 
             return (
               <div key={dateStr} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${
-                todayFlag ? 'border-nex-primary bg-blue-50/50' :
-                past ? 'border-transparent bg-slate-50/50 opacity-60' : 'border-nex-border bg-white'
+                todayFlag ? 'border-nex-primary bg-nex-primary-light' :
+                past ? 'border-transparent bg-nex-elevated/50 opacity-60' : 'border-nex-border bg-nex-surface'
               }`}>
                 {/* Date Column */}
                 <div className={`w-12 text-center shrink-0 ${todayFlag ? 'text-nex-primary' : 'text-nex-text'}`}>
@@ -244,7 +244,7 @@ export default function MarketPage() {
                   <p className="text-lg font-bold leading-tight">{format(day, 'd')}</p>
                 </div>
 
-                <div className="w-px h-10 bg-slate-200 shrink-0"></div>
+                <div className="w-px h-10 bg-nex-border shrink-0"></div>
 
                 {/* Assignee */}
                 {daySchedule ? (
@@ -265,7 +265,7 @@ export default function MarketPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="flex-1 flex items-center gap-2 text-slate-300">
+                  <div className="flex-1 flex items-center gap-2 text-nex-muted/40">
                     <Calendar className="w-4 h-4" />
                     <p className="text-xs">Unassigned</p>
                   </div>
@@ -284,7 +284,7 @@ export default function MarketPage() {
             const p = member.profiles as any
             const count = schedules.filter(s => s.user_id === member.user_id).length
             return (
-              <div key={member.user_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50">
+              <div key={member.user_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-nex-hover">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-[10px] font-semibold">
                     {getInitials(p?.username || '?')}

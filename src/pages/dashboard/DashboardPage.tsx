@@ -314,7 +314,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Cook's Summary Skeleton */}
-        <div className="nex-card p-5 h-32 bg-slate-100 dark:bg-slate-800/50">
+        <div className="nex-card p-5 h-32 bg-nex-elevated">
           <Skeleton className="h-4 w-40 mb-4" />
           <div className="grid grid-cols-2 gap-4">
             <Skeleton className="h-16 rounded-xl" />
@@ -356,7 +356,7 @@ export default function DashboardPage() {
           <p className="mt-0.5 text-sm text-nex-muted">{format(new Date(), 'EEEE, MMMM d')}</p>
         </div>
         {isManager && (
-          <button onClick={() => { setShowNoticeForm(!showNoticeForm); setNoticeText(notice?.message || '') }} className="p-2 rounded-btn text-nex-muted hover:bg-slate-100 transition-colors" title="Post a notice">
+          <button onClick={() => { setShowNoticeForm(!showNoticeForm); setNoticeText(notice?.message || '') }} className="p-2 rounded-btn text-nex-muted hover:bg-nex-hover transition-colors" title="Post a notice">
             <Megaphone className="w-5 h-5" />
           </button>
         )}
@@ -393,29 +393,29 @@ export default function DashboardPage() {
       {/* Warnings & Alerts */}
       <div className="space-y-3">
         {stats.balance < 0 && (
-          <div className="nex-card p-4 border-l-4 border-red-500 bg-red-50/50 flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
+          <div className="nex-card p-4 border-l-4 border-red-500 bg-red-500/5 flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
             <div>
-              <p className="text-sm font-medium text-red-800">Low Balance Alert</p>
-              <p className="text-xs text-red-600 mt-0.5">Your balance is negative ({formatCurrency(stats.balance)}). Please deposit money.</p>
+              <p className="text-sm font-medium text-red-500">Low Balance Alert</p>
+              <p className="text-xs text-nex-muted mt-0.5">Your balance is negative ({formatCurrency(stats.balance)}). Please deposit money.</p>
             </div>
           </div>
         )}
         {unpaidFixed > 0 && (
-          <div className="nex-card p-4 border-l-4 border-orange-400 bg-orange-50/50 flex items-center gap-3">
-            <Wallet className="w-5 h-5 text-orange-600 shrink-0" />
+          <div className="nex-card p-4 border-l-4 border-orange-400 bg-orange-500/5 flex items-center gap-3">
+            <Wallet className="w-5 h-5 text-orange-500 shrink-0" />
             <div>
-              <p className="text-sm font-medium text-orange-800">Unpaid Fixed Costs</p>
-              <p className="text-xs text-orange-600 mt-0.5">The mess has {unpaidFixed} unpaid fixed costs this month.</p>
+              <p className="text-sm font-medium text-orange-500">Unpaid Fixed Costs</p>
+              <p className="text-xs text-nex-muted mt-0.5">The mess has {unpaidFixed} unpaid fixed costs this month.</p>
             </div>
           </div>
         )}
         {isBazaarMan && (
-          <div className="nex-card p-4 border-l-4 border-emerald-400 bg-emerald-50/50 flex items-center gap-3">
-            <ShoppingBag className="w-5 h-5 text-emerald-600 shrink-0" />
+          <div className="nex-card p-4 border-l-4 border-emerald-400 bg-emerald-500/5 flex items-center gap-3">
+            <ShoppingBag className="w-5 h-5 text-emerald-500 shrink-0" />
             <div>
-              <p className="text-sm font-medium text-emerald-800">🛒 You're the Bazaar Man today!</p>
-              <p className="text-xs text-emerald-600 mt-0.5">Don't forget to log your expenses after shopping.</p>
+              <p className="text-sm font-medium text-emerald-500">🛒 You're the Bazaar Man today!</p>
+              <p className="text-xs text-nex-muted mt-0.5">Don't forget to log your expenses after shopping.</p>
             </div>
           </div>
         )}
@@ -428,19 +428,19 @@ export default function DashboardPage() {
           <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Cook's Summary (Entire Mess)</h4>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white/10 dark:bg-slate-800/50 rounded-xl p-3 border border-white/10 dark:border-slate-700/50">
+          <div className="bg-white/10 dark:bg-white/5 rounded-xl p-3 border border-white/10 dark:border-white/5">
             <p className="text-xs text-blue-100 dark:text-slate-400 mb-2 font-medium">Today</p>
             <div className="flex justify-between items-center">
               <div className="text-center"><p className="text-lg font-bold text-white dark:text-amber-400">{cookSummary.todayL}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Lunch</p></div>
-              <div className="w-px h-8 bg-white/20 dark:bg-slate-700"></div>
+              <div className="w-px h-8 bg-white/20 dark:bg-white/10"></div>
               <div className="text-center"><p className="text-lg font-bold text-white dark:text-indigo-400">{cookSummary.todayD}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Dinner</p></div>
             </div>
           </div>
-          <div className="bg-white/10 dark:bg-slate-800/50 rounded-xl p-3 border border-white/10 dark:border-slate-700/50">
+          <div className="bg-white/10 dark:bg-white/5 rounded-xl p-3 border border-white/10 dark:border-white/5">
             <p className="text-xs text-blue-100 dark:text-slate-400 mb-2 font-medium">Tomorrow</p>
             <div className="flex justify-between items-center">
               <div className="text-center"><p className="text-lg font-bold text-white dark:text-amber-400">{cookSummary.tomorrowL}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Lunch</p></div>
-              <div className="w-px h-8 bg-white/20 dark:bg-slate-700"></div>
+              <div className="w-px h-8 bg-white/20 dark:bg-white/10"></div>
               <div className="text-center"><p className="text-lg font-bold text-white dark:text-indigo-400">{cookSummary.tomorrowD}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Dinner</p></div>
             </div>
           </div>
@@ -453,9 +453,9 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold text-nex-text uppercase tracking-wider">My Meals</h4>
             {routines[mealTab].lunch || routines[mealTab].dinner ? (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 rounded-full border border-amber-100">
-                <UtensilsCrossed className="w-3 h-3 text-amber-600" />
-                <span className="text-[10px] font-medium text-amber-700">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 rounded-full border border-amber-500/20">
+                <UtensilsCrossed className="w-3 h-3 text-amber-500" />
+                <span className="text-[10px] font-medium text-amber-500">
                   {mealTab === 'today' ? 'Today' : 'Tomorrow'}: {routines[mealTab].lunch ? `${getFoodEmoji(routines[mealTab].lunch)} ${routines[mealTab].lunch} (L)` : ''} 
                   {routines[mealTab].lunch && routines[mealTab].dinner ? ' · ' : ''}
                   {routines[mealTab].dinner ? `${getFoodEmoji(routines[mealTab].dinner)} ${routines[mealTab].dinner} (D)` : ''}
@@ -463,9 +463,9 @@ export default function DashboardPage() {
               </div>
             ) : null}
           </div>
-          <div className="flex gap-1 bg-slate-100 p-1 rounded-btn self-start sm:self-auto">
-            <button onClick={() => setMealTab('today')} className={`px-3 py-1 text-xs font-medium rounded transition-colors ${mealTab === 'today' ? 'bg-white text-nex-text shadow-sm' : 'text-nex-muted'}`}>Today</button>
-            <button onClick={() => setMealTab('tomorrow')} className={`px-3 py-1 text-xs font-medium rounded transition-colors ${mealTab === 'tomorrow' ? 'bg-white text-nex-text shadow-sm' : 'text-nex-muted'}`}>Tomorrow</button>
+          <div className="flex gap-1 bg-nex-elevated p-1 rounded-btn self-start sm:self-auto">
+            <button onClick={() => setMealTab('today')} className={`px-3 py-1 text-xs font-medium rounded transition-colors ${mealTab === 'today' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'}`}>Today</button>
+            <button onClick={() => setMealTab('tomorrow')} className={`px-3 py-1 text-xs font-medium rounded transition-colors ${mealTab === 'tomorrow' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'}`}>Tomorrow</button>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -473,7 +473,7 @@ export default function DashboardPage() {
             { type: 'lunch' as const, emoji: '☀️', on: currentMData.lunch, label: 'Lunch', guests: currentMData.gl },
             { type: 'dinner' as const, emoji: '🌙', on: currentMData.dinner, label: 'Dinner', guests: currentMData.gd },
           ].map(({ type, emoji, on, label, guests }) => (
-            <div key={type} className={`flex flex-col p-4 rounded-xl border transition-colors duration-200 ${on || guests > 0 ? 'bg-nex-success-light border-emerald-200' : 'bg-slate-50 dark:bg-slate-800/50 border-nex-border'}`}>
+            <div key={type} className={`flex flex-col p-4 rounded-xl border transition-colors duration-200 ${on || guests > 0 ? 'bg-nex-success-light border-emerald-200' : 'bg-nex-elevated border-nex-border'}`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{emoji}</span>
@@ -489,9 +489,9 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between pt-3 border-t border-emerald-100/50">
                 <p className="text-xs font-medium text-slate-500">Guests</p>
                 <div className="flex items-center gap-3">
-                  <button onClick={() => updateGuest(type, -1)} disabled={mealLoading || guests === 0} className="w-6 h-6 rounded-md bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 disabled:opacity-50">-</button>
+                  <button onClick={() => updateGuest(type, -1)} disabled={mealLoading || guests === 0} className="w-6 h-6 rounded-md bg-nex-surface border border-nex-border flex items-center justify-center text-nex-muted hover:bg-nex-hover disabled:opacity-50">-</button>
                   <span className="text-sm font-semibold w-4 text-center">{guests}</span>
-                  <button onClick={() => updateGuest(type, 1)} disabled={mealLoading} className="w-6 h-6 rounded-md bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 disabled:opacity-50">+</button>
+                  <button onClick={() => updateGuest(type, 1)} disabled={mealLoading} className="w-6 h-6 rounded-md bg-nex-surface border border-nex-border flex items-center justify-center text-nex-muted hover:bg-nex-hover disabled:opacity-50">+</button>
                 </div>
               </div>
             </div>
@@ -532,7 +532,7 @@ export default function DashboardPage() {
               <p className="text-xs text-nex-muted text-center py-4">No recent activity.</p>
             ) : recentActs.map(act => (
               <div key={act.id} className="flex items-start gap-3">
-                <div className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${act.type === 'deposit' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                <div className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${act.type === 'deposit' ? 'bg-nex-success' : 'bg-amber-500'}`} />
                 <div>
                   <p className="text-sm text-nex-text">{act.text}</p>
                   <p className="text-[10px] text-nex-muted">{format(new Date(act.time), 'MMM d, h:mm a')}</p>
@@ -548,13 +548,13 @@ export default function DashboardPage() {
             <CalendarDays className="w-4 h-4 text-nex-primary" />
             <h4 className="text-sm font-semibold text-nex-text uppercase tracking-wider">Upcoming Bazaar</h4>
           </div>
-          <div className="space-y-3 divide-y divide-slate-100">
+          <div className="space-y-3 divide-y divide-nex-border">
             {upcomingBazaar.length === 0 ? (
               <p className="text-xs text-nex-muted text-center py-4">No schedule set.</p>
             ) : upcomingBazaar.map((ub, idx) => (
               <div key={idx} className="flex items-center justify-between pt-3 first:pt-0">
                 <div className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isToday(new Date(ub.date)) ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isToday(new Date(ub.date)) ? 'bg-nex-success-light text-nex-success' : 'bg-nex-elevated text-nex-muted'}`}>
                     {isToday(new Date(ub.date)) ? 'Tdy' : isTomorrow(new Date(ub.date)) ? 'Tmr' : format(new Date(ub.date), 'dd')}
                   </div>
                   <p className="text-sm font-medium text-nex-text">{ub.username}</p>
@@ -581,7 +581,7 @@ export default function DashboardPage() {
         </div>
 
         {showECForm && isManager && (
-          <form onSubmit={handleAddEC} className="flex flex-col sm:flex-row gap-2 mb-4 p-3 bg-red-50/50 rounded-xl border border-red-100">
+          <form onSubmit={handleAddEC} className="flex flex-col sm:flex-row gap-2 mb-4 p-3 bg-nex-danger-light rounded-xl border border-nex-danger/10">
             <input type="text" placeholder="Name (e.g., Manager, House Owner)" value={ecName} onChange={e => setEcName(e.target.value)} required className="nex-input flex-1 text-sm py-1.5" />
             <input type="tel" placeholder="Phone Number" value={ecPhone} onChange={e => setEcPhone(e.target.value)} required className="nex-input flex-1 text-sm py-1.5" />
             <button type="submit" className="nex-btn-primary py-1.5 px-4 text-sm whitespace-nowrap">Save</button>
@@ -593,9 +593,9 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {emergencyContacts.map(ec => (
-              <div key={ec.id} className="flex items-center justify-between p-3 rounded-xl border border-nex-border bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <div key={ec.id} className="flex items-center justify-between p-3 rounded-xl border border-nex-border bg-nex-elevated hover:bg-nex-hover transition-colors">
                 <div className="flex items-center gap-3 overflow-hidden">
-                  <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center shrink-0">
                     <PhoneCall className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">

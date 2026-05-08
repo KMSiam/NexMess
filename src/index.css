@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ───────────────────────────────────────────
-   NexMess — Modern Ocean Blue Minimalist
+   NexMess — Modern Ocean Blue Design System
    Tailwind v4 CSS-Based Design System
    ─────────────────────────────────────────── */
 
@@ -20,6 +20,8 @@
   --color-nex-danger:        #F43F5E;
   --color-nex-danger-light:  var(--nex-danger-light);
   --color-nex-warning:       #F59E0B;
+  --color-nex-hover:         var(--nex-hover);
+  --color-nex-elevated:      var(--nex-elevated);
 
   /* ── Font Family ──────────────────────── */
   --font-sans: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -29,8 +31,8 @@
   --radius-btn:  8px;
 
   /* ── Shadows ──────────────────────────── */
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
-  --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-card: var(--nex-shadow-card);
+  --shadow-card-hover: var(--nex-shadow-card-hover);
   --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 
   /* ── Animations ───────────────────────── */
@@ -54,31 +56,38 @@
   }
 }
 
-/* ── Base Styles ───────────────────────── */
+/* ── Theme Variables ──────────────────── */
 :root {
   --nex-bg: #F8FAFC;
   --nex-surface: #FFFFFF;
-  --nex-surface-rgb: 255, 255, 255;
   --nex-primary-light: #EFF6FF;
   --nex-text: #0F172A;
   --nex-muted: #64748B;
   --nex-border: #E2E8F0;
   --nex-success-light: #ECFDF5;
   --nex-danger-light: #FFF1F2;
+  --nex-hover: #F1F5F9;
+  --nex-elevated: #F8FAFC;
+  --nex-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --nex-shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
 }
 
 .dark {
   --nex-bg: #020617;
   --nex-surface: #0F172A;
-  --nex-surface-rgb: 15, 23, 42;
-  --nex-primary-light: rgba(59, 130, 246, 0.08);
-  --nex-text: #F8FAFC;
+  --nex-primary-light: rgba(59, 130, 246, 0.12);
+  --nex-text: #F1F5F9;
   --nex-muted: #94A3B8;
   --nex-border: #1E293B;
-  --nex-success-light: rgba(16, 185, 129, 0.08);
-  --nex-danger-light: rgba(244, 63, 94, 0.08);
+  --nex-success-light: rgba(16, 185, 129, 0.12);
+  --nex-danger-light: rgba(244, 63, 94, 0.12);
+  --nex-hover: #1E293B;
+  --nex-elevated: #1E293B;
+  --nex-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+  --nex-shadow-card-hover: 0 4px 12px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
 }
 
+/* ── Base Styles ───────────────────────── */
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -96,7 +105,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior-y: contain;
-    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   /* Safe area for notched phones (iPhone etc.) */
@@ -123,9 +132,8 @@
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
-  .dark ::-webkit-scrollbar-thumb { background: #334155; }
-  ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  ::-webkit-scrollbar-thumb { background: var(--color-nex-border); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-nex-muted); }
 }
 
 /* ── Component Classes ─────────────────── */
@@ -136,28 +144,19 @@
     border-radius: var(--radius-card);
     border: 1px solid var(--color-nex-border);
     box-shadow: var(--shadow-card);
-    transition: box-shadow 0.2s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
   }
   .nex-card:hover {
     box-shadow: var(--shadow-card-hover);
-    transform: translateY(-1px);
-  }
-  .dark .nex-card:hover {
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
-    border-color: rgba(59, 130, 246, 0.2);
   }
 
   /* Glassmorphism */
   .nex-glass {
-    background: rgba(var(--nex-surface-rgb), 0.7);
+    background: var(--color-nex-surface);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--color-nex-border);
     box-shadow: var(--shadow-glass);
-  }
-  .dark .nex-glass {
-    background: rgba(var(--nex-surface-rgb), 0.75);
-    border-color: rgba(255, 255, 255, 0.05);
   }
 
   /* Primary Button */
@@ -204,7 +203,7 @@
     transition: all 0.15s ease-out;
   }
   .nex-btn-secondary:hover {
-    background-color: #F8FAFC;
+    background-color: var(--color-nex-hover);
     color: var(--color-nex-text);
   }
   .nex-btn-secondary:active {
@@ -243,7 +242,7 @@
     transition: all 0.15s ease;
   }
   .nex-input::placeholder {
-    color: #94A3B8;
+    color: var(--color-nex-muted);
   }
   .nex-input:focus {
     outline: none;
@@ -263,15 +262,15 @@
   }
   .nex-badge-success {
     background-color: var(--color-nex-success-light);
-    color: #065F46;
+    color: var(--color-nex-success);
   }
   .nex-badge-danger {
     background-color: var(--color-nex-danger-light);
-    color: #9F1239;
+    color: var(--color-nex-danger);
   }
   .nex-badge-primary {
     background-color: var(--color-nex-primary-light);
-    color: #1D4ED8;
+    color: var(--color-nex-primary);
   }
 
   /* Nav States */
@@ -287,7 +286,7 @@
     transition: all 0.15s ease;
   }
   .nex-nav-inactive:hover {
-    background-color: #F8FAFC;
+    background-color: var(--color-nex-hover);
     color: var(--color-nex-text);
   }
 
@@ -296,7 +295,7 @@
     background-color: var(--color-nex-success);
   }
   .nex-toggle-off {
-    background-color: #CBD5E1;
+    background-color: var(--color-nex-border);
   }
 
   /* Verified Badge */

@@ -197,7 +197,7 @@ export default function SettingsPage() {
       {currentMess && (
         <div className="nex-card p-6">
           <h3 className="text-lg font-semibold text-nex-text mb-4">Mess Details</h3>
-          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+          <div className="flex items-center justify-between p-4 bg-nex-elevated rounded-xl">
             <div>
               <p className="text-sm font-medium text-nex-text">{currentMess.name}</p>
               <p className="text-xs text-nex-muted font-mono mt-0.5">{currentMess.unique_code}</p>
@@ -221,9 +221,9 @@ export default function SettingsPage() {
             {pendingMembers.map(member => {
               const p = member.profiles as any
               return (
-                <div key={member.user_id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                <div key={member.user_id} className="flex items-center justify-between p-3 bg-nex-elevated rounded-xl">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-sm font-semibold text-slate-600">
+                    <div className="w-9 h-9 rounded-full bg-nex-border flex items-center justify-center text-sm font-semibold text-nex-muted">
                       {getInitials(p?.username || '?')}
                     </div>
                     <p className="text-sm font-medium text-nex-text">{p?.username || 'Unknown'}</p>
@@ -250,7 +250,7 @@ export default function SettingsPage() {
           {approvedMembers.map(member => {
             const p = member.profiles as any
             return (
-              <div key={member.user_id} className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors">
+              <div key={member.user_id} className="flex items-center justify-between p-3 rounded-xl hover:bg-nex-hover transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-semibold">
                     {p?.avatar_url ? (
@@ -268,11 +268,11 @@ export default function SettingsPage() {
                 {isManager && (
                   <div className="flex items-center gap-3">
                     {member.role === 'member' ? (
-                      <button onClick={() => handleMakeManager(member.user_id)} className="text-xs font-medium text-nex-primary hover:text-blue-700 transition-colors bg-blue-50 px-2 py-1 rounded">
+                      <button onClick={() => handleMakeManager(member.user_id)} className="text-xs font-medium text-nex-primary hover:text-blue-700 transition-colors bg-nex-primary-light px-2 py-1 rounded">
                         Make Manager
                       </button>
                     ) : (
-                      <button onClick={() => handleDemoteManager(member.user_id)} className="text-xs font-medium text-amber-600 hover:text-amber-700 transition-colors bg-amber-50 px-2 py-1 rounded">
+                      <button onClick={() => handleDemoteManager(member.user_id)} className="text-xs font-medium text-amber-500 hover:text-amber-400 transition-colors bg-amber-500/10 px-2 py-1 rounded">
                         Remove Manager
                       </button>
                     )}
@@ -291,18 +291,18 @@ export default function SettingsPage() {
 
       {/* Leave Mess Zone */}
       {currentMess && (
-        <div className="nex-card p-6 border border-amber-100 mt-6">
-          <h3 className="text-lg font-semibold text-amber-600 mb-4 flex items-center gap-2">
+        <div className="nex-card p-6 border border-amber-500/20 mt-6">
+          <h3 className="text-lg font-semibold text-amber-500 mb-4 flex items-center gap-2">
             <LogOut className="w-5 h-5" /> Leave Mess
           </h3>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-amber-50/50 rounded-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-amber-500/10 rounded-xl">
             <div>
-              <p className="text-sm font-medium text-amber-800">Leave your current mess</p>
-              <p className="text-xs text-amber-600/80 mt-1 max-w-sm">
+              <p className="text-sm font-medium text-amber-500">Leave your current mess</p>
+              <p className="text-xs text-nex-muted mt-1 max-w-sm">
                 This will remove your access to the mess. You must create or join another mess afterwards.
               </p>
             </div>
-            <button onClick={handleLeaveMess} className="nex-btn-secondary text-sm shrink-0 flex items-center justify-center gap-2 !text-amber-700 !border-amber-200 hover:!bg-amber-100">
+            <button onClick={handleLeaveMess} className="nex-btn-secondary text-sm shrink-0 flex items-center justify-center gap-2 !text-amber-500 !border-amber-500/30 hover:!bg-amber-500/10">
               <LogOut className="w-4 h-4" /> Leave Mess
             </button>
           </div>
@@ -311,14 +311,14 @@ export default function SettingsPage() {
 
       {/* Delete Mess Zone */}
       {isManager && currentMess && (
-        <div className="nex-card p-6 border border-red-100">
-          <h3 className="text-lg font-semibold text-red-600 mb-4 flex items-center gap-2">
+        <div className="nex-card p-6 border border-red-500/20">
+          <h3 className="text-lg font-semibold text-red-500 mb-4 flex items-center gap-2">
             <AlertTriangle className="w-5 h-5" /> Danger Zone
           </h3>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-red-50/50 rounded-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-red-500/10 rounded-xl">
             <div>
-              <p className="text-sm font-medium text-red-800">Delete this mess</p>
-              <p className="text-xs text-red-600/80 mt-1 max-w-sm">
+              <p className="text-sm font-medium text-red-500">Delete this mess</p>
+              <p className="text-xs text-nex-muted mt-1 max-w-sm">
                 Permanently delete this mess and all its data. This action is irreversible and affects all members.
               </p>
             </div>

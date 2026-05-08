@@ -359,11 +359,11 @@ export default function FinancePage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-slate-100 p-1 rounded-btn overflow-x-auto">
+      <div className="flex gap-1 bg-nex-elevated p-1 rounded-btn overflow-x-auto">
         {tabs.map(({ key, label, icon: Icon }) => (
           <button key={key} onClick={() => setActiveTab(key)}
             className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
-              activeTab === key ? 'bg-white text-nex-text shadow-sm' : 'text-nex-muted'
+              activeTab === key ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'
             }`}>
             <Icon className="w-3.5 h-3.5" /> {label}
           </button>
@@ -399,7 +399,7 @@ export default function FinancePage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-nex-text mb-1">Receipt (optional)</label>
-                  <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-nex-border rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                  <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-nex-border rounded-lg cursor-pointer hover:bg-nex-hover transition-colors">
                     <ImageIcon className="w-4 h-4 text-nex-muted" />
                     <span className="text-sm text-nex-muted">{expFile ? expFile.name : 'Upload receipt photo'}</span>
                     <input type="file" accept="image/*" onChange={e => setExpFile(e.target.files?.[0] || null)} className="hidden" />
@@ -416,10 +416,10 @@ export default function FinancePage() {
             {expenses.length === 0 ? (
               <p className="p-8 text-center text-nex-muted text-sm">No expenses recorded yet.</p>
             ) : expenses.map(exp => (
-              <div key={exp.id} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+              <div key={exp.id} className="flex items-center justify-between px-5 py-3 hover:bg-nex-hover transition-colors">
                 <div className="flex items-center gap-3">
                   <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg ${
-                    exp.category === 'bazaar' ? 'bg-emerald-50' : exp.category === 'rent' ? 'bg-blue-50' : 'bg-amber-50'
+                    exp.category === 'bazaar' ? 'bg-emerald-500/10' : exp.category === 'rent' ? 'bg-blue-500/10' : 'bg-amber-500/10'
                   }`}>
                     {exp.category === 'bazaar' ? '🛒' : exp.category === 'rent' ? '🏠' : exp.category === 'utilities' ? '💡' : '📋'}
                   </div>
@@ -486,9 +486,9 @@ export default function FinancePage() {
             {deposits.length === 0 ? (
               <p className="p-8 text-center text-nex-muted text-sm">No deposits recorded yet.</p>
             ) : deposits.map(dep => (
-              <div key={dep.id} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+              <div key={dep.id} className="flex items-center justify-between px-5 py-3 hover:bg-nex-hover transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                     <PiggyBank className="w-4 h-4 text-emerald-600" />
                   </div>
                   <div>
@@ -549,7 +549,7 @@ export default function FinancePage() {
             ) : fixedCosts.map(fc => {
               const icons: Record<string, string> = { rent: '🏠', utilities: '💡', maid: '🧹', internet: '🌐', gas: '🔥', other: '📋' }
               return (
-                <div key={fc.id} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                <div key={fc.id} className="flex items-center justify-between px-5 py-3 hover:bg-nex-hover transition-colors">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">{icons[fc.category] || '📋'}</span>
                     <div>
@@ -587,7 +587,7 @@ export default function FinancePage() {
           )}
           <div className="nex-card divide-y divide-nex-border">
             {/* Desktop Table Header */}
-            <div className="hidden sm:block px-5 py-3 bg-slate-50 dark:bg-slate-800/50">
+            <div className="hidden sm:block px-5 py-3 bg-nex-elevated">
             <div className="grid grid-cols-6 gap-2 text-[10px] font-semibold text-nex-muted uppercase tracking-wider">
               <span className="col-span-2">Member</span>
               <span className="text-right">Meals</span>
@@ -606,7 +606,7 @@ export default function FinancePage() {
             const realBalance = deposited - totalExp
 
             return (
-              <div key={member.user_id} className="px-4 sm:px-5 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+              <div key={member.user_id} className="px-4 sm:px-5 py-3 hover:bg-nex-hover transition-colors">
                 {/* Desktop Row */}
                 <div className="hidden sm:grid grid-cols-6 gap-2 items-center">
                   <div className="col-span-2 flex items-center gap-2">
@@ -615,7 +615,7 @@ export default function FinancePage() {
                     </div>
                     <span className="text-sm font-medium text-nex-text truncate">
                       {p?.username || 'Member'}
-                      {member.status === 'left' && <span className="ml-2 text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Left</span>}
+                      {member.status === 'left' && <span className="ml-2 text-[10px] bg-red-500/10 text-red-500 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Left</span>}
                     </span>
                   </div>
                   <p className="text-sm text-nex-text text-right">{b.personal_meals || 0}</p>
@@ -634,7 +634,7 @@ export default function FinancePage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-nex-text truncate flex items-center gap-2">
                         {p?.username || 'Member'}
-                        {member.status === 'left' && <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Left</span>}
+                        {member.status === 'left' && <span className="text-[10px] bg-red-500/10 text-red-500 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Left</span>}
                       </p>
                       <p className="text-[10px] text-nex-muted">{b.personal_meals || 0} meals</p>
                     </div>

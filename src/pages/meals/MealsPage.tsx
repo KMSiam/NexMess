@@ -138,14 +138,14 @@ export default function MealsPage() {
           <Utensils className="w-6 h-6 text-nex-primary" />
           <h1 className="text-2xl font-bold text-nex-text">Meal Calendar</h1>
         </div>
-        <div className="flex gap-1 bg-slate-100 p-1 rounded-btn">
+        <div className="flex gap-1 bg-nex-elevated p-1 rounded-btn">
           <button onClick={() => setViewMode('personal')}
             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-              viewMode === 'personal' ? 'bg-white text-nex-text shadow-sm' : 'text-nex-muted'
+              viewMode === 'personal' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'
             }`}>My Meals</button>
           <button onClick={() => setViewMode('all')}
             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-              viewMode === 'all' ? 'bg-white text-nex-text shadow-sm' : 'text-nex-muted'
+              viewMode === 'all' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'
             }`}>All Members</button>
         </div>
       </div>
@@ -154,12 +154,12 @@ export default function MealsPage() {
       <div className="nex-card p-5">
         <div className="flex items-center justify-between mb-4">
           <button onClick={() => setCurrentDate(subMonths(currentDate, 1))}
-            className="p-2 rounded-btn hover:bg-slate-100 text-nex-muted transition-colors">
+            className="p-2 rounded-btn hover:bg-nex-hover text-nex-muted transition-colors">
             <ChevronLeft className="w-5 h-5" />
           </button>
           <h2 className="text-lg font-semibold text-nex-text">{format(currentDate, 'MMMM yyyy')}</h2>
           <button onClick={() => setCurrentDate(addMonths(currentDate, 1))}
-            className="p-2 rounded-btn hover:bg-slate-100 text-nex-muted transition-colors">
+            className="p-2 rounded-btn hover:bg-nex-hover text-nex-muted transition-colors">
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
@@ -170,11 +170,11 @@ export default function MealsPage() {
             <p className="text-2xl font-bold text-nex-primary">{monthlyStats.total}</p>
             <p className="text-[10px] text-blue-600 uppercase tracking-wider font-medium">Total Meals</p>
           </div>
-          <div className="bg-amber-50 rounded-xl p-3 text-center">
+          <div className="bg-amber-500/10 rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-amber-600">{monthlyStats.lunch}</p>
             <p className="text-[10px] text-amber-600 uppercase tracking-wider font-medium">Lunch</p>
           </div>
-          <div className="bg-indigo-50 rounded-xl p-3 text-center">
+          <div className="bg-indigo-500/10 rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-indigo-600">{monthlyStats.dinner}</p>
             <p className="text-[10px] text-indigo-600 uppercase tracking-wider font-medium">Dinner</p>
           </div>
@@ -202,12 +202,12 @@ export default function MealsPage() {
               <div
                 key={dateStr}
                 className={`relative min-h-[72px] p-1.5 rounded-xl border transition-colors ${
-                  today ? 'border-nex-primary bg-blue-50/50' :
-                  inMonth ? 'border-nex-border bg-white' : 'border-transparent bg-slate-50/50'
+                  today ? 'border-nex-primary bg-nex-primary-light' :
+                  inMonth ? 'border-nex-border bg-nex-surface' : 'border-transparent bg-nex-elevated/50'
                 }`}
               >
                 <p className={`text-xs font-medium text-center mb-1 ${
-                  today ? 'text-nex-primary' : inMonth ? 'text-nex-text' : 'text-slate-300'
+                  today ? 'text-nex-primary' : inMonth ? 'text-nex-text' : 'text-nex-muted/40'
                 }`}>
                   {format(day, 'd')}
                 </p>
@@ -219,8 +219,8 @@ export default function MealsPage() {
                       disabled={isPastDate}
                       className={`flex items-center justify-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium transition-colors ${
                         meal?.lunch || (meal?.guest_lunch || 0) > 0
-                          ? 'bg-amber-100 text-amber-700'
-                          : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                          ? 'bg-amber-500/15 text-amber-500'
+                          : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
                       } ${isPastDate ? 'opacity-50 cursor-not-allowed' : ''}`}
                       title={isPastDate ? "Cannot update past meals" : "Toggle Lunch"}
                     >
@@ -231,8 +231,8 @@ export default function MealsPage() {
                       disabled={isPastDate}
                       className={`flex items-center justify-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium transition-colors ${
                         meal?.dinner || (meal?.guest_dinner || 0) > 0
-                          ? 'bg-indigo-100 text-indigo-700'
-                          : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                          ? 'bg-indigo-500/15 text-indigo-400'
+                          : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
                       } ${isPastDate ? 'opacity-50 cursor-not-allowed' : ''}`}
                       title={isPastDate ? "Cannot update past meals" : "Toggle Dinner"}
                     >
@@ -243,11 +243,11 @@ export default function MealsPage() {
 
                 {inMonth && viewMode === 'all' && allMeals.length > 0 && (
                   <div className="flex flex-col gap-0.5 mt-1 items-center">
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded w-full justify-center">
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded w-full justify-center">
                       <span>L:</span>
                       <span>{allMeals.reduce((s, m) => s + (m.lunch ? 1 : 0) + (m.guest_lunch || 0), 0)}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded w-full justify-center">
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded w-full justify-center">
                       <span>D:</span>
                       <span>{allMeals.reduce((s, m) => s + (m.dinner ? 1 : 0) + (m.guest_dinner || 0), 0)}</span>
                     </div>
