@@ -78,3 +78,23 @@ export function isMealCutoffPassed(dateStr: string, type: 'lunch' | 'dinner'): b
 export function mealCutoffLabel(type: 'lunch' | 'dinner'): string {
   return type === 'lunch' ? '10:00 AM' : '4:00 PM'
 }
+
+// Is the cut-off approaching within `windowMinutes` (default 60)?
+// Returns minutesLeft when in window, otherwise null.
+export function mealCutoffApproaching(
+  type: 'lunch' | 'dinner',
+  windowMinutes = 60,
+): number | null {
+  const { hour, minute } = dhakaParts()
+  const cutoffH = MEAL_CUTOFF_HOURS[type]
+  const minutesNow = hour * 60 + minute
+  const minutesCutoff = cutoffH * 60
+  const left = minutesCutoff - minutesNow
+  if (left <= 0 || left > windowMinutes) return null
+  return left
+}
+
+// Asia/Dhaka today's date string (YYYY-MM-DD)
+export function dhakaToday(): string {
+  return dhakaParts().dateStr
+}

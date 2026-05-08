@@ -84,21 +84,21 @@ function App() {
         </Routes>
       </AppInitializer>
 
-      {/* Toast notifications */}
+      {/* Toast notifications — uses CSS vars so it auto-tracks light/dark theme */}
       <Toaster
         position="top-right"
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#FFFFFF',
-            color: '#0F172A',
-            border: '1px solid #E2E8F0',
+            background: 'var(--nex-surface)',
+            color: 'var(--nex-text)',
+            border: '1px solid var(--nex-border)',
             borderRadius: '12px',
             fontSize: '14px',
             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.06)',
           },
-          success: { iconTheme: { primary: '#10B981', secondary: '#FFFFFF' } },
-          error: { iconTheme: { primary: '#F43F5E', secondary: '#FFFFFF' } },
+          success: { iconTheme: { primary: '#10B981', secondary: 'var(--nex-surface)' } },
+          error: { iconTheme: { primary: '#F43F5E', secondary: 'var(--nex-surface)' } },
         }}
       />
     </BrowserRouter>

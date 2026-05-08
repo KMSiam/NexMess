@@ -5,7 +5,6 @@ import { supabase } from '../../lib/supabase'
 import { Camera, ArrowRight } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
-import { getInitials } from '../../lib/utils'
 
 export default function OnboardingPage() {
   const navigate = useNavigate()

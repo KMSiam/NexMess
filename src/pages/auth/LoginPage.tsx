@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
-import logo from '../../assets/logo.svg'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 

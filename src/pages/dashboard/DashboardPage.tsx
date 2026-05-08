@@ -5,11 +5,11 @@ import { supabase } from '../../lib/supabase'
 import { Link } from 'react-router-dom'
 import { format, addDays, isToday, isTomorrow } from 'date-fns'
 import {
-  LayoutDashboard, Activity, CalendarDays, Plus,
+  Activity, CalendarDays, Plus,
   Megaphone, PhoneCall, Trash2, ShieldAlert,
-  Users, Send, X, AlertTriangle, Wallet, ShoppingBag, ChefHat, UtensilsCrossed,
+  Users, Send, X, AlertTriangle, Wallet, ShoppingBag, ChefHat, UtensilsCrossed, Clock,
 } from 'lucide-react'
-import { getGreeting, formatCurrency, getFoodEmoji, isMealCutoffPassed, mealCutoffLabel } from '../../lib/utils'
+import { getGreeting, formatCurrency, getFoodEmoji, isMealCutoffPassed, mealCutoffLabel, mealCutoffApproaching } from '../../lib/utils'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 
@@ -51,6 +51,13 @@ export default function DashboardPage() {
   const today = format(new Date(), 'yyyy-MM-dd')
   const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
   const currentMonth = format(new Date(), 'yyyy-MM')
+
+  // Re-evaluate cut-off banner every 60s without polluting other state
+  const [, setNowTick] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setNowTick(t => t + 1), 60_000)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     if (!profile?.id || !currentMess?.id) return
@@ -404,6 +411,33 @@ export default function DashboardPage() {
 
       {/* Warnings & Alerts */}
       <div className="space-y-3">
+        {(() => {
+          // Cut-off reminder: only for *today* and only when the meal isn't already on
+          const lunchLeft = !mealsData.today.lunch ? mealCutoffApproaching('lunch') : null
+          const dinnerLeft = !mealsData.today.dinner ? mealCutoffApproaching('dinner') : null
+          const banners: { type: 'lunch' | 'dinner'; minutes: number }[] = []
+          if (lunchLeft !== null) banners.push({ type: 'lunch', minutes: lunchLeft })
+          if (dinnerLeft !== null) banners.push({ type: 'dinner', minutes: dinnerLeft })
+          return banners.map(b => (
+            <div key={b.type} className="nex-card p-4 border-l-4 border-amber-500 bg-amber-500/5 flex items-center gap-3">
+              <Clock className="w-5 h-5 text-amber-500 shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                  {b.type === 'lunch' ? 'Lunch' : 'Dinner'} cut-off in {b.minutes} min
+                </p>
+                <p className="text-xs text-nex-muted mt-0.5">
+                  Set today's {b.type} before {mealCutoffLabel(b.type)} or the manager will need to override it.
+                </p>
+              </div>
+              <button
+                onClick={() => { setMealTab('today'); toggleMeal(b.type) }}
+                className="nex-btn-primary text-xs py-1.5 px-3 whitespace-nowrap"
+              >
+                Mark on
+              </button>
+            </div>
+          ))
+        })()}
         {stats.balance < 0 && (
           <div className="nex-card p-4 border-l-4 border-red-500 bg-red-500/5 flex items-center gap-3">
             <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />

@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { MarketSchedule } from '../../types/database'
 import {
   ShoppingBag, Plus, ChevronLeft, ChevronRight, Trash2,
-  Calendar, UserCheck, ArrowRightLeft,
+  Calendar, ArrowRightLeft,
 } from 'lucide-react'
 import {
   format, startOfWeek, endOfWeek, addWeeks, subWeeks,
@@ -31,6 +31,19 @@ export default function MarketPage() {
   const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 6 })
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd })
 
+  const fetchSchedules = async () => {
+    if (!currentMess?.id) return
+    const { data } = await supabase
+      .from('market_schedules')
+      .select('*, profiles(username, avatar_url)')
+      .eq('mess_id', currentMess.id)
+      .gte('assigned_date', format(weekStart, 'yyyy-MM-dd'))
+      .lte('assigned_date', format(weekEnd, 'yyyy-MM-dd'))
+      .order('assigned_date', { ascending: true })
+
+    if (data) setSchedules(data as MarketSchedule[])
+  }
+
   useEffect(() => {
     if (!currentMess?.id) return
     fetchSchedules()
@@ -49,19 +62,6 @@ export default function MarketPage() {
       supabase.removeChannel(channel)
     }
   }, [currentMess?.id, format(weekStart, 'yyyy-MM-dd')])
-
-  const fetchSchedules = async () => {
-    if (!currentMess?.id) return
-    const { data } = await supabase
-      .from('market_schedules')
-      .select('*, profiles(username, avatar_url)')
-      .eq('mess_id', currentMess.id)
-      .gte('assigned_date', format(weekStart, 'yyyy-MM-dd'))
-      .lte('assigned_date', format(weekEnd, 'yyyy-MM-dd'))
-      .order('assigned_date', { ascending: true })
-
-    if (data) setSchedules(data as MarketSchedule[])
-  }
 
   const handleAssign = async (e: React.FormEvent) => {
     e.preventDefault()

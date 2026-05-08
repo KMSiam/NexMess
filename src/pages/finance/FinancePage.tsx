@@ -5,7 +5,8 @@ import { supabase } from '../../lib/supabase'
 import { Expense, Deposit, FixedCost } from '../../types/database'
 import {
   Wallet, Plus, TrendingUp, Receipt, PiggyBank,
-  DollarSign, CheckCircle2, X, Filter, Download, Image as ImageIcon,
+  DollarSign, CheckCircle2, Download, Image as ImageIcon,
+  ArrowRight,
 } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, isThisMonth } from 'date-fns'
 import { formatCurrency, getInitials } from '../../lib/utils'
@@ -331,7 +332,7 @@ export default function FinancePage() {
         const deposited = Number(b.total_deposits || 0)
         const totalExp = mealCost + perPersonFixedCost
         const realBalance = deposited - totalExp
-        
+
         return [
           (p?.username || 'Unknown') + (member.status === 'left' ? ' (Left)' : ''),
           Number(b.personal_meals || 0).toString(),
@@ -347,6 +348,26 @@ export default function FinancePage() {
       columnStyles: { 6: { fontStyle: 'bold' } }
     })
 
+    // Settle-up sheet
+    if (settlements.length > 0) {
+      const settleY = (doc as any).lastAutoTable.finalY + 12
+      autoTable(doc, {
+        startY: settleY,
+        head: [['Settle-up — who pays whom']],
+        body: [],
+        theme: 'plain',
+        headStyles: { fillColor: [16, 185, 129], textColor: 255, fontSize: 12 },
+      })
+      autoTable(doc, {
+        startY: (doc as any).lastAutoTable.finalY,
+        head: [['From (debtor)', '', 'To (creditor)', 'Amount']],
+        body: settlements.map(t => [t.from, '->', t.to, `Tk ${t.amount.toFixed(0)}`]),
+        theme: 'grid',
+        headStyles: { fillColor: [16, 185, 129] },
+        columnStyles: { 1: { halign: 'center' }, 3: { halign: 'right', fontStyle: 'bold' } }
+      })
+    }
+
     doc.save(`NexMess_${currentMess.name.replace(/\s+/g, '_')}_Report_${currentMonth}.pdf`)
     toast.success('PDF Report Downloaded!')
   }
@@ -354,6 +375,37 @@ export default function FinancePage() {
   const totalExpenses = expenses.filter(e => e.date.startsWith(currentMonth)).reduce((s, e) => s + Number(e.amount), 0)
   const totalDeposits = deposits.filter(d => d.date.startsWith(currentMonth) && d.verified).reduce((s, d) => s + Number(d.amount), 0)
   const totalFixed = fixedCosts.reduce((s, f) => s + Number(f.amount), 0)
+
+  // Settle-up: greedy match largest debtor with largest creditor.
+  // Returns minimum-ish transfer list to bring everyone to balance 0.
+  const settlements = (() => {
+    const perPersonFixed = financeMembers.length > 0 ? totalFixed / financeMembers.length : 0
+    const creditors: { name: string; amount: number }[] = []
+    const debtors: { name: string; amount: number }[] = []
+    financeMembers.forEach(m => {
+      const p = m.profiles as { username?: string } | null
+      const b = balances[m.user_id] || {}
+      const mealCost = Number(b.individual_cost || 0)
+      const deposited = Number(b.total_deposits || 0)
+      const realBalance = deposited - (mealCost + perPersonFixed)
+      const name = p?.username || 'Member'
+      if (realBalance > 0.5) creditors.push({ name, amount: realBalance })
+      else if (realBalance < -0.5) debtors.push({ name, amount: -realBalance })
+    })
+    creditors.sort((a, b) => b.amount - a.amount)
+    debtors.sort((a, b) => b.amount - a.amount)
+    const transfers: { from: string; to: string; amount: number }[] = []
+    let i = 0, j = 0
+    while (i < debtors.length && j < creditors.length) {
+      const amt = Math.min(debtors[i].amount, creditors[j].amount)
+      transfers.push({ from: debtors[i].name, to: creditors[j].name, amount: Math.round(amt) })
+      debtors[i].amount -= amt
+      creditors[j].amount -= amt
+      if (debtors[i].amount < 0.5) i++
+      if (creditors[j].amount < 0.5) j++
+    }
+    return transfers
+  })()
 
   const tabs: { key: Tab; label: string; icon: any }[] = [
     { key: 'expenses', label: 'Expenses', icon: Receipt },
@@ -679,6 +731,31 @@ export default function FinancePage() {
               </div>
             )
           })}
+          </div>
+
+          {/* ── Settle-up sheet ─────────────── */}
+          <div className="nex-card p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <ArrowRight className="w-4 h-4 text-nex-success" />
+              <h3 className="text-sm font-semibold text-nex-text">Settle Up</h3>
+              <span className="text-[10px] text-nex-muted">— minimum payments to close the month</span>
+            </div>
+            {settlements.length === 0 ? (
+              <p className="text-sm text-nex-muted">Everyone is squared up. No transfers needed.</p>
+            ) : (
+              <ul className="divide-y divide-nex-border">
+                {settlements.map((t, idx) => (
+                  <li key={idx} className="flex items-center justify-between py-2.5 text-sm">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-medium text-nex-danger truncate">{t.from}</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-nex-muted flex-shrink-0" />
+                      <span className="font-medium text-nex-success truncate">{t.to}</span>
+                    </div>
+                    <span className="font-semibold text-nex-text whitespace-nowrap ml-3">{formatCurrency(t.amount)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       )}

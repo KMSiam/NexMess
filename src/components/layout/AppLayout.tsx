@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabase'
 import {
   Home, Utensils, MessageSquare, Wallet, ShoppingBag,
   Settings, Zap, LogOut, CheckCircle2,
-  CalendarClock, PanelLeft, PanelLeftClose, ChevronDown, X, MoreHorizontal,
+  CalendarClock, PanelLeft, PanelLeftClose, X, MoreHorizontal,
   Sun, Moon
 } from 'lucide-react'
 import NotificationBell from '../NotificationBell'

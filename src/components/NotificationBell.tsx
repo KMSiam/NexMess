@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useAuthStore } from '../stores/authStore'
 import { supabase } from '../lib/supabase'
 import { Notification } from '../types/database'
-import { Bell, Check, CheckCheck, Trash2, X } from 'lucide-react'
+import { Bell, CheckCheck, Trash2, X } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 
 interface NotificationBellProps {
