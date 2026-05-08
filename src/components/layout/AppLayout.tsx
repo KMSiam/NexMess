@@ -168,13 +168,13 @@ export default function AppLayout() {
       </div>
 
       {/* ── Mobile Bottom Nav ──────────────── */}
-      <MobileBottomNav handleSignOut={handleSignOut} />
+      <MobileBottomNav handleSignOut={handleSignOut} signingOut={signingOut} />
     </div>
   )
 }
 
 /* ── Mobile Bottom Navigation with "More" Menu ── */
-function MobileBottomNav({ handleSignOut }: { handleSignOut: () => void }) {
+function MobileBottomNav({ handleSignOut, signingOut }: { handleSignOut: () => void; signingOut: boolean }) {
   const [showMore, setShowMore] = useState(false)
 
   const mainTabs = navItems.slice(0, 4) // Dashboard, Meals, Chat, Finance
