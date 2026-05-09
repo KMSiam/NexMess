@@ -12,6 +12,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,ico,woff2}'],
+        rollupFormat: 'iife',
       },
       includeAssets: ['favicon.svg', 'icons.svg'],
       manifest: {
