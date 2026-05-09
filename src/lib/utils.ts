@@ -55,17 +55,13 @@ export function getGreeting(): string {
 export const MEAL_CUTOFF_HOURS = { lunch: 10, dinner: 16 } as const
 
 function dhakaParts(d: Date = new Date()) {
-  // en-GB gives YYYY-MM-DD via formatToParts in 24h
-  const fmt = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Asia/Dhaka',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hour12: false,
-  })
-  const parts = Object.fromEntries(fmt.formatToParts(d).map(p => [p.type, p.value]))
+  // Dhaka is always UTC+6, no DST — use direct arithmetic to avoid browser Intl hour12 bugs
+  // (some browsers return 1-12 for hour12:false instead of 0-23)
+  const t = new Date(d.getTime() + 6 * 60 * 60 * 1000)
   return {
-    dateStr: `${parts.year}-${parts.month}-${parts.day}`,
-    hour: Number(parts.hour),
-    minute: Number(parts.minute),
+    dateStr: `${t.getUTCFullYear()}-${String(t.getUTCMonth() + 1).padStart(2, '0')}-${String(t.getUTCDate()).padStart(2, '0')}`,
+    hour: t.getUTCHours(),
+    minute: t.getUTCMinutes(),
   }
 }
 

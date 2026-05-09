@@ -96,8 +96,10 @@ export default function MealsPage() {
     }
 
     const existing = meals.find(m => m.user_id === user.id && m.date === date)
-    const currentLunch = existing?.lunch || false
-    const currentDinner = existing?.dinner || false
+    const currentLunch = existing?.lunch ?? false
+    const currentDinner = existing?.dinner ?? false
+    const currentGuestLunch = existing?.guest_lunch ?? 0
+    const currentGuestDinner = existing?.guest_dinner ?? 0
 
     const newValue = type === 'lunch' ? !currentLunch : !currentDinner
 
@@ -105,7 +107,7 @@ export default function MealsPage() {
     setMeals(prev => {
       const idx = prev.findIndex(m => m.user_id === user.id && m.date === date)
       const updated = {
-        ...(existing || { id: 'temp', user_id: user.id, mess_id: currentMess.id, date, lunch: false, dinner: false }),
+        ...(existing || { id: 'temp', user_id: user.id, mess_id: currentMess.id, date, lunch: false, dinner: false, guest_lunch: 0, guest_dinner: 0 }),
         [type]: newValue,
       } as Meal
       if (idx >= 0) {
@@ -122,10 +124,12 @@ export default function MealsPage() {
       date,
       lunch: type === 'lunch' ? newValue : currentLunch,
       dinner: type === 'dinner' ? newValue : currentDinner,
+      guest_lunch: currentGuestLunch,
+      guest_dinner: currentGuestDinner,
     }, { onConflict: 'user_id,mess_id,date' })
 
     if (error) {
-      toast.error('Failed to update meal')
+      toast.error(error.message || 'Failed to update meal')
       fetchMeals() // Revert
     }
   }
