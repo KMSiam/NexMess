@@ -59,10 +59,12 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           </Route>
 
+          {/* Password reset — accessible with only a recovery token, no full session required */}
+          <Route path="/update-password" element={<UpdatePasswordPage />} />
+
           {/* Protected routes */}
           <Route element={<AuthGuard />}>
             <Route path="/onboarding" element={<OnboardingPage />} />
-            <Route path="/update-password" element={<UpdatePasswordPage />} />
             <Route path="/mess/create" element={<CreateMessPage />} />
             <Route path="/mess/join" element={<JoinMessPage />} />
 

@@ -13,11 +13,15 @@ export default function UpdatePasswordPage() {
   const [loading, setLoading] = useState(false)
   const [ready, setReady] = useState(false)
 
-  // Wait for the PASSWORD_RECOVERY event from the email link
+  // Wait for the PASSWORD_RECOVERY event from the email link, then navigate after update
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
         setReady(true)
+      }
+      // After updateUser resolves, Supabase fires USER_UPDATED with the refreshed session
+      if (event === 'USER_UPDATED' && session) {
+        navigate('/dashboard', { replace: true })
       }
     })
     // Also check if we already have a session (user clicked link and is already authed)
@@ -25,7 +29,7 @@ export default function UpdatePasswordPage() {
       if (session) setReady(true)
     })
     return () => subscription.unsubscribe()
-  }, [])
+  }, [navigate])
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,8 +57,7 @@ export default function UpdatePasswordPage() {
       setLoading(false)
     } else {
       toast.success('Password updated! Redirecting...')
-      setLoading(false)
-      navigate('/dashboard', { replace: true })
+      // Navigation happens in the onAuthStateChange listener when USER_UPDATED fires
     }
   }
 

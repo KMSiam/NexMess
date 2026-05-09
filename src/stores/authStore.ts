@@ -37,10 +37,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // Listen for auth changes
       supabase.auth.onAuthStateChange(async (event, session) => {
         // On sign out, clear everything immediately
-        if (event === 'SIGNED_OUT' || !session) {
+        if (event === 'SIGNED_OUT') {
           set({ session: null, user: null, profile: null })
           return
         }
+        // Some events fire with no session (e.g. recovery token consumed mid-flow); ignore them
+        if (!session) return
 
         // Update session & user for all other events
         set({ session, user: session.user })
