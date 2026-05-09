@@ -266,15 +266,17 @@ export default function DashboardPage() {
 
     setMealsData(prev => ({ ...prev, [mealTab]: { ...prev[mealTab], [type]: newValue } }))
 
+    // guest_lunch/guest_dinner intentionally omitted — DO UPDATE SET only touches specified
+    // columns, so manager-set guest counts are preserved on conflict, and glunch_changed /
+    // gdinner_changed stay false in the trigger (avoiding a false lunch-cutoff raise)
     const { error } = await supabase.from('meals').upsert({
       user_id: profile.id, mess_id: currentMess.id, date: targetDate,
       lunch: type === 'lunch' ? newValue : mData.lunch,
       dinner: type === 'dinner' ? newValue : mData.dinner,
-      guest_lunch: mData.gl, guest_dinner: mData.gd,
     }, { onConflict: 'user_id,mess_id,date' })
 
     if (error) {
-      toast.error('Failed to update meal')
+      toast.error(error.message || 'Failed to update meal')
       setMealsData(prev => ({ ...prev, [mealTab]: { ...prev[mealTab], [type]: !newValue } }))
     }
     setMealLoading(false)
