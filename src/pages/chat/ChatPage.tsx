@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -7,6 +7,7 @@ import { Send, MessageSquare } from 'lucide-react'
 import { format } from 'date-fns'
 import { getInitials } from '../../lib/utils'
 import toast from 'react-hot-toast'
+import { useRegisterRefresh } from '../../contexts/RefreshContext'
 
 export default function ChatPage() {
   const { profile } = useAuthStore()
@@ -18,18 +19,22 @@ export default function ChatPage() {
   const membersRef = useRef(members)
   useEffect(() => { membersRef.current = members }, [members])
 
+  const fetchMessages = useCallback(async () => {
+    if (!currentMess?.id) return
+    const { data } = await supabase
+      .from('chat_messages')
+      .select('*, profiles(username, avatar_url)')
+      .eq('mess_id', currentMess.id)
+      .order('created_at', { ascending: true })
+      .limit(100)
+    if (data) setMessages(data as ChatMessage[])
+  }, [currentMess?.id])
+
+  useRegisterRefresh(fetchMessages)
+
   useEffect(() => {
     if (!currentMess?.id) return
 
-    const fetchMessages = async () => {
-      const { data } = await supabase
-        .from('chat_messages')
-        .select('*, profiles(username, avatar_url)')
-        .eq('mess_id', currentMess.id)
-        .order('created_at', { ascending: true })
-        .limit(100)
-      if (data) setMessages(data as ChatMessage[])
-    }
     fetchMessages()
 
     // Real-time subscription
@@ -55,7 +60,7 @@ export default function ChatPage() {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [currentMess?.id])
+  }, [currentMess?.id, fetchMessages])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })

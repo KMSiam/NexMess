@@ -14,6 +14,8 @@ import NotificationBell from '../NotificationBell'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
 import { getInitials } from '../../lib/utils'
 import logoIcon from '../../assets/logo-icon.svg'
+import { RefreshProvider, useRefreshFn } from '../../contexts/RefreshContext'
+import PullToRefresh from '../PullToRefresh'
 
 const navItems = [
   { to: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -82,7 +84,8 @@ export default function AppLayout() {
   }, [profile?.id, fetchUserMesses])
 
   return (
-    <div className="min-h-screen bg-nex-bg flex">
+    <RefreshProvider>
+    <div className="h-screen bg-nex-bg flex">
       {/* ── Desktop Sidebar ────────────────── */}
       <aside className={`hidden lg:flex flex-col h-screen sticky top-0 nex-glass border-r border-nex-border/50 transition-all duration-300 ${
         sidebarCollapsed ? 'w-[72px]' : 'w-64'
@@ -177,7 +180,7 @@ export default function AppLayout() {
       </aside>
 
       {/* ── Main Content ───────────────────── */}
-      <div className="flex-1 min-h-screen flex flex-col pb-16 lg:pb-0">
+      <div className="flex-1 h-screen flex flex-col pb-16 lg:pb-0">
         {/* Header */}
         <header className="sticky top-0 z-10 nex-glass border-b border-nex-border/50 px-4 lg:px-6 py-3">
           <div className="flex items-center justify-between">
@@ -205,27 +208,39 @@ export default function AppLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 lg:p-6 overflow-hidden">
-          <GlobalErrorBoundary>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={location.pathname}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="h-full w-full"
-              >
-                <Outlet />
-              </motion.div>
-            </AnimatePresence>
-          </GlobalErrorBoundary>
+        <main className="flex-1 overflow-hidden min-h-0">
+          <PageContent location={location} />
         </main>
       </div>
 
       {/* ── Mobile Bottom Nav ──────────────── */}
       <MobileBottomNav handleSignOut={handleSignOut} signingOut={signingOut} />
     </div>
+    </RefreshProvider>
+  )
+}
+
+function PageContent({ location }: { location: ReturnType<typeof useLocation> }) {
+  const refreshFn = useRefreshFn()
+  return (
+    <PullToRefresh onRefresh={refreshFn}>
+      <div className="p-4 lg:p-6">
+        <GlobalErrorBoundary>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="w-full"
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
+        </GlobalErrorBoundary>
+      </div>
+    </PullToRefresh>
   )
 }
 

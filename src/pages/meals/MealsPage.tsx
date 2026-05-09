@@ -13,6 +13,7 @@ import {
 } from 'date-fns'
 import toast from 'react-hot-toast'
 import { isMealCutoffPassed, mealCutoffLabel } from '../../lib/utils'
+import { useRegisterRefresh } from '../../contexts/RefreshContext'
 
 export default function MealsPage() {
   const { user } = useAuthStore()
@@ -67,6 +68,8 @@ export default function MealsPage() {
     const { data } = await query
     if (data) setMeals(data as Meal[])
   }, [currentMess?.id, user, calendarStartStr, calendarEndStr, viewMode])
+
+  useRegisterRefresh(fetchMeals)
 
   useEffect(() => {
     if (!currentMess?.id || !user?.id) return
