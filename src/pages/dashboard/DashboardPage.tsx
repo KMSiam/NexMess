@@ -298,15 +298,17 @@ export default function DashboardPage() {
 
     setMealsData(prev => ({ ...prev, [mealTab]: { ...prev[mealTab], [key]: newVal } }))
 
+    // Only include the toggled guest column — same reason as toggleMeal: stale React
+    // state for the other columns would otherwise make the trigger see false changes
+    // and raise the wrong cutoff.
+    const guestCol = type === 'lunch' ? 'guest_lunch' : 'guest_dinner'
     const { error } = await supabase.from('meals').upsert({
       user_id: profile.id, mess_id: currentMess.id, date: targetDate,
-      lunch: mData.lunch, dinner: mData.dinner,
-      guest_lunch: type === 'lunch' ? newVal : mData.gl,
-      guest_dinner: type === 'dinner' ? newVal : mData.gd,
+      [guestCol]: newVal,
     }, { onConflict: 'user_id,mess_id,date' })
 
     if (error) {
-      toast.error('Failed to update guests')
+      toast.error(error.message || 'Failed to update guests')
       setMealsData(prev => ({ ...prev, [mealTab]: { ...prev[mealTab], [key]: mData[key] } }))
     }
     setMealLoading(false)
