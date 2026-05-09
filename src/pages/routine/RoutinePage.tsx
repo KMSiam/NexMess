@@ -186,13 +186,13 @@ export default function RoutinePage() {
 
       {/* Desktop Table View */}
       {(hasAnyData || editing) && (
-        <div className="hidden sm:block nex-card overflow-hidden">
-          <table className="w-full">
+        <div className="hidden sm:block nex-card overflow-x-auto">
+          <table className="w-full min-w-[560px]">
             <thead>
               <tr className="bg-nex-elevated border-b border-nex-border">
-                <th className="px-4 py-3 text-left text-[10px] font-semibold text-nex-muted uppercase tracking-wider w-20"></th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-nex-muted uppercase tracking-wider w-20"></th>
                 {DAYS.map((day, i) => (
-                  <th key={day} className={`px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-wider ${todayDow === i ? 'text-nex-primary bg-nex-primary-light' : 'text-nex-muted'}`}>
+                  <th key={day} className={`px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider ${todayDow === i ? 'text-nex-primary bg-nex-primary-light' : 'text-nex-muted'}`}>
                     {day}
                   </th>
                 ))}
@@ -248,7 +248,7 @@ export default function RoutinePage() {
                 <div className="flex items-center justify-between mb-3">
                   <p className={`text-sm font-bold ${isToday ? 'text-nex-primary' : 'text-nex-text'}`}>
                     {DAYS[r.day_of_week]}
-                    {isToday && <span className="ml-2 text-[10px] font-medium bg-nex-primary text-white px-2 py-0.5 rounded-full">Today</span>}
+                    {isToday && <span className="ml-2 text-xs font-medium bg-nex-primary text-white px-2 py-0.5 rounded-full">Today</span>}
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -257,7 +257,7 @@ export default function RoutinePage() {
                     const isActive = activeEditCell?.day === r.day_of_week && activeEditCell?.type === type
                     return (
                       <div key={type} className={`rounded-xl p-3 ${type === 'lunch' ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-indigo-500/10 border border-indigo-500/20'}`}>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider mb-1.5 ${type === 'lunch' ? 'text-amber-600' : 'text-indigo-600'}">
+                        <p className="text-xs font-semibold uppercase tracking-wider mb-1.5 ${type === 'lunch' ? 'text-amber-600' : 'text-indigo-600'}">
                           {type === 'lunch' ? '☀️ Lunch' : '🌙 Dinner'}
                         </p>
                         {editing ? (

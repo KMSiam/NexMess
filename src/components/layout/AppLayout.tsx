@@ -84,7 +84,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-nex-bg flex">
       {/* ── Desktop Sidebar ────────────────── */}
-      <aside className={`hidden lg:flex flex-col h-screen sticky top-0 nex-glass border-r border-nex-border/50 transition-all duration-300 ${
+      <aside className={`hidden md:flex flex-col h-screen sticky top-0 nex-glass border-r border-nex-border/50 transition-all duration-300 ${
         sidebarCollapsed ? 'w-[72px]' : 'w-64'
       }`}>
         {/* Logo */}
@@ -177,11 +177,11 @@ export default function AppLayout() {
       </aside>
 
       {/* ── Main Content ───────────────────── */}
-      <div className="flex-1 min-h-screen flex flex-col pb-16 lg:pb-0">
+      <div className="flex-1 min-h-screen flex flex-col pb-16 md:pb-0">
         {/* Header */}
-        <header className="sticky top-0 z-10 nex-glass border-b border-nex-border/50 px-4 lg:px-6 py-3">
+        <header className="sticky top-0 z-10 nex-glass border-b border-nex-border/50 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
-            <div className="lg:hidden flex items-center gap-2">
+            <div className="md:hidden flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center">
                 <Zap className="w-4 h-4 text-white" />
               </div>
@@ -190,7 +190,7 @@ export default function AppLayout() {
                 <p className="text-[10px] text-nex-muted">{currentMess?.unique_code || ''}</p>
               </div>
             </div>
-            <div className="hidden lg:block" />
+            <div className="hidden md:block" />
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsDark(!isDark)}
@@ -205,7 +205,7 @@ export default function AppLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 lg:p-6 overflow-hidden">
+        <main className="flex-1 p-4 md:p-6 overflow-hidden">
           <GlobalErrorBoundary>
             <AnimatePresence mode="wait">
               <motion.div
@@ -239,12 +239,12 @@ function MobileBottomNav({ handleSignOut, signingOut }: { handleSignOut: () => v
     <>
       {/* Overlay */}
       {showMore && (
-        <div className="lg:hidden fixed inset-0 z-20 bg-black/20 backdrop-blur-sm" onClick={() => setShowMore(false)} />
+        <div className="md:hidden fixed inset-0 z-20 bg-black/20 backdrop-blur-sm" onClick={() => setShowMore(false)} />
       )}
 
       {/* More Menu Popup */}
       {showMore && (
-        <div className="lg:hidden fixed bottom-16 right-2 left-2 z-30 nex-card p-2 shadow-xl border border-nex-border animate-slide-up safe-area-bottom">
+        <div className="md:hidden fixed bottom-16 right-2 left-2 z-30 nex-card p-2 shadow-xl border border-nex-border animate-slide-up safe-area-bottom">
           <NavLink to="/market" onClick={() => setShowMore(false)}
             className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
             <ShoppingBag className="w-5 h-5" /> Market Schedule
@@ -266,7 +266,7 @@ function MobileBottomNav({ handleSignOut, signingOut }: { handleSignOut: () => v
       )}
 
       {/* Bottom Tab Bar */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 nex-glass border-t border-nex-border/50 z-20 safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 nex-glass border-t border-nex-border/50 z-20 safe-area-bottom">
         <div className="flex items-center justify-around py-1.5">
           {mainTabs.map(({ to, icon: Icon, label }) => (
             <NavLink

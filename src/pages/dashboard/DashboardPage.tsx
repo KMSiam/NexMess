@@ -487,17 +487,17 @@ export default function DashboardPage() {
           <div className="bg-white/10 dark:bg-white/5 rounded-xl p-3 border border-white/10 dark:border-white/5">
             <p className="text-xs text-blue-100 dark:text-slate-400 mb-2 font-medium">Today</p>
             <div className="flex justify-between items-center">
-              <div className="text-center"><p className="text-lg font-bold text-white dark:text-amber-400">{cookSummary.todayL}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Lunch</p></div>
+              <div className="text-center"><p className="text-lg font-bold text-white dark:text-amber-400">{cookSummary.todayL}</p><p className="text-xs text-blue-100 dark:text-slate-400 uppercase">Lunch</p></div>
               <div className="w-px h-8 bg-white/20 dark:bg-white/10"></div>
-              <div className="text-center"><p className="text-lg font-bold text-white dark:text-indigo-400">{cookSummary.todayD}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Dinner</p></div>
+              <div className="text-center"><p className="text-lg font-bold text-white dark:text-indigo-400">{cookSummary.todayD}</p><p className="text-xs text-blue-100 dark:text-slate-400 uppercase">Dinner</p></div>
             </div>
           </div>
           <div className="bg-white/10 dark:bg-white/5 rounded-xl p-3 border border-white/10 dark:border-white/5">
             <p className="text-xs text-blue-100 dark:text-slate-400 mb-2 font-medium">Tomorrow</p>
             <div className="flex justify-between items-center">
-              <div className="text-center"><p className="text-lg font-bold text-white dark:text-amber-400">{cookSummary.tomorrowL}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Lunch</p></div>
+              <div className="text-center"><p className="text-lg font-bold text-white dark:text-amber-400">{cookSummary.tomorrowL}</p><p className="text-xs text-blue-100 dark:text-slate-400 uppercase">Lunch</p></div>
               <div className="w-px h-8 bg-white/20 dark:bg-white/10"></div>
-              <div className="text-center"><p className="text-lg font-bold text-white dark:text-indigo-400">{cookSummary.tomorrowD}</p><p className="text-[10px] text-blue-100 dark:text-slate-400 uppercase">Dinner</p></div>
+              <div className="text-center"><p className="text-lg font-bold text-white dark:text-indigo-400">{cookSummary.tomorrowD}</p><p className="text-xs text-blue-100 dark:text-slate-400 uppercase">Dinner</p></div>
             </div>
           </div>
         </div>
@@ -511,8 +511,8 @@ export default function DashboardPage() {
             {routines[mealTab].lunch || routines[mealTab].dinner ? (
               <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 rounded-full border border-amber-500/20">
                 <UtensilsCrossed className="w-3 h-3 text-amber-500" />
-                <span className="text-[10px] font-medium text-amber-500">
-                  {mealTab === 'today' ? 'Today' : 'Tomorrow'}: {routines[mealTab].lunch ? `${getFoodEmoji(routines[mealTab].lunch)} ${routines[mealTab].lunch} (L)` : ''} 
+                <span className="text-xs font-medium text-amber-500">
+                  {mealTab === 'today' ? 'Today' : 'Tomorrow'}: {routines[mealTab].lunch ? `${getFoodEmoji(routines[mealTab].lunch)} ${routines[mealTab].lunch} (L)` : ''}
                   {routines[mealTab].lunch && routines[mealTab].dinner ? ' · ' : ''}
                   {routines[mealTab].dinner ? `${getFoodEmoji(routines[mealTab].dinner)} ${routines[mealTab].dinner} (D)` : ''}
                 </span>
@@ -565,19 +565,19 @@ export default function DashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="nex-card p-4 text-center">
-          <p className="text-[10px] font-medium text-nex-muted uppercase tracking-wider">My Meals</p>
+          <p className="text-xs font-medium text-nex-muted uppercase tracking-wider">My Meals</p>
           <p className="mt-1 text-xl font-bold text-nex-text">{stats.totalMeals}</p>
         </div>
         <div className="nex-card p-4 text-center">
-          <p className="text-[10px] font-medium text-nex-muted uppercase tracking-wider">Balance</p>
+          <p className="text-xs font-medium text-nex-muted uppercase tracking-wider">Balance</p>
           <p className={`mt-1 text-xl font-bold ${stats.balance >= 0 ? 'text-nex-success' : 'text-red-500'}`}>{formatCurrency(stats.balance)}</p>
         </div>
         <div className="nex-card p-4 text-center">
-          <p className="text-[10px] font-medium text-nex-muted uppercase tracking-wider">Meal Rate</p>
+          <p className="text-xs font-medium text-nex-muted uppercase tracking-wider">Meal Rate</p>
           <p className="mt-1 text-xl font-bold text-nex-text">{formatCurrency(stats.mealRate)}</p>
         </div>
         <div className="nex-card p-4 text-center">
-          <p className="text-[10px] font-medium text-nex-muted uppercase tracking-wider">Mess Spent</p>
+          <p className="text-xs font-medium text-nex-muted uppercase tracking-wider">Mess Spent</p>
           <p className="mt-1 text-xl font-bold text-amber-600">{formatCurrency(stats.messTotalSpent)}</p>
         </div>
       </div>

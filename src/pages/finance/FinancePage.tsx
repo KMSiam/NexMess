@@ -571,7 +571,7 @@ export default function FinancePage() {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold text-nex-success">{formatCurrency(Number(dep.amount))}</p>
-                  {dep.verified && <span className="text-[10px] text-nex-success flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" />Verified</span>}
+                  {dep.verified && <span className="text-xs text-nex-success flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" />Verified</span>}
                 </div>
               </div>
             ))}
@@ -633,7 +633,7 @@ export default function FinancePage() {
                   <div className="flex flex-col items-end gap-1">
                     <p className="text-sm font-semibold text-amber-600">{formatCurrency(Number(fc.amount))}</p>
                     {fc.is_paid ? (
-                      <span className="text-[10px] text-nex-success flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" />Paid</span>
+                      <span className="text-xs text-nex-success flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" />Paid</span>
                     ) : isManager && (
                       <div className="flex gap-2 mt-1">
                         <button onClick={() => startEditFixedCost(fc)} className="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors">Edit</button>
@@ -658,10 +658,10 @@ export default function FinancePage() {
               </button>
             </div>
           )}
-          <div className="nex-card divide-y divide-nex-border">
+          <div className="nex-card divide-y divide-nex-border overflow-x-auto">
             {/* Desktop Table Header */}
-            <div className="hidden sm:block px-5 py-3 bg-nex-elevated">
-            <div className="grid grid-cols-6 gap-2 text-[10px] font-semibold text-nex-muted uppercase tracking-wider">
+            <div className="hidden sm:block px-5 py-3 bg-nex-elevated min-w-[480px]">
+            <div className="grid grid-cols-6 gap-2 text-xs font-semibold text-nex-muted uppercase tracking-wider">
               <span className="col-span-2">Member</span>
               <span className="text-right">Meals</span>
               <span className="text-right">Cost</span>
@@ -707,17 +707,17 @@ export default function FinancePage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-nex-text truncate flex items-center gap-2">
                         {p?.username || 'Member'}
-                        {member.status === 'left' && <span className="text-[10px] bg-red-500/10 text-red-500 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Left</span>}
+                        {member.status === 'left' && <span className="text-xs bg-red-500/10 text-red-500 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Left</span>}
                       </p>
-                      <p className="text-[10px] text-nex-muted">{b.personal_meals || 0} meals</p>
+                      <p className="text-xs text-nex-muted">{b.personal_meals || 0} meals</p>
                     </div>
                     <p className={`text-sm font-bold ${realBalance >= 0 ? 'text-nex-success' : 'text-nex-danger'}`}>
                       {formatCurrency(realBalance)}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-2 ml-12">
-                    <div className="text-[10px] text-nex-muted">Cost: <span className="font-medium text-nex-text">{formatCurrency(totalExp)}</span></div>
-                    <div className="text-[10px] text-nex-muted">Deposited: <span className="font-medium text-nex-success">{formatCurrency(deposited)}</span></div>
+                    <div className="text-xs text-nex-muted">Cost: <span className="font-medium text-nex-text">{formatCurrency(totalExp)}</span></div>
+                    <div className="text-xs text-nex-muted">Deposited: <span className="font-medium text-nex-success">{formatCurrency(deposited)}</span></div>
                   </div>
                 </div>
               </div>
@@ -730,7 +730,7 @@ export default function FinancePage() {
             <div className="flex items-center gap-2 mb-3">
               <ArrowRight className="w-4 h-4 text-nex-success" />
               <h3 className="text-sm font-semibold text-nex-text">Settle Up</h3>
-              <span className="text-[10px] text-nex-muted">— minimum payments to close the month</span>
+              <span className="text-xs text-nex-muted">— minimum payments to close the month</span>
             </div>
             {settlements.length === 0 ? (
               <p className="text-sm text-nex-muted">Everyone is squared up. No transfers needed.</p>

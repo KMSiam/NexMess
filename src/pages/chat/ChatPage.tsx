@@ -105,7 +105,7 @@ export default function ChatPage() {
   if (!currentMess) return null
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-8rem)] lg:h-[calc(100vh-6rem)]">
+    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-8rem)] md:h-[calc(100vh-6rem)]">
       <div className="flex items-center gap-3 mb-3">
         <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-nex-primary" />
         <h1 className="text-xl sm:text-2xl font-bold text-nex-text">Group Chat</h1>
@@ -129,7 +129,7 @@ export default function ChatPage() {
                 </div>
               )}
               <div className={`max-w-[80%] sm:max-w-[70%] ${isOwn ? 'order-1' : ''}`}>
-                {!isOwn && <p className="text-[10px] text-nex-muted mb-0.5 ml-1">{sender?.username}</p>}
+                {!isOwn && <p className="text-xs text-nex-muted mb-0.5 ml-1">{sender?.username}</p>}
                 <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${
                   isOwn
                     ? 'bg-nex-primary text-white rounded-br-sm'

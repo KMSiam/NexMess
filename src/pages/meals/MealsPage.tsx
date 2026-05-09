@@ -328,23 +328,24 @@ export default function MealsPage() {
         <div className="grid grid-cols-3 gap-3 mb-5">
           <div className="bg-nex-primary-light rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-nex-primary">{monthlyStats.total}</p>
-            <p className="text-[10px] text-blue-600 uppercase tracking-wider font-medium">Total Meals</p>
+            <p className="text-xs text-blue-600 uppercase tracking-wider font-medium">Total Meals</p>
           </div>
           <div className="bg-amber-500/10 rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-amber-600">{monthlyStats.lunch}</p>
-            <p className="text-[10px] text-amber-600 uppercase tracking-wider font-medium">Lunch</p>
+            <p className="text-xs text-amber-600 uppercase tracking-wider font-medium">Lunch</p>
           </div>
           <div className="bg-indigo-500/10 rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-indigo-600">{monthlyStats.dinner}</p>
-            <p className="text-[10px] text-indigo-600 uppercase tracking-wider font-medium">Dinner</p>
+            <p className="text-xs text-indigo-600 uppercase tracking-wider font-medium">Dinner</p>
           </div>
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="min-w-[320px] grid grid-cols-7 gap-1">
           {/* Day Headers */}
           {['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map(d => (
-            <div key={d} className="text-center text-[10px] font-semibold text-nex-muted uppercase tracking-wider py-2">
+            <div key={d} className="text-center text-xs font-semibold text-nex-muted uppercase tracking-wider py-2">
               {d}
             </div>
           ))}
@@ -394,7 +395,7 @@ export default function MealsPage() {
                     <button
                       onClick={() => toggleMeal(dateStr, 'lunch')}
                       disabled={lunchLocked}
-                      className={`flex items-center justify-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium transition-colors ${
+                      className={`w-full flex items-center justify-center gap-0.5 px-1 py-1 rounded text-[10px] font-medium transition-colors ${
                         meal?.lunch || (meal?.guest_lunch || 0) > 0
                           ? 'bg-amber-500/15 text-amber-500'
                           : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
@@ -406,7 +407,7 @@ export default function MealsPage() {
                     <button
                       onClick={() => toggleMeal(dateStr, 'dinner')}
                       disabled={dinnerLocked}
-                      className={`flex items-center justify-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium transition-colors ${
+                      className={`w-full flex items-center justify-center gap-0.5 px-1 py-1 rounded text-[10px] font-medium transition-colors ${
                         meal?.dinner || (meal?.guest_dinner || 0) > 0
                           ? 'bg-indigo-500/15 text-indigo-400'
                           : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
@@ -443,6 +444,7 @@ export default function MealsPage() {
               </div>
             )
           })}
+        </div>
         </div>
       </div>
 

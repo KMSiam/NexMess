@@ -184,7 +184,8 @@ export default function MarketPage() {
         </div>
 
         {/* Desktop: Grid view (hidden on small screens) */}
-        <div className="hidden sm:grid grid-cols-7 gap-2">
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="hidden sm:grid grid-cols-7 gap-2 min-w-[560px]">
           {weekDays.map(day => {
             const dateStr = format(day, 'yyyy-MM-dd')
             const daySchedule = schedules.find(s => s.assigned_date === dateStr)
@@ -197,7 +198,7 @@ export default function MarketPage() {
                 todayFlag ? 'border-nex-primary bg-nex-primary-light' :
                 past ? 'border-transparent bg-nex-elevated/50' : 'border-nex-border bg-nex-surface'
               }`}>
-                <p className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${
+                <p className={`text-xs font-semibold uppercase tracking-wider mb-1 ${
                   todayFlag ? 'text-nex-primary' : 'text-nex-muted'
                 }`}>{format(day, 'EEE')}</p>
                 <p className={`text-lg font-bold mb-2 ${todayFlag ? 'text-nex-primary' : 'text-nex-text'}`}>{format(day, 'd')}</p>
@@ -218,12 +219,13 @@ export default function MarketPage() {
                 ) : (
                   <div className="py-2">
                     <Calendar className="w-5 h-5 mx-auto text-nex-muted/40" />
-                    <p className="text-[10px] text-nex-muted/40 mt-1">Unassigned</p>
+                    <p className="text-xs text-nex-muted/40 mt-1">Unassigned</p>
                   </div>
                 )}
               </div>
             )
           })}
+        </div>
         </div>
 
         {/* Mobile: Card list view (shown only on small screens) */}
@@ -242,7 +244,7 @@ export default function MarketPage() {
               }`}>
                 {/* Date Column */}
                 <div className={`w-12 text-center shrink-0 ${todayFlag ? 'text-nex-primary' : 'text-nex-text'}`}>
-                  <p className="text-[10px] font-semibold uppercase">{format(day, 'EEE')}</p>
+                  <p className="text-xs font-semibold uppercase">{format(day, 'EEE')}</p>
                   <p className="text-lg font-bold leading-tight">{format(day, 'd')}</p>
                 </div>
 
@@ -258,7 +260,7 @@ export default function MarketPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-nex-text truncate">{assignee?.username}</p>
-                      <p className="text-[10px] text-nex-muted">Bazaar Duty</p>
+                      <p className="text-xs text-nex-muted">Bazaar Duty</p>
                     </div>
                     {isManager && (
                       <button onClick={() => handleDelete(daySchedule.id)} className="p-1.5 text-nex-muted hover:text-nex-danger transition-colors">
@@ -288,12 +290,12 @@ export default function MarketPage() {
             return (
               <div key={member.user_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-nex-hover">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-[10px] font-semibold">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
                     {getInitials(p?.username || '?')}
                   </div>
                   <span className="text-sm text-nex-text">{p?.username || 'Member'}</span>
                 </div>
-                <span className="nex-badge-primary text-[10px]">{count} days</span>
+                <span className="nex-badge-primary text-xs">{count} days</span>
               </div>
             )
           })}
