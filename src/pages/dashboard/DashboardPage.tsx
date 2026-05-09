@@ -266,13 +266,13 @@ export default function DashboardPage() {
 
     setMealsData(prev => ({ ...prev, [mealTab]: { ...prev[mealTab], [type]: newValue } }))
 
-    // guest_lunch/guest_dinner intentionally omitted — DO UPDATE SET only touches specified
-    // columns, so manager-set guest counts are preserved on conflict, and glunch_changed /
-    // gdinner_changed stay false in the trigger (avoiding a false lunch-cutoff raise)
+    // Only include the toggled column — DO UPDATE SET touches only it, so the other
+    // meal column stays identical (OLD = NEW) and the trigger's lunch_changed / dinner_changed
+    // stays false. Including the other column caused false "cut-off has passed" raises when
+    // local state was stale vs the DB value.
     const { error } = await supabase.from('meals').upsert({
       user_id: profile.id, mess_id: currentMess.id, date: targetDate,
-      lunch: type === 'lunch' ? newValue : mData.lunch,
-      dinner: type === 'dinner' ? newValue : mData.dinner,
+      [type]: newValue,
     }, { onConflict: 'user_id,mess_id,date' })
 
     if (error) {
