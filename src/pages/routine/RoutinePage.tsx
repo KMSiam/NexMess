@@ -5,7 +5,6 @@ import { supabase } from '../../lib/supabase'
 import { CalendarClock, Pencil, Save, X } from 'lucide-react'
 import { getFoodEmoji } from '../../lib/utils'
 import toast from 'react-hot-toast'
-import { useRegisterRefresh } from '../../contexts/RefreshContext'
 
 const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 
@@ -54,8 +53,6 @@ export default function RoutinePage() {
     })
     setRoutines(full)
   }, [currentMess?.id])
-
-  useRegisterRefresh(fetchRoutines)
 
   useEffect(() => {
     if (!currentMess?.id) return

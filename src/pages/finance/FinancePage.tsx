@@ -14,7 +14,6 @@ import toast from 'react-hot-toast'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
-import { useRegisterRefresh } from '../../contexts/RefreshContext'
 
 type Tab = 'expenses' | 'deposits' | 'fixed' | 'summary'
 
@@ -90,8 +89,6 @@ export default function FinancePage() {
     if (fixRes.data) setFixedCosts(fixRes.data as FixedCost[])
     await fetchBalances()
   }, [currentMess?.id, currentMonth, fetchBalances])
-
-  useRegisterRefresh(fetchAllData)
 
   useEffect(() => {
     if (!currentMess?.id) return

@@ -13,7 +13,6 @@ import {
 } from 'date-fns'
 import { getInitials } from '../../lib/utils'
 import toast from 'react-hot-toast'
-import { useRegisterRefresh } from '../../contexts/RefreshContext'
 
 export default function MarketPage() {
   const { user } = useAuthStore()
@@ -46,8 +45,6 @@ export default function MarketPage() {
 
     if (data) setSchedules(data as MarketSchedule[])
   }, [currentMess?.id, weekStartStr, weekEndStr])
-
-  useRegisterRefresh(fetchSchedules)
 
   useEffect(() => {
     if (!currentMess?.id) return
