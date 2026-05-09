@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback, useReducer } from 'react'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -21,6 +21,13 @@ export default function MealsPage() {
   const [meals, setMeals] = useState<Meal[]>([])
   const [currentDate, setCurrentDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<'personal' | 'all'>('personal')
+
+  // Re-render every minute so lunch/dinner locked state stays current as cutoff times pass
+  const [, tick] = useReducer((n: number) => n + 1, 0)
+  useEffect(() => {
+    const id = setInterval(tick, 60_000)
+    return () => clearInterval(id)
+  }, [tick])
 
   const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager' && m.status === 'approved')
 
@@ -98,8 +105,6 @@ export default function MealsPage() {
     const existing = meals.find(m => m.user_id === user.id && m.date === date)
     const currentLunch = existing?.lunch ?? false
     const currentDinner = existing?.dinner ?? false
-    const currentGuestLunch = existing?.guest_lunch ?? 0
-    const currentGuestDinner = existing?.guest_dinner ?? 0
 
     const newValue = type === 'lunch' ? !currentLunch : !currentDinner
 
@@ -118,14 +123,14 @@ export default function MealsPage() {
       return [...prev, updated]
     })
 
+    // Note: guest_lunch/guest_dinner intentionally omitted — DO UPDATE SET only touches
+    // specified columns, so manager-set guest counts are preserved on conflict
     const { error } = await supabase.from('meals').upsert({
       user_id: user.id,
       mess_id: currentMess.id,
       date,
       lunch: type === 'lunch' ? newValue : currentLunch,
       dinner: type === 'dinner' ? newValue : currentDinner,
-      guest_lunch: currentGuestLunch,
-      guest_dinner: currentGuestDinner,
     }, { onConflict: 'user_id,mess_id,date' })
 
     if (error) {
