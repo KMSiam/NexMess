@@ -6,7 +6,13 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       registerType: 'autoUpdate',
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,svg,ico,woff2}'],
+      },
       includeAssets: ['favicon.svg', 'icons.svg'],
       manifest: {
         name: 'NexMess — Smart Mess Management',

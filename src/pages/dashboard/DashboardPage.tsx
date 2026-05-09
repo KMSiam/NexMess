@@ -10,6 +10,7 @@ import {
   Users, Send, X, AlertTriangle, Wallet, ShoppingBag, ChefHat, UtensilsCrossed, Clock,
 } from 'lucide-react'
 import { getGreeting, formatCurrency, getFoodEmoji, isMealCutoffPassed, mealCutoffLabel, mealCutoffApproaching } from '../../lib/utils'
+import { sendPushToUsers } from '../../lib/push'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 
@@ -188,7 +189,7 @@ export default function DashboardPage() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [profile?.id, currentMess?.id, today, tomorrow, currentMonth])
+  }, [profile?.id, profile?.username, currentMess?.id, today, tomorrow, currentMonth])
 
   const handleSaveNotice = async () => {
     if (!currentMess?.id || !profile?.id || !noticeText.trim()) return
@@ -209,6 +210,11 @@ export default function DashboardPage() {
       setNotice(data)
       setShowNoticeForm(false)
       setNoticeText('')
+      // Push notification to all mess members (fire-and-forget)
+      const memberIds = members
+        .filter(m => m.status === 'approved' && m.user_id !== profile.id)
+        .map(m => m.user_id)
+      sendPushToUsers(memberIds, `📢 ${currentMess.name}`, noticeText.trim(), '/dashboard')
     }
     setNoticeLoading(false)
   }

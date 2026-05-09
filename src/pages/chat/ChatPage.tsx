@@ -15,6 +15,8 @@ export default function ChatPage() {
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const membersRef = useRef(members)
+  useEffect(() => { membersRef.current = members }, [members])
 
   useEffect(() => {
     if (!currentMess?.id) return
@@ -42,7 +44,7 @@ export default function ChatPage() {
           if (prev.some(m => m.id === newMsg.id)) return prev
           
           // Look up sender from local members store to avoid DB read-replica lag
-          const senderProfile = members.find(m => m.user_id === newMsg.sender_id)?.profiles
+          const senderProfile = membersRef.current.find(m => m.user_id === newMsg.sender_id)?.profiles
           const completeMsg = {
             ...newMsg,
             profiles: senderProfile || { username: 'Unknown' }

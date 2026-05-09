@@ -35,13 +35,13 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     initialize()
-  }, [])
+  }, [initialize])
 
   useEffect(() => {
     if (user) {
       fetchUserMesses(user.id)
     }
-  }, [user?.id])
+  }, [user, fetchUserMesses])
 
   return <>{children}</>
 }

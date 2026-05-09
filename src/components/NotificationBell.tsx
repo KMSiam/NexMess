@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useAuthStore } from '../stores/authStore'
 import { supabase } from '../lib/supabase'
 import { Notification } from '../types/database'
@@ -17,6 +17,17 @@ export default function NotificationBell({ className }: NotificationBellProps) {
 
   const unreadCount = notifications.filter(n => !n.is_read).length
 
+  const fetchNotifications = useCallback(async () => {
+    if (!user?.id) return
+    const { data } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20)
+    if (data) setNotifications(data as Notification[])
+  }, [user?.id])
+
   useEffect(() => {
     if (!user?.id) return
     fetchNotifications()
@@ -31,7 +42,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [user?.id])
+  }, [user?.id, fetchNotifications])
 
   // Close on click outside
   useEffect(() => {
@@ -43,17 +54,6 @@ export default function NotificationBell({ className }: NotificationBellProps) {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
-
-  const fetchNotifications = async () => {
-    if (!user?.id) return
-    const { data } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(20)
-    if (data) setNotifications(data as Notification[])
-  }
 
   const markRead = async (id: string) => {
     await supabase.from('notifications').update({ is_read: true }).eq('id', id)

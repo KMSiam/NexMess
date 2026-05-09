@@ -3,8 +3,9 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { useNavigate } from 'react-router-dom'
-import { Settings, UserCheck, UserX, Copy, CheckCircle2, Trash2, AlertTriangle, LogOut } from 'lucide-react'
+import { Settings, UserCheck, UserX, Copy, CheckCircle2, Trash2, AlertTriangle, LogOut, Bell, BellOff } from 'lucide-react'
 import { getInitials } from '../../lib/utils'
+import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
 import toast from 'react-hot-toast'
 
 export default function SettingsPage() {
@@ -13,6 +14,13 @@ export default function SettingsPage() {
   const { currentMess, members, fetchMembers, fetchUserMesses } = useMessStore()
   const [username, setUsername] = useState(profile?.username || '')
   const [saving, setSaving] = useState(false)
+  const [pushEnabled, setPushEnabled] = useState(false)
+  const [pushLoading, setPushLoading] = useState(false)
+  const pushSupported = isPushSupported()
+
+  useEffect(() => {
+    isSubscribed().then(setPushEnabled)
+  }, [])
   const [copied, setCopied] = useState(false)
   const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager')
 
@@ -37,7 +45,23 @@ export default function SettingsPage() {
         supabase.removeChannel(channel)
       }
     }
-  }, [currentMess?.id])
+  }, [currentMess?.id, fetchMembers])
+
+  const handlePushToggle = async () => {
+    if (!user?.id) return
+    setPushLoading(true)
+    if (pushEnabled) {
+      const ok = await unsubscribeFromPush(user.id)
+      if (ok) { setPushEnabled(false); toast.success('Push notifications disabled') }
+      else toast.error('Failed to disable push notifications')
+    } else {
+      const ok = await subscribeToPush(user.id)
+      if (ok) { setPushEnabled(true); toast.success('Push notifications enabled!') }
+      else if (Notification.permission === 'denied') toast.error('Notifications blocked. Enable them in your browser settings.')
+      else toast.error('Failed to enable push notifications')
+    }
+    setPushLoading(false)
+  }
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -192,6 +216,34 @@ export default function SettingsPage() {
           </button>
         </form>
       </div>
+
+      {/* Push Notifications */}
+      {pushSupported && (
+        <div className="nex-card p-6">
+          <h3 className="text-lg font-semibold text-nex-text mb-4">Push Notifications</h3>
+          <div className="flex items-center justify-between p-4 bg-nex-elevated rounded-xl">
+            <div className="flex items-center gap-3">
+              {pushEnabled
+                ? <Bell className="w-5 h-5 text-nex-primary" />
+                : <BellOff className="w-5 h-5 text-nex-muted" />}
+              <div>
+                <p className="text-sm font-medium text-nex-text">Device Notifications</p>
+                <p className="text-xs text-nex-muted mt-0.5">
+                  {pushEnabled ? 'Receive notices and updates even when the app is closed.' : 'Enable to get alerts when the app is in the background.'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handlePushToggle}
+              disabled={pushLoading}
+              className={`relative w-12 h-7 rounded-full transition-colors duration-200 disabled:opacity-50 ${pushEnabled ? 'nex-toggle-on' : 'nex-toggle-off'}`}
+              id="push-toggle"
+            >
+              <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-sm transition-transform duration-200 ${pushEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Mess Info */}
       {currentMess && (

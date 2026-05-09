@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -53,6 +53,43 @@ export default function FinancePage() {
   const financeMembers = members.filter(m => m.status === 'approved' || m.status === 'left')
   const currentMonth = format(new Date(), 'yyyy-MM')
 
+  const fetchBalances = useCallback(async () => {
+    if (!currentMess?.id) return
+    const messId = currentMess.id
+    const month = currentMonth
+    const fMembers = members.filter(m => m.status === 'approved' || m.status === 'left')
+    const settled = await Promise.all(
+      fMembers.map(async (member) => {
+        const { data } = await supabase.rpc('calculate_member_balance', {
+          p_user_id: member.user_id,
+          p_mess_id: messId,
+          p_month: month,
+        })
+        const row = Array.isArray(data) ? data[0] : data
+        return [member.user_id, row] as const
+      })
+    )
+    const results: Record<string, any> = {}
+    for (const [uid, row] of settled) {
+      if (row) results[uid] = row
+    }
+    setBalances(results)
+  }, [currentMess?.id, currentMonth, members])
+
+  const fetchAllData = useCallback(async () => {
+    if (!currentMess?.id) return
+    const id = currentMess.id
+    const [expRes, depRes, fixRes] = await Promise.all([
+      supabase.from('expenses').select('*, profiles(username)').eq('mess_id', id).order('date', { ascending: false }).limit(100),
+      supabase.from('deposits').select('*, profiles!deposits_user_id_fkey(username)').eq('mess_id', id).order('date', { ascending: false }).limit(100),
+      supabase.from('fixed_costs').select('*').eq('mess_id', id).eq('month', currentMonth),
+    ])
+    if (expRes.data) setExpenses(expRes.data as Expense[])
+    if (depRes.data) setDeposits(depRes.data as Deposit[])
+    if (fixRes.data) setFixedCosts(fixRes.data as FixedCost[])
+    await fetchBalances()
+  }, [currentMess?.id, currentMonth, fetchBalances])
+
   useEffect(() => {
     if (!currentMess?.id) return
     setLoadingData(true)
@@ -86,52 +123,7 @@ export default function FinancePage() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [currentMess?.id, members.length, currentMonth])
-
-  const fetchAllData = async () => {
-    if (!currentMess?.id) return
-    await Promise.all([fetchExpenses(), fetchDeposits(), fetchFixedCosts(), fetchBalances()])
-  }
-
-  const fetchExpenses = async () => {
-    const { data } = await supabase.from('expenses').select('*, profiles(username)')
-      .eq('mess_id', currentMess!.id).order('date', { ascending: false }).limit(100)
-    if (data) setExpenses(data as Expense[])
-  }
-
-  const fetchDeposits = async () => {
-    const { data } = await supabase.from('deposits').select('*, profiles!deposits_user_id_fkey(username)')
-      .eq('mess_id', currentMess!.id).order('date', { ascending: false }).limit(100)
-    if (data) setDeposits(data as Deposit[])
-  }
-
-  const fetchFixedCosts = async () => {
-    const { data } = await supabase.from('fixed_costs').select('*')
-      .eq('mess_id', currentMess!.id).eq('month', currentMonth)
-    if (data) setFixedCosts(data as FixedCost[])
-  }
-
-  const fetchBalances = async () => {
-    if (!currentMess?.id) return
-    const messId = currentMess.id
-    const month = currentMonth
-    const settled = await Promise.all(
-      financeMembers.map(async (member) => {
-        const { data } = await supabase.rpc('calculate_member_balance', {
-          p_user_id: member.user_id,
-          p_mess_id: messId,
-          p_month: month,
-        })
-        const row = Array.isArray(data) ? data[0] : data
-        return [member.user_id, row] as const
-      })
-    )
-    const results: Record<string, any> = {}
-    for (const [uid, row] of settled) {
-      if (row) results[uid] = row
-    }
-    setBalances(results)
-  }
+  }, [currentMess?.id, fetchAllData, fetchBalances])
 
   if (loadingData) {
     return (

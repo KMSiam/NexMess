@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -39,7 +39,7 @@ export default function RoutinePage() {
   const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager')
   const todayDow = (new Date().getDay() + 1) % 7 // JS: 0=Sun → our mapping: 0=Sat
 
-  async function fetchRoutines() {
+  const fetchRoutines = useCallback(async () => {
     if (!currentMess?.id) return
     const { data } = await supabase
       .from('meal_routines')
@@ -52,7 +52,7 @@ export default function RoutinePage() {
       return found || { day_of_week: i, lunch: '', dinner: '' }
     })
     setRoutines(full)
-  }
+  }, [currentMess?.id])
 
   useEffect(() => {
     if (!currentMess?.id) return
@@ -71,7 +71,7 @@ export default function RoutinePage() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [currentMess?.id])
+  }, [currentMess?.id, fetchRoutines])
 
   const startEditing = () => {
     setEditData(routines.map(r => ({ ...r })))

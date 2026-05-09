@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -30,19 +30,21 @@ export default function MarketPage() {
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 6 })
   const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 6 })
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd })
+  const weekStartStr = format(weekStart, 'yyyy-MM-dd')
+  const weekEndStr = format(weekEnd, 'yyyy-MM-dd')
 
-  const fetchSchedules = async () => {
+  const fetchSchedules = useCallback(async () => {
     if (!currentMess?.id) return
     const { data } = await supabase
       .from('market_schedules')
       .select('*, profiles(username, avatar_url)')
       .eq('mess_id', currentMess.id)
-      .gte('assigned_date', format(weekStart, 'yyyy-MM-dd'))
-      .lte('assigned_date', format(weekEnd, 'yyyy-MM-dd'))
+      .gte('assigned_date', weekStartStr)
+      .lte('assigned_date', weekEndStr)
       .order('assigned_date', { ascending: true })
 
     if (data) setSchedules(data as MarketSchedule[])
-  }
+  }, [currentMess?.id, weekStartStr, weekEndStr])
 
   useEffect(() => {
     if (!currentMess?.id) return
@@ -61,7 +63,7 @@ export default function MarketPage() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [currentMess?.id, format(weekStart, 'yyyy-MM-dd')])
+  }, [currentMess?.id, weekStartStr, fetchSchedules])
 
   const handleAssign = async (e: React.FormEvent) => {
     e.preventDefault()

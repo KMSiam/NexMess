@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -40,6 +40,26 @@ export default function MealsPage() {
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 6 })
   const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd })
   const monthStr = format(currentDate, 'yyyy-MM')
+  const calendarStartStr = format(calendarStart, 'yyyy-MM-dd')
+  const calendarEndStr = format(calendarEnd, 'yyyy-MM-dd')
+
+  const fetchMeals = useCallback(async () => {
+    if (!currentMess?.id) return
+
+    let query = supabase
+      .from('meals')
+      .select('*')
+      .eq('mess_id', currentMess.id)
+      .gte('date', calendarStartStr)
+      .lte('date', calendarEndStr)
+
+    if (viewMode === 'personal') {
+      query = query.eq('user_id', user!.id)
+    }
+
+    const { data } = await query
+    if (data) setMeals(data as Meal[])
+  }, [currentMess?.id, user, calendarStartStr, calendarEndStr, viewMode])
 
   useEffect(() => {
     if (!currentMess?.id || !user?.id) return
@@ -60,25 +80,7 @@ export default function MealsPage() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [currentMess?.id, user?.id, monthStr, viewMode])
-
-  async function fetchMeals() {
-    if (!currentMess?.id) return
-
-    let query = supabase
-      .from('meals')
-      .select('*')
-      .eq('mess_id', currentMess.id)
-      .gte('date', format(calendarStart, 'yyyy-MM-dd'))
-      .lte('date', format(calendarEnd, 'yyyy-MM-dd'))
-
-    if (viewMode === 'personal') {
-      query = query.eq('user_id', user!.id)
-    }
-
-    const { data } = await query
-    if (data) setMeals(data as Meal[])
-  }
+  }, [currentMess?.id, user?.id, monthStr, viewMode, fetchMeals])
 
   const toggleMeal = async (date: string, type: 'lunch' | 'dinner') => {
     if (!user?.id || !currentMess?.id) return
