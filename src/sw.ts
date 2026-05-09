@@ -18,7 +18,7 @@ self.addEventListener('push', (event) => {
       tag: 'nexmess-push',
       renotify: true,
       data: { url: payload.url ?? '/dashboard' },
-    })
+    } as any)
   )
 })
 
