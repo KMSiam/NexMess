@@ -419,18 +419,27 @@ export default function MealsPage() {
                   )
                 })()}
 
-                {inMonth && viewMode === 'all' && allMeals.length > 0 && (
-                  <div className="flex flex-col gap-0.5 mt-1 items-center">
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded w-full justify-center">
-                      <span>L:</span>
-                      <span>{allMeals.reduce((s, m) => s + (m.lunch ? 1 : 0) + (m.guest_lunch || 0), 0)}</span>
+                {inMonth && viewMode === 'all' && allMeals.length > 0 && (() => {
+                  const lunchTotal = allMeals.reduce((s, m) => s + (m.lunch ? 1 : 0) + (m.guest_lunch || 0), 0)
+                  const dinnerTotal = allMeals.reduce((s, m) => s + (m.dinner ? 1 : 0) + (m.guest_dinner || 0), 0)
+                  if (lunchTotal === 0 && dinnerTotal === 0) return null
+                  return (
+                    <div className="flex flex-col gap-0.5 mt-1 items-center">
+                      {lunchTotal > 0 && (
+                        <div className="flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded w-full justify-center">
+                          <span>L:</span>
+                          <span>{lunchTotal}</span>
+                        </div>
+                      )}
+                      {dinnerTotal > 0 && (
+                        <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded w-full justify-center">
+                          <span>D:</span>
+                          <span>{dinnerTotal}</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded w-full justify-center">
-                      <span>D:</span>
-                      <span>{allMeals.reduce((s, m) => s + (m.dinner ? 1 : 0) + (m.guest_dinner || 0), 0)}</span>
-                    </div>
-                  </div>
-                )}
+                  )
+                })()}
               </div>
             )
           })}
