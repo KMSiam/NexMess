@@ -206,6 +206,7 @@ export default function SettingsPage() {
               ) : getInitials(profile?.username || 'U')}
             </div>
             <div className="flex-1">
+              <p className="text-xs text-nex-muted mb-3">{user?.email}</p>
               <label className="block text-sm font-medium text-nex-text mb-1">Username</label>
               <input type="text" value={username} onChange={e => setUsername(e.target.value)}
                 className="nex-input" id="settings-username" />
