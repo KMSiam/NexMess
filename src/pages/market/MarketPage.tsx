@@ -8,7 +8,7 @@ import {
   Calendar, ArrowRightLeft,
 } from 'lucide-react'
 import {
-  format, startOfWeek, endOfWeek, addWeeks, subWeeks,
+  format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays,
   eachDayOfInterval, isToday, isBefore,
 } from 'date-fns'
 import { getInitials } from '../../lib/utils'
@@ -21,7 +21,7 @@ export default function MarketPage() {
   const [currentWeek, setCurrentWeek] = useState(new Date())
   const [showAdd, setShowAdd] = useState(false)
   const [selectedUser, setSelectedUser] = useState('')
-  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'))
+  const [selectedDates, setSelectedDates] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
 
   const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager')
@@ -67,25 +67,38 @@ export default function MarketPage() {
 
   const handleAssign = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!currentMess?.id || !selectedUser || !selectedDate) return
+    if (!currentMess?.id || !selectedUser || selectedDates.length === 0) return
     setLoading(true)
 
-    const { error } = await supabase.from('market_schedules').insert({
+    const assignments = selectedDates.map(date => ({
       mess_id: currentMess.id,
       user_id: selectedUser,
-      assigned_date: selectedDate,
+      assigned_date: date,
+    }))
+
+    const { error } = await supabase.from('market_schedules').upsert(assignments, {
+      onConflict: 'mess_id,user_id,assigned_date',
     })
 
     if (error) {
-      toast.error(error.message.includes('duplicate') ? 'Already assigned for this date' : 'Failed to assign')
+      toast.error(error.message.includes('duplicate') ? 'Already assigned for some dates' : 'Failed to assign')
     } else {
-      toast.success('Bazaar duty assigned!')
+      toast.success(`Bazaar duty assigned for ${selectedDates.length} date(s)!`)
       setShowAdd(false)
       setSelectedUser('')
+      setSelectedDates([])
       fetchSchedules()
     }
     setLoading(false)
   }
+
+  const toggleDate = (date: string) => {
+    setSelectedDates(prev =>
+      prev.includes(date) ? prev.filter(d => d !== date) : [...prev, date]
+    )
+  }
+
+  const clearDates = () => setSelectedDates([])
 
   const handleDelete = async (id: string) => {
     if (!confirm('Remove this assignment?')) return
@@ -149,19 +162,59 @@ export default function MarketPage() {
       {showAdd && isManager && (
         <div className="nex-card p-5 animate-slide-up">
           <h3 className="text-lg font-semibold text-nex-text mb-4">Assign Bazaar Duty</h3>
-          <form onSubmit={handleAssign} className="flex flex-col sm:flex-row gap-3">
-            <select value={selectedUser} onChange={e => setSelectedUser(e.target.value)}
-              className="nex-input flex-1" required id="schedule-member">
-              <option value="">Select member</option>
-              {approvedMembers.map(m => {
-                const p = m.profiles as any
-                return <option key={m.user_id} value={m.user_id}>{p?.username || 'Member'}</option>
-              })}
-            </select>
-            <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
-              className="nex-input flex-1" required id="schedule-date" />
-            <button type="submit" disabled={loading} className="nex-btn-primary whitespace-nowrap disabled:opacity-50">
-              Assign
+          <form onSubmit={handleAssign} className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <select value={selectedUser} onChange={e => setSelectedUser(e.target.value)}
+                className="nex-input flex-1" required id="schedule-member">
+                <option value="">Select member</option>
+                {approvedMembers.map(m => {
+                  const p = m.profiles as any
+                  return <option key={m.user_id} value={m.user_id}>{p?.username || 'Member'}</option>
+                })}
+              </select>
+              <button type="button" onClick={clearDates} className="nex-btn-secondary text-xs">
+                Clear Dates
+              </button>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-nex-text mb-2">Select dates:</p>
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                {Array.from({ length: 14 }, (_, i) => {
+                  const dayDate = addDays(new Date(), i)
+                  const dateStr = format(dayDate, 'yyyy-MM-dd')
+                  const isSelected = selectedDates.includes(dateStr)
+                  const isPast = isBefore(dayDate, new Date()) && !isToday(dayDate)
+                  return (
+                    <button
+                      key={dateStr}
+                      type="button"
+                      disabled={isPast}
+                      onClick={() => toggleDate(dateStr)}
+                      className={`p-2 rounded-lg text-xs font-medium transition-colors text-left ${
+                        isSelected
+                          ? 'bg-nex-primary text-white'
+                          : isPast
+                            ? 'bg-nex-elevated text-nex-muted/40 cursor-not-allowed'
+                            : 'bg-nex-elevated text-nex-text hover:bg-nex-hover'
+                      }`}
+                    >
+                      <span className="block text-[10px] uppercase opacity-70">{format(dayDate, 'EEE')}</span>
+                      <span className="block font-semibold">{format(dayDate, 'MMM d')}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {selectedDates.length > 0 && (
+              <p className="text-xs text-nex-muted">
+                {selectedDates.length} date(s) selected: {selectedDates.map(d => format(new Date(d), 'MMM d')).join(', ')}
+              </p>
+            )}
+
+            <button type="submit" disabled={loading || selectedDates.length === 0} className="nex-btn-primary w-full disabled:opacity-50">
+              {loading ? 'Assigning...' : `Assign to ${selectedDates.length} Date(s)`}
             </button>
           </form>
         </div>
