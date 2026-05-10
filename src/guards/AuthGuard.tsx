@@ -15,9 +15,7 @@ export function AuthGuard() {
     )
   }
 
-  if (!session) {
-    return <Navigate to="/login" replace />
-  }
+  if (!session) return <Navigate to="/login" replace />
 
   return <Outlet />
 }

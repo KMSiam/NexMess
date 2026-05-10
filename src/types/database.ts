@@ -12,7 +12,7 @@ export interface Mess {
   name: string
   unique_code: string
   manager_id: string | null
-  public_info: Record<string, any>
+  public_info: Record<string, unknown>
   max_members: number
   is_active: boolean
   created_at: string
@@ -103,7 +103,7 @@ export interface Notification {
   title: string
   body: string | null
   is_read: boolean
-  metadata: Record<string, any>
+  metadata: Record<string, unknown>
   created_at: string
 }
 

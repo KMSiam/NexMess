@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { Session, User } from '@supabase/supabase-js'
+import { Session, User, type AuthChangeEvent } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { Profile } from '../types/database'
 import { useMessStore } from './messStore'
@@ -10,6 +10,7 @@ interface AuthState {
   profile: Profile | null
   loading: boolean
   initialized: boolean
+  unsubscribe: (() => void) | null
 
   initialize: () => Promise<void>
   setSession: (session: Session | null) => void
@@ -24,8 +25,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   profile: null,
   loading: true,
   initialized: false,
+  unsubscribe: null,
 
   initialize: async () => {
+    // Prevent double-initialization (e.g. StrictMode remounts)
+    if (get().initialized || get().unsubscribe) return
+
     try {
       const { data: { session } } = await supabase.auth.getSession()
       set({ session, user: session?.user ?? null })
@@ -34,24 +39,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         await get().fetchProfile()
       }
 
-      // Listen for auth changes
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        // On sign out, clear everything immediately
-        if (event === 'SIGNED_OUT') {
-          set({ session: null, user: null, profile: null })
-          return
+      // Listen for auth changes and store unsubscribe
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (event: AuthChangeEvent, session: Session | null) => {
+          if (event === 'SIGNED_OUT') {
+            set({ session: null, user: null, profile: null })
+            return
+          }
+          if (!session) return
+          set({ session, user: session.user })
+          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+            void get().fetchProfile()
+          }
         }
-        // Some events fire with no session (e.g. recovery token consumed mid-flow); ignore them
-        if (!session) return
+      )
 
-        // Update session & user for all other events
-        set({ session, user: session.user })
-
-        // Fetch profile on login/token refresh/password recovery
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-          await get().fetchProfile()
-        }
-      })
+      set({ unsubscribe: subscription.unsubscribe })
     } finally {
       set({ loading: false, initialized: true })
     }
@@ -93,11 +96,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
+    // Unsubscribe from auth listener first
+    const unsub = get().unsubscribe
+    if (unsub) {
+      unsub()
+      set({ unsubscribe: null })
+    }
+
     // Clear state first so UI updates immediately
     set({ session: null, user: null, profile: null })
     // Clear mess data so the next account on this device doesn't see stale state
     useMessStore.getState().reset()
     try { localStorage.removeItem('nexmess-store') } catch { /* storage unavailable */ }
+
     // Then tell Supabase to sign out (scope: 'local' avoids network issues)
     await supabase.auth.signOut({ scope: 'local' })
   },

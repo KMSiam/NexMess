@@ -34,29 +34,23 @@ export const useMessStore = create<MessState>()(
           .eq('status', 'approved')
 
         if (memberships) {
-          const messes = memberships
-            .map((m: any) => m.messes)
-            .filter(Boolean) as Mess[]
-          
+          const messes = (memberships as unknown[]).map((m) => (m as { messes: Mess }).messes).filter(Boolean) as Mess[]
+
           set({ messes })
-          
+
           const current = get().currentMess
           if (current) {
-            // Verify the persisted mess actually belongs to this user
-            const stillMember = messes.find(m => m.id === current.id)
+            const stillMember = messes.find((m) => m.id === current.id)
             if (stillMember) {
               set({ currentMess: stillMember })
-              get().fetchMembers(stillMember.id)
+              void get().fetchMembers(stillMember.id)
+            } else if (messes.length > 0) {
+              void get().setCurrentMess(messes[0])
             } else {
-              // User switched accounts — clear stale data
-              if (messes.length > 0) {
-                get().setCurrentMess(messes[0])
-              } else {
-                set({ currentMess: null, members: [] })
-              }
+              set({ currentMess: null, members: [] })
             }
           } else if (messes.length > 0) {
-            get().setCurrentMess(messes[0])
+            void get().setCurrentMess(messes[0])
           }
         }
         set({ loading: false })
@@ -64,10 +58,10 @@ export const useMessStore = create<MessState>()(
 
       setCurrentMess: (mess) => {
         set({ currentMess: mess, members: [] })
-        get().fetchMembers(mess.id)
+        void get().fetchMembers(mess.id)
       },
 
-      fetchMembers: async (messId: string) => {
+      fetchMembers: async (messId) => {
         const { data } = await supabase
           .from('mess_members')
           .select('*, profiles(*)')
@@ -79,7 +73,7 @@ export const useMessStore = create<MessState>()(
         }
       },
 
-      createMess: async (name: string, userId: string) => {
+      createMess: async (name, userId) => {
         const { data: mess, error } = await supabase
           .from('messes')
           .insert({ name, manager_id: userId })
@@ -88,22 +82,19 @@ export const useMessStore = create<MessState>()(
 
         if (error || !mess) return null
 
-        // Add creator as approved manager
-        await supabase
-          .from('mess_members')
-          .insert({
-            mess_id: mess.id,
-            user_id: userId,
-            status: 'approved',
-            role: 'manager',
-          })
+        await supabase.from('mess_members').insert({
+          mess_id: mess.id,
+          user_id: userId,
+          status: 'approved',
+          role: 'manager',
+        })
 
         await get().fetchUserMesses(userId)
         set({ currentMess: mess as Mess })
         return mess as Mess
       },
 
-      joinMess: async (code: string, userId: string) => {
+      joinMess: async (code, userId) => {
         const { data: mess } = await supabase
           .from('messes')
           .select('*')
@@ -113,7 +104,6 @@ export const useMessStore = create<MessState>()(
 
         if (!mess) return { success: false, error: 'Mess not found. Check the code and try again.' }
 
-        // Check if already a member
         const { data: existing } = await supabase
           .from('mess_members')
           .select('status')
@@ -124,12 +114,14 @@ export const useMessStore = create<MessState>()(
         if (existing) {
           if (existing.status === 'approved') return { success: false, error: 'You are already a member.' }
           if (existing.status === 'pending') return { success: false, error: 'Your request is already pending.' }
-          // If 'left', allow re-joining
         }
 
-        const { error } = await supabase
-          .from('mess_members')
-          .upsert({ mess_id: mess.id, user_id: userId, status: 'pending', role: 'member' })
+        const { error } = await supabase.from('mess_members').upsert({
+          mess_id: mess.id,
+          user_id: userId,
+          status: 'pending',
+          role: 'member',
+        })
 
         if (error) return { success: false, error: 'Failed to join. Try again.' }
         return { success: true }

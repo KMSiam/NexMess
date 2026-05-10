@@ -16,9 +16,8 @@ self.addEventListener('push', (event) => {
       icon: '/favicon.svg',
       badge: '/favicon.svg',
       tag: 'nexmess-push',
-      renotify: true,
       data: { url: payload.url ?? '/dashboard' },
-    } as any)
+    })
   )
 })
 

@@ -1,8 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import path from 'node:path'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
   plugins: [
     react(),
     VitePWA({
@@ -38,15 +44,47 @@ export default defineConfig({
     })
   ],
   build: {
-    chunkSizeWarningLimit: 2000,
+    chunkSizeWarningLimit: 1500,
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            return 'vendor';
+            // Framework core
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('scheduler')) {
+              return 'react-core'
+            }
+            // State + data
+            if (id.includes('zustand') || id.includes('supabase')) {
+              return 'state-data'
+            }
+            // UI + animations
+            if (id.includes('framer-motion') || id.includes('lucide-react') || id.includes('react-hot-toast')) {
+              return 'ui-animations'
+            }
+            // PDF generation (heavy)
+            if (id.includes('jspdf')) {
+              return 'pdf'
+            }
+            return 'vendor'
           }
+        },
+        // Long-term caching
+        entryFileNames: 'js/[name]-[hash].js',
+        chunkFileNames: 'js/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name ?? ''
+          if (/\.(png|jpe?g|gif|svg|webp|ico)$/i.test(info)) return 'img/[name]-[hash][extname]'
+          if (/\.css$/i.test(info)) return 'css/[name]-[hash][extname]'
+          return 'assets/[name]-[hash][extname]'
         },
       },
     },
+    sourcemap: true,
+    cssMinify: true,
+  },
+  server: {
+    port: 5173,
+    strictPort: false,
+    open: true,
   },
 })
