@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import {
   format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays,
-  eachDayOfInterval, isToday, isBefore,
+  eachDayOfInterval, isToday, isBefore, endOfMonth,
 } from 'date-fns'
 import { getInitials } from '../../lib/utils'
 import toast from 'react-hot-toast'
@@ -180,8 +180,7 @@ export default function MarketPage() {
             <div>
               <p className="text-sm font-medium text-nex-text mb-2">Select dates:</p>
               <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
-                {Array.from({ length: 30 }, (_, i) => {
-                  const dayDate = addDays(new Date(), i)
+                {eachDayOfInterval({ start: new Date(), end: endOfMonth(new Date()) }).map((dayDate) => {
                   const dateStr = format(dayDate, 'yyyy-MM-dd')
                   const isSelected = selectedDates.includes(dateStr)
                   const isPast = isBefore(dayDate, new Date()) && !isToday(dayDate)
