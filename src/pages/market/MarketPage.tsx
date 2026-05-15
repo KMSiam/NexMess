@@ -8,7 +8,7 @@ import {
   Calendar, ArrowRightLeft,
 } from 'lucide-react'
 import {
-  format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays,
+  format, startOfWeek, endOfWeek, addWeeks, subWeeks,
   eachDayOfInterval, isToday, isBefore, endOfMonth,
 } from 'date-fns'
 import { getInitials } from '../../lib/utils'
