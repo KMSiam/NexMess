@@ -346,7 +346,7 @@ export default function MarketPage() {
 
       {/* This Month Overview */}
       <div className="nex-card p-5">
-        <h3 className="text-sm font-semibold text-nex-text uppercase tracking-wider mb-3">Duty Count This Month</h3>
+        <h3 className="text-sm font-semibold text-nex-text uppercase tracking-wider mb-3">Duty Count This Week</h3>
         <div className="space-y-2">
           {approvedMembers.map(member => {
             const p = member.profiles as any

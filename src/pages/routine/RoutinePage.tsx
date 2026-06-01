@@ -257,7 +257,7 @@ export default function RoutinePage() {
                     const isActive = activeEditCell?.day === r.day_of_week && activeEditCell?.type === type
                     return (
                       <div key={type} className={`rounded-xl p-3 ${type === 'lunch' ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-indigo-500/10 border border-indigo-500/20'}`}>
-                        <p className="text-xs font-semibold uppercase tracking-wider mb-1.5 ${type === 'lunch' ? 'text-amber-600' : 'text-indigo-600'}">
+                        <p className={`text-xs font-semibold uppercase tracking-wider mb-1.5 ${type === 'lunch' ? 'text-amber-600' : 'text-indigo-600'}`}>
                           {type === 'lunch' ? '☀️ Lunch' : '🌙 Dinner'}
                         </p>
                         {editing ? (

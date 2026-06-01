@@ -268,7 +268,7 @@ export default function SettingsPage() {
         <div className="nex-card p-6">
           <h3 className="text-lg font-semibold text-nex-text mb-4 flex items-center gap-2">
             Pending Requests
-            <span className="nex-badge-danger">{pendingMembers.length}</span>
+            <span className="nex-badge nex-badge-danger">{pendingMembers.length}</span>
           </h3>
           <div className="space-y-3">
             {pendingMembers.map(member => {

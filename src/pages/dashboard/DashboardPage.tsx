@@ -9,7 +9,7 @@ import {
   Megaphone, PhoneCall, Trash2, ShieldAlert,
   Users, Send, X, AlertTriangle, Wallet, ShoppingBag, ChefHat, UtensilsCrossed, Clock,
 } from 'lucide-react'
-import { getGreeting, formatCurrency, getFoodEmoji, isMealCutoffPassed, mealCutoffLabel, mealCutoffApproaching } from '../../lib/utils'
+import { getGreeting, formatCurrency, getFoodEmoji, isMealCutoffPassed, mealCutoffLabel, mealCutoffApproaching, dhakaToday } from '../../lib/utils'
 import { sendPushToUsers } from '../../lib/push'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
@@ -123,8 +123,11 @@ export default function DashboardPage() {
       else setNotice(null)
 
       // 8. Meal Routine
-      const todayDow = (new Date(today).getDay() + 1) % 7
-      const tomorrowDow = (new Date(tomorrow).getDay() + 1) % 7
+      // Use Dhaka-local date to compute day-of-week (avoids UTC getDay() drift)
+      const _dhakaBase = new Date(dhakaToday() + 'T00:00:00+06:00')
+      const todayDow = (_dhakaBase.getUTCDay() + 1) % 7
+      const _dhakaTomorrow = new Date(_dhakaBase.getTime() + 24 * 60 * 60 * 1000)
+      const tomorrowDow = (_dhakaTomorrow.getUTCDay() + 1) % 7
       const { data: routineData } = await supabase.from('meal_routines').select('day_of_week, lunch, dinner').eq('mess_id', currentMess.id).in('day_of_week', [todayDow, tomorrowDow])
       if (routineData) {
         const todayR = routineData.find(r => r.day_of_week === todayDow)

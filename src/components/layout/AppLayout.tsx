@@ -137,6 +137,7 @@ export default function AppLayout() {
             <NavLink
               key={to}
               to={to}
+              title={label}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm transition-colors ${
                   isActive ? 'nex-nav-active' : 'nex-nav-inactive'

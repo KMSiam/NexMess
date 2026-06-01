@@ -238,7 +238,7 @@
     width: 100%;
     padding: 0.625rem 1rem;
     border-radius: var(--radius-btn);
-    font-size: 0.875rem;
+    font-size: 1rem;
     background-color: var(--color-nex-surface);
     border: 1px solid var(--color-nex-border);
     color: var(--color-nex-text);
