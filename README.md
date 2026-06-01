@@ -9,13 +9,15 @@
 
 ## ✨ Features
 
-- 🍽️ **Meal Calendar** — Toggle Lunch/Dinner per day on a monthly grid
-- 💰 **Finance Tracker** — Expenses, deposits, fixed costs & auto-calculated balance
-- 🛒 **Bazaar Scheduler** — Assign/auto-rotate market duty with weekly view
-- 💬 **Real-Time Chat** — Group messaging with Supabase Realtime
-- 🔔 **Notifications** — Live alerts for expenses, join requests, bazaar duty
-- 👥 **Member Management** — Join via code, approve/reject, role-based permissions
-- 🔐 **Secure Auth** — Email/Password + Google OAuth with RLS-protected data
+- 🍽️ **Meal Calendar** — Toggle Lunch/Dinner per day on a monthly grid with strict cut-off times
+- 💰 **Finance Tracker** — Expenses, deposits, fixed costs, auto-calculated balances & greedy debt settle-up sheet
+- 🛒 **Bazaar Scheduler** — Assign/auto-rotate market duty with weekly calendar view
+- 💬 **Real-Time Chat** — Direct group messaging with active member profiles powered by Supabase Realtime
+- 📲 **PWA & Push Notifications** — Installable Progressive Web App with background device notifications via Deno Edge Functions
+- 📊 **PDF Report Exports** — Export monthly meal summary sheets, expense lists, and settlement flows to PDF using `jsPDF`
+- 📅 **Routine Planner** — Daily schedules and cleaning routines management for the shared apartment
+- 👥 **Member Management** — Enter via unique mess code, approval/rejection gates, and manager vs member role settings
+- 🔐 **Secure Auth & Security** — Email/Password + Google OAuth, secure password recovery flows, and Row-Level Security (RLS) policies
 
 ## 🎨 Design
 
@@ -31,7 +33,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/NexMess.git
+git clone https://github.com/KMSiam/NexMess.git
 cd NexMess
 
 # Install dependencies
@@ -59,10 +61,12 @@ npm run dev
 | Frontend | React 19, TypeScript, Vite |
 | Styling | Tailwind CSS v4, Custom Design System |
 | State | Zustand (persisted) |
-| Backend | Supabase (PostgreSQL, Auth, Realtime, Storage) |
+| Backend | Supabase (PostgreSQL, Auth, Realtime, Storage, Deno Edge Functions) |
 | Routing | React Router v7 |
+| PWA & SW | Vite PWA Plugin, Custom Service Worker (`src/sw.ts`) |
+| PDF Reports | jsPDF, jspdf-autotable |
 | Animations | Framer Motion |
-| Notifications | react-hot-toast |
+| Notifications | react-hot-toast, Web Push API (VAPID) |
 
 ## 📁 Project Structure
 
@@ -81,6 +85,7 @@ src/
 │   ├── market/          # Bazaar scheduler
 │   ├── meals/           # Meal calendar
 │   ├── mess/            # Create/Join mess
+│   ├── routine/         # Daily routines & cleaning scheduler
 │   └── settings/        # Profile & member management
 ├── stores/              # Zustand state stores
 └── types/               # TypeScript interfaces
@@ -88,8 +93,8 @@ src/
 
 ## 📊 Database Schema
 
-10 tables with full Row Level Security:
-`profiles`, `messes`, `mess_members`, `meals`, `expenses`, `deposits`, `fixed_costs`, `market_schedules`, `chat_messages`, `notifications`
+11 tables with full Row Level Security:
+`profiles`, `messes`, `mess_members`, `meals`, `expenses`, `deposits`, `fixed_costs`, `market_schedules`, `chat_messages`, `notifications`, `push_subscriptions`
 
 ## 📄 License
 
