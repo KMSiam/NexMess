@@ -2,6 +2,9 @@
 
 > Next-generation real-time mess management system for shared living. Track meals, split expenses, coordinate bazaar duty — all in one beautiful app.
 
+📖 **[Read the NexMess Project Report](./NexMess_Project_Report.pdf)**
+
+[![Project Report](https://img.shields.io/badge/Project_Report-PDF-red?logo=adobe-acrobat-reader&logoColor=white)](./NexMess_Project_Report.pdf)
 ![React](https://img.shields.io/badge/React-19-blue?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-Backend-green?logo=supabase)
