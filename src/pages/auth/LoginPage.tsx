@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { useAuthStore } from '../../stores/authStore'
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
@@ -16,11 +17,15 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
       toast.error(error.message)
     } else {
+      if (data?.session) {
+        useAuthStore.getState().setSession(data.session)
+        await useAuthStore.getState().fetchProfile()
+      }
       toast.success('Welcome back!')
       navigate('/dashboard')
     }

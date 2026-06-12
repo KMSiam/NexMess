@@ -19,6 +19,12 @@ export default function SettingsPage() {
   const pushSupported = isPushSupported()
 
   useEffect(() => {
+    if (profile?.username) {
+      setUsername(profile.username)
+    }
+  }, [profile?.username])
+
+  useEffect(() => {
     isSubscribed().then(setPushEnabled)
   }, [])
   const [copied, setCopied] = useState(false)

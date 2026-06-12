@@ -5,7 +5,7 @@ import { useAuthStore } from './stores/authStore'
 import { useMessStore } from './stores/messStore'
 
 // Guards
-import { AuthGuard, GuestGuard } from './guards/AuthGuard'
+import { AuthGuard, GuestGuard, OnboardingGuard } from './guards/AuthGuard'
 
 // Layouts
 import AppLayout from './components/layout/AppLayout'
@@ -74,18 +74,22 @@ function App() {
             {/* Protected routes */}
             <Route element={<AuthGuard />}>
               <Route path="/onboarding" element={<OnboardingPage />} />
-              <Route path="/mess/create" element={<CreateMessPage />} />
-              <Route path="/mess/join" element={<JoinMessPage />} />
 
-              {/* App shell with sidebar/nav */}
-              <Route element={<AppLayout />}>
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/meals" element={<MealsPage />} />
-                <Route path="/chat" element={<ChatPage />} />
-                <Route path="/finance" element={<FinancePage />} />
-                <Route path="/market" element={<MarketPage />} />
-                <Route path="/routine" element={<RoutinePage />} />
-                <Route path="/settings" element={<SettingsPage />} />
+              {/* Force onboarding before allowing access to app features */}
+              <Route element={<OnboardingGuard />}>
+                <Route path="/mess/create" element={<CreateMessPage />} />
+                <Route path="/mess/join" element={<JoinMessPage />} />
+
+                {/* App shell with sidebar/nav */}
+                <Route element={<AppLayout />}>
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/meals" element={<MealsPage />} />
+                  <Route path="/chat" element={<ChatPage />} />
+                  <Route path="/finance" element={<FinancePage />} />
+                  <Route path="/market" element={<MarketPage />} />
+                  <Route path="/routine" element={<RoutinePage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                </Route>
               </Route>
             </Route>
 
