@@ -79,9 +79,12 @@ export default function FinancePage() {
   const fetchAllData = useCallback(async () => {
     if (!currentMess?.id) return
     const id = currentMess.id
+    // Only current-month records are shown; past months vanish automatically
+    const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd')
+    const monthEnd = format(endOfMonth(new Date()), 'yyyy-MM-dd')
     const [expRes, depRes, fixRes] = await Promise.all([
-      supabase.from('expenses').select('*, profiles(username)').eq('mess_id', id).order('date', { ascending: false }).limit(100),
-      supabase.from('deposits').select('*, profiles!deposits_user_id_fkey(username)').eq('mess_id', id).order('date', { ascending: false }).limit(100),
+      supabase.from('expenses').select('*, profiles(username)').eq('mess_id', id).gte('date', monthStart).lte('date', monthEnd).order('date', { ascending: false }).limit(100),
+      supabase.from('deposits').select('*, profiles!deposits_user_id_fkey(username)').eq('mess_id', id).gte('date', monthStart).lte('date', monthEnd).order('date', { ascending: false }).limit(100),
       supabase.from('fixed_costs').select('*').eq('mess_id', id).eq('month', currentMonth),
     ])
     if (expRes.data) setExpenses(expRes.data as Expense[])
