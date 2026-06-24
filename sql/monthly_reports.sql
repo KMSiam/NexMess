@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS public.monthly_reports_cron_log (
 );
 
 ALTER TABLE public.monthly_reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.monthly_reports_cron_log ENABLE ROW LEVEL SECURITY;
 
 -- Managers of the mess can read its archived reports.
 DROP POLICY IF EXISTS "Managers can read monthly reports" ON public.monthly_reports;
@@ -132,12 +133,19 @@ BEGIN
     LEFT JOIN public.profiles p ON p.id = m.user_id
     WHERE m.mess_id = p_mess_id AND m.status IN ('approved', 'left')
   LOOP
-    SELECT COALESCE(public.calculate_member_balance(v_member.user_id, p_mess_id, p_month), '{}'::json) INTO v_bal;
+    v_bal := NULL;
+    SELECT row_to_json(r) INTO v_bal
+    FROM public.calculate_member_balance(v_member.user_id, p_mess_id, p_month) r;
+
+    IF v_bal IS NULL THEN
+      v_bal := '{}'::json;
+    END IF;
+
     v_balances := v_balances || jsonb_build_object(
       'user_id',         v_member.user_id,
       'username',        v_member.username,
       'status',          v_member.status,
-      'personal_meals',  COALESCE((v_bal->>'personal_meals')::int, 0),
+      'personal_meals',  COALESCE((v_bal->>'personal_meals')::numeric, 0),
       'individual_cost', COALESCE((v_bal->>'individual_cost')::numeric, 0),
       'total_deposits',  COALESCE((v_bal->>'total_deposits')::numeric, 0)
     );
