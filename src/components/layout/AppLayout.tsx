@@ -8,7 +8,7 @@ import {
   Home, Utensils, MessageSquare, Wallet, ShoppingBag,
   Settings, Zap, LogOut, CheckCircle2,
   CalendarClock, PanelLeft, PanelLeftClose, X, MoreHorizontal,
-  Sun, Moon
+  Sun, Moon, History
 } from 'lucide-react'
 import NotificationBell from '../NotificationBell'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
@@ -28,8 +28,9 @@ const navItems = [
 export default function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { profile, signOut } = useAuthStore()
-  const { currentMess, messes, setCurrentMess, fetchUserMesses, reset: resetMess } = useMessStore()
+  const { profile, user, signOut } = useAuthStore()
+  const { currentMess, messes, members, setCurrentMess, fetchUserMesses, reset: resetMess } = useMessStore()
+  const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [showMessDropdown, setShowMessDropdown] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
@@ -148,6 +149,21 @@ export default function AppLayout() {
               {!sidebarCollapsed && <span>{label}</span>}
             </NavLink>
           ))}
+          {/* Manager-only: History */}
+          {isManager && (
+            <NavLink
+              to="/history"
+              title="History"
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm transition-colors mt-1 border-t border-nex-border/50 pt-3 ${
+                  isActive ? 'nex-nav-active' : 'nex-nav-inactive'
+                } ${sidebarCollapsed ? 'justify-center' : ''}`
+              }
+            >
+              <History className="w-5 h-5 shrink-0" />
+              {!sidebarCollapsed && <span>History</span>}
+            </NavLink>
+          )}
         </nav>
 
         {/* User */}
@@ -225,13 +241,13 @@ export default function AppLayout() {
       </div>
 
       {/* ── Mobile Bottom Nav ──────────────── */}
-      <MobileBottomNav handleSignOut={handleSignOut} signingOut={signingOut} />
+      <MobileBottomNav handleSignOut={handleSignOut} signingOut={signingOut} isManager={isManager} />
     </div>
   )
 }
 
 /* ── Mobile Bottom Navigation with "More" Menu ── */
-function MobileBottomNav({ handleSignOut, signingOut }: { handleSignOut: () => void; signingOut: boolean }) {
+function MobileBottomNav({ handleSignOut, signingOut, isManager }: { handleSignOut: () => void; signingOut: boolean; isManager: boolean }) {
   const [showMore, setShowMore] = useState(false)
 
   const mainTabs = navItems.slice(0, 4) // Dashboard, Meals, Chat, Finance
@@ -254,6 +270,12 @@ function MobileBottomNav({ handleSignOut, signingOut }: { handleSignOut: () => v
             className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
             <CalendarClock className="w-5 h-5" /> Meal Routine
           </NavLink>
+          {isManager && (
+            <NavLink to="/history" onClick={() => setShowMore(false)}
+              className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
+              <History className="w-5 h-5" /> History
+            </NavLink>
+          )}
           <NavLink to="/settings" onClick={() => setShowMore(false)}
             className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
             <Settings className="w-5 h-5" /> Settings
