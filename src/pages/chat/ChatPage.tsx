@@ -1,40 +1,156 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { ChatMessage } from '../../types/database'
-import { Send, MessageSquare } from 'lucide-react'
-import { format } from 'date-fns'
-import { getInitials } from '../../lib/utils'
+import { Send, MessageSquare, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 
+// Hooks
+import { usePageTitle } from '../../hooks/usePageTitle'
+import { useRealtimeTable } from '../../hooks/useRealtimeTable'
+
+// Components
+import ChatBubble from './components/ChatBubble'
+import ImageUploader from './components/ImageUploader'
+
+interface Reaction {
+  id: string
+  message_id: string
+  user_id: string
+  emoji: string
+}
+
+const PAGE_SIZE = 30
+
 export default function ChatPage() {
+  usePageTitle('Chat')
+
   const { profile } = useAuthStore()
   const { currentMess, members } = useMessStore()
+  
   const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [reactions, setReactions] = useState<Reaction[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
+  const [loadingOlder, setLoadingOlder] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const membersRef = useRef(members)
   useEffect(() => { membersRef.current = members }, [members])
 
+  // Fetch initial messages and reactions in parallel
+  const fetchMessagesAndReactions = useCallback(async (limit = PAGE_SIZE, beforeId?: string) => {
+    if (!currentMess?.id) return
+
+    let query = supabase
+      .from('chat_messages')
+      .select('*, profiles(username, avatar_url)')
+      .eq('mess_id', currentMess.id)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (beforeId) {
+      // Find the message's created_at timestamp to query before it
+      const beforeMsg = messages.find(m => m.id === beforeId)
+      if (beforeMsg) {
+        query = query.lt('created_at', beforeMsg.created_at)
+      }
+    }
+
+    const { data: rawMsgs, error } = await query
+    if (error) {
+      toast.error('Failed to load messages')
+      return
+    }
+
+    const fetchedMsgs = (rawMsgs as ChatMessage[] || []).reverse()
+    
+    if (fetchedMsgs.length < limit) {
+      setHasMore(false)
+    }
+
+    if (beforeId) {
+      // If loading history, prepend messages and preserve scroll
+      const container = messagesContainerRef.current
+      const scrollHeightBefore = container?.scrollHeight || 0
+      const scrollTopBefore = container?.scrollTop || 0
+
+      setMessages(prev => [...fetchedMsgs, ...prev])
+
+      // Adjust scroll position after render
+      setTimeout(() => {
+        if (container) {
+          const scrollHeightAfter = container.scrollHeight
+          container.scrollTop = scrollTopBefore + (scrollHeightAfter - scrollHeightBefore)
+        }
+      }, 0)
+    } else {
+      // Initial load
+      setMessages(fetchedMsgs)
+      // Scroll to bottom after render
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'auto' })
+      }, 0)
+    }
+
+    // Load reactions for the loaded messages
+    if (fetchedMsgs.length > 0) {
+      const msgIds = fetchedMsgs.map(m => m.id)
+      const { data: rxData } = await supabase
+        .from('chat_reactions')
+        .select('*')
+        .in('message_id', msgIds)
+      
+      if (rxData) {
+        setReactions(prev => {
+          // Remove duplicates and combine
+          const filteredPrev = prev.filter(r => !msgIds.includes(r.message_id))
+          return [...filteredPrev, ...(rxData as Reaction[])]
+        })
+      }
+    }
+  }, [currentMess?.id, messages])
+
+  // Initial load
+  useEffect(() => {
+    if (currentMess?.id) {
+      setHasMore(true)
+      fetchMessagesAndReactions(PAGE_SIZE)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMess?.id])
+
+  // Load older messages on scroll-to-top
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget
+    if (target.scrollTop === 0 && hasMore && !loadingOlder && messages.length > 0) {
+      setLoadingOlder(true)
+      fetchMessagesAndReactions(PAGE_SIZE, messages[0].id).finally(() => {
+        setLoadingOlder(false)
+      })
+    }
+  }
+
+  // Set up realtime subscriptions using useRealtimeTable hook
+  useRealtimeTable(
+    [
+      { table: 'chat_messages', filter: `mess_id=eq.${currentMess?.id}` },
+      { table: 'chat_reactions' } // Reactions table doesn't have direct mess_id, we filter internally or rely on SELECT RLS
+    ],
+    () => {
+      // Direct notification handler
+    }
+  )
+
+  // Explicit handlers for Realtime DB events (message insert, reaction updates)
   useEffect(() => {
     if (!currentMess?.id) return
 
-    const fetchMessages = async () => {
-      const { data } = await supabase
-        .from('chat_messages')
-        .select('*, profiles(username, avatar_url)')
-        .eq('mess_id', currentMess.id)
-        .order('created_at', { ascending: true })
-        .limit(100)
-      if (data) setMessages(data as ChatMessage[])
-    }
-    fetchMessages()
-
-    // Real-time subscription
     const channel = supabase
-      .channel('chat-' + currentMess.id)
+      .channel('chat-realtime-custom')
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'chat_messages',
         filter: `mess_id=eq.${currentMess.id}`,
@@ -42,8 +158,6 @@ export default function ChatPage() {
         const newMsg = payload.new as any
         setMessages(prev => {
           if (prev.some(m => m.id === newMsg.id)) return prev
-          
-          // Look up sender from local members store to avoid DB read-replica lag
           const senderProfile = membersRef.current.find(m => m.user_id === newMsg.sender_id)?.profiles
           const completeMsg = {
             ...newMsg,
@@ -51,22 +165,43 @@ export default function ChatPage() {
           }
           return [...prev, completeMsg as ChatMessage]
         })
+        // Scroll to bottom if user is already at the bottom
+        const container = messagesContainerRef.current
+        if (container) {
+          const isAtBottom = container.scrollHeight - container.clientHeight - container.scrollTop < 100
+          if (isAtBottom) {
+            setTimeout(() => {
+              bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+            }, 50)
+          }
+        }
+      })
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'chat_reactions'
+      }, (payload) => {
+        const eventType = payload.eventType
+        if (eventType === 'INSERT') {
+          const newRx = payload.new as Reaction
+          setReactions(prev => [...prev, newRx])
+        } else if (eventType === 'DELETE') {
+          const oldRx = payload.old as { id: string }
+          setReactions(prev => prev.filter(r => r.id !== oldRx.id))
+        }
       })
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [currentMess?.id])
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  const handleSend = async (e?: React.FormEvent, customText?: string, messageType: 'text' | 'image' = 'text') => {
+    if (e) e.preventDefault()
+    
+    const textToSend = customText || newMessage.trim()
+    if (!textToSend || !profile?.id || !currentMess?.id) return
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newMessage.trim() || !profile?.id || !currentMess?.id) return
-
-    const msgText = newMessage.trim().slice(0, 2000)
-    if (msgText.length === 0) return
+    const msgText = textToSend.slice(0, 2000)
     setSending(true)
 
     const tempId = 'temp-' + Date.now()
@@ -77,12 +212,12 @@ export default function ChatPage() {
       mess_id: currentMess.id,
       sender_id: profile.id,
       text: msgText,
-      message_type: 'text',
+      message_type: messageType,
       created_at: new Date().toISOString(),
       profiles: { username: profile.username, avatar_url: profile.avatar_url }
     }
     setMessages(prev => [...prev, optimisticMsg as any])
-    setNewMessage('')
+    if (!customText) setNewMessage('')
     setSending(false)
 
     // Actual DB Insert
@@ -90,15 +225,36 @@ export default function ChatPage() {
       mess_id: currentMess.id,
       sender_id: profile.id,
       text: msgText,
-      message_type: 'text',
+      message_type: messageType,
     }).select('*, profiles(username, avatar_url)').single()
 
     if (data && !error) {
       setMessages(prev => prev.map(m => m.id === tempId ? (data as ChatMessage) : m))
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }, 50)
     } else {
-      // If error, remove the optimistic message
       setMessages(prev => prev.filter(m => m.id !== tempId))
       toast.error('Failed to send message')
+    }
+  }
+
+  const handleAddReaction = async (messageId: string, emoji: string) => {
+    if (!profile?.id) return
+    const { error } = await supabase.from('chat_reactions').insert({
+      message_id: messageId,
+      user_id: profile.id,
+      emoji
+    })
+    if (error && error.code !== '23505') { // Unique constraint violation is fine
+      toast.error('Failed to add reaction')
+    }
+  }
+
+  const handleRemoveReaction = async (reactionId: string) => {
+    const { error } = await supabase.from('chat_reactions').delete().eq('id', reactionId)
+    if (error) {
+      toast.error('Failed to remove reaction')
     }
   }
 
@@ -106,57 +262,73 @@ export default function ChatPage() {
 
   return (
     <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-8rem)] md:h-[calc(100vh-6rem)]">
-      <div className="flex items-center gap-3 mb-3">
-        <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-nex-primary" />
-        <h1 className="text-xl sm:text-2xl font-bold text-nex-text">Group Chat</h1>
+      <div className="flex items-center justify-between mb-3 shrink-0">
+        <div className="flex items-center gap-3">
+          <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-nex-primary" />
+          <h1 className="text-xl sm:text-2xl font-bold text-nex-text">Group Chat</h1>
+        </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 nex-card p-3 sm:p-4 overflow-y-auto space-y-3">
-        {messages.length === 0 && (
-          <p className="text-center text-nex-muted py-12 text-sm">No messages yet. Start the conversation!</p>
+      {/* Messages Window */}
+      <div
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 nex-card p-3 sm:p-4 overflow-y-auto space-y-4 relative"
+      >
+        {loadingOlder && (
+          <div className="flex justify-center py-2">
+            <RefreshCw className="w-4 h-4 text-nex-primary animate-spin" />
+          </div>
         )}
+
+        {messages.length === 0 && !loadingOlder && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+            <MessageSquare className="w-12 h-12 text-nex-muted/20 mb-2 animate-bounce" />
+            <p className="text-sm font-medium text-nex-text">No messages yet</p>
+            <p className="text-xs text-nex-muted max-w-xs mt-1">Start the conversation with your mess members!</p>
+          </div>
+        )}
+
         {messages.map((msg) => {
           const isOwn = msg.sender_id === profile?.id
-          const sender = (msg as any).profiles
+          const msgReactions = reactions.filter(r => r.message_id === msg.id)
           return (
-            <div key={msg.id} className={`flex gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
-              {!isOwn && (
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-[10px] sm:text-xs font-semibold shrink-0">
-                  {sender?.avatar_url ? (
-                    <img src={sender.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                  ) : getInitials(sender?.username || '?')}
-                </div>
-              )}
-              <div className={`max-w-[80%] sm:max-w-[70%] ${isOwn ? 'order-1' : ''}`}>
-                {!isOwn && <p className="text-xs text-nex-muted mb-0.5 ml-1">{sender?.username}</p>}
-                <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${
-                  isOwn
-                    ? 'bg-nex-primary text-white rounded-br-sm'
-                    : 'bg-nex-elevated text-nex-text rounded-bl-sm'
-                }`}>
-                  {msg.text}
-                </div>
-                <p className={`text-[10px] text-nex-muted mt-0.5 ${isOwn ? 'text-right mr-1' : 'ml-1'}`}>
-                  {format(new Date(msg.created_at), 'h:mm a')}
-                </p>
-              </div>
-            </div>
+            <ChatBubble
+              key={msg.id}
+              msg={msg}
+              isOwn={isOwn}
+              reactions={msgReactions}
+              currentUserId={profile?.id}
+              onAddReaction={handleAddReaction}
+              onRemoveReaction={handleRemoveReaction}
+            />
           )
         })}
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <form onSubmit={handleSend} className="mt-2 flex gap-2">
-        <input
-          type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)}
-          maxLength={2000}
-          className="nex-input flex-1 text-base" placeholder="Type a message..."
-          id="chat-input"
+      {/* Input controls */}
+      <form onSubmit={(e) => handleSend(e)} className="mt-2 flex gap-2 shrink-0">
+        <ImageUploader
+          messId={currentMess.id}
+          onUploadComplete={(url) => handleSend(undefined, url, 'image')}
         />
-        <button type="submit" disabled={sending || !newMessage.trim()}
-          className="nex-btn-primary px-4 disabled:opacity-50" id="chat-send">
+        <input
+          type="text"
+          value={newMessage}
+          onChange={e => setNewMessage(e.target.value)}
+          maxLength={2000}
+          className="nex-input flex-1 text-base"
+          placeholder="Type a message..."
+          id="chat-input"
+          autoComplete="off"
+        />
+        <button
+          type="submit"
+          disabled={sending || !newMessage.trim()}
+          className="nex-btn-primary px-4 disabled:opacity-50"
+          id="chat-send"
+        >
           <Send className="w-4 h-4" />
         </button>
       </form>

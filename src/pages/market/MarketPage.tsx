@@ -13,8 +13,12 @@ import {
 } from 'date-fns'
 import { getInitials } from '../../lib/utils'
 import toast from 'react-hot-toast'
+import { usePageTitle } from '../../hooks/usePageTitle'
+import { Skeleton } from '../../components/Skeleton'
+import ConfirmDialog from '../../components/ConfirmDialog'
 
 export default function MarketPage() {
+  usePageTitle('Market')
   const { user } = useAuthStore()
   const { currentMess, members } = useMessStore()
   const [schedules, setSchedules] = useState<MarketSchedule[]>([])
@@ -23,6 +27,8 @@ export default function MarketPage() {
   const [selectedUser, setSelectedUser] = useState('')
   const [selectedDates, setSelectedDates] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
+  const [loadingSchedules, setLoadingSchedules] = useState(true)
+  const [deleteScheduleId, setDeleteScheduleId] = useState<string | null>(null)
 
   const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager')
   const approvedMembers = members.filter(m => m.status === 'approved')
@@ -35,6 +41,7 @@ export default function MarketPage() {
 
   const fetchSchedules = useCallback(async () => {
     if (!currentMess?.id) return
+    setLoadingSchedules(true)
     const { data } = await supabase
       .from('market_schedules')
       .select('*, profiles(username, avatar_url)')
@@ -44,6 +51,7 @@ export default function MarketPage() {
       .order('assigned_date', { ascending: true })
 
     if (data) setSchedules(data as MarketSchedule[])
+    setLoadingSchedules(false)
   }, [currentMess?.id, weekStartStr, weekEndStr])
 
   useEffect(() => {
@@ -100,10 +108,15 @@ export default function MarketPage() {
 
   const clearDates = () => setSelectedDates([])
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Remove this assignment?')) return
-    await supabase.from('market_schedules').delete().eq('id', id)
+  const handleDelete = (id: string) => {
+    setDeleteScheduleId(id)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteScheduleId) return
+    await supabase.from('market_schedules').delete().eq('id', deleteScheduleId)
     toast.success('Assignment removed')
+    setDeleteScheduleId(null)
     fetchSchedules()
   }
 
@@ -234,113 +247,138 @@ export default function MarketPage() {
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
-
         {/* Desktop: Grid view (hidden on small screens) */}
         <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-        <div className="hidden sm:grid grid-cols-7 gap-2 min-w-[560px]">
-          {weekDays.map(day => {
-            const dateStr = format(day, 'yyyy-MM-dd')
-            const daySchedules = schedules.filter(s => s.assigned_date === dateStr)
-            const todayFlag = isToday(day)
-            const past = isBefore(day, new Date()) && !todayFlag
-
-            return (
-              <div key={dateStr} className={`rounded-xl border p-3 text-center transition-colors ${
-                todayFlag ? 'border-nex-primary bg-nex-primary-light' :
-                past ? 'border-transparent bg-nex-elevated/50' : 'border-nex-border bg-nex-surface'
-              }`}>
-                <p className={`text-xs font-semibold uppercase tracking-wider mb-1 ${
-                  todayFlag ? 'text-nex-primary' : 'text-nex-muted'
-                }`}>{format(day, 'EEE')}</p>
-                <p className={`text-lg font-bold mb-2 ${todayFlag ? 'text-nex-primary' : 'text-nex-text'}`}>{format(day, 'd')}</p>
-                {daySchedules.length > 0 ? (
-                  <div className="space-y-2">
-                    {daySchedules.map(ds => {
-                      const assignee = ds.profiles as any
-                      return (
-                        <div key={ds.id} className="flex flex-col items-center gap-0.5">
-                          <div className="w-8 h-8 rounded-full mx-auto bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
-                            {assignee?.avatar_url ? (
-                              <img src={assignee.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                            ) : getInitials(assignee?.username || '?')}
-                          </div>
-                          <p className="text-[10px] font-medium text-nex-text truncate w-full">{assignee?.username}</p>
-                          {isManager && (
-                            <button onClick={() => handleDelete(ds.id)} className="text-nex-muted hover:text-nex-danger transition-colors">
-                              <Trash2 className="w-3 h-3 mx-auto" />
-                            </button>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                ) : (
-                  <div className="py-2">
-                    <Calendar className="w-5 h-5 mx-auto text-nex-muted/40" />
-                    <p className="text-xs text-nex-muted/40 mt-1">Unassigned</p>
-                  </div>
-                )}
+        {loadingSchedules ? (
+          <div className="grid grid-cols-7 gap-2 min-w-[560px]">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div key={i} className="rounded-xl border border-nex-border p-3 text-center bg-nex-elevated/20 space-y-3">
+                <Skeleton className="h-4 w-12 mx-auto" />
+                <Skeleton className="h-6 w-8 mx-auto" />
+                <Skeleton className="h-8 w-8 rounded-full mx-auto" />
               </div>
-            )
-          })}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="hidden sm:grid grid-cols-7 gap-2 min-w-[560px]">
+            {weekDays.map(day => {
+              const dateStr = format(day, 'yyyy-MM-dd')
+              const daySchedules = schedules.filter(s => s.assigned_date === dateStr)
+              const todayFlag = isToday(day)
+              const past = isBefore(day, new Date()) && !todayFlag
+
+              return (
+                <div key={dateStr} className={`rounded-xl border p-3 text-center transition-colors ${
+                  todayFlag ? 'border-nex-primary bg-nex-primary-light' :
+                  past ? 'border-transparent bg-nex-elevated/50' : 'border-nex-border bg-nex-surface'
+                }`}>
+                  <p className={`text-xs font-semibold uppercase tracking-wider mb-1 ${
+                    todayFlag ? 'text-nex-primary' : 'text-nex-muted'
+                  }`}>{format(day, 'EEE')}</p>
+                  <p className={`text-lg font-bold mb-2 ${todayFlag ? 'text-nex-primary' : 'text-nex-text'}`}>{format(day, 'd')}</p>
+                  {daySchedules.length > 0 ? (
+                    <div className="space-y-2">
+                      {daySchedules.map(ds => {
+                        const assignee = ds.profiles as any
+                        return (
+                          <div key={ds.id} className="flex flex-col items-center gap-0.5">
+                            <div className="w-8 h-8 rounded-full mx-auto bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
+                              {assignee?.avatar_url ? (
+                                <img src={assignee.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                              ) : getInitials(assignee?.username || '?')}
+                            </div>
+                            <p className="text-[10px] font-medium text-nex-text truncate w-full">{assignee?.username}</p>
+                            {isManager && (
+                              <button onClick={() => handleDelete(ds.id)} className="text-nex-muted hover:text-nex-danger transition-colors">
+                                <Trash2 className="w-3 h-3 mx-auto" />
+                              </button>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div className="py-2">
+                      <Calendar className="w-5 h-5 mx-auto text-nex-muted/40" />
+                      <p className="text-xs text-nex-muted/40 mt-1">Unassigned</p>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
         </div>
 
         {/* Mobile: Card list view (shown only on small screens) */}
         <div className="sm:hidden space-y-2">
-          {weekDays.map(day => {
-            const dateStr = format(day, 'yyyy-MM-dd')
-            const daySchedules = schedules.filter(s => s.assigned_date === dateStr)
-            const todayFlag = isToday(day)
-            const past = isBefore(day, new Date()) && !todayFlag
-
-            return (
-              <div key={dateStr} className={`flex items-start gap-3 p-3 rounded-xl border transition-colors ${
-                todayFlag ? 'border-nex-primary bg-nex-primary-light' :
-                past ? 'border-transparent bg-nex-elevated/50 opacity-60' : 'border-nex-border bg-nex-surface'
-              }`}>
-                {/* Date Column */}
-                <div className={`w-12 text-center shrink-0 pt-1 ${todayFlag ? 'text-nex-primary' : 'text-nex-text'}`}>
-                  <p className="text-xs font-semibold uppercase">{format(day, 'EEE')}</p>
-                  <p className="text-lg font-bold leading-tight">{format(day, 'd')}</p>
+          {loadingSchedules ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-nex-border bg-nex-elevated/20">
+                <Skeleton className="w-12 h-10 rounded" />
+                <Skeleton className="w-px h-10" />
+                <Skeleton className="w-8 h-8 rounded-full" />
+                <div className="flex-1 space-y-1">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-2 w-10" />
                 </div>
-
-                <div className="w-px self-stretch bg-nex-border shrink-0"></div>
-
-                {/* Assignees */}
-                {daySchedules.length > 0 ? (
-                  <div className="flex-1 space-y-2">
-                    {daySchedules.map(ds => {
-                      const assignee = ds.profiles as any
-                      return (
-                        <div key={ds.id} className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold shrink-0">
-                            {assignee?.avatar_url ? (
-                              <img src={assignee.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                            ) : getInitials(assignee?.username || '?')}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-nex-text truncate">{assignee?.username}</p>
-                            <p className="text-xs text-nex-muted">Bazaar Duty</p>
-                          </div>
-                          {isManager && (
-                            <button onClick={() => handleDelete(ds.id)} className="p-1.5 text-nex-muted hover:text-nex-danger transition-colors">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                ) : (
-                  <div className="flex-1 flex items-center gap-2 text-nex-muted/40 py-1">
-                    <Calendar className="w-4 h-4" />
-                    <p className="text-xs">Unassigned</p>
-                  </div>
-                )}
               </div>
-            )
-          })}
+            ))
+          ) : (
+            weekDays.map(day => {
+              const dateStr = format(day, 'yyyy-MM-dd')
+              const daySchedules = schedules.filter(s => s.assigned_date === dateStr)
+              const todayFlag = isToday(day)
+              const past = isBefore(day, new Date()) && !todayFlag
+
+              return (
+                <div key={dateStr} className={`flex items-start gap-3 p-3 rounded-xl border transition-colors ${
+                  todayFlag ? 'border-nex-primary bg-nex-primary-light' :
+                  past ? 'border-transparent bg-nex-elevated/50 opacity-60' : 'border-nex-border bg-nex-surface'
+                }`}>
+                  {/* Date Column */}
+                  <div className={`w-12 text-center shrink-0 pt-1 ${todayFlag ? 'text-nex-primary' : 'text-nex-text'}`}>
+                    <p className="text-xs font-semibold uppercase">{format(day, 'EEE')}</p>
+                    <p className="text-lg font-bold leading-tight">{format(day, 'd')}</p>
+                  </div>
+
+                  <div className="w-px self-stretch bg-nex-border shrink-0"></div>
+
+                  {/* Assignees */}
+                  {daySchedules.length > 0 ? (
+                    <div className="flex-1 space-y-2">
+                      {daySchedules.map(ds => {
+                        const assignee = ds.profiles as any
+                        return (
+                          <div key={ds.id} className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                              {assignee?.avatar_url ? (
+                                <img src={assignee.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                              ) : getInitials(assignee?.username || '?')}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-nex-text truncate">{assignee?.username}</p>
+                              <p className="text-xs text-nex-muted">Bazaar Duty</p>
+                            </div>
+                            {isManager && (
+                              <button onClick={() => handleDelete(ds.id)} className="p-1.5 text-nex-muted hover:text-nex-danger transition-colors">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex-1 flex items-center gap-2 text-nex-muted/40 py-1">
+                      <Calendar className="w-4 h-4" />
+                      <p className="text-xs">Unassigned</p>
+                    </div>
+                  )}
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
 
@@ -365,6 +403,16 @@ export default function MarketPage() {
           })}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={deleteScheduleId !== null}
+        title="Remove Bazaar Assignment"
+        message="Are you sure you want to remove this bazaar schedule assignment?"
+        confirmText="Remove"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteScheduleId(null)}
+      />
     </div>
   )
 }

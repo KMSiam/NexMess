@@ -10,7 +10,8 @@ import { AuthGuard, GuestGuard, OnboardingGuard, ManagerGuard } from './guards/A
 // Layouts
 import AppLayout from './components/layout/AppLayout'
 
-// Auth Pages
+// Auth / Public Pages
+const LandingPage = lazy(() => import('./pages/LandingPage'))
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'))
 const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'))
@@ -29,6 +30,8 @@ const RoutinePage = lazy(() => import('./pages/routine/RoutinePage'))
 const HistoryPage = lazy(() => import('./pages/history/HistoryPage'))
 const CreateMessPage = lazy(() => import('./pages/mess/CreateMessPage'))
 const JoinMessPage = lazy(() => import('./pages/mess/JoinMessPage'))
+const ActivityLogPage = lazy(() => import('./pages/activity/ActivityLogPage'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 function PageLoader() {
   return (
@@ -61,6 +64,9 @@ function App() {
       <AppInitializer>
         <Suspense fallback={<PageLoader />}>
           <Routes>
+            {/* Public Landing Page */}
+            <Route path="/" element={<LandingPage />} />
+
             {/* Public / Guest routes */}
             <Route element={<GuestGuard />}>
               <Route path="/login" element={<LoginPage />} />
@@ -90,6 +96,7 @@ function App() {
                   <Route path="/market" element={<MarketPage />} />
                   <Route path="/routine" element={<RoutinePage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/activity" element={<ActivityLogPage />} />
 
                   {/* Manager-only section */}
                   <Route element={<ManagerGuard />}>
@@ -99,9 +106,9 @@ function App() {
               </Route>
             </Route>
 
-            {/* Default redirect */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            {/* 404 / Not Found page fallback */}
+            <Route path="/404" element={<NotFoundPage />} />
+            <Route path="*" element={<Navigate to="/404" replace />} />
           </Routes>
         </Suspense>
       </AppInitializer>

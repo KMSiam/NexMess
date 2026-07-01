@@ -32,12 +32,14 @@ export default defineConfig({
           {
             src: '/favicon.svg',
             sizes: '192x192',
-            type: 'image/svg+xml'
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
           },
           {
             src: '/favicon.svg',
             sizes: '512x512',
-            type: 'image/svg+xml'
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
           }
         ]
       }
@@ -79,7 +81,7 @@ export default defineConfig({
         },
       },
     },
-    sourcemap: true,
+    sourcemap: false,
     cssMinify: true,
   },
   server: {

@@ -3,8 +3,11 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { CalendarClock, Pencil, Save, X } from 'lucide-react'
+import EmptyState from '../../components/EmptyState'
+import { Skeleton } from '../../components/Skeleton'
 import { getFoodEmoji } from '../../lib/utils'
 import toast from 'react-hot-toast'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 
@@ -28,12 +31,14 @@ interface RoutineRow {
 }
 
 export default function RoutinePage() {
+  usePageTitle('Routine')
   const { user } = useAuthStore()
   const { currentMess, members } = useMessStore()
   const [routines, setRoutines] = useState<RoutineRow[]>([])
   const [editing, setEditing] = useState(false)
   const [editData, setEditData] = useState<RoutineRow[]>([])
   const [loading, setLoading] = useState(false)
+  const [loadingRoutines, setLoadingRoutines] = useState(true)
   const [activeEditCell, setActiveEditCell] = useState<{day: number, type: 'lunch' | 'dinner'} | null>(null)
 
   const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager')
@@ -41,6 +46,7 @@ export default function RoutinePage() {
 
   const fetchRoutines = useCallback(async () => {
     if (!currentMess?.id) return
+    setLoadingRoutines(true)
     const { data } = await supabase
       .from('meal_routines')
       .select('day_of_week, lunch, dinner')
@@ -52,6 +58,7 @@ export default function RoutinePage() {
       return found || { day_of_week: i, lunch: '', dinner: '' }
     })
     setRoutines(full)
+    setLoadingRoutines(false)
   }, [currentMess?.id])
 
   useEffect(() => {
@@ -153,14 +160,30 @@ export default function RoutinePage() {
         )}
       </div>
 
+      {/* Loading Skeletons */}
+      {loadingRoutines && (
+        <div className="nex-card p-5 space-y-4">
+          <Skeleton className="h-6 w-32" />
+          <div className="grid grid-cols-2 sm:grid-cols-7 gap-3">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div key={i} className="p-3 border border-nex-border rounded-xl space-y-2">
+                <Skeleton className="h-4 w-12 mx-auto" />
+                <Skeleton className="h-3 w-16 mx-auto" />
+                <Skeleton className="h-3 w-16 mx-auto" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Empty state */}
-      {!hasAnyData && !editing && (
-        <div className="nex-card p-12 text-center">
-          <CalendarClock className="w-12 h-12 text-nex-muted/30 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-nex-text mb-1">No Meal Routine Set</h3>
-          <p className="text-sm text-nex-muted">
-            {isManager ? 'Click "Edit Routine" to set up the weekly meal menu.' : 'The manager hasn\'t set a weekly meal routine yet.'}
-          </p>
+      {!loadingRoutines && !hasAnyData && !editing && (
+        <div className="nex-card">
+          <EmptyState
+            icon={CalendarClock}
+            title="No Meal Routine Set"
+            description={isManager ? 'Click "Edit Routine" to set up the weekly meal menu.' : 'The manager hasn\'t set a weekly meal menu yet.'}
+          />
         </div>
       )}
 
@@ -185,7 +208,7 @@ export default function RoutinePage() {
       )}
 
       {/* Desktop Table View */}
-      {(hasAnyData || editing) && (
+      {!loadingRoutines && (hasAnyData || editing) && (
         <div className="hidden sm:block nex-card overflow-x-auto">
           <table className="w-full min-w-[560px]">
             <thead>
@@ -239,7 +262,7 @@ export default function RoutinePage() {
       )}
 
       {/* Mobile Card View */}
-      {(hasAnyData || editing) && (
+      {!loadingRoutines && (hasAnyData || editing) && (
         <div className="sm:hidden space-y-2">
           {displayData.map(r => {
             const isToday = todayDow === r.day_of_week

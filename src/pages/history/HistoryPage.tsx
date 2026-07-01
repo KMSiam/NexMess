@@ -8,6 +8,7 @@ import { formatCurrency } from '../../lib/utils'
 import { buildReportPdf, computeSettlements, ReportData } from '../../lib/reportPdf'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton } from '../../components/Skeleton'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 // Shape of a monthly_reports row (RLS-scoped: managers only see their mess's rows)
 interface MonthlyReport {
@@ -47,6 +48,7 @@ interface ReportSummary {
 }
 
 export default function HistoryPage() {
+  usePageTitle('History')
   const { currentMess } = useMessStore()
   const { profile } = useAuthStore()
   const [reports, setReports] = useState<MonthlyReport[]>([])

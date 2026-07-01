@@ -13,8 +13,10 @@ import {
 } from 'date-fns'
 import toast from 'react-hot-toast'
 import { isMealCutoffPassed, mealCutoffLabel } from '../../lib/utils'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 export default function MealsPage() {
+  usePageTitle('Meals')
   const { user } = useAuthStore()
   const { currentMess, members } = useMessStore()
 
