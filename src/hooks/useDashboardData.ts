@@ -154,7 +154,8 @@ export function useDashboardData(
     // Process Market
     if (marketRes.data) {
       setIsBazaarMan(marketRes.data.some((m: Record<string, unknown>) =>
-        m.assigned_date === today && (m.profiles as Record<string, unknown>)?.username === username
+        m.assigned_date === today && 
+        (m.profiles as Record<string, unknown>)?.username?.toString().toLowerCase() === username?.toLowerCase()
       ))
       setUpcomingBazaar(marketRes.data.map((m: Record<string, unknown>) => ({
         date: m.assigned_date as string,
