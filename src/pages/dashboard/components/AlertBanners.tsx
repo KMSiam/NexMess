@@ -18,54 +18,78 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
   if (lunchLeft !== null) banners.push({ type: 'lunch', minutes: lunchLeft })
   if (dinnerLeft !== null) banners.push({ type: 'dinner', minutes: dinnerLeft })
 
+  const hasAlerts = banners.length > 0 || stats.balance < 0 || unpaidFixed > 0 || isBazaarMan
+
+  if (!hasAlerts) return null
+
   return (
     <div className="space-y-3">
+      {/* Cut-off Timers */}
       {banners.map(b => (
-        <div key={b.type} className="nex-card p-4 border-l-4 border-amber-500 bg-amber-500/5 flex items-center gap-3">
-          <Clock className="w-5 h-5 text-amber-500 shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
-              {b.type === 'lunch' ? 'Lunch' : 'Dinner'} cut-off in {b.minutes} min
-            </p>
-            <p className="text-xs text-nex-muted mt-0.5">
-              Set today's {b.type} before {mealCutoffLabel(b.type)} or the manager will need to override it.
-            </p>
+        <div key={b.type} className="relative overflow-hidden rounded-2xl bg-amber-500/5 border border-amber-500/20 p-4 flex items-center justify-between gap-4 animate-fade-in">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-amber-700 dark:text-amber-400">
+                {b.type === 'lunch' ? 'Lunch' : 'Dinner'} Cut-off approaching
+              </h4>
+              <p className="text-xs text-nex-muted mt-0.5 max-w-md">
+                Closing in <span className="font-bold text-amber-600 dark:text-amber-400">{b.minutes} mins</span>. Set your menu choice before {mealCutoffLabel(b.type)}.
+              </p>
+            </div>
           </div>
           <button
             onClick={() => onQuickMealToggle('today', b.type)}
-            className="nex-btn-primary text-xs py-1.5 px-3 whitespace-nowrap"
+            className="nex-btn-primary py-1.5 px-3 text-xs font-semibold whitespace-nowrap bg-amber-600 hover:bg-amber-700 text-white shrink-0 border-0"
           >
-            Mark on
+            Eat {b.type === 'lunch' ? 'Lunch' : 'Dinner'}
           </button>
         </div>
       ))}
 
+      {/* Low Balance Alert */}
       {stats.balance < 0 && (
-        <div className="nex-card p-4 border-l-4 border-red-500 bg-red-500/5 flex items-center gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
+        <div className="relative overflow-hidden rounded-2xl bg-rose-500/5 border border-rose-500/20 p-4 flex items-start gap-3 animate-fade-in">
+          <div className="w-9 h-9 rounded-xl bg-rose-500/10 flex items-center justify-center shrink-0">
+            <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+          </div>
           <div>
-            <p className="text-sm font-medium text-red-500">Low Balance Alert</p>
-            <p className="text-xs text-nex-muted mt-0.5">Your balance is negative ({formatCurrency(stats.balance)}). Please deposit money.</p>
+            <h4 className="text-sm font-bold text-rose-700 dark:text-rose-400">Low Balance Alert</h4>
+            <p className="text-xs text-nex-muted mt-0.5">
+              Your personal account balance is negative (<span className="font-bold text-rose-600 dark:text-rose-400">{formatCurrency(stats.balance)}</span>). Please make a deposit soon to continue marking meals.
+            </p>
           </div>
         </div>
       )}
 
+      {/* Unpaid Fixed Costs */}
       {unpaidFixed > 0 && (
-        <div className="nex-card p-4 border-l-4 border-orange-400 bg-orange-500/5 flex items-center gap-3">
-          <Wallet className="w-5 h-5 text-orange-500 shrink-0" />
+        <div className="relative overflow-hidden rounded-2xl bg-orange-500/5 border border-orange-500/20 p-4 flex items-start gap-3 animate-fade-in">
+          <div className="w-9 h-9 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
+            <Wallet className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+          </div>
           <div>
-            <p className="text-sm font-medium text-orange-500">Unpaid Fixed Costs</p>
-            <p className="text-xs text-nex-muted mt-0.5">The mess has {unpaidFixed} unpaid fixed costs this month.</p>
+            <h4 className="text-sm font-bold text-orange-700 dark:text-orange-400">Unpaid Fixed Bills</h4>
+            <p className="text-xs text-nex-muted mt-0.5">
+              The mess has <span className="font-bold text-orange-600 dark:text-orange-400">{unpaidFixed} unpaid bills</span> listed for this month.
+            </p>
           </div>
         </div>
       )}
 
+      {/* Bazaar Man Duty */}
       {isBazaarMan && (
-        <div className="nex-card p-4 border-l-4 border-emerald-400 bg-emerald-500/5 flex items-center gap-3">
-          <ShoppingBag className="w-5 h-5 text-emerald-500 shrink-0" />
+        <div className="relative overflow-hidden rounded-2xl bg-emerald-500/5 border border-emerald-500/20 p-4 flex items-start gap-3 animate-fade-in">
+          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+            <ShoppingBag className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+          </div>
           <div>
-            <p className="text-sm font-medium text-emerald-500">🛒 You're the Bazaar Man today!</p>
-            <p className="text-xs text-nex-muted mt-0.5">Don't forget to log your expenses after shopping.</p>
+            <h4 className="text-sm font-bold text-emerald-700 dark:text-emerald-400">🛒 You're the Bazaar Man today!</h4>
+            <p className="text-xs text-nex-muted mt-0.5">
+              It is your turn to shop for mess groceries today. Please log all bazaar expenses in the Finance tab afterwards.
+            </p>
           </div>
         </div>
       )}

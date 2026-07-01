@@ -48,13 +48,13 @@ export default function MealSelector({ mealsData, routines, mealLoading, onToggl
           const locked = isMealCutoffPassed(targetDate, type)
           const lockTitle = locked ? `${label} cut-off (${mealCutoffLabel(type)}) has passed` : ''
           return (
-            <div key={type} className={`flex flex-col p-4 rounded-xl border transition-colors duration-200 ${on || guests > 0 ? 'bg-nex-success-light border-emerald-200' : 'bg-nex-elevated border-nex-border'}`}>
+            <div key={type} className={`flex flex-col p-4 rounded-xl border transition-colors duration-200 ${on || guests > 0 ? 'bg-nex-success-light border-emerald-200 dark:border-emerald-500/25' : 'bg-nex-elevated border-nex-border'}`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{emoji}</span>
                   <div>
                     <p className="text-sm font-medium text-nex-text">{label}</p>
-                    <p className={`text-xs font-medium ${locked ? 'text-nex-muted' : on ? 'text-emerald-600' : 'text-nex-muted'}`}>
+                    <p className={`text-xs font-medium ${locked ? 'text-nex-muted' : on ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-nex-muted'}`}>
                       {locked ? `Locked · ${mealCutoffLabel(type)}` : on ? 'Eating' : 'Skipping'}
                     </p>
                   </div>

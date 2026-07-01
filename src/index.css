@@ -302,6 +302,9 @@
   .nex-toggle-off {
     background-color: var(--color-nex-border);
   }
+  .dark .nex-toggle-off {
+    background-color: #334155;
+  }
 
   /* Verified Badge */
   .nex-verified {
