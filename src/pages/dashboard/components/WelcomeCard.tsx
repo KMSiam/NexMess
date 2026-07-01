@@ -24,11 +24,11 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
         </div>
 
         <div>
-          <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+          <h3 className="text-xl font-bold tracking-tight text-nex-text flex items-center gap-2">
             {getGreeting()}, {username || 'Roommate'} 👋
           </h3>
           <div className="flex flex-wrap items-center gap-2 mt-1">
-            <span className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1">
+            <span className="text-xs text-nex-muted flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" />
               {format(new Date(), 'EEEE, MMMM d')}
             </span>

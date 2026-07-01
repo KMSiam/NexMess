@@ -37,7 +37,7 @@ export default function NoticeBoard({
         <div className="flex items-center justify-between gap-3 mb-3 shrink-0">
           <div className="flex items-center gap-2">
             <Pin className="w-4 h-4 text-indigo-500 rotate-45 shrink-0" />
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-nex-text">
               Notice Board
             </h4>
           </div>
@@ -94,13 +94,13 @@ export default function NoticeBoard({
             </div>
           </form>
         ) : notice ? (
-          <p className="text-sm font-medium text-slate-700 dark:text-slate-300 leading-relaxed break-words">
+          <p className="text-sm font-medium text-nex-text leading-relaxed break-words">
             {notice.message}
           </p>
         ) : (
           <div className="flex flex-col items-center justify-center py-4 text-center shrink-0">
             <Megaphone className="w-7 h-7 text-slate-400 dark:text-slate-600 mb-1" />
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">No active notice pinned.</p>
+            <p className="text-xs text-nex-muted font-medium">No active notice pinned.</p>
           </div>
         )}
       </div>
