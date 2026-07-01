@@ -8,23 +8,18 @@ export default {
     extend: {
       colors: {
         nex: {
-          // ── LIGHT MODE ──────────────────────────────────
-          bg:               '#FDFDFE',  // Pale Grey        — main page bg
-          surface:          '#F0F3F5',  // Anti-Flash White — cards / surfaces
-          hover:            '#E8EBEE',  // hover state bg
-          primary:          '#3D766D',  // Greensleeves     — accent, buttons
-          'primary-dark':   '#2F5C55',  // darkened accent  — hover states
-          'primary-light':  'rgba(61,118,109,0.10)',
-          text:             '#1A1C1E',  // near-black       — headings & body
-          'secondary-text': '#8F9192',  // Alloy            — secondary text
-          muted:            '#BDC2C7',  // Metallic         — muted text/icons
-          border:           '#D6D9DF',  // Hidden Creek     — borders/dividers
-          // ── DARK MODE (CSS-vars handle this at runtime) ─
-          // ── SHARED SEMANTIC ─────────────────────────────
-          success:          '#10B981',  // emerald-500 — meal ON
-          danger:           '#F43F5E',  // rose-500    — meal OFF
-          'danger-light':   '#FFF1F2',
-          'success-light':  '#ECFDF5',
+          bg:        '#F8FAFC',   // slate-50   — main body
+          surface:   '#FFFFFF',   // white      — cards & containers
+          primary:   '#3B82F6',   // blue-500   — accent, buttons, active
+          'primary-dark': '#2563EB', // blue-600
+          text:      '#0F172A',   // slate-900  — headings
+          muted:     '#64748B',   // slate-500  — descriptions
+          border:    '#E2E8F0',   // slate-200  — subtle borders
+          success:   '#10B981',   // emerald-500 — meal ON
+          danger:    '#F43F5E',   // rose-500   — meal OFF
+          'danger-light': '#FFF1F2', // rose-50
+          'success-light': '#ECFDF5', // emerald-50
+          'primary-light': '#EFF6FF', // blue-50
         },
       },
       fontFamily: {

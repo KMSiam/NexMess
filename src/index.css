@@ -1,8 +1,7 @@
 @import "tailwindcss";
 
 /* ───────────────────────────────────────────
-   NexMess — Design System
-   Light: Greensleeves · Dark: Coronation Blue
+   NexMess — Modern Ocean Blue Design System
    Tailwind v4 CSS-Based Design System
    ─────────────────────────────────────────── */
 
@@ -10,13 +9,12 @@
   /* ── Color Tokens ─────────────────────── */
   --color-nex-bg:            var(--nex-bg);
   --color-nex-surface:       var(--nex-surface);
-  --color-nex-primary:       var(--nex-primary);
-  --color-nex-primary-dark:  var(--nex-primary-dark);
+  --color-nex-primary:       #3B82F6;
+  --color-nex-primary-dark:  #2563EB;
   --color-nex-primary-light: var(--nex-primary-light);
   --color-nex-text:          var(--nex-text);
   --color-nex-muted:         var(--nex-muted);
   --color-nex-border:        var(--nex-border);
-  --color-nex-secondary-text: var(--nex-secondary-text);
   --color-nex-success:       #10B981;
   --color-nex-success-light: var(--nex-success-light);
   --color-nex-danger:        #F43F5E;
@@ -59,70 +57,36 @@
 }
 
 /* ── Theme Variables ──────────────────── */
-/* ─────────────────────────────────────────────────────────
-   LIGHT MODE  (Pale Grey + Greensleeves accent)
-   ───────────────────────────────────────────────────────── */
 :root {
-  /* Backgrounds */
-  --nex-bg:              #FDFDFE; /* Pale Grey        — main page bg      */
-  --nex-surface:         #F0F3F5; /* Anti-Flash White — cards / surfaces  */
-  --nex-glass-bg:        rgba(253, 253, 254, 0.75);
-  --nex-hover:           #E8EBEE; /* slightly darker than surface         */
-  --nex-elevated:        #F0F3F5;
-
-  /* Accent — Greensleeves */
-  --nex-primary:         #3D766D;
-  --nex-primary-dark:    #2F5C55; /* darkened for hover states            */
-  --nex-primary-light:   rgba(61, 118, 109, 0.10); /* tinted bg for badges */
-
-  /* Text */
-  --nex-text:            #1A1C1E; /* near-black for max readability       */
-  --nex-secondary-text:  #8F9192; /* Alloy — secondary text / active borders */
-  --nex-muted:           #BDC2C7; /* Metallic — muted text / icons        */
-
-  /* Borders & Dividers */
-  --nex-border:          #D6D9DF; /* Hidden Creek                         */
-
-  /* Semantic */
-  --nex-success-light:   #ECFDF5;
-  --nex-danger-light:    #FFF1F2;
-
-  /* Shadows */
-  --nex-shadow-card:       0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.04);
-  --nex-shadow-card-hover: 0 4px 8px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --nex-bg: #F8FAFC;
+  --nex-surface: #FFFFFF;
+  --nex-glass-bg: rgba(255, 255, 255, 0.7);
+  --nex-primary-light: #EFF6FF;
+  --nex-text: #0F172A;
+  --nex-muted: #64748B;
+  --nex-border: #E2E8F0;
+  --nex-success-light: #ECFDF5;
+  --nex-danger-light: #FFF1F2;
+  --nex-hover: #F1F5F9;
+  --nex-elevated: #F8FAFC;
+  --nex-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --nex-shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
 }
 
-/* ─────────────────────────────────────────────────────────
-   DARK MODE  (Cold Steel + Coronation Blue accent)
-   ───────────────────────────────────────────────────────── */
 .dark {
-  /* Backgrounds */
-  --nex-bg:              #261F32; /* Cold Steel       — main page bg      */
-  --nex-surface:         #41394F; /* Call It a Night  — cards / surfaces  */
-  --nex-glass-bg:        rgba(38, 31, 50, 0.78);
-  --nex-hover:           #4D4460; /* slightly lighter than surface        */
-  --nex-elevated:        #4D4460;
-
-  /* Accent — Coronation Blue */
-  --nex-primary:         #594BA0;
-  --nex-primary-dark:    #473C83; /* darkened for hover states            */
-  --nex-primary-light:   rgba(89, 75, 160, 0.18); /* tinted bg for badges */
-
-  /* Text */
-  --nex-text:            #FBFAFB; /* Whiteout — primary headings & body   */
-  --nex-secondary-text:  #86819E; /* Live Jazz — secondary text           */
-  --nex-muted:           #86819E; /* Live Jazz — muted icons / placeholders */
-
-  /* Borders & Dividers */
-  --nex-border:          #625D73; /* Luscious Purple                      */
-
-  /* Semantic */
-  --nex-success-light:   rgba(16, 185, 129, 0.15);
-  --nex-danger-light:    rgba(244, 63, 94, 0.15);
-
-  /* Shadows */
-  --nex-shadow-card:       0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.25);
-  --nex-shadow-card-hover: 0 4px 14px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --nex-bg: #020617;
+  --nex-surface: #0F172A;
+  --nex-glass-bg: rgba(15, 23, 42, 0.7);
+  --nex-primary-light: rgba(59, 130, 246, 0.12);
+  --nex-text: #F1F5F9;
+  --nex-muted: #94A3B8;
+  --nex-border: #1E293B;
+  --nex-success-light: rgba(16, 185, 129, 0.12);
+  --nex-danger-light: rgba(244, 63, 94, 0.12);
+  --nex-hover: #1E293B;
+  --nex-elevated: #1E293B;
+  --nex-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+  --nex-shadow-card-hover: 0 4px 12px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
 }
 
 /* ── Base Styles ───────────────────────── */
@@ -211,20 +175,20 @@
     font-weight: 500;
     font-size: 0.875rem;
     color: white;
-    background: var(--color-nex-primary);
+    background: linear-gradient(135deg, #2563EB, #3B82F6);
     border: none;
     cursor: pointer;
     transition: all 0.15s ease-out;
   }
   .nex-btn-primary:hover {
-    background: var(--color-nex-primary-dark);
+    background: linear-gradient(135deg, #1D4ED8, #2563EB);
   }
   .nex-btn-primary:active {
     transform: scale(0.98);
   }
   .nex-btn-primary:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(var(--nex-primary-rgb, 61 118 109) / 0.30);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
   }
 
   /* Secondary Button */
@@ -288,7 +252,7 @@
   .nex-input:focus {
     outline: none;
     border-color: var(--color-nex-primary);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--nex-primary) 20%, transparent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   }
 
   /* Badges */
@@ -339,7 +303,7 @@
     background-color: var(--color-nex-border);
   }
   .dark .nex-toggle-off {
-    background-color: #625D73; /* Luscious Purple — matches dark border  */
+    background-color: #334155;
   }
 
   /* Verified Badge */
