@@ -155,7 +155,7 @@ export default function AppLayout() {
               to="/history"
               title="History"
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm transition-colors mt-1 border-t border-nex-border/50 pt-3 ${
+                `flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm transition-colors ${
                   isActive ? 'nex-nav-active' : 'nex-nav-inactive'
                 } ${sidebarCollapsed ? 'justify-center' : ''}`
               }
