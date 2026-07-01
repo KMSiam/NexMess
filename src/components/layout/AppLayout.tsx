@@ -34,6 +34,17 @@ export default function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [showMessDropdown, setShowMessDropdown] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
+
+  const sidebarItems = [
+    { to: '/dashboard', icon: Home, label: 'Dashboard' },
+    { to: '/meals', icon: Utensils, label: 'Meals' },
+    { to: '/chat', icon: MessageSquare, label: 'Chat' },
+    { to: '/finance', icon: Wallet, label: 'Finance' },
+    { to: '/market', icon: ShoppingBag, label: 'Market' },
+    { to: '/routine', icon: CalendarClock, label: 'Routine' },
+    ...(isManager ? [{ to: '/history', icon: History, label: 'History' }] : []),
+    { to: '/settings', icon: Settings, label: 'Settings' },
+  ]
   
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('nexmess-theme')
@@ -134,7 +145,7 @@ export default function AppLayout() {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-3 space-y-1">
-          {navItems.map(({ to, icon: Icon, label }) => (
+          {sidebarItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -149,21 +160,6 @@ export default function AppLayout() {
               {!sidebarCollapsed && <span>{label}</span>}
             </NavLink>
           ))}
-          {/* Manager-only: History */}
-          {isManager && (
-            <NavLink
-              to="/history"
-              title="History"
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm transition-colors ${
-                  isActive ? 'nex-nav-active' : 'nex-nav-inactive'
-                } ${sidebarCollapsed ? 'justify-center' : ''}`
-              }
-            >
-              <History className="w-5 h-5 shrink-0" />
-              {!sidebarCollapsed && <span>History</span>}
-            </NavLink>
-          )}
         </nav>
 
         {/* User */}

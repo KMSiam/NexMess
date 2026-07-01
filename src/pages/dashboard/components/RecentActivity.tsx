@@ -1,5 +1,6 @@
 import { Activity } from 'lucide-react'
 import { format } from 'date-fns'
+import { Link } from 'react-router-dom'
 import EmptyState from '../../../components/EmptyState'
 import type { DashboardActivity } from '../../../hooks/useDashboardData'
 
@@ -10,9 +11,16 @@ interface RecentActivityProps {
 export default function RecentActivity({ activities }: RecentActivityProps) {
   return (
     <div className="nex-card p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <Activity className="w-4 h-4 text-nex-primary" />
-        <h4 className="text-sm font-semibold text-nex-text uppercase tracking-wider">Recent Activity</h4>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Activity className="w-4 h-4 text-nex-primary" />
+          <h4 className="text-sm font-semibold text-nex-text uppercase tracking-wider">Recent Activity</h4>
+        </div>
+        {activities.length > 0 && (
+          <Link to="/activity" className="text-xs font-semibold text-nex-primary hover:underline">
+            View All
+          </Link>
+        )}
       </div>
       <div className="space-y-3">
         {activities.length === 0 ? (
