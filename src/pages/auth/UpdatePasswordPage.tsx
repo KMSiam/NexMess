@@ -31,7 +31,7 @@ export default function UpdatePasswordPage() {
     return () => subscription.unsubscribe()
   }, [navigate])
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (password !== confirmPassword) {

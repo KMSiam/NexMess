@@ -174,7 +174,7 @@ export default function MealsPage() {
     setOverrideOpen(true)
   }
 
-  const submitOverride = async (e: React.FormEvent) => {
+  const submitOverride = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!currentMess?.id || !ovUserId || !ovDate) return
     if (ovGuestLunch < 0 || ovGuestDinner < 0) {

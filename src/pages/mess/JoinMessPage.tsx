@@ -12,7 +12,7 @@ export default function JoinMessPage() {
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleJoin = async (e: React.FormEvent) => {
+  const handleJoin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!code.trim() || !user) return
 

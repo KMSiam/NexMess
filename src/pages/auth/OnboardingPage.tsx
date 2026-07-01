@@ -27,7 +27,7 @@ export default function OnboardingPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!username.trim()) {
       toast.error('Please enter a username')

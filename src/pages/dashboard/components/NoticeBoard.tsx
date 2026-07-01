@@ -21,7 +21,7 @@ export default function NoticeBoard({
   const [noticeText, setNoticeText] = useState(notice?.message || '')
   const [loading, setLoading] = useState(false)
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!noticeText.trim()) return
     setLoading(true)

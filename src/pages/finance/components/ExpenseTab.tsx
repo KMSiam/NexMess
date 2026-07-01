@@ -34,7 +34,7 @@ export default function ExpenseTab({
   // Delete State
   const [deleteExpenseId, setDeleteExpenseId] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const amount = parseFloat(expAmount)
     if (!amount || amount <= 0) return

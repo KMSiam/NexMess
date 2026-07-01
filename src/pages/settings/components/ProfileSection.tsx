@@ -18,7 +18,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSaving(true)
     await onUpdate(username.trim(), contactNo.trim(), avatarUrl || null)

@@ -14,7 +14,7 @@ export default function EmergencyContacts({ contacts, isManager, onAdd, onDelete
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!name.trim() || !phone.trim()) return
     await onAdd(name.trim(), phone.trim())

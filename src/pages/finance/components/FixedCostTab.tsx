@@ -20,7 +20,7 @@ export default function FixedCostTab({ fixedCosts, isManager, onAddFixedCost, on
   const [fixLabel, setFixLabel] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const amount = parseFloat(fixAmount)
     if (!amount || amount <= 0) return

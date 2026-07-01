@@ -12,7 +12,7 @@ export default function CreateMessPage() {
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!name.trim() || !user) return
 

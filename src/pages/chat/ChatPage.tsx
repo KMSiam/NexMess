@@ -195,7 +195,7 @@ export default function ChatPage() {
     }
   }, [currentMess?.id])
 
-  const handleSend = async (e?: React.FormEvent, customText?: string, messageType: 'text' | 'image' = 'text') => {
+  const handleSend = async (e?: React.FormEvent<HTMLFormElement>, customText?: string, messageType: 'text' | 'image' = 'text') => {
     if (e) e.preventDefault()
     
     const textToSend = customText || newMessage.trim()

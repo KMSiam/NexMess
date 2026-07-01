@@ -19,7 +19,7 @@ export default function DepositTab({ deposits, approvedMembers, isManager, onAdd
   const [depNote, setDepNote] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const amount = parseFloat(depAmount)
     if (!amount || amount <= 0 || !depUserId) return

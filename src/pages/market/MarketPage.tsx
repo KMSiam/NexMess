@@ -73,7 +73,7 @@ export default function MarketPage() {
     }
   }, [currentMess?.id, weekStartStr, fetchSchedules])
 
-  const handleAssign = async (e: React.FormEvent) => {
+  const handleAssign = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!currentMess?.id || !selectedUser || selectedDates.length === 0) return
     setLoading(true)
