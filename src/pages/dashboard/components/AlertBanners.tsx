@@ -1,4 +1,4 @@
-import { Clock, AlertTriangle, Wallet, ShoppingBag } from 'lucide-react'
+import { Clock, AlertTriangle, Wallet, ShoppingBag, CheckCircle } from 'lucide-react'
 import { formatCurrency, mealCutoffApproaching, mealCutoffLabel } from '../../../lib/utils'
 import type { DashboardMeals, DashboardStats } from '../../../hooks/useDashboardData'
 
@@ -18,81 +18,122 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
   if (lunchLeft !== null) banners.push({ type: 'lunch', minutes: lunchLeft })
   if (dinnerLeft !== null) banners.push({ type: 'dinner', minutes: dinnerLeft })
 
-  const hasAlerts = banners.length > 0 || stats.balance < 0 || unpaidFixed > 0 || isBazaarMan
+  const alertsList: { id: string; type: 'critical' | 'warning' | 'info'; element: React.ReactNode }[] = []
 
-  if (!hasAlerts) return null
-
-  return (
-    <div className="space-y-3">
-      {/* Cut-off Timers */}
-      {banners.map(b => (
-        <div key={b.type} className="relative overflow-hidden rounded-2xl bg-amber-500/5 border border-amber-500/20 p-4 flex items-center justify-between gap-4 animate-fade-in">
-          <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-              <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-amber-700 dark:text-amber-400">
-                {b.type === 'lunch' ? 'Lunch' : 'Dinner'} Cut-off approaching
-              </h4>
-              <p className="text-xs text-nex-muted mt-0.5 max-w-md">
-                Closing in <span className="font-bold text-amber-600 dark:text-amber-400">{b.minutes} mins</span>. Set your menu choice before {mealCutoffLabel(b.type)}.
+  // 1. Cutoff Alerts
+  banners.forEach(b => {
+    alertsList.push({
+      id: `cutoff-${b.type}`,
+      type: 'warning',
+      element: (
+        <div className="flex items-center justify-between gap-3 w-full">
+          <div className="flex items-start gap-2.5">
+            <Clock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                {b.type === 'lunch' ? 'Lunch' : 'Dinner'} Cut-off approaching ({b.minutes}m)
+              </p>
+              <p className="text-[10px] text-nex-muted truncate max-w-[200px] sm:max-w-xs">
+                Locks at {mealCutoffLabel(b.type)}.
               </p>
             </div>
           </div>
           <button
             onClick={() => onQuickMealToggle('today', b.type)}
-            className="nex-btn-primary py-1.5 px-3 text-xs font-semibold whitespace-nowrap bg-amber-600 hover:bg-amber-700 text-white shrink-0 border-0"
+            className="text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-1 rounded-md shrink-0"
           >
-            Eat {b.type === 'lunch' ? 'Lunch' : 'Dinner'}
+            Mark On
           </button>
         </div>
-      ))}
+      )
+    })
+  })
 
-      {/* Low Balance Alert */}
-      {stats.balance < 0 && (
-        <div className="relative overflow-hidden rounded-2xl bg-rose-500/5 border border-rose-500/20 p-4 flex items-start gap-3 animate-fade-in">
-          <div className="w-9 h-9 rounded-xl bg-rose-500/10 flex items-center justify-center shrink-0">
-            <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
-          </div>
+  // 2. Low Balance
+  if (stats.balance < 0) {
+    alertsList.push({
+      id: 'low-balance',
+      type: 'critical',
+      element: (
+        <div className="flex items-start gap-2.5">
+          <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-bold text-rose-700 dark:text-rose-400">Low Balance Alert</h4>
-            <p className="text-xs text-nex-muted mt-0.5">
-              Your personal account balance is negative (<span className="font-bold text-rose-600 dark:text-rose-400">{formatCurrency(stats.balance)}</span>). Please make a deposit soon to continue marking meals.
+            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+              Low Balance ({formatCurrency(stats.balance)})
             </p>
+            <p className="text-[10px] text-nex-muted">Please deposit funds soon.</p>
           </div>
         </div>
-      )}
+      )
+    })
+  }
 
-      {/* Unpaid Fixed Costs */}
-      {unpaidFixed > 0 && (
-        <div className="relative overflow-hidden rounded-2xl bg-orange-500/5 border border-orange-500/20 p-4 flex items-start gap-3 animate-fade-in">
-          <div className="w-9 h-9 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
-            <Wallet className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-          </div>
+  // 3. Unpaid Fixed Costs
+  if (unpaidFixed > 0) {
+    alertsList.push({
+      id: 'fixed-costs',
+      type: 'warning',
+      element: (
+        <div className="flex items-start gap-2.5">
+          <Wallet className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-bold text-orange-700 dark:text-orange-400">Unpaid Fixed Bills</h4>
-            <p className="text-xs text-nex-muted mt-0.5">
-              The mess has <span className="font-bold text-orange-600 dark:text-orange-400">{unpaidFixed} unpaid bills</span> listed for this month.
+            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+              {unpaidFixed} Unpaid Mess Bills
             </p>
+            <p className="text-[10px] text-nex-muted">Fixed costs pending payment.</p>
           </div>
         </div>
-      )}
+      )
+    })
+  }
 
-      {/* Bazaar Man Duty */}
-      {isBazaarMan && (
-        <div className="relative overflow-hidden rounded-2xl bg-emerald-500/5 border border-emerald-500/20 p-4 flex items-start gap-3 animate-fade-in">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-            <ShoppingBag className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-          </div>
+  // 4. Bazaar Duty
+  if (isBazaarMan) {
+    alertsList.push({
+      id: 'bazaar-duty',
+      type: 'info',
+      element: (
+        <div className="flex items-start gap-2.5">
+          <ShoppingBag className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-bold text-emerald-700 dark:text-emerald-400">🛒 You're the Bazaar Man today!</h4>
-            <p className="text-xs text-nex-muted mt-0.5">
-              It is your turn to shop for mess groceries today. Please log all bazaar expenses in the Finance tab afterwards.
+            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+              🛒 You're the Bazaar Man today!
             </p>
+            <p className="text-[10px] text-nex-muted">Remember to log expenses.</p>
           </div>
         </div>
-      )}
+      )
+    })
+  }
+
+  return (
+    <div className="bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-900 rounded-2xl p-5 shadow-sm h-full flex flex-col justify-between min-h-[160px]">
+      <div>
+        <div className="flex items-center gap-2 mb-3 shrink-0">
+          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+            Mess Alerts
+          </h4>
+        </div>
+
+        {alertsList.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-4 text-center shrink-0">
+            <CheckCircle className="w-7 h-7 text-emerald-500 mb-1" />
+            <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">All systems normal. No alerts.</p>
+          </div>
+        ) : (
+          <div className="space-y-3 mt-2 divide-y divide-slate-100 dark:divide-slate-900">
+            {alertsList.map((alert, idx) => (
+              <div
+                key={alert.id}
+                className={`flex items-center justify-between w-full ${idx > 0 ? 'pt-3' : ''}`}
+              >
+                {alert.element}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

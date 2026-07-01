@@ -1,43 +1,55 @@
 import { format } from 'date-fns'
-import { Megaphone, Calendar } from 'lucide-react'
+import { Calendar, UserCheck, Shield } from 'lucide-react'
 import { getGreeting } from '../../../lib/utils'
+import { useAuthStore } from '../../../stores/authStore'
 
 interface WelcomeCardProps {
   username: string | null | undefined
   isManager: boolean
-  onToggleNoticeForm: () => void
 }
 
-export default function WelcomeCard({ username, isManager, onToggleNoticeForm }: WelcomeCardProps) {
-  return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 p-6 text-white shadow-lg border border-blue-400/20">
-      {/* Decorative background shapes */}
-      <div className="absolute right-0 top-0 -mt-6 -mr-6 w-36 h-36 rounded-full bg-white/10 blur-xl pointer-events-none" />
-      <div className="absolute left-1/3 bottom-0 -mb-10 w-24 h-24 rounded-full bg-indigo-400/20 blur-lg pointer-events-none" />
+export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
+  const { profile } = useAuthStore()
 
-      <div className="relative z-10 flex items-center justify-between gap-4">
-        <div>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 text-[10px] font-bold uppercase tracking-wider text-blue-100 mb-2">
-            Workspace Active
-          </span>
-          <h3 className="text-2xl font-extrabold tracking-tight">
-            {getGreeting()}, {username || 'Roommate'}! 👋
-          </h3>
-          <p className="mt-1 text-sm text-blue-100 flex items-center gap-1.5 font-medium">
-            <Calendar className="w-4 h-4 text-blue-200" />
-            {format(new Date(), 'EEEE, MMMM d, yyyy')}
-          </p>
+  return (
+    <div className="bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-900 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200">
+      <div className="flex items-center gap-4">
+        {/* User Avatar Circle */}
+        <div className="w-14 h-14 rounded-full ring-2 ring-indigo-500/10 bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-inner">
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+          ) : (
+            username?.[0]?.toUpperCase() || 'U'
+          )}
         </div>
-        
-        {isManager && (
-          <button
-            onClick={onToggleNoticeForm}
-            className="p-3 rounded-xl bg-white/15 hover:bg-white/25 text-white transition-all duration-200 shadow-sm shrink-0 border border-white/10"
-            title="Post a notice"
-          >
-            <Megaphone className="w-5 h-5" />
-          </button>
-        )}
+
+        <div>
+          <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            {getGreeting()}, {username || 'Roommate'} 👋
+          </h3>
+          <div className="flex flex-wrap items-center gap-2 mt-1">
+            <span className="text-xs text-nex-muted flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5" />
+              {format(new Date(), 'EEEE, MMMM d')}
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800" />
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+              isManager
+                ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400'
+                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
+            }`}>
+              {isManager ? (
+                <>
+                  <Shield className="w-2.5 h-2.5" /> Manager
+                </>
+              ) : (
+                <>
+                  <UserCheck className="w-2.5 h-2.5" /> Member
+                </>
+              )}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Megaphone, Send, X, Pin } from 'lucide-react'
+import { Megaphone, Send, Pin, Plus } from 'lucide-react'
 import type { DashboardNotice } from '../../../hooks/useDashboardData'
 
 interface NoticeBoardProps {
@@ -11,86 +11,99 @@ interface NoticeBoardProps {
   onCloseForm: () => void
 }
 
-export default function NoticeBoard({ notice, isManager, showForm, onSaveNotice, onDismissNotice, onCloseForm }: NoticeBoardProps) {
+export default function NoticeBoard({
+  notice,
+  isManager,
+  onSaveNotice,
+  onDismissNotice,
+}: Omit<NoticeBoardProps, 'showForm' | 'onCloseForm'>) {
+  const [showInput, setShowInput] = useState(false)
   const [noticeText, setNoticeText] = useState(notice?.message || '')
   const [loading, setLoading] = useState(false)
 
-  const handleSave = async () => {
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
     if (!noticeText.trim()) return
     setLoading(true)
     await onSaveNotice(noticeText.trim())
     setNoticeText('')
+    setShowInput(false)
     setLoading(false)
   }
 
   return (
-    <>
-      {/* Manager Notice Form */}
-      {showForm && isManager && (
-        <div className="nex-card p-5 animate-slide-up border-t-4 border-nex-primary">
-          <div className="flex items-center gap-2 mb-3">
-            <Megaphone className="w-4 h-4 text-nex-primary" />
-            <p className="text-sm font-semibold text-nex-text">Post a Notice to Mess</p>
+    <div className="bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-900 rounded-2xl p-5 shadow-sm h-full flex flex-col justify-between min-h-[160px]">
+      <div>
+        <div className="flex items-center justify-between gap-3 mb-3 shrink-0">
+          <div className="flex items-center gap-2">
+            <Pin className="w-4 h-4 text-indigo-500 rotate-45 shrink-0" />
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+              Notice Board
+            </h4>
           </div>
-          <div className="flex gap-2">
+          {isManager && !showInput && (
+            <button
+              onClick={() => { setShowInput(true); setNoticeText(notice?.message || '') }}
+              className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+            >
+              <Plus className="w-3 h-3" /> {notice ? 'Edit' : 'Post'}
+            </button>
+          )}
+        </div>
+
+        {/* Input Form for managers */}
+        {showInput && isManager ? (
+          <form onSubmit={handleSave} className="space-y-2.5 animate-slide-up mt-2">
             <input
               type="text"
               value={noticeText}
               onChange={e => setNoticeText(e.target.value)}
-              className="nex-input flex-1 text-sm py-2"
-              placeholder="e.g., Dinner is canceled tonight due to maintenance..."
+              className="nex-input w-full text-sm py-2 px-3"
+              placeholder="Type your notice here..."
               maxLength={200}
+              required
+              autoFocus
             />
-            <button
-              onClick={handleSave}
-              disabled={loading || !noticeText.trim()}
-              className="nex-btn-primary px-4 py-2 disabled:opacity-50 flex items-center justify-center shrink-0"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onCloseForm}
-              className="nex-btn-secondary px-3 py-2 shrink-0"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Pinned Notice Board */}
-      {notice && (
-        <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border-l-4 border-l-indigo-600 dark:border-l-indigo-500 border-y border-r border-slate-100 dark:border-slate-800/80 p-5 shadow-md flex items-start gap-4 animate-fade-in">
-          {/* Decorative glowing backplate */}
-          <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
-          
-          <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 shrink-0 flex items-center justify-center">
-            <Pin className="w-5 h-5 rotate-45 text-indigo-600 dark:text-indigo-400 animate-pulse-soft" />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                Pinned Notice
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse" />
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={loading || !noticeText.trim()}
+                className="nex-btn-primary py-1.5 px-3 text-xs disabled:opacity-50 flex items-center gap-1"
+              >
+                <Send className="w-3.5 h-3.5" /> Save
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowInput(false)}
+                className="nex-btn-secondary py-1.5 px-3 text-xs"
+              >
+                Cancel
+              </button>
+              {notice && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await onDismissNotice()
+                    setShowInput(false)
+                  }}
+                  className="nex-btn-secondary py-1.5 px-3 text-xs !text-red-500 hover:!bg-red-500/10 border-red-500/20 ml-auto"
+                >
+                  Remove Notice
+                </button>
+              )}
             </div>
-            <p className="text-sm font-medium text-slate-800 dark:text-slate-200 leading-relaxed">
-              {notice.message}
-            </p>
+          </form>
+        ) : notice ? (
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-300 leading-relaxed break-words">
+            {notice.message}
+          </p>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-4 text-center shrink-0">
+            <Megaphone className="w-7 h-7 text-slate-300 dark:text-slate-700 mb-1" />
+            <p className="text-xs text-slate-400 dark:text-slate-500">No active notice pinned.</p>
           </div>
-
-          {isManager && (
-            <button
-              onClick={onDismissNotice}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 shrink-0"
-              title="Remove notice"
-            >
-              <X className="w-4.5 h-4.5" />
-            </button>
-          )}
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </div>
   )
 }

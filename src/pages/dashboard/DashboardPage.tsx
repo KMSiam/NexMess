@@ -31,7 +31,6 @@ export default function DashboardPage() {
   const { profile } = useAuthStore()
   const { currentMess, members } = useMessStore()
   
-  const [showNoticeForm, setShowNoticeForm] = useState(false)
   const [mealLoading, setMealLoading] = useState(false)
   
   // Custom Hook for dashboard data loading and realtime updates
@@ -74,7 +73,6 @@ export default function DashboardPage() {
     } else {
       toast.success('Notice posted!')
       setNotice(data)
-      setShowNoticeForm(false)
       // Push notification to all mess members (fire-and-forget)
       const memberIds = members
         .filter(m => m.status === 'approved' && m.user_id !== profile.id)
@@ -257,25 +255,25 @@ export default function DashboardPage() {
       <WelcomeCard
         username={profile?.username}
         isManager={isManager}
-        onToggleNoticeForm={() => setShowNoticeForm(!showNoticeForm)}
       />
 
-      <NoticeBoard
-        notice={notice}
-        isManager={isManager}
-        showForm={showNoticeForm}
-        onSaveNotice={handleSaveNotice}
-        onDismissNotice={handleDismissNotice}
-        onCloseForm={() => setShowNoticeForm(false)}
-      />
+      {/* 2-column grid for Pinned Notice and Mess Alerts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <NoticeBoard
+          notice={notice}
+          isManager={isManager}
+          onSaveNotice={handleSaveNotice}
+          onDismissNotice={handleDismissNotice}
+        />
 
-      <AlertBanners
-        mealsData={mealsData}
-        stats={stats}
-        unpaidFixed={unpaidFixed}
-        isBazaarMan={isBazaarMan}
-        onQuickMealToggle={handleToggleMeal}
-      />
+        <AlertBanners
+          mealsData={mealsData}
+          stats={stats}
+          unpaidFixed={unpaidFixed}
+          isBazaarMan={isBazaarMan}
+          onQuickMealToggle={handleToggleMeal}
+        />
+      </div>
 
       <CookSummary data={cookSummary} />
 
