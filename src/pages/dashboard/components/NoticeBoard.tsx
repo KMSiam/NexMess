@@ -60,22 +60,22 @@ export default function NoticeBoard({ notice, isManager, showForm, onSaveNotice,
 
       {/* Pinned Notice Board */}
       {notice && (
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-50/70 to-blue-50/50 dark:from-slate-900/50 dark:to-slate-800/40 border border-indigo-100 dark:border-slate-800 p-5 shadow-sm flex items-start gap-4 animate-fade-in">
+        <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border-l-4 border-l-indigo-600 dark:border-l-indigo-500 border-y border-r border-slate-100 dark:border-slate-800/80 p-5 shadow-md flex items-start gap-4 animate-fade-in">
           {/* Decorative glowing backplate */}
-          <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
           
-          <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shrink-0 flex items-center justify-center">
-            <Pin className="w-5 h-5 rotate-45" />
+          <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 shrink-0 flex items-center justify-center">
+            <Pin className="w-5 h-5 rotate-45 text-indigo-600 dark:text-indigo-400 animate-pulse-soft" />
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 mb-1">
+            <div className="flex items-center gap-2 mb-1.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
                 Pinned Notice
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse" />
             </div>
-            <p className="text-sm font-medium text-nex-text leading-relaxed">
+            <p className="text-sm font-medium text-slate-800 dark:text-slate-200 leading-relaxed">
               {notice.message}
             </p>
           </div>
@@ -83,7 +83,7 @@ export default function NoticeBoard({ notice, isManager, showForm, onSaveNotice,
           {isManager && (
             <button
               onClick={onDismissNotice}
-              className="p-1.5 rounded-lg text-nex-muted hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 shrink-0"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 shrink-0"
               title="Remove notice"
             >
               <X className="w-4.5 h-4.5" />
