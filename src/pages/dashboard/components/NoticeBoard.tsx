@@ -32,7 +32,7 @@ export default function NoticeBoard({
   }
 
   return (
-    <div className="bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-900 rounded-2xl p-5 shadow-sm h-full flex flex-col justify-between min-h-[160px]">
+    <div className="nex-card p-5 h-full flex flex-col justify-between min-h-[160px]">
       <div>
         <div className="flex items-center justify-between gap-3 mb-3 shrink-0">
           <div className="flex items-center gap-2">

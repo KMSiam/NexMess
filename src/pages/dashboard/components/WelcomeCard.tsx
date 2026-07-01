@@ -12,7 +12,7 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
   const { profile } = useAuthStore()
 
   return (
-    <div className="bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-900 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200">
+    <div className="nex-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div className="flex items-center gap-4">
         {/* User Avatar Circle */}
         <div className="w-14 h-14 rounded-full ring-2 ring-indigo-500/10 bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-inner">
