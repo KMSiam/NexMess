@@ -99,8 +99,8 @@ export default function NoticeBoard({
           </p>
         ) : (
           <div className="flex flex-col items-center justify-center py-4 text-center shrink-0">
-            <Megaphone className="w-7 h-7 text-slate-300 dark:text-slate-700 mb-1" />
-            <p className="text-xs text-slate-400 dark:text-slate-500">No active notice pinned.</p>
+            <Megaphone className="w-7 h-7 text-slate-400 dark:text-slate-600 mb-1" />
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">No active notice pinned.</p>
           </div>
         )}
       </div>

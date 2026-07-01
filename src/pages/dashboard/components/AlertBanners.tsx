@@ -33,7 +33,7 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
               <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                 {b.type === 'lunch' ? 'Lunch' : 'Dinner'} Cut-off approaching ({b.minutes}m)
               </p>
-              <p className="text-[10px] text-nex-muted truncate max-w-[200px] sm:max-w-xs">
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px] sm:max-w-xs">
                 Locks at {mealCutoffLabel(b.type)}.
               </p>
             </div>
@@ -61,7 +61,7 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
             <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
               Low Balance ({formatCurrency(stats.balance)})
             </p>
-            <p className="text-[10px] text-nex-muted">Please deposit funds soon.</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Please deposit funds soon.</p>
           </div>
         </div>
       )
@@ -80,7 +80,7 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
             <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
               {unpaidFixed} Unpaid Mess Bills
             </p>
-            <p className="text-[10px] text-nex-muted">Fixed costs pending payment.</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Fixed costs pending payment.</p>
           </div>
         </div>
       )
@@ -99,7 +99,7 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
             <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
               🛒 You're the Bazaar Man today!
             </p>
-            <p className="text-[10px] text-nex-muted">Remember to log expenses.</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Remember to log expenses.</p>
           </div>
         </div>
       )
@@ -119,7 +119,7 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
         {alertsList.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-4 text-center shrink-0">
             <CheckCircle className="w-7 h-7 text-emerald-500 mb-1" />
-            <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">All systems normal. No alerts.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">All systems normal. No alerts.</p>
           </div>
         ) : (
           <div className="space-y-3 mt-2 divide-y divide-nex-border">
