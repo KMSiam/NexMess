@@ -275,15 +275,17 @@ export default function DashboardPage() {
         />
       </div>
 
-      <CookSummary data={cookSummary} />
-
-      <MealSelector
-        mealsData={mealsData}
-        routines={routines}
-        mealLoading={mealLoading}
-        onToggleMeal={handleToggleMeal}
-        onUpdateGuest={handleUpdateGuest}
-      />
+      {/* 2-column grid for Cook's Summary and My Meals */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <CookSummary data={cookSummary} />
+        <MealSelector
+          mealsData={mealsData}
+          routines={routines}
+          mealLoading={mealLoading}
+          onToggleMeal={handleToggleMeal}
+          onUpdateGuest={handleUpdateGuest}
+        />
+      </div>
 
       <StatsGrid stats={stats} />
 

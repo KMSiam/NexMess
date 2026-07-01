@@ -19,7 +19,7 @@ export default function MealSelector({ mealsData, routines, mealLoading, onToggl
   const currentMData = mealsData[mealTab]
 
   return (
-    <div className="nex-card p-5">
+    <div className="nex-card p-5 h-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-2">
           <h4 className="text-sm font-semibold text-nex-text uppercase tracking-wider">My Meals</h4>
