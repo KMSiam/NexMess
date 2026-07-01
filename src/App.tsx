@@ -11,7 +11,7 @@ import { AuthGuard, GuestGuard, OnboardingGuard, ManagerGuard } from './guards/A
 import AppLayout from './components/layout/AppLayout'
 
 // Auth / Public Pages
-const LandingPage = lazy(() => import('./pages/LandingPage'))
+const LandingPage = lazy(() => import('./pages/landing/LandingPage'))
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'))
 const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'))
@@ -31,7 +31,7 @@ const HistoryPage = lazy(() => import('./pages/history/HistoryPage'))
 const CreateMessPage = lazy(() => import('./pages/mess/CreateMessPage'))
 const JoinMessPage = lazy(() => import('./pages/mess/JoinMessPage'))
 const ActivityLogPage = lazy(() => import('./pages/activity/ActivityLogPage'))
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+const NotFoundPage = lazy(() => import('./pages/not-found/NotFoundPage'))
 
 function PageLoader() {
   return (

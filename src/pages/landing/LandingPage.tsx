@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import { Calendar, Wallet, ShoppingBag, MessageSquare, ArrowRight, ShieldCheck, Zap } from 'lucide-react'
-import logoIcon from '../assets/logo-icon.svg'
-import heroImg from '../assets/hero.png'
-import { usePageTitle } from '../hooks/usePageTitle'
+import logoIcon from '../../assets/logo-icon.svg'
+import heroImg from '../../assets/hero.png'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 export default function LandingPage() {
   usePageTitle('Smart Mess Management')

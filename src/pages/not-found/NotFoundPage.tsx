@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { AlertCircle, Home } from 'lucide-react'
-import { usePageTitle } from '../hooks/usePageTitle'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 export default function NotFoundPage() {
   usePageTitle('Page Not Found')
