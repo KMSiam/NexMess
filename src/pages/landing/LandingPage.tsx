@@ -1,11 +1,21 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Calendar, Wallet, ShoppingBag, MessageSquare, ArrowRight, ShieldCheck, Zap } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import heroImg from '../../assets/hero.png'
 import { usePageTitle } from '../../hooks/usePageTitle'
+import { useAuthStore } from '../../stores/authStore'
+import { useEffect } from 'react'
 
 export default function LandingPage() {
   usePageTitle('Smart Mess Management')
+  const { user, initialized } = useAuthStore()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (initialized && user) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [user, initialized, navigate])
 
   return (
     <div className="min-h-screen bg-nex-bg text-nex-text flex flex-col font-sans select-none overflow-x-hidden">
