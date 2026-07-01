@@ -66,8 +66,11 @@ function dhakaParts(d: Date = new Date()) {
 }
 
 export function isMealCutoffPassed(dateStr: string, type: 'lunch' | 'dinner'): boolean {
-  const { dateStr: todayDhaka, hour } = dhakaParts()
-  if (dateStr !== todayDhaka) return false
+  const todayDhaka = dhakaToday()
+  if (dateStr < todayDhaka) return true // Past dates are always locked
+  if (dateStr > todayDhaka) return false // Future dates are never locked
+  
+  const { hour } = dhakaParts()
   return hour >= MEAL_CUTOFF_HOURS[type]
 }
 
@@ -93,4 +96,18 @@ export function mealCutoffApproaching(
 // Asia/Dhaka today's date string (YYYY-MM-DD)
 export function dhakaToday(): string {
   return dhakaParts().dateStr
+}
+
+export function addDaysDhaka(dateStr: string, days: number): string {
+  const [year, month, date] = dateStr.split('-').map(Number)
+  const d = new Date(Date.UTC(year, month - 1, date))
+  d.setUTCDate(d.getUTCDate() + days)
+  const y = d.getUTCFullYear()
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const r = String(d.getUTCDate()).padStart(2, '0')
+  return `${y}-${m}-${r}`
+}
+
+export function dhakaTomorrow(): string {
+  return addDaysDhaka(dhakaToday(), 1)
 }

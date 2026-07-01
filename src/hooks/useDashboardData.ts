@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
-import { format, addDays } from 'date-fns'
-import { dhakaToday } from '../lib/utils'
+import { dhakaToday, dhakaTomorrow } from '../lib/utils'
 import { useRealtimeTable } from './useRealtimeTable'
 
 export interface DashboardMeals {
@@ -78,9 +77,9 @@ export function useDashboardData(
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([])
   const [dataLoaded, setDataLoaded] = useState(false)
 
-  const today = format(new Date(), 'yyyy-MM-dd')
-  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
-  const currentMonth = format(new Date(), 'yyyy-MM')
+  const today = dhakaToday()
+  const tomorrow = dhakaTomorrow()
+  const currentMonth = today.slice(0, 7)
 
   const fetchDashboardData = useCallback(async () => {
     if (!userId || !messId) return

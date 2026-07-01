@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { UtensilsCrossed } from 'lucide-react'
-import { isMealCutoffPassed, mealCutoffLabel, getFoodEmoji } from '../../../lib/utils'
-import { format, addDays } from 'date-fns'
+import { isMealCutoffPassed, mealCutoffLabel, getFoodEmoji, dhakaToday, dhakaTomorrow } from '../../../lib/utils'
 import type { DashboardMeals, DashboardRoutines } from '../../../hooks/useDashboardData'
 
 interface MealSelectorProps {
@@ -14,8 +13,8 @@ interface MealSelectorProps {
 
 export default function MealSelector({ mealsData, routines, mealLoading, onToggleMeal, onUpdateGuest }: MealSelectorProps) {
   const [mealTab, setMealTab] = useState<'today' | 'tomorrow'>('today')
-  const today = format(new Date(), 'yyyy-MM-dd')
-  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
+  const today = dhakaToday()
+  const tomorrow = dhakaTomorrow()
   const currentMData = mealsData[mealTab]
 
   return (

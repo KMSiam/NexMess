@@ -4,7 +4,7 @@ import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { Link } from 'react-router-dom'
 import { Plus, Users } from 'lucide-react'
-import { isMealCutoffPassed, dhakaToday } from '../../lib/utils'
+import { isMealCutoffPassed, dhakaToday, dhakaTomorrow } from '../../lib/utils'
 import { sendPushToUsers } from '../../lib/push'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
@@ -113,13 +113,7 @@ export default function DashboardPage() {
 
   const handleToggleMeal = async (tab: 'today' | 'tomorrow', type: 'lunch' | 'dinner') => {
     if (!profile?.id || !currentMess?.id) return
-    const todayStr = dhakaToday() 
-    const targetDateStr = tab === 'today' 
-      ? todayStr 
-      : (() => {
-          const t = new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
-          return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
-        })()
+    const targetDateStr = tab === 'today' ? dhakaToday() : dhakaTomorrow()
 
     if (isMealCutoffPassed(targetDateStr, type)) {
       toast.error(`${type === 'lunch' ? 'Lunch' : 'Dinner'} cut-off has passed`)
@@ -152,12 +146,7 @@ export default function DashboardPage() {
 
   const handleUpdateGuest = async (tab: 'today' | 'tomorrow', type: 'lunch' | 'dinner', delta: number) => {
     if (!profile?.id || !currentMess?.id) return
-    const targetDateStr = tab === 'today' 
-      ? dhakaToday() 
-      : (() => {
-          const t = new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
-          return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
-        })()
+    const targetDateStr = tab === 'today' ? dhakaToday() : dhakaTomorrow()
 
     if (isMealCutoffPassed(targetDateStr, type)) {
       toast.error(`${type === 'lunch' ? 'Lunch' : 'Dinner'} cut-off has passed`)
