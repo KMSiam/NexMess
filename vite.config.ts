@@ -16,6 +16,10 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.ts',
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,ico,woff2}'],
         rollupFormat: 'iife',

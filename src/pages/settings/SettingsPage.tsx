@@ -4,7 +4,7 @@ import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import { Settings } from 'lucide-react'
-import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
+import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush, sendPushToUser } from '../../lib/push'
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import pkg from '../../../package.json'
@@ -87,6 +87,23 @@ export default function SettingsPage() {
       }
     }
     setPushLoading(false)
+  }
+
+  const handleSendTestPush = async () => {
+    if (!user?.id) return
+    toast.promise(
+      sendPushToUser(
+        user.id,
+        'Test Notification 🔔',
+        'Your push notification channel is active and working perfectly! 🎉',
+        '/settings'
+      ),
+      {
+        loading: 'Sending test push...',
+        success: 'Test push requested!',
+        error: 'Failed to send test push'
+      }
+    )
   }
 
   const handleProfileUpdate = async (username: string, contactNo: string, avatarUrl: string | null) => {
@@ -228,6 +245,7 @@ export default function SettingsPage() {
           pushEnabled={pushEnabled}
           pushLoading={pushLoading}
           onToggle={handlePushToggle}
+          onSendTest={handleSendTestPush}
         />
       )}
 

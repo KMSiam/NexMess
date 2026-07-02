@@ -48,8 +48,14 @@ export async function subscribeToPush(userId: string): Promise<boolean> {
       { onConflict: 'user_id,endpoint' }
     )
 
-    return !error
-  } catch {
+    if (error) {
+      console.error('Failed to save push subscription to DB:', error)
+      return false
+    }
+
+    return true
+  } catch (err) {
+    console.error('Push subscription failed:', err)
     return false
   }
 }
@@ -59,11 +65,17 @@ export async function unsubscribeFromPush(userId: string): Promise<boolean> {
     const reg = await navigator.serviceWorker.ready
     const subscription = await reg.pushManager.getSubscription()
     if (subscription) {
+      const endpoint = subscription.endpoint
       await subscription.unsubscribe()
-      await supabase.from('push_subscriptions').delete().eq('user_id', userId)
+      const { error } = await supabase.from('push_subscriptions').delete().eq('user_id', userId).eq('endpoint', endpoint)
+      if (error) {
+        console.error('Failed to delete push subscription from DB:', error)
+        return false
+      }
     }
     return true
-  } catch {
+  } catch (err) {
+    console.error('Failed to unsubscribe from push:', err)
     return false
   }
 }

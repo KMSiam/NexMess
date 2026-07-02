@@ -5,7 +5,10 @@ declare const self: ServiceWorkerGlobalScope
 
 cleanupOutdatedCaches()
 // vite-plugin-pwa injects the precache manifest at build time
-precacheAndRoute((self as unknown as { __WB_MANIFEST: { url: string; revision: string | null }[] }).__WB_MANIFEST)
+const manifest = (self as unknown as { __WB_MANIFEST: { url: string; revision: string | null }[] }).__WB_MANIFEST
+if (manifest) {
+  precacheAndRoute(manifest)
+}
 
 self.addEventListener('push', (event) => {
   if (!event.data) return
