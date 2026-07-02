@@ -28,7 +28,6 @@ export default function MemberManagement({
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null)
 
   const toggleExpand = (userId: string) => {
-    if (!isManager) return
     setExpandedUserId(prev => (prev === userId ? null : userId))
   }
 
@@ -98,9 +97,7 @@ export default function MemberManagement({
                 {/* Member Row Header */}
                 <div
                   onClick={() => toggleExpand(member.user_id)}
-                  className={`flex items-center justify-between p-4 ${
-                    isManager ? 'cursor-pointer select-none' : ''
-                  }`}
+                  className="flex items-center justify-between p-4 cursor-pointer select-none"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-semibold shrink-0">
@@ -123,37 +120,35 @@ export default function MemberManagement({
                     </div>
                   </div>
 
-                  {isManager && (
-                    <div className="flex items-center gap-2">
-                      {/* Compact Quick Indicators */}
-                      <div className="hidden sm:flex items-center gap-2 mr-3">
-                        {p?.contact_no && (
-                          <span className="h-1.5 w-1.5 rounded-full bg-nex-primary" title="Phone number set" />
-                        )}
-                        {p?.emergency_contact_no && (
-                          <span className="h-1.5 w-1.5 rounded-full bg-red-500" title="Emergency contact set" />
-                        )}
-                        {p?.verification_doc_type && (
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" title="Verification document set" />
-                        )}
-                      </div>
-                      <span className="text-xs font-semibold text-nex-primary bg-nex-primary/10 hover:bg-nex-primary/20 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-                        {isExpanded ? (
-                          <>
-                            Hide <ChevronUp className="w-3.5 h-3.5" />
-                          </>
-                        ) : (
-                          <>
-                            Details <ChevronDown className="w-3.5 h-3.5" />
-                          </>
-                        )}
-                      </span>
+                  <div className="flex items-center gap-2">
+                    {/* Compact Quick Indicators */}
+                    <div className="hidden sm:flex items-center gap-2 mr-3">
+                      {p?.contact_no && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-nex-primary" title="Phone number set" />
+                      )}
+                      {p?.emergency_contact_no && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-red-500" title="Emergency contact set" />
+                      )}
+                      {p?.verification_doc_type && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" title="Verification document set" />
+                      )}
                     </div>
-                  )}
+                    <span className="text-xs font-semibold text-nex-primary bg-nex-primary/10 hover:bg-nex-primary/20 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                      {isExpanded ? (
+                        <>
+                          Hide <ChevronUp className="w-3.5 h-3.5" />
+                        </>
+                      ) : (
+                        <>
+                          Details <ChevronDown className="w-3.5 h-3.5" />
+                        </>
+                      )}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Expanded Details Section */}
-                {isManager && isExpanded && (
+                {isExpanded && (
                   <div className="border-t border-nex-border/40 p-4 bg-nex-bg/30 space-y-4 animate-slide-down">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Contact Info Group */}
@@ -227,32 +222,34 @@ export default function MemberManagement({
                     </div>
 
                     {/* Member Actions Row */}
-                    <div className="border-t border-nex-border/50 pt-4 flex flex-wrap items-center justify-end gap-2">
-                      {member.role === 'member' ? (
-                        <button
-                          onClick={() => onMakeManager(member.user_id)}
-                          className="text-xs font-semibold text-nex-primary hover:text-blue-700 bg-nex-primary-light hover:bg-blue-500/10 px-3.5 py-2 rounded-xl transition-all duration-200"
-                        >
-                          Promote to Manager
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => onDemoteManager(member.user_id)}
-                          className="text-xs font-semibold text-amber-500 hover:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-3.5 py-2 rounded-xl transition-all duration-200"
-                        >
-                          Demote to Member
-                        </button>
-                      )}
+                    {isManager && (
+                      <div className="border-t border-nex-border/50 pt-4 flex flex-wrap items-center justify-end gap-2">
+                        {member.role === 'member' ? (
+                          <button
+                            onClick={() => onMakeManager(member.user_id)}
+                            className="text-xs font-semibold text-nex-primary hover:text-blue-700 bg-nex-primary-light hover:bg-blue-500/10 px-3.5 py-2 rounded-xl transition-all duration-200"
+                          >
+                            Promote to Manager
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => onDemoteManager(member.user_id)}
+                            className="text-xs font-semibold text-amber-500 hover:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-3.5 py-2 rounded-xl transition-all duration-200"
+                          >
+                            Demote to Member
+                          </button>
+                        )}
 
-                      {member.role !== 'manager' && (
-                        <button
-                          onClick={() => onRemove(member.user_id)}
-                          className="text-xs font-semibold text-red-500 hover:text-white bg-red-500/10 hover:bg-red-500 px-3.5 py-2 rounded-xl transition-all duration-200"
-                        >
-                          Remove Member
-                        </button>
-                      )}
-                    </div>
+                        {member.role !== 'manager' && (
+                          <button
+                            onClick={() => onRemove(member.user_id)}
+                            className="text-xs font-semibold text-red-500 hover:text-white bg-red-500/10 hover:bg-red-500 px-3.5 py-2 rounded-xl transition-all duration-200"
+                          >
+                            Remove Member
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
