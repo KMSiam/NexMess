@@ -9,6 +9,7 @@ export interface Profile {
   verification_doc_no?: string | null
   verification_doc_url?: string | null
   emergency_contact_no?: string | null
+  deleted_at?: string | null
 }
 
 export interface Mess {

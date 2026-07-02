@@ -1,4 +1,4 @@
-import { LogOut, Trash2, AlertTriangle } from 'lucide-react'
+import { LogOut, Trash2, AlertTriangle, UserX } from 'lucide-react'
 
 interface DangerZoneProps {
   hasMess: boolean
@@ -6,9 +6,17 @@ interface DangerZoneProps {
   messName: string | undefined
   onLeave: () => void
   onDelete: () => void
+  onDeleteAccount: () => void
 }
 
-export default function DangerZone({ hasMess, isManager, messName, onLeave, onDelete }: DangerZoneProps) {
+export default function DangerZone({
+  hasMess,
+  isManager,
+  messName,
+  onLeave,
+  onDelete,
+  onDeleteAccount,
+}: DangerZoneProps) {
   return (
     <div className="space-y-6 mt-6">
       {/* Leave Mess Zone */}
@@ -46,6 +54,26 @@ export default function DangerZone({ hasMess, isManager, messName, onLeave, onDe
             </div>
             <button onClick={onDelete} className="nex-btn-danger text-sm shrink-0 flex items-center justify-center gap-2">
               <Trash2 className="w-4 h-4" /> Delete Mess
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Zone (Visible only if not in a mess) */}
+      {!hasMess && (
+        <div className="nex-card p-6 border border-red-500/20">
+          <h3 className="text-lg font-semibold text-red-500 mb-4 flex items-center gap-2">
+            <UserX className="w-5 h-5" /> Delete Account
+          </h3>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-red-500/10 rounded-xl">
+            <div>
+              <p className="text-sm font-medium text-red-500">Delete your account permanently</p>
+              <p className="text-xs text-nex-muted mt-1 max-w-sm">
+                Your account will be deactivated. You will have 30 days to log back in to restore your account. After 30 days, your personal info will be deleted permanently.
+              </p>
+            </div>
+            <button onClick={onDeleteAccount} className="nex-btn-danger text-sm shrink-0 flex items-center justify-center gap-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border-none shadow-none">
+              <Trash2 className="w-4 h-4" /> Delete Account
             </button>
           </div>
         </div>

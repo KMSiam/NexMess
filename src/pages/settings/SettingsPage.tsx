@@ -33,6 +33,7 @@ export default function SettingsPage() {
   // Modal Dialogs States
   const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
+  const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false)
   const [removeMemberId, setRemoveMemberId] = useState<string | null>(null)
   const [promoteMemberId, setPromoteMemberId] = useState<string | null>(null)
   const [demoteMemberId, setDemoteMemberId] = useState<string | null>(null)
@@ -235,6 +236,24 @@ export default function SettingsPage() {
     }
   }
 
+  const handleConfirmDeleteAccount = async () => {
+    if (!user?.id) return
+
+    const { error } = await supabase.from('profiles')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', user.id)
+
+    if (error) {
+      toast.error('Failed to deactivate account: ' + error.message)
+    } else {
+      toast.success('Account deactivated. Signing out...')
+      setConfirmDeleteAccountOpen(false)
+      const { signOut } = useAuthStore.getState()
+      await signOut()
+      navigate('/')
+    }
+  }
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
@@ -352,6 +371,7 @@ export default function SettingsPage() {
             messName={currentMess?.name}
             onLeave={() => setConfirmLeaveOpen(true)}
             onDelete={() => setConfirmDeleteOpen(true)}
+            onDeleteAccount={() => setConfirmDeleteAccountOpen(true)}
           />
         )}
       </div>
@@ -370,6 +390,18 @@ export default function SettingsPage() {
         variant="warning"
         onConfirm={handleConfirmLeaveMess}
         onCancel={() => setConfirmLeaveOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={confirmDeleteAccountOpen}
+        title="Delete Account"
+        message="DANGER: Are you sure you want to delete your account? Your account will be deactivated immediately. You will have 30 days to log back in to restore your account, otherwise all your personal profile info will be permanently deleted."
+        confirmText="Deactivate Account"
+        confirmInput={profile?.username || ''}
+        confirmInputLabel={`Type your username "${profile?.username || ''}" to confirm`}
+        variant="danger"
+        onConfirm={handleConfirmDeleteAccount}
+        onCancel={() => setConfirmDeleteAccountOpen(false)}
       />
 
       <ConfirmDialog
