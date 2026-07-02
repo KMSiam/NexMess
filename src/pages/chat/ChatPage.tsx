@@ -87,6 +87,7 @@ export default function ChatPage() {
           container.scrollTop = scrollTopBefore + (scrollHeightAfter - scrollHeightBefore)
         }
       }, 0)
+    } else {
       // Initial load
       setMessages(fetchedMsgs)
       // Scroll to bottom after render
