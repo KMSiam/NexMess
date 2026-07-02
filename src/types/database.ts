@@ -5,6 +5,10 @@ export interface Profile {
   is_verified: boolean
   contact_no: string | null
   updated_at: string
+  verification_doc_type?: 'nid' | 'birth_certificate' | 'other' | null
+  verification_doc_no?: string | null
+  verification_doc_url?: string | null
+  emergency_contact_no?: string | null
 }
 
 export interface Mess {

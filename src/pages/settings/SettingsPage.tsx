@@ -89,11 +89,23 @@ export default function SettingsPage() {
     setPushLoading(false)
   }
 
-  const handleProfileUpdate = async (username: string, contactNo: string, avatarUrl: string | null) => {
+  const handleProfileUpdate = async (
+    username: string,
+    contactNo: string,
+    avatarUrl: string | null,
+    verificationDocType?: 'nid' | 'birth_certificate' | 'other' | null,
+    verificationDocNo?: string | null,
+    verificationDocUrl?: string | null,
+    emergencyContactNo?: string | null
+  ) => {
     await updateProfile({
       username,
       contact_no: contactNo,
       avatar_url: avatarUrl,
+      verification_doc_type: verificationDocType,
+      verification_doc_no: verificationDocNo,
+      verification_doc_url: verificationDocUrl,
+      emergency_contact_no: emergencyContactNo,
     })
     toast.success('Profile updated!')
   }
