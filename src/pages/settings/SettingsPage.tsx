@@ -3,7 +3,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { useNavigate } from 'react-router-dom'
-import { Settings } from 'lucide-react'
+import { Settings, User, Users, Home, Bell, AlertTriangle } from 'lucide-react'
 import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
@@ -28,6 +28,7 @@ export default function SettingsPage() {
   const [pushEnabled, setPushEnabled] = useState(false)
   const [pushLoading, setPushLoading] = useState(false)
   const pushSupported = isPushSupported()
+  const [activeTab, setActiveTab] = useState<'profile' | 'members' | 'mess' | 'notifications' | 'danger'>('profile')
 
   // Modal Dialogs States
   const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false)
@@ -229,42 +230,121 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold text-nex-text">Settings</h1>
       </div>
 
-      <ProfileSection
-        profile={profile}
-        email={user?.email}
-        onUpdate={handleProfileUpdate}
-      />
+      {/* Tabs Navigation */}
+      <div className="flex gap-1.5 p-1 bg-nex-elevated rounded-xl border border-nex-border/80 overflow-x-auto scrollbar-none whitespace-nowrap">
+        <button
+          onClick={() => setActiveTab('profile')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+            activeTab === 'profile'
+              ? 'bg-nex-primary text-white shadow-md'
+              : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
+          }`}
+        >
+          <User className="w-4 h-4" />
+          <span>Profile</span>
+        </button>
 
-      {pushSupported && (
-        <PushNotificationSection
-          pushEnabled={pushEnabled}
-          pushLoading={pushLoading}
-          onToggle={handlePushToggle}
-        />
-      )}
+        <button
+          onClick={() => setActiveTab('members')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+            activeTab === 'members'
+              ? 'bg-nex-primary text-white shadow-md'
+              : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
+          }`}
+        >
+          <Users className="w-4 h-4" />
+          <span>Members</span>
+          {pendingMembers.length > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-nex-danger text-[9px] font-bold text-white ring-2 ring-nex-bg animate-pulse">
+              {pendingMembers.length}
+            </span>
+          )}
+        </button>
 
-      <MessDetailsSection currentMess={currentMess} />
+        <button
+          onClick={() => setActiveTab('mess')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+            activeTab === 'mess'
+              ? 'bg-nex-primary text-white shadow-md'
+              : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
+          }`}
+        >
+          <Home className="w-4 h-4" />
+          <span>Mess Info</span>
+        </button>
 
-      <MemberManagement
-        pendingMembers={pendingMembers}
-        approvedMembers={approvedMembers}
-        isManager={isManager}
-        onApprove={handleApprove}
-        onReject={handleReject}
-        onRemove={setRemoveMemberId}
-        onMakeManager={setPromoteMemberId}
-        onDemoteManager={setDemoteMemberId}
-      />
+        {pushSupported && (
+          <button
+            onClick={() => setActiveTab('notifications')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+              activeTab === 'notifications'
+                ? 'bg-nex-primary text-white shadow-md'
+                : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
+            }`}
+          >
+            <Bell className="w-4 h-4" />
+            <span>Notifications</span>
+          </button>
+        )}
 
-      <DangerZone
-        isManager={isManager}
-        messName={currentMess?.name}
-        onLeave={() => setConfirmLeaveOpen(true)}
-        onDelete={() => setConfirmDeleteOpen(true)}
-      />
+        <button
+          onClick={() => setActiveTab('danger')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+            activeTab === 'danger'
+              ? 'bg-red-500 text-white shadow-md'
+              : 'text-nex-muted hover:text-red-500 hover:bg-red-500/10'
+          }`}
+        >
+          <AlertTriangle className="w-4 h-4" />
+          <span>Danger Zone</span>
+        </button>
+      </div>
+
+      {/* Tab Contents */}
+      <div className="mt-4 min-h-[300px]">
+        {activeTab === 'profile' && (
+          <ProfileSection
+            profile={profile}
+            email={user?.email}
+            onUpdate={handleProfileUpdate}
+          />
+        )}
+
+        {activeTab === 'members' && (
+          <MemberManagement
+            pendingMembers={pendingMembers}
+            approvedMembers={approvedMembers}
+            isManager={isManager}
+            onApprove={handleApprove}
+            onReject={handleReject}
+            onRemove={setRemoveMemberId}
+            onMakeManager={setPromoteMemberId}
+            onDemoteManager={setDemoteMemberId}
+          />
+        )}
+
+        {activeTab === 'mess' && <MessDetailsSection currentMess={currentMess} />}
+
+        {activeTab === 'notifications' && pushSupported && (
+          <PushNotificationSection
+            pushEnabled={pushEnabled}
+            pushLoading={pushLoading}
+            onToggle={handlePushToggle}
+          />
+        )}
+
+        {activeTab === 'danger' && (
+          <DangerZone
+            isManager={isManager}
+            messName={currentMess?.name}
+            onLeave={() => setConfirmLeaveOpen(true)}
+            onDelete={() => setConfirmDeleteOpen(true)}
+          />
+        )}
+      </div>
 
       {/* Version Footer */}
-      <div className="text-center py-4 text-xs text-nex-muted">
+      <div className="text-center py-4 text-xs text-nex-muted border-t border-nex-border/30">
         NexMess v{pkg.version}
       </div>
 

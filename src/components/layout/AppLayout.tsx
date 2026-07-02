@@ -6,9 +6,9 @@ import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import {
   Home, Utensils, MessageSquare, Wallet, ShoppingBag,
-  Settings, Zap, LogOut, CheckCircle2,
+  Settings, LogOut, CheckCircle2,
   CalendarClock, PanelLeft, PanelLeftClose, X, MoreHorizontal,
-  Sun, Moon, History
+  Sun, Moon, History, ChevronDown
 } from 'lucide-react'
 import NotificationBell from '../NotificationBell'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
@@ -111,37 +111,7 @@ export default function AppLayout() {
           </button>
         </div>
 
-        {/* Mess Selector */}
-        {!sidebarCollapsed && currentMess && (
-          <div className="px-3 py-3 border-b border-nex-border/50">
-            <button
-              onClick={() => setShowMessDropdown(!showMessDropdown)}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-btn bg-nex-elevated hover:bg-nex-hover transition-colors text-left"
-            >
-              <div className="w-7 h-7 rounded-lg bg-nex-primary-light text-nex-primary flex items-center justify-center text-xs font-bold shrink-0">
-                {currentMess.name[0]}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-nex-text truncate">{currentMess.name}</p>
-                <p className="text-[10px] text-nex-muted">{currentMess.unique_code}</p>
-              </div>
-            </button>
-
-            {showMessDropdown && messes.length > 1 && (
-              <div className="mt-1 nex-card p-1 space-y-0.5">
-                {messes.filter(m => m.id !== currentMess.id).map(mess => (
-                  <button key={mess.id} onClick={() => { setCurrentMess(mess); setShowMessDropdown(false) }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-btn hover:bg-nex-hover text-left text-sm">
-                    <div className="w-6 h-6 rounded bg-nex-elevated text-nex-muted flex items-center justify-center text-xs font-bold">
-                      {mess.name[0]}
-                    </div>
-                    <span className="text-nex-text truncate">{mess.name}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {/* Mess Selector removed from sidebar */}
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-3 space-y-1">
@@ -194,16 +164,53 @@ export default function AppLayout() {
         {/* Header */}
         <header className="sticky top-0 z-10 nex-glass border-b border-nex-border/50 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
-            <div className="md:hidden flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center">
-                <Zap className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-nex-text">{currentMess?.name || 'NexMess'}</p>
-                <p className="text-[10px] text-nex-muted">{currentMess?.unique_code || ''}</p>
-              </div>
+            {/* Header Mess Selector (Desktop & Mobile) */}
+            <div className="relative">
+              {currentMess ? (
+                <>
+                  <button
+                    onClick={() => setShowMessDropdown(!showMessDropdown)}
+                    className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-nex-elevated hover:bg-nex-hover border border-nex-border/50 transition-colors text-left"
+                  >
+                    <div className="w-6.5 h-6.5 rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                      {currentMess.name[0]}
+                    </div>
+                    <div className="min-w-0 pr-1">
+                      <p className="text-sm font-semibold text-nex-text leading-tight truncate max-w-[140px] sm:max-w-[200px]">{currentMess.name}</p>
+                      <p className="text-[10px] text-nex-muted font-mono leading-none mt-0.5">{currentMess.unique_code}</p>
+                    </div>
+                    {messes.length > 1 && (
+                      <ChevronDown className="w-3.5 h-3.5 text-nex-muted shrink-0 ml-0.5" />
+                    )}
+                  </button>
+
+                  {showMessDropdown && messes.length > 1 && (
+                    <div className="absolute top-full left-0 mt-1.5 w-48 bg-nex-bg border border-nex-border rounded-xl shadow-xl p-1 z-20 space-y-0.5 animate-slide-down">
+                      {messes.filter(m => m.id !== currentMess.id).map(mess => (
+                        <button
+                          key={mess.id}
+                          onClick={() => {
+                            setCurrentMess(mess)
+                            setShowMessDropdown(false)
+                          }}
+                          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-nex-hover text-left text-xs text-nex-text transition-colors"
+                        >
+                          <div className="w-5.5 h-5.5 rounded bg-nex-elevated text-nex-muted flex items-center justify-center text-[10px] font-bold">
+                            {mess.name[0]}
+                          </div>
+                          <span className="truncate">{mess.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <img src={logoIcon} alt="NexMess" className="w-7 h-7" />
+                  <span className="text-sm font-bold text-nex-text">NexMess</span>
+                </div>
+              )}
             </div>
-            <div className="hidden md:block" />
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsDark(!isDark)}
