@@ -28,7 +28,14 @@ export function useRealtimeTable(
   debounceMs = 300,
 ) {
   const callbackRef = useRef(callback ?? (filterOrCallback as () => void))
-  callbackRef.current = callback ?? (filterOrCallback as () => void)
+  const latestCallback = callback ?? (filterOrCallback as () => void)
+
+  useEffect(() => {
+    callbackRef.current = latestCallback
+  })
+
+  const tablesDep = typeof tables === 'string' ? tables : JSON.stringify(tables)
+  const filterDep = typeof filterOrCallback === 'string' ? filterOrCallback : ''
 
   useEffect(() => {
     // Normalize arguments
@@ -73,9 +80,5 @@ export function useRealtimeTable(
       supabase.removeChannel(channel)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    typeof tables === 'string' ? tables : JSON.stringify(tables),
-    typeof filterOrCallback === 'string' ? filterOrCallback : '',
-    debounceMs,
-  ])
+  }, [tablesDep, filterDep, debounceMs])
 }

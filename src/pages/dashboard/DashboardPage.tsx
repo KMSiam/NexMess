@@ -260,6 +260,7 @@ export default function DashboardPage() {
           stats={stats}
           unpaidFixed={unpaidFixed}
           isBazaarMan={isBazaarMan}
+          isManager={isManager}
           onQuickMealToggle={handleToggleMeal}
         />
       </div>

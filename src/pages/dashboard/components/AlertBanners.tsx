@@ -7,10 +7,11 @@ interface AlertBannersProps {
   stats: DashboardStats
   unpaidFixed: number
   isBazaarMan: boolean
+  isManager?: boolean
   onQuickMealToggle: (tab: 'today' | 'tomorrow', type: 'lunch' | 'dinner') => void
 }
 
-export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMan, onQuickMealToggle }: AlertBannersProps) {
+export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMan, isManager = false, onQuickMealToggle }: AlertBannersProps) {
   // Cut-off reminder: only for *today* and only when the meal isn't already on
   const lunchLeft = !mealsData.today.lunch ? mealCutoffApproaching('lunch') : null
   const dinnerLeft = !mealsData.today.dinner ? mealCutoffApproaching('dinner') : null
@@ -68,8 +69,8 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
     })
   }
 
-  // 3. Unpaid Fixed Costs
-  if (unpaidFixed > 0) {
+  // 3. Unpaid Fixed Costs (Manager Only)
+  if (unpaidFixed > 0 && isManager) {
     alertsList.push({
       id: 'fixed-costs',
       type: 'warning',

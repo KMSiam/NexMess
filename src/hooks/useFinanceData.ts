@@ -29,6 +29,7 @@ export function useFinanceData(
   const monthEnd = format(endOfMonth(new Date()), 'yyyy-MM-dd')
 
   const financeMembers = membersList.filter(m => m.status === 'approved' || m.status === 'left')
+  const financeMemberIdsStr = JSON.stringify(financeMembers.map(m => m.user_id))
 
   const fetchBalances = useCallback(async () => {
     if (!messId) return
@@ -51,7 +52,7 @@ export function useFinanceData(
     }
     setBalances(results)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messId, currentMonth, JSON.stringify(financeMembers.map(m => m.user_id))])
+  }, [messId, currentMonth, financeMemberIdsStr])
 
   const fetchAllData = useCallback(async () => {
     if (!messId) return

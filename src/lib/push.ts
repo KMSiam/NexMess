@@ -103,19 +103,15 @@ export async function sendPushToUser(
   if (error) {
     console.error('sendPushToUser failed:', error)
     if (error.context) {
+      const bodyText = await error.context.text()
+      console.error('sendPushToUser error body:', bodyText)
+      // Try parsing as JSON to get the nested error message
       try {
-        const bodyText = await error.context.text()
-        console.error('sendPushToUser error body:', bodyText)
-        // Try parsing as JSON to get the nested error message
-        try {
-          const parsed = JSON.parse(bodyText)
-          if (parsed.error) throw new Error(parsed.error)
-        } catch {
-          // If not JSON or doesn't have error key, throw the raw text
-          throw new Error(bodyText || error.message)
-        }
-      } catch (err: any) {
-        throw err
+        const parsed = JSON.parse(bodyText)
+        if (parsed.error) throw new Error(parsed.error)
+      } catch {
+        // If not JSON or doesn't have error key, throw the raw text
+        throw new Error(bodyText || error.message)
       }
     }
     throw error
