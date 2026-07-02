@@ -4,6 +4,7 @@ import logoIcon from '../../assets/logo-icon.svg'
 import heroImg from '../../assets/hero.png'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { useAuthStore } from '../../stores/authStore'
+import pkg from '../../../package.json'
 import { useEffect } from 'react'
 
 export default function LandingPage() {
@@ -41,7 +42,7 @@ export default function LandingPage() {
         <div className="flex-1 space-y-6 max-w-xl text-center lg:text-left">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-nex-primary-light rounded-full border border-nex-primary/10">
             <Zap className="w-3.5 h-3.5 text-nex-primary" />
-            <span className="text-xs font-bold text-nex-primary uppercase tracking-wide">Version 1.0 Live</span>
+            <span className="text-xs font-bold text-nex-primary uppercase tracking-wide">Version {pkg.version} Live</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-nex-text leading-tight sm:leading-none">
             Smart Mess Management for <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Shared Living</span>
