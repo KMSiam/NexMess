@@ -347,6 +347,7 @@ export default function SettingsPage() {
 
         {activeTab === 'danger' && (
           <DangerZone
+            hasMess={!!currentMess}
             isManager={isManager}
             messName={currentMess?.name}
             onLeave={() => setConfirmLeaveOpen(true)}

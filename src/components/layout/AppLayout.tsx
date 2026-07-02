@@ -36,16 +36,21 @@ export default function AppLayout() {
   const [showMessDropdown, setShowMessDropdown] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
 
-  const sidebarItems = [
-    { to: '/dashboard', icon: Home, label: 'Dashboard' },
-    { to: '/meals', icon: Utensils, label: 'Meals' },
-    { to: '/chat', icon: MessageSquare, label: 'Chat' },
-    { to: '/finance', icon: Wallet, label: 'Finance' },
-    { to: '/market', icon: ShoppingBag, label: 'Market' },
-    { to: '/routine', icon: CalendarClock, label: 'Routine' },
-    ...(isManager ? [{ to: '/history', icon: History, label: 'History' }] : []),
-    { to: '/settings', icon: Settings, label: 'Settings' },
-  ]
+  const sidebarItems = currentMess
+    ? [
+        { to: '/dashboard', icon: Home, label: 'Dashboard' },
+        { to: '/meals', icon: Utensils, label: 'Meals' },
+        { to: '/chat', icon: MessageSquare, label: 'Chat' },
+        { to: '/finance', icon: Wallet, label: 'Finance' },
+        { to: '/market', icon: ShoppingBag, label: 'Market' },
+        { to: '/routine', icon: CalendarClock, label: 'Routine' },
+        ...(isManager ? [{ to: '/history', icon: History, label: 'History' }] : []),
+        { to: '/settings', icon: Settings, label: 'Settings' },
+      ]
+    : [
+        { to: '/dashboard', icon: Home, label: 'Dashboard' },
+        { to: '/settings', icon: Settings, label: 'Settings' },
+      ]
   
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('nexmess-theme')
@@ -265,16 +270,21 @@ export default function AppLayout() {
       </div>
 
       {/* ── Mobile Bottom Nav ──────────────── */}
-      <MobileBottomNav handleSignOut={handleSignOut} signingOut={signingOut} isManager={isManager} />
+      <MobileBottomNav handleSignOut={handleSignOut} signingOut={signingOut} isManager={isManager} hasMess={!!currentMess} />
     </div>
   )
 }
 
 /* ── Mobile Bottom Navigation with "More" Menu ── */
-function MobileBottomNav({ handleSignOut, signingOut, isManager }: { handleSignOut: () => void; signingOut: boolean; isManager: boolean }) {
+function MobileBottomNav({ handleSignOut, signingOut, isManager, hasMess }: { handleSignOut: () => void; signingOut: boolean; isManager: boolean; hasMess: boolean }) {
   const [showMore, setShowMore] = useState(false)
 
-  const mainTabs = navItems.slice(0, 4) // Dashboard, Meals, Chat, Finance
+  const mainTabs = hasMess
+    ? navItems.slice(0, 4) // Dashboard, Meals, Chat, Finance
+    : [
+        { to: '/dashboard', icon: Home, label: 'Dashboard' },
+        { to: '/settings', icon: Settings, label: 'Settings' },
+      ]
 
   return (
     <>
@@ -330,13 +340,27 @@ function MobileBottomNav({ handleSignOut, signingOut, isManager }: { handleSignO
             </NavLink>
           ))}
           {/* More Button */}
-          <button
-            onClick={() => setShowMore(!showMore)}
-            className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${showMore ? 'text-nex-primary' : 'text-nex-muted'}`}
-          >
-            {showMore ? <X className="w-5 h-5" /> : <MoreHorizontal className="w-5 h-5" />}
-            <span className="text-[10px] font-medium">More</span>
-          </button>
+          {hasMess && (
+            <button
+              onClick={() => setShowMore(!showMore)}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${showMore ? 'text-nex-primary' : 'text-nex-muted'}`}
+            >
+              {showMore ? <X className="w-5 h-5" /> : <MoreHorizontal className="w-5 h-5" />}
+              <span className="text-[10px] font-medium">More</span>
+            </button>
+          )}
+
+          {/* Sign Out Button for users with no mess */}
+          {!hasMess && (
+            <button
+              onClick={handleSignOut}
+              disabled={signingOut}
+              className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors text-nex-muted hover:text-red-500 disabled:opacity-50"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="text-[10px] font-medium">{signingOut ? 'Signing out...' : 'Sign Out'}</span>
+            </button>
+          )}
         </div>
       </nav>
     </>
