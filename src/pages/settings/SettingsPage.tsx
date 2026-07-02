@@ -123,21 +123,23 @@ export default function SettingsPage() {
 
   const handleReject = async (userId: string) => {
     if (!currentMess?.id) return
-    await supabase.from('mess_members')
-      .delete()
-      .eq('mess_id', currentMess.id)
-      .eq('user_id', userId)
-    toast.success('Request rejected')
-    fetchMembers(currentMess.id)
     
     if (currentMess.name) {
-      sendPushToUsers(
+      await sendPushToUsers(
         [userId],
         'Join Request Rejected',
         `Your request to join ${currentMess.name} has been declined.`,
         '/'
       )
     }
+
+    await supabase.from('mess_members')
+      .delete()
+      .eq('mess_id', currentMess.id)
+      .eq('user_id', userId)
+      
+    toast.success('Request rejected')
+    fetchMembers(currentMess.id)
   }
 
   const handleConfirmRemoveMember = async () => {

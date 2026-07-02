@@ -118,12 +118,12 @@ export async function sendPushToUser(
   }
 }
 
-// Send push to multiple users (fire-and-forget)
-export function sendPushToUsers(
+// Send push to multiple users
+export async function sendPushToUsers(
   userIds: string[],
   title: string,
   body: string,
   url = '/dashboard'
-): void {
-  userIds.forEach((uid) => sendPushToUser(uid, title, body, url))
+): Promise<void> {
+  await Promise.allSettled(userIds.map((uid) => sendPushToUser(uid, title, body, url)))
 }
