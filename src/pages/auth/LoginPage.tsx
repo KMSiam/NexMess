@@ -43,7 +43,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-nex-bg flex">
       {/* Left: Branding */}
-      <div className="hidden lg:flex flex-col justify-center items-center w-1/2 bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 text-white p-12">
+      <div className="hidden lg:flex flex-col justify-center items-center w-1/2 bg-gradient-to-br from-[#3A5643] via-[#4A6D56] to-[#5F886E] text-white p-12">
         <div className="max-w-md">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden">
@@ -54,12 +54,12 @@ export default function LoginPage() {
           <h2 className="text-4xl font-bold leading-tight mb-4">
             Manage your mess,<br />the smart way.
           </h2>
-          <p className="text-blue-100 text-lg leading-relaxed">
+          <p className="text-[#EDF2EE] text-lg leading-relaxed">
             Track meals, split expenses, coordinate bazaar duty — all in one beautiful app built for shared living.
           </p>
           <div className="flex gap-6 mt-10">
             {['Real-time Meals', 'Auto Billing', 'Group Chat'].map(f => (
-              <div key={f} className="flex items-center gap-2 text-sm text-blue-100">
+              <div key={f} className="flex items-center gap-2 text-sm text-[#EDF2EE]">
                 <div className="w-1.5 h-1.5 rounded-full bg-nex-success" />
                 {f}
               </div>

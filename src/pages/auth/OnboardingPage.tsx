@@ -88,7 +88,7 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 border-2 border-dashed border-nex-border hover:border-nex-primary flex items-center justify-center transition-colors group overflow-hidden"
+              className="relative w-24 h-24 rounded-full bg-gradient-to-br from-nex-primary-light to-nex-hover border-2 border-dashed border-nex-border hover:border-nex-primary flex items-center justify-center transition-colors group overflow-hidden"
               id="avatar-upload"
             >
               {avatarPreview ? (

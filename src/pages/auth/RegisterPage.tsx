@@ -56,7 +56,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-nex-bg flex">
       {/* Left: Branding */}
-      <div className="hidden lg:flex flex-col justify-center items-center w-1/2 bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 text-white p-12">
+      <div className="hidden lg:flex flex-col justify-center items-center w-1/2 bg-gradient-to-br from-[#3A5643] via-[#4A6D56] to-[#5F886E] text-white p-12">
         <div className="max-w-md">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden">
@@ -67,7 +67,7 @@ export default function RegisterPage() {
           <h2 className="text-4xl font-bold leading-tight mb-4">
             Join your mess<br />in seconds.
           </h2>
-          <p className="text-blue-100 text-lg leading-relaxed">
+          <p className="text-[#EDF2EE] text-lg leading-relaxed">
             Create an account, set up your profile, and start managing your mess life effortlessly.
           </p>
         </div>
