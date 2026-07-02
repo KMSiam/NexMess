@@ -8,13 +8,13 @@ export default {
     extend: {
       colors: {
         nex: {
-          bg:        '#FAFAFA',   // zinc-50    — main body
+          bg:        '#FAF5F0',   // Warm Sand  — main body
           surface:   '#FFFFFF',   // white      — cards & containers
           primary:   '#FF5A36',   // Coral-500  — accent, buttons, active
           'primary-dark': '#E03E1C', // Coral-600
-          text:      '#18181B',   // zinc-900   — headings
-          muted:     '#71717A',   // zinc-500   — descriptions
-          border:    '#E4E4E7',   // zinc-200   — subtle borders
+          text:      '#221E1A',   // cocoa-charcoal — headings
+          muted:     '#8C8276',   // beige-grey  — descriptions
+          border:    '#F2ECE4',   // tan border  — subtle borders
           success:   '#10B981',   // emerald-500 — meal ON
           danger:    '#F43F5E',   // rose-500   — meal OFF
           'danger-light': '#FFF1F2', // rose-50

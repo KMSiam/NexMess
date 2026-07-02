@@ -61,16 +61,16 @@
   --nex-primary: #FF5A36;
   --nex-primary-dark: #E03E1C;
   --nex-primary-light: #FFF0ED;
-  --nex-bg: #FAFAFA;
+  --nex-bg: #FAF5F0;
   --nex-surface: #FFFFFF;
   --nex-glass-bg: rgba(255, 255, 255, 0.7);
-  --nex-text: #18181B;
-  --nex-muted: #71717A;
-  --nex-border: #E4E4E7;
+  --nex-text: #221E1A;
+  --nex-muted: #8C8276;
+  --nex-border: #F2ECE4;
   --nex-success-light: #ECFDF5;
   --nex-danger-light: #FFF1F2;
-  --nex-hover: #F4F4F5;
-  --nex-elevated: #FAFAFA;
+  --nex-hover: #F7F2EB;
+  --nex-elevated: #FAF5F0;
   --nex-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
   --nex-shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
 }
