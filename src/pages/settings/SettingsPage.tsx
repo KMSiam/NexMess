@@ -4,7 +4,7 @@ import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import { Settings, User, Users, Home, Bell, AlertTriangle } from 'lucide-react'
-import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush, sendPushToUsers } from '../../lib/push'
+import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import pkg from '../../../package.json'
@@ -125,12 +125,13 @@ export default function SettingsPage() {
     if (!currentMess?.id) return
     
     if (currentMess.name) {
-      await sendPushToUsers(
-        [userId],
-        'Join Request Rejected',
-        `Your request to join ${currentMess.name} has been declined.`,
-        '/'
-      )
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        mess_id: currentMess.id,
+        type: 'join_rejected',
+        title: 'Request rejected',
+        body: `Your request to join ${currentMess.name} has been declined.`
+      })
     }
 
     await supabase.from('mess_members')
