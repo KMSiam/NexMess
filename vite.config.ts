@@ -29,7 +29,7 @@ export default defineConfig({
         name: 'NexMess — Smart Mess Management',
         short_name: 'NexMess',
         description: 'Next-generation real-time mess management system for shared living.',
-        theme_color: '#FF5A36',
+        theme_color: '#4A6D56',
         background_color: '#FAF5F0',
         display: 'standalone',
         icons: [

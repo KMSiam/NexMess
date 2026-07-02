@@ -58,9 +58,9 @@
 
 /* ── Theme Variables ──────────────────── */
 :root {
-  --nex-primary: #FF5A36;
-  --nex-primary-dark: #E03E1C;
-  --nex-primary-light: #FFF0ED;
+  --nex-primary: #4A6D56;
+  --nex-primary-dark: #3A5643;
+  --nex-primary-light: #EDF2EE;
   --nex-bg: #FAF5F0;
   --nex-surface: #FFFFFF;
   --nex-glass-bg: rgba(255, 255, 255, 0.7);
@@ -76,9 +76,9 @@
 }
 
 .dark {
-  --nex-primary: #FF5A36;
-  --nex-primary-dark: #E03E1C;
-  --nex-primary-light: rgba(255, 90, 54, 0.12);
+  --nex-primary: #4A6D56;
+  --nex-primary-dark: #3A5643;
+  --nex-primary-light: rgba(74, 109, 86, 0.12);
   --nex-bg: #0C0C0D;
   --nex-surface: #161618;
   --nex-glass-bg: rgba(22, 22, 24, 0.7);
@@ -185,14 +185,14 @@
     transition: all 0.15s ease-out;
   }
   .nex-btn-primary:hover {
-    background: linear-gradient(135deg, #C52F10, var(--nex-primary-dark));
+    background: linear-gradient(135deg, #2B4032, var(--nex-primary-dark));
   }
   .nex-btn-primary:active {
     transform: scale(0.98);
   }
   .nex-btn-primary:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.3);
+    box-shadow: 0 0 0 3px rgba(74, 109, 86, 0.3);
   }
 
   /* Secondary Button */
@@ -256,7 +256,7 @@
   .nex-input:focus {
     outline: none;
     border-color: var(--color-nex-primary);
-    box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.15);
+    box-shadow: 0 0 0 3px rgba(74, 109, 86, 0.15);
   }
 
   /* Badges */

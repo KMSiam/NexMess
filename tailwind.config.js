@@ -10,8 +10,8 @@ export default {
         nex: {
           bg:        '#FAF5F0',   // Warm Sand  — main body
           surface:   '#FFFFFF',   // white      — cards & containers
-          primary:   '#FF5A36',   // Coral-500  — accent, buttons, active
-          'primary-dark': '#E03E1C', // Coral-600
+          primary:   '#4A6D56',   // Sage-500   — accent, buttons, active
+          'primary-dark': '#3A5643', // Sage-600
           text:      '#221E1A',   // cocoa-charcoal — headings
           muted:     '#8C8276',   // beige-grey  — descriptions
           border:    '#F2ECE4',   // tan border  — subtle borders
@@ -19,7 +19,7 @@ export default {
           danger:    '#F43F5E',   // rose-500   — meal OFF
           'danger-light': '#FFF1F2', // rose-50
           'success-light': '#ECFDF5', // emerald-50
-          'primary-light': '#FFF0ED', // Coral-50
+          'primary-light': '#EDF2EE', // Sage-50
         },
       },
       fontFamily: {
@@ -35,8 +35,8 @@ export default {
         'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.05)',
       },
       backgroundImage: {
-        'btn-primary': 'linear-gradient(135deg, #E03E1C, #FF5A36)',
-        'btn-primary-hover': 'linear-gradient(135deg, #C52F10, #E03E1C)',
+        'btn-primary': 'linear-gradient(135deg, #3A5643, #4A6D56)',
+        'btn-primary-hover': 'linear-gradient(135deg, #2B4032, #3A5643)',
       },
       backdropBlur: {
         'glass': '12px',
