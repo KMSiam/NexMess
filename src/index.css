@@ -9,8 +9,8 @@
   /* ── Color Tokens ─────────────────────── */
   --color-nex-bg:            var(--nex-bg);
   --color-nex-surface:       var(--nex-surface);
-  --color-nex-primary:       #3B82F6;
-  --color-nex-primary-dark:  #2563EB;
+  --color-nex-primary:       var(--nex-primary);
+  --color-nex-primary-dark:  var(--nex-primary-dark);
   --color-nex-primary-light: var(--nex-primary-light);
   --color-nex-text:          var(--nex-text);
   --color-nex-muted:         var(--nex-muted);
@@ -33,7 +33,7 @@
   /* ── Shadows ──────────────────────────── */
   --shadow-card: var(--nex-shadow-card);
   --shadow-card-hover: var(--nex-shadow-card-hover);
-  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
 
   /* ── Animations ───────────────────────── */
   --animate-fade-in: fadeIn 0.3s ease-out;
@@ -58,33 +58,37 @@
 
 /* ── Theme Variables ──────────────────── */
 :root {
-  --nex-bg: #F8FAFC;
+  --nex-primary: #FF5A36;
+  --nex-primary-dark: #E03E1C;
+  --nex-primary-light: #FFF0ED;
+  --nex-bg: #FAFAFA;
   --nex-surface: #FFFFFF;
   --nex-glass-bg: rgba(255, 255, 255, 0.7);
-  --nex-primary-light: #EFF6FF;
-  --nex-text: #0F172A;
-  --nex-muted: #64748B;
-  --nex-border: #E2E8F0;
+  --nex-text: #18181B;
+  --nex-muted: #71717A;
+  --nex-border: #E4E4E7;
   --nex-success-light: #ECFDF5;
   --nex-danger-light: #FFF1F2;
-  --nex-hover: #F1F5F9;
-  --nex-elevated: #F8FAFC;
+  --nex-hover: #F4F4F5;
+  --nex-elevated: #FAFAFA;
   --nex-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
   --nex-shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
 }
 
 .dark {
-  --nex-bg: #020617;
-  --nex-surface: #0F172A;
-  --nex-glass-bg: rgba(15, 23, 42, 0.7);
-  --nex-primary-light: rgba(59, 130, 246, 0.12);
-  --nex-text: #F1F5F9;
-  --nex-muted: #94A3B8;
-  --nex-border: #1E293B;
+  --nex-primary: #FF5A36;
+  --nex-primary-dark: #E03E1C;
+  --nex-primary-light: rgba(255, 90, 54, 0.12);
+  --nex-bg: #0C0C0D;
+  --nex-surface: #161618;
+  --nex-glass-bg: rgba(22, 22, 24, 0.7);
+  --nex-text: #F4F4F5;
+  --nex-muted: #8F8F92;
+  --nex-border: #2B2B2F;
   --nex-success-light: rgba(16, 185, 129, 0.12);
   --nex-danger-light: rgba(244, 63, 94, 0.12);
-  --nex-hover: #1E293B;
-  --nex-elevated: #1E293B;
+  --nex-hover: #222225;
+  --nex-elevated: #222225;
   --nex-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
   --nex-shadow-card-hover: 0 4px 12px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
 }
@@ -175,20 +179,20 @@
     font-weight: 500;
     font-size: 0.875rem;
     color: white;
-    background: linear-gradient(135deg, #2563EB, #3B82F6);
+    background: linear-gradient(135deg, var(--nex-primary-dark), var(--nex-primary));
     border: none;
     cursor: pointer;
     transition: all 0.15s ease-out;
   }
   .nex-btn-primary:hover {
-    background: linear-gradient(135deg, #1D4ED8, #2563EB);
+    background: linear-gradient(135deg, #C52F10, var(--nex-primary-dark));
   }
   .nex-btn-primary:active {
     transform: scale(0.98);
   }
   .nex-btn-primary:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.3);
   }
 
   /* Secondary Button */
@@ -252,7 +256,7 @@
   .nex-input:focus {
     outline: none;
     border-color: var(--color-nex-primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.15);
   }
 
   /* Badges */

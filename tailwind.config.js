@@ -8,18 +8,18 @@ export default {
     extend: {
       colors: {
         nex: {
-          bg:        '#F8FAFC',   // slate-50   — main body
+          bg:        '#FAFAFA',   // zinc-50    — main body
           surface:   '#FFFFFF',   // white      — cards & containers
-          primary:   '#3B82F6',   // blue-500   — accent, buttons, active
-          'primary-dark': '#2563EB', // blue-600
-          text:      '#0F172A',   // slate-900  — headings
-          muted:     '#64748B',   // slate-500  — descriptions
-          border:    '#E2E8F0',   // slate-200  — subtle borders
+          primary:   '#FF5A36',   // Coral-500  — accent, buttons, active
+          'primary-dark': '#E03E1C', // Coral-600
+          text:      '#18181B',   // zinc-900   — headings
+          muted:     '#71717A',   // zinc-500   — descriptions
+          border:    '#E4E4E7',   // zinc-200   — subtle borders
           success:   '#10B981',   // emerald-500 — meal ON
           danger:    '#F43F5E',   // rose-500   — meal OFF
           'danger-light': '#FFF1F2', // rose-50
           'success-light': '#ECFDF5', // emerald-50
-          'primary-light': '#EFF6FF', // blue-50
+          'primary-light': '#FFF0ED', // Coral-50
         },
       },
       fontFamily: {
@@ -32,11 +32,11 @@ export default {
       boxShadow: {
         'card': '0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04)',
         'card-hover': '0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04)',
-        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.05)',
       },
       backgroundImage: {
-        'btn-primary': 'linear-gradient(135deg, #2563EB, #3B82F6)',
-        'btn-primary-hover': 'linear-gradient(135deg, #1D4ED8, #2563EB)',
+        'btn-primary': 'linear-gradient(135deg, #E03E1C, #FF5A36)',
+        'btn-primary-hover': 'linear-gradient(135deg, #C52F10, #E03E1C)',
       },
       backdropBlur: {
         'glass': '12px',
