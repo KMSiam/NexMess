@@ -33,10 +33,10 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
               {format(new Date(), 'EEEE, MMMM d')}
             </span>
             <span className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800" />
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
               isManager
-                ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400'
-                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
+                ? 'bg-nex-primary-light text-nex-primary border-nex-primary/10 dark:bg-nex-primary/10 dark:text-nex-primary dark:border-nex-primary/20'
+                : 'bg-nex-success-light text-nex-success border-nex-success/10 dark:bg-nex-success/10 dark:text-nex-success dark:border-nex-success/20'
             }`}>
               {isManager ? (
                 <>
