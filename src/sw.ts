@@ -18,7 +18,6 @@ self.addEventListener('push', (event) => {
       body: payload.body,
       icon: '/favicon.svg',
       badge: '/favicon.svg',
-      tag: 'nexmess-push',
       data: { url: payload.url ?? '/dashboard' },
     })
   )
