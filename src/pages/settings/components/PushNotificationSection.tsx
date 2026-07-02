@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Bell, BellOff, AlertTriangle, HelpCircle, ShieldAlert, Sparkles, Send } from 'lucide-react'
+import { Bell, BellOff, AlertTriangle, HelpCircle, ShieldAlert } from 'lucide-react'
 
 interface PushNotificationSectionProps {
   pushEnabled: boolean

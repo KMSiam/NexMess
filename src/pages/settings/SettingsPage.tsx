@@ -4,7 +4,7 @@ import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import { Settings } from 'lucide-react'
-import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush, sendPushToUser } from '../../lib/push'
+import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import pkg from '../../../package.json'
@@ -89,8 +89,6 @@ export default function SettingsPage() {
     setPushLoading(false)
   }
 
-
-
   const handleProfileUpdate = async (username: string, contactNo: string, avatarUrl: string | null) => {
     await updateProfile({
       username,
@@ -139,7 +137,7 @@ export default function SettingsPage() {
       setPromoteMemberId(null)
       return
     }
-    
+
     await supabase.from('mess_members')
       .update({ role: 'manager' })
       .eq('mess_id', currentMess.id)
@@ -162,9 +160,9 @@ export default function SettingsPage() {
       .update({ role: 'member' })
       .eq('mess_id', currentMess.id)
       .eq('user_id', demoteMemberId)
-    
+
     toast.success('Manager demoted to member')
-    
+
     // If the user demoted themselves, redirect or reload permissions
     if (demoteMemberId === user?.id) {
       navigate('/dashboard')
