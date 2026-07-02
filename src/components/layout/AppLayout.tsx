@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { flushSync } from 'react-dom'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '../../stores/authStore'
@@ -60,6 +61,26 @@ export default function AppLayout() {
       localStorage.setItem('nexmess-theme', 'light')
     }
   }, [isDark])
+
+  const toggleTheme = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const doc = document as any
+    if (!doc.startViewTransition) {
+      setIsDark(!isDark)
+      return
+    }
+
+    const x = e.clientX
+    const y = e.clientY
+
+    document.documentElement.style.setProperty('--x', `${x}px`)
+    document.documentElement.style.setProperty('--y', `${y}px`)
+
+    doc.startViewTransition(() => {
+      flushSync(() => {
+        setIsDark(prev => !prev)
+      })
+    })
+  }
 
   const handleSignOut = async () => {
     if (signingOut) return
@@ -213,7 +234,7 @@ export default function AppLayout() {
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setIsDark(!isDark)}
+                onClick={toggleTheme}
                 className="p-2 rounded-btn hover:bg-nex-hover text-nex-muted transition-colors"
                 title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               >
