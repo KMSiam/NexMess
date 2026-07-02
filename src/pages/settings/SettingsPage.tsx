@@ -121,7 +121,7 @@ export default function SettingsPage() {
   const handleConfirmRemoveMember = async () => {
     if (!currentMess?.id || !removeMemberId) return
     await supabase.from('mess_members')
-      .update({ status: 'left' })
+      .update({ status: 'left', left_at: new Date().toISOString() })
       .eq('mess_id', currentMess.id)
       .eq('user_id', removeMemberId)
     toast.success('Member removed but past data saved')
@@ -182,7 +182,7 @@ export default function SettingsPage() {
     }
 
     const { error } = await supabase.from('mess_members')
-      .update({ status: 'left' })
+      .update({ status: 'left', left_at: new Date().toISOString() })
       .eq('mess_id', currentMess.id)
       .eq('user_id', user.id)
 

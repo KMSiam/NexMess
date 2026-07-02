@@ -24,6 +24,7 @@ export interface MessMember {
   status: 'pending' | 'approved' | 'left'
   role: 'member' | 'manager'
   joined_at: string
+  left_at?: string | null
   profiles?: Profile
 }
 
