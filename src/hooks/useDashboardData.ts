@@ -104,7 +104,7 @@ export function useDashboardData(
       // 3. Upcoming Bazaar
       supabase.from('market_schedules').select('assigned_date, profiles(username)').eq('mess_id', messId).gte('assigned_date', today).order('assigned_date', { ascending: true }).limit(3),
       // 4. Unpaid Fixed Costs
-      supabase.from('fixed_costs').select('*', { count: 'exact', head: true }).eq('mess_id', messId).eq('is_paid', false),
+      supabase.from('fixed_costs').select('*', { count: 'exact', head: true }).eq('mess_id', messId).eq('month', currentMonth).eq('is_paid', false),
       // 5. Recent Expenses
       supabase.from('expenses').select('id, amount, category, created_at, profiles(username)').eq('mess_id', messId).order('created_at', { ascending: false }).limit(3),
       // 6. Recent Deposits
