@@ -97,7 +97,7 @@ export async function sendPushToUser(
   body: string,
   url = '/dashboard'
 ): Promise<void> {
-  const { data, error } = await supabase.functions.invoke('send-push', {
+  const { error } = await supabase.functions.invoke('send-push', {
     body: { user_id: userId, title, body, url },
   })
   if (error) {
