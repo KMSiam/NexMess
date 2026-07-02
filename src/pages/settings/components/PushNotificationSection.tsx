@@ -5,14 +5,12 @@ interface PushNotificationSectionProps {
   pushEnabled: boolean
   pushLoading: boolean
   onToggle: () => void
-  onSendTest: () => void
 }
 
 export default function PushNotificationSection({
   pushEnabled,
   pushLoading,
   onToggle,
-  onSendTest,
 }: PushNotificationSectionProps) {
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('default')
   const [isIOS, setIsIOS] = useState(false)
@@ -124,25 +122,6 @@ export default function PushNotificationSection({
           </div>
         )}
 
-        {/* Test Notification Row */}
-        {pushEnabled && permission === 'granted' && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-blue-500/5 border border-blue-500/10 rounded-xl">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-blue-500 shrink-0" />
-              <div>
-                <p className="text-xs font-medium text-nex-text">System is Ready</p>
-                <p className="text-[11px] text-nex-muted">Test the notification delivery channel to this device.</p>
-              </div>
-            </div>
-            <button
-              onClick={onSendTest}
-              className="nex-btn-secondary py-1.5 px-4 text-xs font-medium flex items-center justify-center gap-1.5 shrink-0 !text-blue-500 !border-blue-500/30 hover:!bg-blue-500/10 transition-all self-end sm:self-auto"
-            >
-              <Send className="w-3.5 h-3.5" />
-              Send Test Push
-            </button>
-          </div>
-        )}
 
         {/* Informative Status Footer */}
         <div className="flex items-center gap-1.5 text-[10px] text-nex-muted px-1">

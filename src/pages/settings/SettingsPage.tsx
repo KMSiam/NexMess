@@ -89,22 +89,7 @@ export default function SettingsPage() {
     setPushLoading(false)
   }
 
-  const handleSendTestPush = async () => {
-    if (!user?.id) return
-    toast.promise(
-      sendPushToUser(
-        user.id,
-        'Test Notification 🔔',
-        'Your push notification channel is active and working perfectly! 🎉',
-        '/settings'
-      ),
-      {
-        loading: 'Sending test push...',
-        success: 'Test push requested!',
-        error: 'Failed to send test push'
-      }
-    )
-  }
+
 
   const handleProfileUpdate = async (username: string, contactNo: string, avatarUrl: string | null) => {
     await updateProfile({
@@ -245,7 +230,6 @@ export default function SettingsPage() {
           pushEnabled={pushEnabled}
           pushLoading={pushLoading}
           onToggle={handlePushToggle}
-          onSendTest={handleSendTestPush}
         />
       )}
 
