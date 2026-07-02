@@ -29,7 +29,7 @@ export default function DashboardPage() {
   usePageTitle('Dashboard')
 
   const { profile } = useAuthStore()
-  const { currentMess, members } = useMessStore()
+  const { currentMess, members, pendingRequests, cancelJoinRequest } = useMessStore()
   
   const [mealLoading, setMealLoading] = useState(false)
   
@@ -181,16 +181,49 @@ export default function DashboardPage() {
 
   if (!currentMess) {
     return (
-      <div className="max-w-lg mx-auto text-center py-20">
-        <div className="w-16 h-16 rounded-full bg-nex-primary-light mx-auto flex items-center justify-center mb-6">
-          <Users className="w-8 h-8 text-nex-primary" />
+      <div className="max-w-lg mx-auto space-y-8 py-12">
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full bg-nex-primary-light mx-auto flex items-center justify-center mb-6">
+            <Users className="w-8 h-8 text-nex-primary" />
+          </div>
+          <h2 className="text-2xl font-bold text-nex-text mb-2">No mess joined yet</h2>
+          <p className="text-nex-muted mb-6">Create a new mess or join an existing one with a code.</p>
+          <div className="flex gap-3 justify-center">
+            <Link to="/mess/create" className="nex-btn-primary"><Plus className="w-4 h-4" /> Create Mess</Link>
+            <Link to="/mess/join" className="nex-btn-secondary">Join Mess</Link>
+          </div>
         </div>
-        <h2 className="text-2xl font-bold text-nex-text mb-2">No mess joined yet</h2>
-        <p className="text-nex-muted mb-6">Create a new mess or join an existing one with a code.</p>
-        <div className="flex gap-3 justify-center">
-          <Link to="/mess/create" className="nex-btn-primary"><Plus className="w-4 h-4" /> Create Mess</Link>
-          <Link to="/mess/join" className="nex-btn-secondary">Join Mess</Link>
-        </div>
+
+        {pendingRequests && pendingRequests.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold text-nex-muted uppercase tracking-wider text-center">Pending Requests</h3>
+            {pendingRequests.map((req) => (
+              <div key={req.mess_id} className="nex-card p-4 flex items-center justify-between border border-amber-500/20 bg-amber-500/5">
+                <div>
+                  <h4 className="font-semibold text-nex-text">{req.messes?.name || 'Unknown Mess'}</h4>
+                  <p className="text-xs text-amber-500 flex items-center gap-1.5 mt-1 font-medium">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                    </span>
+                    Waiting for approval
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    if (profile?.id) {
+                      cancelJoinRequest(req.mess_id, profile.id)
+                      toast.success('Request canceled')
+                    }
+                  }}
+                  className="text-xs font-semibold text-red-500 hover:text-white bg-red-500/10 hover:bg-red-500 px-3.5 py-2 rounded-xl transition-all duration-200"
+                >
+                  Cancel Request
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     )
   }

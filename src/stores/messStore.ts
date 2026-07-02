@@ -6,6 +6,7 @@ import { Mess, MessMember } from '../types/database'
 interface MessState {
   currentMess: Mess | null
   messes: Mess[]
+  pendingRequests: { mess_id: string, messes: Mess }[]
   members: MessMember[]
   loading: boolean
 
@@ -14,6 +15,7 @@ interface MessState {
   fetchMembers: (messId: string) => Promise<void>
   createMess: (name: string, userId: string) => Promise<Mess | null>
   joinMess: (code: string, userId: string) => Promise<{ success: boolean; error?: string }>
+  cancelJoinRequest: (messId: string, userId: string) => Promise<void>
   reset: () => void
 }
 
@@ -22,6 +24,7 @@ export const useMessStore = create<MessState>()(
     (set, get) => ({
       currentMess: null,
       messes: [],
+      pendingRequests: [],
       members: [],
       loading: false,
 
@@ -31,12 +34,16 @@ export const useMessStore = create<MessState>()(
           .from('mess_members')
           .select('mess_id, status, role, messes(*)')
           .eq('user_id', userId)
-          .eq('status', 'approved')
+          .in('status', ['approved', 'pending'])
 
         if (memberships) {
-          const messes = (memberships as unknown[]).map((m) => (m as { messes: Mess }).messes).filter(Boolean) as Mess[]
+          const approved = memberships.filter((m: any) => m.status === 'approved')
+          const pending = memberships.filter((m: any) => m.status === 'pending')
+          
+          const messes = approved.map((m: any) => m.messes).filter(Boolean) as Mess[]
+          const pendingRequests = pending.map((m: any) => ({ mess_id: m.mess_id, messes: m.messes })).filter(m => m.messes)
 
-          set({ messes })
+          set({ messes, pendingRequests })
 
           const current = get().currentMess
           if (current) {
@@ -104,6 +111,16 @@ export const useMessStore = create<MessState>()(
 
         if (!mess) return { success: false, error: 'Mess not found. Check the code and try again.' }
 
+        const { data: allPending } = await supabase
+          .from('mess_members')
+          .select('status')
+          .eq('user_id', userId)
+          .eq('status', 'pending')
+
+        if (allPending && allPending.length > 0) {
+          return { success: false, error: 'You already have a pending request. Please cancel it first.' }
+        }
+
         const { data: existing } = await supabase
           .from('mess_members')
           .select('status')
@@ -111,9 +128,8 @@ export const useMessStore = create<MessState>()(
           .eq('user_id', userId)
           .single()
 
-        if (existing) {
-          if (existing.status === 'approved') return { success: false, error: 'You are already a member.' }
-          if (existing.status === 'pending') return { success: false, error: 'Your request is already pending.' }
+        if (existing && existing.status === 'approved') {
+          return { success: false, error: 'You are already a member.' }
         }
 
         const { error } = await supabase.from('mess_members').upsert({
@@ -124,11 +140,22 @@ export const useMessStore = create<MessState>()(
         })
 
         if (error) return { success: false, error: 'Failed to join. Try again.' }
+        
+        await get().fetchUserMesses(userId)
         return { success: true }
       },
 
+      cancelJoinRequest: async (messId, userId) => {
+        await supabase.from('mess_members')
+          .delete()
+          .eq('mess_id', messId)
+          .eq('user_id', userId)
+          .eq('status', 'pending')
+        await get().fetchUserMesses(userId)
+      },
+
       reset: () => {
-        set({ currentMess: null, messes: [], members: [], loading: false })
+        set({ currentMess: null, messes: [], pendingRequests: [], members: [], loading: false })
       },
     }),
     {

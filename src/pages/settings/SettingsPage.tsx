@@ -4,7 +4,7 @@ import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import { Settings, User, Users, Home, Bell, AlertTriangle } from 'lucide-react'
-import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
+import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush, sendPushToUsers } from '../../lib/push'
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import pkg from '../../../package.json'
@@ -129,6 +129,15 @@ export default function SettingsPage() {
       .eq('user_id', userId)
     toast.success('Request rejected')
     fetchMembers(currentMess.id)
+    
+    if (currentMess.name) {
+      sendPushToUsers(
+        [userId],
+        'Join Request Rejected',
+        `Your request to join ${currentMess.name} has been declined.`,
+        '/'
+      )
+    }
   }
 
   const handleConfirmRemoveMember = async () => {

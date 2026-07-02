@@ -87,7 +87,7 @@ export default function AppLayout() {
     setSigningOut(true)
     resetMess()
     await signOut()
-    navigate('/login', { replace: true })
+    navigate('/', { replace: true })
   }
 
   // ─────────────────────────────────────────────
