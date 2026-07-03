@@ -133,7 +133,15 @@ export default function AIMarketAssistant() {
   if (!currentMess) return null
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-14rem)] min-h-[440px] max-w-4xl mx-auto">
+    <div className="flex flex-col h-[calc(100dvh-8rem)] md:h-[calc(100vh-6rem)] max-w-4xl mx-auto w-full">
+      <div className="flex items-center justify-between mb-3 shrink-0 px-1">
+        <div className="flex items-center gap-3">
+          <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-nex-primary animate-pulse" />
+          <h1 className="text-xl sm:text-2xl font-bold text-nex-text">NexMessAI</h1>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 min-h-0">
 
       {/* Sidebar: Location Details & Guidelines */}
       <div className="hidden lg:flex lg:col-span-1 flex-col gap-4">
@@ -339,5 +347,6 @@ export default function AIMarketAssistant() {
         </div>
       </div>
     </div>
+  </div>
   )
 }
