@@ -280,37 +280,35 @@ export default function MealsPage() {
           <Utensils className="w-6 h-6 text-nex-primary" />
           <h1 className="text-2xl font-bold text-nex-text">Meal Calendar</h1>
         </div>
-        <div className="flex flex-col items-end gap-2.5 sm:gap-3 mt-2 sm:mt-0 w-full sm:w-auto">
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col items-stretch sm:items-end gap-2 mt-4 sm:mt-0 w-full sm:w-auto">
+          <button
+            onClick={handleDownloadMealPDF}
+            className="flex justify-center items-center gap-1.5 px-3 py-2 text-sm sm:text-xs font-medium rounded-btn border border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover transition-colors shadow-sm"
+            title="Download meal report (PDF)"
+          >
+            <Download className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-nex-primary" />
+            PDF
+          </button>
+          
+          {isManager && (
             <button
-              onClick={handleDownloadMealPDF}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-btn border border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover transition-colors shadow-sm"
-              title="Download meal report (PDF)"
+              onClick={() => openOverride()}
+              className="flex justify-center items-center gap-1.5 px-3 py-2 text-sm sm:text-xs font-medium rounded-btn border border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover transition-colors shadow-sm"
+              title="Override a member's meal (bypasses cut-off)"
             >
-              <Download className="w-3.5 h-3.5 text-nex-primary" />
-              PDF
+              <ShieldCheck className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-nex-primary" />
+              Override
             </button>
-            {isManager && (
-              <button
-                onClick={() => openOverride()}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-btn border border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover transition-colors shadow-sm"
-                title="Override a member's meal (bypasses cut-off)"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-nex-primary" />
-                Override
-              </button>
-            )}
-          </div>
+          )}
           
           {/* View Toggles */}
-          <div className="flex max-w-full overflow-x-auto scrollbar-none gap-1 bg-nex-elevated p-1 rounded-btn shadow-sm">
+          <div className="flex w-full sm:w-auto max-w-full overflow-x-auto scrollbar-none gap-1 bg-nex-elevated p-1 rounded-btn shadow-sm">
             <button onClick={() => setViewMode('personal')}
-              className={`shrink-0 px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
+              className={`flex-1 sm:flex-none justify-center shrink-0 px-4 py-2 sm:py-1.5 text-sm sm:text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                 viewMode === 'personal' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'
               }`}>My Meals</button>
             <button onClick={() => setViewMode('all')}
-              className={`shrink-0 px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
+              className={`flex-1 sm:flex-none justify-center shrink-0 px-4 py-2 sm:py-1.5 text-sm sm:text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                 viewMode === 'all' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'
               }`}>All Members</button>
           </div>
