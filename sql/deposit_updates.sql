@@ -14,7 +14,7 @@ BEGIN
     VALUES (
         OLD.user_id, 
         OLD.mess_id, 
-        'deposit_deleted', 
+        'system', 
         'Deposit Deleted', 
         'A deposit of ৳' || OLD.amount || ' was deleted by a manager.', 
         false, 
