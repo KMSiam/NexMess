@@ -332,7 +332,7 @@ export default function AIMarketAssistant() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Ask about onion prices, shopping lists, or budget reminders..."
-                className="nex-input flex-1 py-3 px-4 text-xs"
+                className="nex-input flex-1 py-3 px-4 text-base"
                 disabled={loading}
               />
               <button
