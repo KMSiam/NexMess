@@ -17,13 +17,6 @@ export default function PushNotificationSection({
   const [isStandalone, setIsStandalone] = useState(true)
 
   useEffect(() => {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      setPermission('unsupported')
-      return
-    }
-
-    setPermission(Notification.permission)
-
     // Detect iOS
     const userAgent = window.navigator.userAgent.toLowerCase()
     const ios = /iphone|ipad|ipod/.test(userAgent)
@@ -34,6 +27,13 @@ export default function PushNotificationSection({
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true
     setIsStandalone(standalone)
+
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      setPermission('unsupported')
+      return
+    }
+
+    setPermission(Notification.permission)
   }, [pushEnabled])
 
   // Determine the status text and color

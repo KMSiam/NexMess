@@ -306,19 +306,17 @@ export default function SettingsPage() {
           <span>Mess Info</span>
         </button>
 
-        {pushSupported && (
-          <button
-            onClick={() => setActiveTab('notifications')}
-            className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-              activeTab === 'notifications'
-                ? 'bg-nex-primary text-white shadow-md'
-                : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
-            }`}
-          >
-            <Bell className="w-4 h-4" />
-            <span>Notifications</span>
-          </button>
-        )}
+        <button
+          onClick={() => setActiveTab('notifications')}
+          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+            activeTab === 'notifications'
+              ? 'bg-nex-primary text-white shadow-md'
+              : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
+          }`}
+        >
+          <Bell className="w-4 h-4" />
+          <span>Notifications</span>
+        </button>
 
         <button
           onClick={() => setActiveTab('danger')}
@@ -358,7 +356,7 @@ export default function SettingsPage() {
 
         {activeTab === 'mess' && <MessDetailsSection currentMess={currentMess} />}
 
-        {activeTab === 'notifications' && pushSupported && (
+        {activeTab === 'notifications' && (
           <PushNotificationSection
             pushEnabled={pushEnabled}
             pushLoading={pushLoading}
