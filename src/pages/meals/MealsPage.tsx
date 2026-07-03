@@ -275,12 +275,12 @@ export default function MealsPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Utensils className="w-6 h-6 text-nex-primary" />
           <h1 className="text-2xl font-bold text-nex-text">Meal Calendar</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleDownloadMealPDF}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-btn border border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover transition-colors"

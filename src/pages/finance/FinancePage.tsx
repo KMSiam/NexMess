@@ -338,12 +338,12 @@ export default function FinancePage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Wallet className="w-6 h-6 text-nex-primary" />
           <h1 className="text-2xl font-bold text-nex-text">Finance</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {activeTab === 'expenses' && expenses.length > 0 && (
             <button onClick={handleExportCSV} className="nex-btn-secondary py-2 px-3 text-xs flex items-center gap-1.5">
               <FileSpreadsheet className="w-4 h-4" /> Export CSV

@@ -186,7 +186,7 @@ export default function AppLayout() {
       </aside>
 
       {/* ── Main Content ───────────────────── */}
-      <div className="flex-1 min-h-screen flex flex-col pb-16 md:pb-0">
+      <div className="flex-1 min-w-0 min-h-screen flex flex-col pb-16 md:pb-0">
         {/* Header */}
         <header className="sticky top-0 z-10 nex-glass border-b border-nex-border/50 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
