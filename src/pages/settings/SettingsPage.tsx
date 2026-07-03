@@ -262,10 +262,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex gap-1.5 p-1 bg-nex-elevated rounded-xl border border-nex-border/80 overflow-x-auto scrollbar-none whitespace-nowrap">
+      <div className="flex w-full max-w-full gap-1.5 p-1 bg-nex-elevated rounded-xl border border-nex-border/80 overflow-x-auto scrollbar-none whitespace-nowrap">
         <button
           onClick={() => setActiveTab('profile')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
             activeTab === 'profile'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
@@ -277,7 +277,7 @@ export default function SettingsPage() {
 
         <button
           onClick={() => setActiveTab('members')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${
             activeTab === 'members'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
@@ -294,7 +294,7 @@ export default function SettingsPage() {
 
         <button
           onClick={() => setActiveTab('mess')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
             activeTab === 'mess'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
@@ -307,7 +307,7 @@ export default function SettingsPage() {
         {pushSupported && (
           <button
             onClick={() => setActiveTab('notifications')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+            className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
               activeTab === 'notifications'
                 ? 'bg-nex-primary text-white shadow-md'
                 : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
