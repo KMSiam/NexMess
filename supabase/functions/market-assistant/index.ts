@@ -3,8 +3,7 @@
 // Secrets required:
 //   GEMINI_API_KEY (Google AI Studio Gemini API key)
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -25,7 +24,7 @@ interface RequestBody {
   history?: ChatHistoryItem[];
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   // CORS Preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS });
@@ -246,7 +245,7 @@ Format it as a clean daily bulletin.`,
     }
 
     // Call Gemini API with Search Grounding
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
     const response = await fetch(geminiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -255,7 +254,7 @@ Format it as a clean daily bulletin.`,
         systemInstruction: {
           parts: [{ text: messContextPrompt }],
         },
-        tools: [{ googleSearch: {} }],
+        tools: [{ google_search: {} }],
       }),
     });
 
