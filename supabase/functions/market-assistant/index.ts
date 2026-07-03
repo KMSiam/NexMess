@@ -158,6 +158,25 @@ Please ask your Mess Manager to configure the location in **Settings > Mess Deta
       });
     }
 
+    // Fetch today's meal routine (cooking menu)
+    const [yr, mo, dy] = targetDate.split("-").map(Number);
+    const localDate = new Date(yr, mo - 1, dy);
+    const jsDay = localDate.getDay();
+    const mappedDow = (jsDay + 1) % 7; // JS: 0=Sun -> our mapping: 0=Sat, 1=Sun, 2=Mon...
+
+    const { data: routine } = await serviceSupabase
+      .from("meal_routines")
+      .select("lunch, dinner")
+      .eq("mess_id", mess_id)
+      .eq("day_of_week", mappedDow)
+      .maybeSingle();
+
+    const todayLunch = routine?.lunch || "";
+    const todayDinner = routine?.dinner || "";
+    const routineText = (todayLunch || todayDinner)
+      ? `Today's Meal Routine:\n- Lunch: ${todayLunch || "Not scheduled"}\n- Dinner: ${todayDinner || "Not scheduled"}`
+      : "Today's Meal Routine: No routine set for today.";
+
     // Recent Expenses (last 10 bazaar / costs for budget context)
     const { data: expenses } = await serviceSupabase
       .from("expenses")
@@ -190,6 +209,9 @@ You are helping members of the mess "${mess.name}" located at "${location}".
 CURRENT DATE: ${targetDate}
 MESS LOCATION: ${location}
 
+TODAY'S MEAL ROUTINE (WHAT IS COOKING TODAY):
+${routineText}
+
 TODAY'S MEAL COUNTS:
 - Lunch: ${activeLunchCount} meals (including guests)
 - Dinner: ${activeDinnerCount} meals (including guests)
@@ -205,7 +227,7 @@ STRICT OPERATIONAL RULES:
 2. You MUST use your Google Search grounding tool to search for real-time local grocery prices, best deals, and price updates based in the location: "${location}".
 3. Keep your answers concise, well-structured (with markdown and bold numbers), and practical. 
 4. Always use the local currency symbol and format standard to the location (e.g., if in Bangladesh, use BDT or ৳; if in India, INR or ₹; if US, $).
-5. If creating a shopping list, estimate the raw ingredients needed based on today's meal counts (${activeLunchCount} lunch, ${activeDinnerCount} dinner).
+5. If creating a shopping list, prioritize the raw ingredients needed for today's menu (Lunch: "${todayLunch || "lunch"}", Dinner: "${todayDinner || "dinner"}") based on today's meal counts (${activeLunchCount} lunch, ${activeDinnerCount} dinner). Estimate quantities.
 `;
 
     // Construct Gemini API Payload
@@ -220,9 +242,10 @@ STRICT OPERATIONAL RULES:
             {
               text: `Generate today's market price report for essential groceries in ${location}. 
 Include:
-1. A brief overview of the daily prices for staples (rice, lentils, oil, eggs, potatoes, onion, chicken).
-2. A highlight of the best value deals/store choices in the area (using Google Search results).
-3. A practical tip or warning based on today's meal counts (${activeLunchCount} lunch, ${activeDinnerCount} dinner) and recent expenses.
+1. Today's Cooking Routine: Highlight today's Lunch & Dinner menus.
+2. Daily Price Overview: Search and display current local prices for key raw ingredients needed to cook today's menu (e.g., if chicken is on the menu, prioritize chicken prices), plus general staples (rice, lentils, oil, potatoes, onion).
+3. Best Value Deals: Highlight store choices/discounts in the area (using Google Search results).
+4. Recommended Quantities & Cost: Estimate the quantities of raw ingredients needed based on today's meal counts (${activeLunchCount} lunch, ${activeDinnerCount} dinner) for today's recipes, and provide a total estimated budget.
 
 Format it as a clean daily bulletin.`,
             },
