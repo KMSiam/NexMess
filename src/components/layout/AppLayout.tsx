@@ -120,7 +120,7 @@ export default function AppLayout() {
   }, [profile?.id, fetchUserMesses])
 
   return (
-    <div className="min-h-screen bg-nex-bg flex">
+    <div className="min-h-dvh bg-nex-bg flex">
       {/* ── Desktop Sidebar ────────────────── */}
       <aside className={`hidden md:flex flex-col h-screen sticky top-0 nex-glass border-r border-nex-border/50 transition-all duration-300 ${
         sidebarCollapsed ? 'w-[72px]' : 'w-64'
@@ -186,7 +186,7 @@ export default function AppLayout() {
       </aside>
 
       {/* ── Main Content ───────────────────── */}
-      <div className="flex-1 min-w-0 min-h-screen flex flex-col pb-16 md:pb-0">
+      <div className="flex-1 min-w-0 flex flex-col pb-16 md:pb-0">
         {/* Header */}
         <header className="sticky top-0 z-10 nex-glass border-b border-nex-border/50 px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
@@ -323,7 +323,7 @@ function MobileBottomNav({ handleSignOut, signingOut, isManager, hasMess }: { ha
       )}
 
       {/* Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 nex-glass border-t border-nex-border/50 z-20 safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 nex-glass border-t border-nex-border/50 z-20 safe-area-bottom" style={{ transform: 'translate3d(0,0,0)', WebkitTransform: 'translate3d(0,0,0)' }}>
         <div className="flex items-center justify-around py-1.5">
           {mainTabs.map(({ to, icon: Icon, label }) => (
             <NavLink
