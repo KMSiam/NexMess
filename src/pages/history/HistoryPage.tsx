@@ -14,7 +14,7 @@ import { usePageTitle } from '../../hooks/usePageTitle'
 interface MonthlyReport {
   id: string
   mess_id: string
-  month: string                 // 'YYYY-MM'
+  month: string // 'YYYY-MM'
   generated_at: string
   generated_by: string | null
   summary: ReportSummary
@@ -86,8 +86,13 @@ export default function HistoryPage() {
       .channel('history-realtime')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'monthly_reports', filter: `mess_id=eq.${currentMess.id}` },
-        () => fetchReports(),
+        {
+          event: '*',
+          schema: 'public',
+          table: 'monthly_reports',
+          filter: `mess_id=eq.${currentMess.id}`,
+        },
+        () => fetchReports()
       )
       .subscribe()
 
@@ -112,7 +117,7 @@ export default function HistoryPage() {
     return {
       messName: currentMess.name,
       month: report.month,
-      generatedBy: report.generated_by ? (profile?.username || 'Manager') : 'Auto',
+      generatedBy: report.generated_by ? profile?.username || 'Manager' : 'Auto',
       isArchived: true,
       totalExpenses: Number(s.totalExpenses || 0),
       totalDeposits: Number(s.totalDeposits || 0),
@@ -165,23 +170,23 @@ export default function HistoryPage() {
   const monthLabel = (m: string) => format(new Date(m + '-01'), 'MMMM yyyy')
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5">
+    <div className="mx-auto max-w-5xl space-y-5">
       <div className="flex items-center gap-3">
-        <History className="w-6 h-6 text-nex-primary" />
-        <h1 className="text-2xl font-bold text-nex-text">History</h1>
-        <span className="text-xs text-nex-muted hidden sm:inline">
+        <History className="text-nex-primary h-6 w-6" />
+        <h1 className="text-nex-text text-2xl font-bold">History</h1>
+        <span className="text-nex-muted hidden text-xs sm:inline">
           — archived monthly reports (manager only)
         </span>
       </div>
 
       {/* Generate for month */}
-      <div className="nex-card p-4 flex flex-col sm:flex-row sm:items-end gap-3">
+      <div className="nex-card flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
         <div className="flex-1">
-          <label className="block text-sm font-medium text-nex-text mb-1">
+          <label className="text-nex-text mb-1 block text-sm font-medium">
             Generate report for a month
           </label>
           <div className="relative">
-            <Calendar className="w-4 h-4 text-nex-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Calendar className="text-nex-muted pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <input
               type="month"
               value={genMonth}
@@ -196,7 +201,7 @@ export default function HistoryPage() {
           disabled={busy || !genMonth}
           className="nex-btn-primary flex items-center gap-2 disabled:opacity-50"
         >
-          <Plus className="w-4 h-4" /> {busy ? 'Generating...' : 'Generate'}
+          <Plus className="h-4 w-4" /> {busy ? 'Generating...' : 'Generate'}
         </button>
       </div>
 
@@ -210,46 +215,49 @@ export default function HistoryPage() {
         </div>
       ) : reports.length === 0 ? (
         <div className="nex-card p-8 text-center">
-          <History className="w-8 h-8 text-nex-muted mx-auto mb-2" />
-          <p className="text-sm text-nex-muted">
+          <History className="text-nex-muted mx-auto mb-2 h-8 w-8" />
+          <p className="text-nex-muted text-sm">
             No archived reports yet. Pick a month above and click <b>Generate</b>.
           </p>
-          <p className="text-xs text-nex-muted mt-1">
+          <p className="text-nex-muted mt-1 text-xs">
             Reports are also compiled automatically at the start of each month.
           </p>
         </div>
       ) : (
-        <div className="nex-card divide-y divide-nex-border">
+        <div className="nex-card divide-nex-border divide-y">
           {reports.map((r) => {
             const s = r.summary
             return (
-              <div key={r.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 hover:bg-nex-hover transition-colors">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
-                    <Calendar className="w-4 h-4 text-blue-600" />
+              <div
+                key={r.id}
+                className="hover:bg-nex-hover flex flex-col justify-between gap-3 px-5 py-4 transition-colors sm:flex-row sm:items-center"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10">
+                    <Calendar className="h-4 w-4 text-blue-600" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-nex-text">{monthLabel(r.month)}</p>
-                    <p className="text-xs text-nex-muted truncate">
+                    <p className="text-nex-text text-sm font-medium">{monthLabel(r.month)}</p>
+                    <p className="text-nex-muted truncate text-xs">
                       {s.totalMeals} meals · {s.financeMembersCount} members ·{' '}
                       {formatCurrency(Number(s.totalExpenses))} expenses
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex shrink-0 items-center gap-2">
                   <button
                     onClick={() => handleRegenerate(r.month)}
                     disabled={busy}
                     title="Recompile this month with the latest data"
-                    className="nex-btn-secondary py-1.5 px-3 text-xs flex items-center gap-1.5 disabled:opacity-50"
+                    className="nex-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs disabled:opacity-50"
                   >
-                    <RefreshCw className="w-3.5 h-3.5" /> Refresh
+                    <RefreshCw className="h-3.5 w-3.5" /> Refresh
                   </button>
                   <button
                     onClick={() => handleDownload(r)}
-                    className="nex-btn-primary py-1.5 px-3 text-xs flex items-center gap-1.5"
+                    className="nex-btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs"
                   >
-                    <Download className="w-3.5 h-3.5" /> PDF
+                    <Download className="h-3.5 w-3.5" /> PDF
                   </button>
                 </div>
               </div>

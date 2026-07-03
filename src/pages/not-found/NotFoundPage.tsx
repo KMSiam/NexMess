@@ -6,20 +6,18 @@ export default function NotFoundPage() {
   usePageTitle('Page Not Found')
 
   return (
-    <div className="min-h-screen bg-nex-bg flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-      <div className="w-16 h-16 rounded-full bg-nex-danger-light flex items-center justify-center mb-6">
-        <AlertCircle className="w-8 h-8 text-nex-danger" />
+    <div className="bg-nex-bg animate-fade-in flex min-h-screen flex-col items-center justify-center p-6 text-center">
+      <div className="bg-nex-danger-light mb-6 flex h-16 w-16 items-center justify-center rounded-full">
+        <AlertCircle className="text-nex-danger h-8 w-8" />
       </div>
-      <h1 className="text-4xl font-extrabold text-nex-text mb-2 tracking-tight">404</h1>
-      <h2 className="text-xl font-bold text-nex-text mb-2">Lost in the Mess?</h2>
-      <p className="text-sm text-nex-muted max-w-sm mb-8 leading-relaxed">
-        The page you are looking for doesn't exist, has been moved, or you don't have permissions to view it.
+      <h1 className="text-nex-text mb-2 text-4xl font-extrabold tracking-tight">404</h1>
+      <h2 className="text-nex-text mb-2 text-xl font-bold">Lost in the Mess?</h2>
+      <p className="text-nex-muted mb-8 max-w-sm text-sm leading-relaxed">
+        The page you are looking for doesn't exist, has been moved, or you don't have permissions to
+        view it.
       </p>
-      <Link
-        to="/dashboard"
-        className="nex-btn-primary flex items-center gap-2"
-      >
-        <Home className="w-4 h-4" />
+      <Link to="/dashboard" className="nex-btn-primary flex items-center gap-2">
+        <Home className="h-4 w-4" />
         Go to Dashboard
       </Link>
     </div>

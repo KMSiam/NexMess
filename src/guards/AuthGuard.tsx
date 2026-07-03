@@ -12,10 +12,10 @@ export function AuthGuard() {
 
   if (!initialized || loading) {
     return (
-      <div className="min-h-screen bg-nex-bg flex items-center justify-center">
+      <div className="bg-nex-bg flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-3 border-nex-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-nex-muted">Loading...</p>
+          <div className="border-nex-primary h-8 w-8 animate-spin rounded-full border-3 border-t-transparent" />
+          <p className="text-nex-muted text-sm">Loading...</p>
         </div>
       </div>
     )
@@ -27,7 +27,8 @@ export function AuthGuard() {
   if (profile && profile.deleted_at) {
     const handleRestore = async () => {
       setReactivating(true)
-      const { error } = await supabase.from('profiles')
+      const { error } = await supabase
+        .from('profiles')
         .update({ deleted_at: null })
         .eq('id', profile.id)
 
@@ -46,26 +47,27 @@ export function AuthGuard() {
     }
 
     return (
-      <div className="min-h-screen bg-nex-bg flex items-center justify-center p-4">
-        <div className="max-w-md w-full nex-card p-8 border border-red-500/10 space-y-6 text-center shadow-xl animate-in fade-in zoom-in-95 duration-200">
-          <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto text-red-500">
-            <ShieldAlert className="w-8 h-8" />
+      <div className="bg-nex-bg flex min-h-screen items-center justify-center p-4">
+        <div className="nex-card animate-in fade-in zoom-in-95 w-full max-w-md space-y-6 border border-red-500/10 p-8 text-center shadow-xl duration-200">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+            <ShieldAlert className="h-8 w-8" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-xl font-bold text-nex-text">Welcome Back!</h2>
-            <p className="text-sm text-nex-muted leading-relaxed">
-              Your account is currently scheduled for permanent deletion. Would you like to restore your account and recover your data?
+            <h2 className="text-nex-text text-xl font-bold">Welcome Back!</h2>
+            <p className="text-nex-muted text-sm leading-relaxed">
+              Your account is currently scheduled for permanent deletion. Would you like to restore
+              your account and recover your data?
             </p>
           </div>
           <div className="flex flex-col gap-3 pt-2">
             <button
               onClick={handleRestore}
               disabled={reactivating}
-              className="nex-btn-primary w-full py-3 flex items-center justify-center gap-2"
+              className="nex-btn-primary flex w-full items-center justify-center gap-2 py-3"
             >
               {reactivating ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" /> Restoring...
+                  <RefreshCw className="h-4 w-4 animate-spin" /> Restoring...
                 </>
               ) : (
                 'Yes, Restore Account'
@@ -74,9 +76,9 @@ export function AuthGuard() {
             <button
               onClick={handleCancel}
               disabled={reactivating}
-              className="nex-btn-secondary w-full py-3 text-red-500 hover:bg-red-500/10 hover:text-red-600 flex items-center justify-center gap-2 border-red-500/10"
+              className="nex-btn-secondary flex w-full items-center justify-center gap-2 border-red-500/10 py-3 text-red-500 hover:bg-red-500/10 hover:text-red-600"
             >
-              <LogOut className="w-4 h-4" /> Cancel & Sign Out
+              <LogOut className="h-4 w-4" /> Cancel & Sign Out
             </button>
           </div>
         </div>
@@ -105,8 +107,8 @@ export function GuestGuard() {
 
   if (!initialized || loading) {
     return (
-      <div className="min-h-screen bg-nex-bg flex items-center justify-center">
-        <div className="w-8 h-8 border-3 border-nex-primary border-t-transparent rounded-full animate-spin" />
+      <div className="bg-nex-bg flex min-h-screen items-center justify-center">
+        <div className="border-nex-primary h-8 w-8 animate-spin rounded-full border-3 border-t-transparent" />
       </div>
     )
   }
@@ -130,14 +132,12 @@ export function ManagerGuard() {
   const { user } = useAuthStore()
   const { members, loading } = useMessStore()
 
-  const isManager = members.some(
-    (m) => m.user_id === user?.id && m.role === 'manager',
-  )
+  const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
 
   if (loading || (!isManager && members.length === 0)) {
     return (
-      <div className="min-h-screen bg-nex-bg flex items-center justify-center">
-        <div className="w-8 h-8 border-3 border-nex-primary border-t-transparent rounded-full animate-spin" />
+      <div className="bg-nex-bg flex min-h-screen items-center justify-center">
+        <div className="border-nex-primary h-8 w-8 animate-spin rounded-full border-3 border-t-transparent" />
       </div>
     )
   }

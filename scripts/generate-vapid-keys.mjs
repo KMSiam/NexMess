@@ -17,5 +17,11 @@ console.log('VAPID_PUBLIC_KEY=' + publicKey)
 console.log('VAPID_PRIVATE_KEY=' + privateKey)
 console.log('VAPID_SUBJECT=mailto:your@email.com')
 console.log('\nThen run:')
-console.log('  supabase secrets set VAPID_PUBLIC_KEY=' + publicKey + ' VAPID_PRIVATE_KEY=' + privateKey + ' VAPID_SUBJECT=mailto:your@email.com')
+console.log(
+  '  supabase secrets set VAPID_PUBLIC_KEY=' +
+    publicKey +
+    ' VAPID_PRIVATE_KEY=' +
+    privateKey +
+    ' VAPID_SUBJECT=mailto:your@email.com'
+)
 console.log('  supabase functions deploy send-push\n')

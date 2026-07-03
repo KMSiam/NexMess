@@ -23,7 +23,7 @@ export default function ExpenseTab({
 }: ExpenseTabProps) {
   const [showAddExpense, setShowAddExpense] = useState(false)
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null)
-  
+
   // Form State
   const [expAmount, setExpAmount] = useState('')
   const [expDesc, setExpDesc] = useState('')
@@ -87,19 +87,19 @@ export default function ExpenseTab({
         }}
         className="nex-btn-primary text-sm"
       >
-        <Plus className="w-4 h-4" /> {editingExpenseId ? 'Edit Expense' : 'Add Expense'}
+        <Plus className="h-4 w-4" /> {editingExpenseId ? 'Edit Expense' : 'Add Expense'}
       </button>
 
       {showAddExpense && (
-        <div className="nex-card p-5 animate-slide-up">
+        <div className="nex-card animate-slide-up p-5">
           <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-nex-text mb-1">Amount (৳)</label>
+                <label className="text-nex-text mb-1 block text-sm font-medium">Amount (৳)</label>
                 <input
                   type="number"
                   value={expAmount}
-                  onChange={e => setExpAmount(e.target.value)}
+                  onChange={(e) => setExpAmount(e.target.value)}
                   className="nex-input"
                   placeholder="0.00"
                   required
@@ -108,10 +108,10 @@ export default function ExpenseTab({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-nex-text mb-1">Category</label>
+                <label className="text-nex-text mb-1 block text-sm font-medium">Category</label>
                 <select
                   value={expCategory}
-                  onChange={e => setExpCategory(e.target.value)}
+                  onChange={(e) => setExpCategory(e.target.value)}
                   className="nex-input"
                 >
                   <option value="bazaar">🛒 Bazaar</option>
@@ -122,32 +122,40 @@ export default function ExpenseTab({
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-nex-text mb-1">Description</label>
+              <label className="text-nex-text mb-1 block text-sm font-medium">Description</label>
               <input
                 type="text"
                 value={expDesc}
-                onChange={e => setExpDesc(e.target.value)}
+                onChange={(e) => setExpDesc(e.target.value)}
                 className="nex-input"
                 placeholder="e.g., Fish, vegetables"
               />
             </div>
             {!editingExpenseId && (
               <div>
-                <label className="block text-sm font-medium text-nex-text mb-1">Receipt (optional)</label>
-                <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-nex-border rounded-lg cursor-pointer hover:bg-nex-hover transition-colors">
-                  <ImageIcon className="w-4 h-4 text-nex-muted" />
-                  <span className="text-sm text-nex-muted">{expFile ? expFile.name : 'Upload receipt photo'}</span>
+                <label className="text-nex-text mb-1 block text-sm font-medium">
+                  Receipt (optional)
+                </label>
+                <label className="border-nex-border hover:bg-nex-hover flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-2 transition-colors">
+                  <ImageIcon className="text-nex-muted h-4 w-4" />
+                  <span className="text-nex-muted text-sm">
+                    {expFile ? expFile.name : 'Upload receipt photo'}
+                  </span>
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={e => setExpFile(e.target.files?.[0] || null)}
+                    onChange={(e) => setExpFile(e.target.files?.[0] || null)}
                     className="hidden"
                   />
                 </label>
               </div>
             )}
             <div className="flex gap-2 pt-2">
-              <button type="submit" disabled={loading} className="nex-btn-primary disabled:opacity-50">
+              <button
+                type="submit"
+                disabled={loading}
+                className="nex-btn-primary disabled:opacity-50"
+              >
                 {editingExpenseId ? 'Update' : 'Save'}
               </button>
               <button type="button" onClick={handleCancel} className="nex-btn-secondary">
@@ -158,7 +166,7 @@ export default function ExpenseTab({
         </div>
       )}
 
-      <div className="nex-card divide-y divide-nex-border">
+      <div className="nex-card divide-nex-border divide-y">
         {expenses.length === 0 ? (
           <EmptyState
             icon={Receipt}
@@ -166,16 +174,31 @@ export default function ExpenseTab({
             description="All mess bazaar and utility logs for this month will show here."
           />
         ) : (
-          expenses.map(exp => (
-            <div key={exp.id} className="flex items-center justify-between px-5 py-3 hover:bg-nex-hover transition-colors">
+          expenses.map((exp) => (
+            <div
+              key={exp.id}
+              className="hover:bg-nex-hover flex items-center justify-between px-5 py-3 transition-colors"
+            >
               <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg ${
-                  exp.category === 'bazaar' ? 'bg-emerald-500/10' : exp.category === 'rent' ? 'bg-blue-500/10' : 'bg-amber-500/10'
-                }`}>
-                  {exp.category === 'bazaar' ? '🛒' : exp.category === 'rent' ? '🏠' : exp.category === 'utilities' ? '💡' : '📋'}
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-lg text-lg ${
+                    exp.category === 'bazaar'
+                      ? 'bg-emerald-500/10'
+                      : exp.category === 'rent'
+                        ? 'bg-blue-500/10'
+                        : 'bg-amber-500/10'
+                  }`}
+                >
+                  {exp.category === 'bazaar'
+                    ? '🛒'
+                    : exp.category === 'rent'
+                      ? '🏠'
+                      : exp.category === 'utilities'
+                        ? '💡'
+                        : '📋'}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-nex-text flex items-center gap-2">
+                  <p className="text-nex-text flex items-center gap-2 text-sm font-medium">
                     {exp.description || exp.category}
                     {exp.receipt_url && (
                       <a
@@ -183,32 +206,36 @@ export default function ExpenseTab({
                         target="_blank"
                         rel="noreferrer"
                         title="View Receipt"
-                        className="text-nex-primary hover:text-blue-700 transition-colors"
+                        className="text-nex-primary transition-colors hover:text-blue-700"
                       >
-                        <Receipt className="w-3.5 h-3.5" />
+                        <Receipt className="h-3.5 w-3.5" />
                       </a>
                     )}
                   </p>
-                  <p className="text-xs text-nex-muted">{format(new Date(exp.date), 'MMM d')} · {(exp as any).profiles?.username}</p>
+                  <p className="text-nex-muted text-xs">
+                    {format(new Date(exp.date), 'MMM d')} · {(exp as any).profiles?.username}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <p className="text-sm font-semibold text-nex-text">{formatCurrency(Number(exp.amount))}</p>
+                <p className="text-nex-text text-sm font-semibold">
+                  {formatCurrency(Number(exp.amount))}
+                </p>
                 {isManager && (
-                  <div className="flex items-center gap-1.5 ml-2 border-l border-nex-border pl-3">
+                  <div className="border-nex-border ml-2 flex items-center gap-1.5 border-l pl-3">
                     <button
                       onClick={() => startEdit(exp)}
-                      className="p-1 rounded-btn text-nex-muted hover:text-nex-primary hover:bg-nex-hover transition-colors"
+                      className="rounded-btn text-nex-muted hover:text-nex-primary hover:bg-nex-hover p-1 transition-colors"
                       title="Edit Expense"
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
+                      <Edit2 className="h-3.5 w-3.5" />
                     </button>
                     <button
                       onClick={() => setDeleteExpenseId(exp.id)}
-                      className="p-1 rounded-btn text-nex-muted hover:text-nex-danger hover:bg-nex-hover transition-colors"
+                      className="rounded-btn text-nex-muted hover:text-nex-danger hover:bg-nex-hover p-1 transition-colors"
                       title="Delete Expense"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 )}

@@ -9,13 +9,16 @@ interface MessDetailsSectionProps {
   isManager?: boolean
 }
 
-export default function MessDetailsSection({ currentMess, isManager = false }: MessDetailsSectionProps) {
+export default function MessDetailsSection({
+  currentMess,
+  isManager = false,
+}: MessDetailsSectionProps) {
   const [copied, setCopied] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [location, setLocation] = useState(currentMess?.location || '')
   const [rules, setRules] = useState(currentMess?.rules_and_info || '')
   const [isSaving, setIsSaving] = useState(false)
-  
+
   const updateMess = useMessStore((state) => state.updateMess)
 
   useEffect(() => {
@@ -51,31 +54,38 @@ export default function MessDetailsSection({ currentMess, isManager = false }: M
   if (!currentMess) return null
 
   return (
-    <div className="nex-card p-6 space-y-6">
+    <div className="nex-card space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-nex-text">Mess Details</h3>
+        <h3 className="text-nex-text text-lg font-semibold">Mess Details</h3>
         {isManager && !isEditing && (
-          <button onClick={() => setIsEditing(true)} className="text-sm font-medium text-nex-primary hover:underline transition-all">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-nex-primary text-sm font-medium transition-all hover:underline"
+          >
             Edit Details
           </button>
         )}
       </div>
 
-      <div className="flex items-center justify-between p-4 bg-nex-elevated rounded-xl">
+      <div className="bg-nex-elevated flex items-center justify-between rounded-xl p-4">
         <div>
-          <p className="text-sm font-medium text-nex-text">{currentMess.name}</p>
-          <p className="text-xs text-nex-muted font-mono mt-0.5">{currentMess.unique_code}</p>
+          <p className="text-nex-text text-sm font-medium">{currentMess.name}</p>
+          <p className="text-nex-muted mt-0.5 font-mono text-xs">{currentMess.unique_code}</p>
         </div>
         <button onClick={copyCode} className="nex-btn-secondary text-xs">
-          {copied ? <CheckCircle2 className="w-4 h-4 text-nex-success" /> : <Copy className="w-4 h-4" />}
+          {copied ? (
+            <CheckCircle2 className="text-nex-success h-4 w-4" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
           {copied ? 'Copied' : 'Copy Code'}
         </button>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-nex-text mb-1.5">
-            <MapPin className="w-4 h-4 text-nex-muted" />
+          <label className="text-nex-text mb-1.5 flex items-center gap-2 text-sm font-medium">
+            <MapPin className="text-nex-muted h-4 w-4" />
             Location
           </label>
           {isEditing ? (
@@ -87,15 +97,19 @@ export default function MessDetailsSection({ currentMess, isManager = false }: M
               className="nex-input w-full"
             />
           ) : (
-             <div className="p-3 bg-nex-elevated rounded-xl min-h-[46px] flex items-center text-sm text-nex-muted">
-               {location ? <span className="text-nex-text">{location}</span> : 'No location provided yet.'}
-             </div>
+            <div className="bg-nex-elevated text-nex-muted flex min-h-[46px] items-center rounded-xl p-3 text-sm">
+              {location ? (
+                <span className="text-nex-text">{location}</span>
+              ) : (
+                'No location provided yet.'
+              )}
+            </div>
           )}
         </div>
 
         <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-nex-text mb-1.5">
-            <Info className="w-4 h-4 text-nex-muted" />
+          <label className="text-nex-text mb-1.5 flex items-center gap-2 text-sm font-medium">
+            <Info className="text-nex-muted h-4 w-4" />
             Rules & Information
           </label>
           {isEditing ? (
@@ -107,9 +121,13 @@ export default function MessDetailsSection({ currentMess, isManager = false }: M
               className="nex-input w-full resize-none py-3"
             />
           ) : (
-            <div className="p-3 bg-nex-elevated rounded-xl min-h-[100px] whitespace-pre-wrap text-sm text-nex-muted">
-               {rules ? <span className="text-nex-text">{rules}</span> : 'No rules or info provided yet.'}
-             </div>
+            <div className="bg-nex-elevated text-nex-muted min-h-[100px] rounded-xl p-3 text-sm whitespace-pre-wrap">
+              {rules ? (
+                <span className="text-nex-text">{rules}</span>
+              ) : (
+                'No rules or info provided yet.'
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -133,9 +151,9 @@ export default function MessDetailsSection({ currentMess, isManager = false }: M
             className="nex-btn-primary flex items-center gap-2"
           >
             {isSaving ? (
-              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
             ) : (
-              <Save className="w-4 h-4" />
+              <Save className="h-4 w-4" />
             )}
             Save Changes
           </button>

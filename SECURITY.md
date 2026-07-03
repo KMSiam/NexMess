@@ -11,6 +11,7 @@ If you discover a security vulnerability in NexMess, please report it responsibl
 ## Scope
 
 The following are in scope:
+
 - Authentication and authorization bypasses
 - Row-Level Security (RLS) policy violations
 - Data exposure via API endpoints
@@ -20,6 +21,7 @@ The following are in scope:
 ## Security Measures
 
 NexMess implements the following security practices:
+
 - **Supabase Row-Level Security (RLS)** on all 11+ database tables
 - **VAPID-based Web Push** — server-side key validation
 - **Input sanitization** — message length limits, file type/size validation

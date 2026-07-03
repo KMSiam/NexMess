@@ -39,9 +39,7 @@ export default function ImageUploader({ messId, onUploadComplete }: ImageUploade
         throw uploadError
       }
 
-      const { data } = supabase.storage
-        .from('chat-media')
-        .getPublicUrl(fileName)
+      const { data } = supabase.storage.from('chat-media').getPublicUrl(fileName)
 
       if (data?.publicUrl) {
         onUploadComplete(data.publicUrl)
@@ -71,14 +69,10 @@ export default function ImageUploader({ messId, onUploadComplete }: ImageUploade
         type="button"
         disabled={uploading}
         onClick={() => fileInputRef.current?.click()}
-        className="p-2.5 rounded-btn bg-nex-elevated border border-nex-border text-nex-muted hover:bg-nex-hover hover:text-nex-text transition-colors flex items-center justify-center disabled:opacity-50"
+        className="rounded-btn bg-nex-elevated border-nex-border text-nex-muted hover:bg-nex-hover hover:text-nex-text flex items-center justify-center border p-2.5 transition-colors disabled:opacity-50"
         title="Upload Image"
       >
-        {uploading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : (
-          <Image className="w-4 h-4" />
-        )}
+        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Image className="h-4 w-4" />}
       </button>
     </div>
   )

@@ -15,7 +15,15 @@ interface DepositTabProps {
   onDeleteDeposit: (id: string) => Promise<void>
 }
 
-export default function DepositTab({ deposits, approvedMembers, isManager, currentUserId, onAddDeposit, onConfirmDeposit, onDeleteDeposit }: DepositTabProps) {
+export default function DepositTab({
+  deposits,
+  approvedMembers,
+  isManager,
+  currentUserId,
+  onAddDeposit,
+  onConfirmDeposit,
+  onDeleteDeposit,
+}: DepositTabProps) {
   const [showAddDeposit, setShowAddDeposit] = useState(false)
   const [depUserId, setDepUserId] = useState('')
   const [depAmount, setDepAmount] = useState('')
@@ -38,79 +46,147 @@ export default function DepositTab({ deposits, approvedMembers, isManager, curre
   return (
     <div className="space-y-4">
       {isManager && (
-        <button onClick={() => setShowAddDeposit(!showAddDeposit)} className="nex-btn-primary text-sm">
-          <Plus className="w-4 h-4" /> Record Deposit
+        <button
+          onClick={() => setShowAddDeposit(!showAddDeposit)}
+          className="nex-btn-primary text-sm"
+        >
+          <Plus className="h-4 w-4" /> Record Deposit
         </button>
       )}
 
       {showAddDeposit && (
-        <div className="nex-card p-5 animate-slide-up">
+        <div className="nex-card animate-slide-up p-5">
           <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-nex-text mb-1">Member</label>
-                <select value={depUserId} onChange={e => setDepUserId(e.target.value)} className="nex-input" required>
+                <label className="text-nex-text mb-1 block text-sm font-medium">Member</label>
+                <select
+                  value={depUserId}
+                  onChange={(e) => setDepUserId(e.target.value)}
+                  className="nex-input"
+                  required
+                >
                   <option value="">Select member</option>
-                  {approvedMembers.map(m => {
+                  {approvedMembers.map((m) => {
                     const p = m.profiles as any
-                    return <option key={m.user_id} value={m.user_id}>{p?.username || 'Member'}</option>
+                    return (
+                      <option key={m.user_id} value={m.user_id}>
+                        {p?.username || 'Member'}
+                      </option>
+                    )
                   })}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-nex-text mb-1">Amount (৳)</label>
-                <input type="number" value={depAmount} onChange={e => setDepAmount(e.target.value)}
-                  className="nex-input" placeholder="0.00" required step="0.01" min="0" />
+                <label className="text-nex-text mb-1 block text-sm font-medium">Amount (৳)</label>
+                <input
+                  type="number"
+                  value={depAmount}
+                  onChange={(e) => setDepAmount(e.target.value)}
+                  className="nex-input"
+                  placeholder="0.00"
+                  required
+                  step="0.01"
+                  min="0"
+                />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-nex-text mb-1">Note</label>
-              <input type="text" value={depNote} onChange={e => setDepNote(e.target.value)} className="nex-input" placeholder="e.g., May deposit" />
+              <label className="text-nex-text mb-1 block text-sm font-medium">Note</label>
+              <input
+                type="text"
+                value={depNote}
+                onChange={(e) => setDepNote(e.target.value)}
+                className="nex-input"
+                placeholder="e.g., May deposit"
+              />
             </div>
             <div className="flex gap-2">
-              <button type="submit" disabled={loading} className="nex-btn-primary disabled:opacity-50">Save</button>
-              <button type="button" onClick={() => setShowAddDeposit(false)} className="nex-btn-secondary">Cancel</button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="nex-btn-primary disabled:opacity-50"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAddDeposit(false)}
+                className="nex-btn-secondary"
+              >
+                Cancel
+              </button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="nex-card divide-y divide-nex-border">
+      <div className="nex-card divide-nex-border divide-y">
         {deposits.length === 0 ? (
-          <EmptyState icon={PiggyBank} title="No deposits recorded" description="Deposits collected from mess members this month will show here." />
-        ) : deposits.map(dep => (
-          <div key={dep.id} className="flex items-center justify-between px-5 py-3 hover:bg-nex-hover transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                <PiggyBank className="w-4 h-4 text-emerald-600" />
+          <EmptyState
+            icon={PiggyBank}
+            title="No deposits recorded"
+            description="Deposits collected from mess members this month will show here."
+          />
+        ) : (
+          deposits.map((dep) => (
+            <div
+              key={dep.id}
+              className="hover:bg-nex-hover flex items-center justify-between px-5 py-3 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10">
+                  <PiggyBank className="h-4 w-4 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-nex-text text-sm font-medium">
+                    {(dep as any).profiles?.username}
+                  </p>
+                  <p className="text-nex-muted text-xs">
+                    {format(new Date(dep.date), 'MMM d')} {dep.note && `· ${dep.note}`}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-nex-text">{(dep as any).profiles?.username}</p>
-                <p className="text-xs text-nex-muted">{format(new Date(dep.date), 'MMM d')} {dep.note && `· ${dep.note}`}</p>
-              </div>
-            </div>
-            <div className="flex flex-col items-end gap-1">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-nex-success">{formatCurrency(Number(dep.amount))}</p>
-                {isManager && (
-                  <button onClick={() => onDeleteDeposit(dep.id)} className="text-red-500 hover:text-red-700 transition-colors p-1" title="Delete deposit">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-              {dep.verified ? (
-                <span className="text-xs text-nex-success flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" />Verified</span>
-              ) : (
+              <div className="flex flex-col items-end gap-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-amber-500 flex items-center gap-0.5"><Clock className="w-3 h-3" />Pending</span>
-                  {dep.user_id === currentUserId && (
-                    <button onClick={() => onConfirmDeposit(dep.id)} className="text-xs font-medium bg-nex-primary text-white px-2 py-0.5 rounded hover:bg-blue-700 transition-colors">Confirm</button>
+                  <p className="text-nex-success text-sm font-semibold">
+                    {formatCurrency(Number(dep.amount))}
+                  </p>
+                  {isManager && (
+                    <button
+                      onClick={() => onDeleteDeposit(dep.id)}
+                      className="p-1 text-red-500 transition-colors hover:text-red-700"
+                      title="Delete deposit"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   )}
                 </div>
-              )}
+                {dep.verified ? (
+                  <span className="text-nex-success flex items-center gap-0.5 text-xs">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Verified
+                  </span>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-0.5 text-xs text-amber-500">
+                      <Clock className="h-3 w-3" />
+                      Pending
+                    </span>
+                    {dep.user_id === currentUserId && (
+                      <button
+                        onClick={() => onConfirmDeposit(dep.id)}
+                        className="bg-nex-primary rounded px-2 py-0.5 text-xs font-medium text-white transition-colors hover:bg-blue-700"
+                      >
+                        Confirm
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   )

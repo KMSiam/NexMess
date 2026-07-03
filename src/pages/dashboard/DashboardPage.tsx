@@ -30,9 +30,9 @@ export default function DashboardPage() {
 
   const { profile } = useAuthStore()
   const { currentMess, members, pendingRequests, cancelJoinRequest } = useMessStore()
-  
+
   const [mealLoading, setMealLoading] = useState(false)
-  
+
   // Custom Hook for dashboard data loading and realtime updates
   const {
     mealsData,
@@ -54,7 +54,7 @@ export default function DashboardPage() {
   // Emergency Contact Delete Dialog State
   const [deleteEcId, setDeleteEcId] = useState<string | null>(null)
 
-  const isManager = members.some(m => m.user_id === profile?.id && m.role === 'manager')
+  const isManager = members.some((m) => m.user_id === profile?.id && m.role === 'manager')
 
   const handleSaveNotice = async (text: string) => {
     if (!currentMess?.id || !profile?.id) return
@@ -64,9 +64,15 @@ export default function DashboardPage() {
       await supabase.from('notices').update({ is_active: false }).eq('id', notice.id)
     }
 
-    const { data, error } = await supabase.from('notices').insert({
-      mess_id: currentMess.id, message: text, created_by: profile.id
-    }).select('id, message').single()
+    const { data, error } = await supabase
+      .from('notices')
+      .insert({
+        mess_id: currentMess.id,
+        message: text,
+        created_by: profile.id,
+      })
+      .select('id, message')
+      .single()
 
     if (error) {
       toast.error('Failed to post notice')
@@ -75,8 +81,8 @@ export default function DashboardPage() {
       setNotice(data)
       // Push notification to all mess members (fire-and-forget)
       const memberIds = members
-        .filter(m => m.status === 'approved' && m.user_id !== profile.id)
-        .map(m => m.user_id)
+        .filter((m) => m.status === 'approved' && m.user_id !== profile.id)
+        .map((m) => m.user_id)
       sendPushToUsers(memberIds, `📢 ${currentMess.name}`, text, '/dashboard')
     }
   }
@@ -90,23 +96,29 @@ export default function DashboardPage() {
 
   const handleAddEC = async (name: string, phone: string) => {
     if (!currentMess?.id) return
-    
-    const { data, error } = await supabase.from('emergency_contacts').insert({
-      mess_id: currentMess.id, name, phone
-    }).select('id, name, phone').single()
+
+    const { data, error } = await supabase
+      .from('emergency_contacts')
+      .insert({
+        mess_id: currentMess.id,
+        name,
+        phone,
+      })
+      .select('id, name, phone')
+      .single()
 
     if (error) {
       toast.error('Failed to add contact')
     } else {
       toast.success('Contact added!')
-      setEmergencyContacts(prev => [...prev, data])
+      setEmergencyContacts((prev) => [...prev, data])
     }
   }
 
   const confirmDeleteEC = async () => {
     if (!deleteEcId) return
     await supabase.from('emergency_contacts').delete().eq('id', deleteEcId)
-    setEmergencyContacts(prev => prev.filter(ec => ec.id !== deleteEcId))
+    setEmergencyContacts((prev) => prev.filter((ec) => ec.id !== deleteEcId))
     setDeleteEcId(null)
     toast.success('Contact removed')
   }
@@ -124,27 +136,36 @@ export default function DashboardPage() {
     const mData = mealsData[tab]
     const newValue = type === 'lunch' ? !mData.lunch : !mData.dinner
 
-    setMealsData(prev => ({
+    setMealsData((prev) => ({
       ...prev,
-      [tab]: { ...prev[tab], [type]: newValue }
+      [tab]: { ...prev[tab], [type]: newValue },
     }))
 
-    const { error } = await supabase.from('meals').upsert({
-      user_id: profile.id, mess_id: currentMess.id, date: targetDateStr,
-      [type]: newValue,
-    }, { onConflict: 'user_id,mess_id,date' })
+    const { error } = await supabase.from('meals').upsert(
+      {
+        user_id: profile.id,
+        mess_id: currentMess.id,
+        date: targetDateStr,
+        [type]: newValue,
+      },
+      { onConflict: 'user_id,mess_id,date' }
+    )
 
     if (error) {
       toast.error(error.message || 'Failed to update meal')
-      setMealsData(prev => ({
+      setMealsData((prev) => ({
         ...prev,
-        [tab]: { ...prev[tab], [type]: !newValue }
+        [tab]: { ...prev[tab], [type]: !newValue },
       }))
     }
     setMealLoading(false)
   }
 
-  const handleUpdateGuest = async (tab: 'today' | 'tomorrow', type: 'lunch' | 'dinner', delta: number) => {
+  const handleUpdateGuest = async (
+    tab: 'today' | 'tomorrow',
+    type: 'lunch' | 'dinner',
+    delta: number
+  ) => {
     if (!profile?.id || !currentMess?.id) return
     const targetDateStr = tab === 'today' ? dhakaToday() : dhakaTomorrow()
 
@@ -158,22 +179,27 @@ export default function DashboardPage() {
     const key = type === 'lunch' ? 'gl' : 'gd'
     const newVal = Math.max(0, mData[key] + delta)
 
-    setMealsData(prev => ({
+    setMealsData((prev) => ({
       ...prev,
-      [tab]: { ...prev[tab], [key]: newVal }
+      [tab]: { ...prev[tab], [key]: newVal },
     }))
 
     const guestCol = type === 'lunch' ? 'guest_lunch' : 'guest_dinner'
-    const { error } = await supabase.from('meals').upsert({
-      user_id: profile.id, mess_id: currentMess.id, date: targetDateStr,
-      [guestCol]: newVal,
-    }, { onConflict: 'user_id,mess_id,date' })
+    const { error } = await supabase.from('meals').upsert(
+      {
+        user_id: profile.id,
+        mess_id: currentMess.id,
+        date: targetDateStr,
+        [guestCol]: newVal,
+      },
+      { onConflict: 'user_id,mess_id,date' }
+    )
 
     if (error) {
       toast.error(error.message || 'Failed to update guests')
-      setMealsData(prev => ({
+      setMealsData((prev) => ({
         ...prev,
-        [tab]: { ...prev[tab], [key]: mData[key] }
+        [tab]: { ...prev[tab], [key]: mData[key] },
       }))
     }
     setMealLoading(false)
@@ -181,30 +207,43 @@ export default function DashboardPage() {
 
   if (!currentMess) {
     return (
-      <div className="max-w-lg mx-auto space-y-8 py-12">
+      <div className="mx-auto max-w-lg space-y-8 py-12">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-full bg-nex-primary-light mx-auto flex items-center justify-center mb-6">
-            <Users className="w-8 h-8 text-nex-primary" />
+          <div className="bg-nex-primary-light mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full">
+            <Users className="text-nex-primary h-8 w-8" />
           </div>
-          <h2 className="text-2xl font-bold text-nex-text mb-2">No mess joined yet</h2>
-          <p className="text-nex-muted mb-6">Create a new mess or join an existing one with a code.</p>
-          <div className="flex gap-3 justify-center">
-            <Link to="/mess/create" className="nex-btn-primary"><Plus className="w-4 h-4" /> Create Mess</Link>
-            <Link to="/mess/join" className="nex-btn-secondary">Join Mess</Link>
+          <h2 className="text-nex-text mb-2 text-2xl font-bold">No mess joined yet</h2>
+          <p className="text-nex-muted mb-6">
+            Create a new mess or join an existing one with a code.
+          </p>
+          <div className="flex justify-center gap-3">
+            <Link to="/mess/create" className="nex-btn-primary">
+              <Plus className="h-4 w-4" /> Create Mess
+            </Link>
+            <Link to="/mess/join" className="nex-btn-secondary">
+              Join Mess
+            </Link>
           </div>
         </div>
 
         {pendingRequests && pendingRequests.length > 0 && (
           <div className="space-y-3">
-            <h3 className="text-xs font-bold text-nex-muted uppercase tracking-wider text-center">Pending Requests</h3>
+            <h3 className="text-nex-muted text-center text-xs font-bold tracking-wider uppercase">
+              Pending Requests
+            </h3>
             {pendingRequests.map((req) => (
-              <div key={req.mess_id} className="nex-card p-4 flex items-center justify-between border border-amber-500/20 bg-amber-500/5">
+              <div
+                key={req.mess_id}
+                className="nex-card flex items-center justify-between border border-amber-500/20 bg-amber-500/5 p-4"
+              >
                 <div>
-                  <h4 className="font-semibold text-nex-text">{req.messes?.name || 'Unknown Mess'}</h4>
-                  <p className="text-xs text-amber-500 flex items-center gap-1.5 mt-1 font-medium">
+                  <h4 className="text-nex-text font-semibold">
+                    {req.messes?.name || 'Unknown Mess'}
+                  </h4>
+                  <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-amber-500">
                     <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
                     </span>
                     Waiting for approval
                   </p>
@@ -216,7 +255,7 @@ export default function DashboardPage() {
                       toast.success('Request canceled')
                     }
                   }}
-                  className="text-xs font-semibold text-red-500 hover:text-white bg-red-500/10 hover:bg-red-500 px-3.5 py-2 rounded-xl transition-all duration-200"
+                  className="rounded-xl bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-500 hover:text-white"
                 >
                   Cancel Request
                 </button>
@@ -230,19 +269,19 @@ export default function DashboardPage() {
 
   if (!dataLoaded) {
     return (
-      <div className="max-w-5xl mx-auto space-y-5">
+      <div className="mx-auto max-w-5xl space-y-5">
         {/* Welcome Skeleton */}
-        <div className="nex-card p-5 flex items-center justify-between">
+        <div className="nex-card flex items-center justify-between p-5">
           <div className="space-y-2">
             <Skeleton className="h-7 w-48" />
             <Skeleton className="h-4 w-32" />
           </div>
-          <Skeleton className="w-10 h-10 rounded-lg" />
+          <Skeleton className="h-10 w-10 rounded-lg" />
         </div>
 
         {/* Cook's Summary Skeleton */}
-        <div className="nex-card p-5 h-32 bg-nex-elevated">
-          <Skeleton className="h-4 w-40 mb-4" />
+        <div className="nex-card bg-nex-elevated h-32 p-5">
+          <Skeleton className="mb-4 h-4 w-40" />
           <div className="grid grid-cols-2 gap-4">
             <Skeleton className="h-16 rounded-xl" />
             <Skeleton className="h-16 rounded-xl" />
@@ -250,7 +289,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Grid Skeleton */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <CardSkeleton />
           <CardSkeleton />
           <CardSkeleton />
@@ -258,12 +297,12 @@ export default function DashboardPage() {
         </div>
 
         {/* Lower Grid Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="nex-card p-5 space-y-4">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div className="nex-card space-y-4 p-5">
             <Skeleton className="h-4 w-32" />
             <ListSkeleton count={3} />
           </div>
-          <div className="nex-card p-5 space-y-4">
+          <div className="nex-card space-y-4 p-5">
             <Skeleton className="h-4 w-32" />
             <ListSkeleton count={3} />
           </div>
@@ -273,14 +312,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5 animate-fade-in">
-      <WelcomeCard
-        username={profile?.username}
-        isManager={isManager}
-      />
+    <div className="animate-fade-in mx-auto max-w-5xl space-y-5">
+      <WelcomeCard username={profile?.username} isManager={isManager} />
 
       {/* 2-column grid for Pinned Notice and Mess Alerts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <NoticeBoard
           notice={notice}
           isManager={isManager}
@@ -299,7 +335,7 @@ export default function DashboardPage() {
       </div>
 
       {/* 2-column grid for Cook's Summary and My Meals */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <CookSummary data={cookSummary} />
         <MealSelector
           mealsData={mealsData}
@@ -312,7 +348,7 @@ export default function DashboardPage() {
 
       <StatsGrid stats={stats} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <RecentActivity activities={recentActs} />
         <BazaarScheduleCard schedule={upcomingBazaar} />
       </div>

@@ -16,7 +16,7 @@ interface UseFinanceDataReturn {
 
 export function useFinanceData(
   messId: string | undefined,
-  membersList: { user_id: string; status: string }[],
+  membersList: { user_id: string; status: string }[]
 ): UseFinanceDataReturn {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [deposits, setDeposits] = useState<Deposit[]>([])
@@ -28,8 +28,8 @@ export function useFinanceData(
   const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd')
   const monthEnd = format(endOfMonth(new Date()), 'yyyy-MM-dd')
 
-  const financeMembers = membersList.filter(m => m.status === 'approved' || m.status === 'left')
-  const financeMemberIdsStr = JSON.stringify(financeMembers.map(m => m.user_id))
+  const financeMembers = membersList.filter((m) => m.status === 'approved' || m.status === 'left')
+  const financeMemberIdsStr = JSON.stringify(financeMembers.map((m) => m.user_id))
 
   const fetchBalances = useCallback(async () => {
     if (!messId) return
@@ -51,14 +51,28 @@ export function useFinanceData(
       if (row) results[uid] = row as Record<string, unknown>
     }
     setBalances(results)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messId, currentMonth, financeMemberIdsStr])
 
   const fetchAllData = useCallback(async () => {
     if (!messId) return
     const [expRes, depRes, fixRes] = await Promise.all([
-      supabase.from('expenses').select('*, profiles(username)').eq('mess_id', messId).gte('date', monthStart).lte('date', monthEnd).order('date', { ascending: false }).limit(100),
-      supabase.from('deposits').select('*, profiles!deposits_user_id_fkey(username)').eq('mess_id', messId).gte('date', monthStart).lte('date', monthEnd).order('date', { ascending: false }).limit(100),
+      supabase
+        .from('expenses')
+        .select('*, profiles(username)')
+        .eq('mess_id', messId)
+        .gte('date', monthStart)
+        .lte('date', monthEnd)
+        .order('date', { ascending: false })
+        .limit(100),
+      supabase
+        .from('deposits')
+        .select('*, profiles!deposits_user_id_fkey(username)')
+        .eq('mess_id', messId)
+        .gte('date', monthStart)
+        .lte('date', monthEnd)
+        .order('date', { ascending: false })
+        .limit(100),
       supabase.from('fixed_costs').select('*').eq('mess_id', messId).eq('month', currentMonth),
     ])
     if (expRes.data) setExpenses(expRes.data as Expense[])
@@ -81,7 +95,7 @@ export function useFinanceData(
       { table: 'fixed_costs', filter: `mess_id=eq.${messId}` },
       { table: 'meals', filter: `mess_id=eq.${messId}` },
     ],
-    fetchAllData,
+    fetchAllData
   )
 
   return {

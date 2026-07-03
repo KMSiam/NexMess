@@ -14,23 +14,35 @@ export interface DashboardRoutines {
 }
 
 export interface CookSummary {
-  todayL: number; todayD: number; tomorrowL: number; tomorrowD: number
+  todayL: number
+  todayD: number
+  tomorrowL: number
+  tomorrowD: number
 }
 
 export interface DashboardStats {
-  totalMeals: number; balance: number; mealRate: number; messTotalSpent: number
+  totalMeals: number
+  balance: number
+  mealRate: number
+  messTotalSpent: number
 }
 
 export interface DashboardActivity {
-  id: string; text: string; type: string; time: string
+  id: string
+  text: string
+  type: string
+  time: string
 }
 
 export interface EmergencyContact {
-  id: string; name: string; phone: string
+  id: string
+  name: string
+  phone: string
 }
 
 export interface DashboardNotice {
-  id: string; message: string
+  id: string
+  message: string
 }
 
 interface UseDashboardDataReturn {
@@ -60,18 +72,28 @@ const defaultMeals: DashboardMeals = {
 export function useDashboardData(
   userId: string | undefined,
   username: string | undefined,
-  messId: string | undefined,
+  messId: string | undefined
 ): UseDashboardDataReturn {
   const [mealsData, setMealsData] = useState<DashboardMeals>(defaultMeals)
   const [routines, setRoutines] = useState<DashboardRoutines>({
     today: { lunch: '', dinner: '' },
     tomorrow: { lunch: '', dinner: '' },
   })
-  const [cookSummary, setCookSummary] = useState<CookSummary>({ todayL: 0, todayD: 0, tomorrowL: 0, tomorrowD: 0 })
+  const [cookSummary, setCookSummary] = useState<CookSummary>({
+    todayL: 0,
+    todayD: 0,
+    tomorrowL: 0,
+    tomorrowD: 0,
+  })
   const [upcomingBazaar, setUpcomingBazaar] = useState<{ date: string; username: string }[]>([])
   const [unpaidFixed, setUnpaidFixed] = useState(0)
   const [recentActs, setRecentActs] = useState<DashboardActivity[]>([])
-  const [stats, setStats] = useState<DashboardStats>({ totalMeals: 0, balance: 0, mealRate: 0, messTotalSpent: 0 })
+  const [stats, setStats] = useState<DashboardStats>({
+    totalMeals: 0,
+    balance: 0,
+    mealRate: 0,
+    messTotalSpent: 0,
+  })
   const [isBazaarMan, setIsBazaarMan] = useState(false)
   const [notice, setNotice] = useState<DashboardNotice | null>(null)
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([])
@@ -98,31 +120,74 @@ export function useDashboardData(
       ecRes,
     ] = await Promise.all([
       // 1. Personal Meals
-      supabase.from('meals').select('*').eq('user_id', userId).eq('mess_id', messId).in('date', [today, tomorrow]),
+      supabase
+        .from('meals')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('mess_id', messId)
+        .in('date', [today, tomorrow]),
       // 2. All Meals (cook summary)
       supabase.from('meals').select('*').eq('mess_id', messId).in('date', [today, tomorrow]),
       // 3. Upcoming Bazaar
-      supabase.from('market_schedules').select('assigned_date, profiles(username)').eq('mess_id', messId).gte('assigned_date', today).order('assigned_date', { ascending: true }).limit(3),
+      supabase
+        .from('market_schedules')
+        .select('assigned_date, profiles(username)')
+        .eq('mess_id', messId)
+        .gte('assigned_date', today)
+        .order('assigned_date', { ascending: true })
+        .limit(3),
       // 4. Unpaid Fixed Costs
-      supabase.from('fixed_costs').select('*', { count: 'exact', head: true }).eq('mess_id', messId).eq('month', currentMonth).eq('is_paid', false),
+      supabase
+        .from('fixed_costs')
+        .select('*', { count: 'exact', head: true })
+        .eq('mess_id', messId)
+        .eq('month', currentMonth)
+        .eq('is_paid', false),
       // 5. Recent Expenses
-      supabase.from('expenses').select('id, amount, category, created_at, profiles(username)').eq('mess_id', messId).order('created_at', { ascending: false }).limit(3),
+      supabase
+        .from('expenses')
+        .select('id, amount, category, created_at, profiles(username)')
+        .eq('mess_id', messId)
+        .order('created_at', { ascending: false })
+        .limit(3),
       // 6. Recent Deposits
-      supabase.from('deposits').select('id, amount, created_at, profiles!deposits_user_id_fkey(username)').eq('mess_id', messId).order('created_at', { ascending: false }).limit(3),
+      supabase
+        .from('deposits')
+        .select('id, amount, created_at, profiles!deposits_user_id_fkey(username)')
+        .eq('mess_id', messId)
+        .order('created_at', { ascending: false })
+        .limit(3),
       // 7. Balance & Stats
-      supabase.rpc('calculate_member_balance', { p_user_id: userId, p_mess_id: messId, p_month: currentMonth }),
+      supabase.rpc('calculate_member_balance', {
+        p_user_id: userId,
+        p_mess_id: messId,
+        p_month: currentMonth,
+      }),
       // 8. Active Notice
-      supabase.from('notices').select('id, message').eq('mess_id', messId).eq('is_active', true).single(),
+      supabase
+        .from('notices')
+        .select('id, message')
+        .eq('mess_id', messId)
+        .eq('is_active', true)
+        .single(),
       // 9. Meal Routine
       (() => {
         const _dhakaBase = new Date(dhakaToday() + 'T00:00:00+06:00')
         const todayDow = (_dhakaBase.getUTCDay() + 1) % 7
         const _dhakaTomorrow = new Date(_dhakaBase.getTime() + 24 * 60 * 60 * 1000)
         const tomorrowDow = (_dhakaTomorrow.getUTCDay() + 1) % 7
-        return supabase.from('meal_routines').select('day_of_week, lunch, dinner').eq('mess_id', messId).in('day_of_week', [todayDow, tomorrowDow])
+        return supabase
+          .from('meal_routines')
+          .select('day_of_week, lunch, dinner')
+          .eq('mess_id', messId)
+          .in('day_of_week', [todayDow, tomorrowDow])
       })(),
       // 10. Emergency Contacts
-      supabase.from('emergency_contacts').select('id, name, phone').eq('mess_id', messId).order('created_at', { ascending: true }),
+      supabase
+        .from('emergency_contacts')
+        .select('id, name, phone')
+        .eq('mess_id', messId)
+        .order('created_at', { ascending: true }),
     ])
 
     // Process Personal Meals
@@ -153,14 +218,20 @@ export function useDashboardData(
 
     // Process Market
     if (marketRes.data) {
-      setIsBazaarMan(marketRes.data.some((m: Record<string, unknown>) =>
-        m.assigned_date === today && 
-        (m.profiles as Record<string, unknown>)?.username?.toString().toLowerCase() === username?.toLowerCase()
-      ))
-      setUpcomingBazaar(marketRes.data.map((m: Record<string, unknown>) => ({
-        date: m.assigned_date as string,
-        username: ((m.profiles as Record<string, unknown>)?.username as string) || 'Unknown',
-      })))
+      setIsBazaarMan(
+        marketRes.data.some(
+          (m: Record<string, unknown>) =>
+            m.assigned_date === today &&
+            (m.profiles as Record<string, unknown>)?.username?.toString().toLowerCase() ===
+              username?.toLowerCase()
+        )
+      )
+      setUpcomingBazaar(
+        marketRes.data.map((m: Record<string, unknown>) => ({
+          date: m.assigned_date as string,
+          username: ((m.profiles as Record<string, unknown>)?.username as string) || 'Unknown',
+        }))
+      )
     }
 
     // Unpaid Fixed Costs
@@ -180,7 +251,9 @@ export function useDashboardData(
         type: 'deposit',
         time: d.created_at as string,
       })),
-    ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 4)
+    ]
+      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+      .slice(0, 4)
     setRecentActs(acts)
 
     // Balance & Stats
@@ -206,11 +279,18 @@ export function useDashboardData(
       const todayDow = (_dhakaBase.getUTCDay() + 1) % 7
       const _dhakaTomorrow = new Date(_dhakaBase.getTime() + 24 * 60 * 60 * 1000)
       const tomorrowDow = (_dhakaTomorrow.getUTCDay() + 1) % 7
-      const todayR = routineRes.data.find((r: Record<string, unknown>) => r.day_of_week === todayDow)
-      const tomorrowR = routineRes.data.find((r: Record<string, unknown>) => r.day_of_week === tomorrowDow)
+      const todayR = routineRes.data.find(
+        (r: Record<string, unknown>) => r.day_of_week === todayDow
+      )
+      const tomorrowR = routineRes.data.find(
+        (r: Record<string, unknown>) => r.day_of_week === tomorrowDow
+      )
       setRoutines({
         today: { lunch: (todayR?.lunch as string) || '', dinner: (todayR?.dinner as string) || '' },
-        tomorrow: { lunch: (tomorrowR?.lunch as string) || '', dinner: (tomorrowR?.dinner as string) || '' },
+        tomorrow: {
+          lunch: (tomorrowR?.lunch as string) || '',
+          dinner: (tomorrowR?.dinner as string) || '',
+        },
       })
     }
 
@@ -236,7 +316,7 @@ export function useDashboardData(
     ],
     fetchDashboardData,
     undefined,
-    500, // debounce 500ms
+    500 // debounce 500ms
   )
 
   return {

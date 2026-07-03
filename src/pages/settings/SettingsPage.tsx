@@ -29,7 +29,9 @@ export default function SettingsPage() {
   const [pushEnabled, setPushEnabled] = useState(false)
   const [pushLoading, setPushLoading] = useState(false)
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'members' | 'mess' | 'notifications' | 'danger'>('profile')
+  const [activeTab, setActiveTab] = useState<
+    'profile' | 'members' | 'mess' | 'notifications' | 'danger'
+  >('profile')
   const [isSupportOpen, setIsSupportOpen] = useState(false)
 
   // Modal Dialogs States
@@ -40,9 +42,9 @@ export default function SettingsPage() {
   const [promoteMemberId, setPromoteMemberId] = useState<string | null>(null)
   const [demoteMemberId, setDemoteMemberId] = useState<string | null>(null)
 
-  const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager')
-  const pendingMembers = members.filter(m => m.status === 'pending')
-  const approvedMembers = members.filter(m => m.status === 'approved')
+  const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
+  const pendingMembers = members.filter((m) => m.status === 'pending')
+  const approvedMembers = members.filter((m) => m.status === 'approved')
 
   useEffect(() => {
     isSubscribed().then(setPushEnabled)
@@ -57,7 +59,12 @@ export default function SettingsPage() {
         .channel(`members-${currentMess.id}`)
         .on(
           'postgres_changes',
-          { event: '*', schema: 'public', table: 'mess_members', filter: `mess_id=eq.${currentMess.id}` },
+          {
+            event: '*',
+            schema: 'public',
+            table: 'mess_members',
+            filter: `mess_id=eq.${currentMess.id}`,
+          },
           () => fetchMembers(currentMess.id)
         )
         .subscribe()
@@ -116,7 +123,8 @@ export default function SettingsPage() {
 
   const handleApprove = async (userId: string) => {
     if (!currentMess?.id) return
-    await supabase.from('mess_members')
+    await supabase
+      .from('mess_members')
       .update({ status: 'approved' })
       .eq('mess_id', currentMess.id)
       .eq('user_id', userId)
@@ -126,29 +134,27 @@ export default function SettingsPage() {
 
   const handleReject = async (userId: string) => {
     if (!currentMess?.id) return
-    
+
     if (currentMess.name) {
       await supabase.from('notifications').insert({
         user_id: userId,
         mess_id: currentMess.id,
         type: 'join_rejected',
         title: 'Request rejected',
-        body: `Your request to join ${currentMess.name} has been declined.`
+        body: `Your request to join ${currentMess.name} has been declined.`,
       })
     }
 
-    await supabase.from('mess_members')
-      .delete()
-      .eq('mess_id', currentMess.id)
-      .eq('user_id', userId)
-      
+    await supabase.from('mess_members').delete().eq('mess_id', currentMess.id).eq('user_id', userId)
+
     toast.success('Request rejected')
     fetchMembers(currentMess.id)
   }
 
   const handleConfirmRemoveMember = async () => {
     if (!currentMess?.id || !removeMemberId) return
-    await supabase.from('mess_members')
+    await supabase
+      .from('mess_members')
       .update({ status: 'left', left_at: new Date().toISOString() })
       .eq('mess_id', currentMess.id)
       .eq('user_id', removeMemberId)
@@ -159,14 +165,15 @@ export default function SettingsPage() {
 
   const handleConfirmPromoteMember = async () => {
     if (!currentMess?.id || !promoteMemberId) return
-    const managersCount = approvedMembers.filter(m => m.role === 'manager').length
+    const managersCount = approvedMembers.filter((m) => m.role === 'manager').length
     if (managersCount >= 3) {
       toast.error('Maximum 3 managers allowed per mess')
       setPromoteMemberId(null)
       return
     }
 
-    await supabase.from('mess_members')
+    await supabase
+      .from('mess_members')
       .update({ role: 'manager' })
       .eq('mess_id', currentMess.id)
       .eq('user_id', promoteMemberId)
@@ -177,14 +184,15 @@ export default function SettingsPage() {
 
   const handleConfirmDemoteMember = async () => {
     if (!currentMess?.id || !demoteMemberId) return
-    const managersCount = approvedMembers.filter(m => m.role === 'manager').length
+    const managersCount = approvedMembers.filter((m) => m.role === 'manager').length
     if (managersCount <= 1) {
       toast.error('Cannot demote the last manager')
       setDemoteMemberId(null)
       return
     }
 
-    await supabase.from('mess_members')
+    await supabase
+      .from('mess_members')
       .update({ role: 'member' })
       .eq('mess_id', currentMess.id)
       .eq('user_id', demoteMemberId)
@@ -202,14 +210,17 @@ export default function SettingsPage() {
 
   const handleConfirmLeaveMess = async () => {
     if (!currentMess || !user) return
-    const managersCount = approvedMembers.filter(m => m.role === 'manager').length
+    const managersCount = approvedMembers.filter((m) => m.role === 'manager').length
     if (isManager && managersCount === 1) {
-      toast.error('You are the only manager. Make someone else manager or delete the mess to leave.')
+      toast.error(
+        'You are the only manager. Make someone else manager or delete the mess to leave.'
+      )
       setConfirmLeaveOpen(false)
       return
     }
 
-    const { error } = await supabase.from('mess_members')
+    const { error } = await supabase
+      .from('mess_members')
       .update({ status: 'left', left_at: new Date().toISOString() })
       .eq('mess_id', currentMess.id)
       .eq('user_id', user.id)
@@ -241,7 +252,8 @@ export default function SettingsPage() {
   const handleConfirmDeleteAccount = async () => {
     if (!user?.id) return
 
-    const { error } = await supabase.from('profiles')
+    const { error } = await supabase
+      .from('profiles')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', user.id)
 
@@ -257,38 +269,38 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center gap-3">
-        <Settings className="w-6 h-6 text-nex-primary" />
-        <h1 className="text-2xl font-bold text-nex-text">Settings</h1>
+        <Settings className="text-nex-primary h-6 w-6" />
+        <h1 className="text-nex-text text-2xl font-bold">Settings</h1>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex w-full max-w-full gap-1.5 p-1 bg-nex-elevated rounded-xl border border-nex-border/80 overflow-x-auto scrollbar-none whitespace-nowrap">
+      <div className="bg-nex-elevated border-nex-border/80 scrollbar-none flex w-full max-w-full gap-1.5 overflow-x-auto rounded-xl border p-1 whitespace-nowrap">
         <button
           onClick={() => setActiveTab('profile')}
-          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+          className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
             activeTab === 'profile'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
           }`}
         >
-          <User className="w-4 h-4" />
+          <User className="h-4 w-4" />
           <span>Profile</span>
         </button>
 
         <button
           onClick={() => setActiveTab('members')}
-          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+          className={`relative flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
             activeTab === 'members'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
           }`}
         >
-          <Users className="w-4 h-4" />
+          <Users className="h-4 w-4" />
           <span>Members</span>
           {pendingMembers.length > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-nex-danger text-[9px] font-bold text-white ring-2 ring-nex-bg animate-pulse">
+            <span className="bg-nex-danger ring-nex-bg absolute -top-1 -right-1 flex h-4.5 w-4.5 animate-pulse items-center justify-center rounded-full text-[9px] font-bold text-white ring-2">
               {pendingMembers.length}
             </span>
           )}
@@ -296,37 +308,37 @@ export default function SettingsPage() {
 
         <button
           onClick={() => setActiveTab('mess')}
-          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+          className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
             activeTab === 'mess'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
           }`}
         >
-          <Home className="w-4 h-4" />
+          <Home className="h-4 w-4" />
           <span>Mess Info</span>
         </button>
 
         <button
           onClick={() => setActiveTab('notifications')}
-          className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+          className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
             activeTab === 'notifications'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
           }`}
         >
-          <Bell className="w-4 h-4" />
+          <Bell className="h-4 w-4" />
           <span>Notifications</span>
         </button>
 
         <button
           onClick={() => setActiveTab('danger')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+          className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
             activeTab === 'danger'
               ? 'bg-red-500 text-white shadow-md'
-              : 'text-nex-muted hover:text-red-500 hover:bg-red-500/10'
+              : 'text-nex-muted hover:bg-red-500/10 hover:text-red-500'
           }`}
         >
-          <AlertTriangle className="w-4 h-4" />
+          <AlertTriangle className="h-4 w-4" />
           <span>Danger Zone</span>
         </button>
       </div>
@@ -334,11 +346,7 @@ export default function SettingsPage() {
       {/* Tab Contents */}
       <div className="mt-4 min-h-[300px]">
         {activeTab === 'profile' && (
-          <ProfileSection
-            profile={profile}
-            email={user?.email}
-            onUpdate={handleProfileUpdate}
-          />
+          <ProfileSection profile={profile} email={user?.email} onUpdate={handleProfileUpdate} />
         )}
 
         {activeTab === 'members' && (
@@ -354,7 +362,9 @@ export default function SettingsPage() {
           />
         )}
 
-        {activeTab === 'mess' && <MessDetailsSection currentMess={currentMess} isManager={isManager} />}
+        {activeTab === 'mess' && (
+          <MessDetailsSection currentMess={currentMess} isManager={isManager} />
+        )}
 
         {activeTab === 'notifications' && (
           <PushNotificationSection
@@ -377,7 +387,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Version Footer */}
-      <div className="text-center py-4 text-xs text-nex-muted border-t border-nex-border/30">
+      <div className="text-nex-muted border-nex-border/30 border-t py-4 text-center text-xs">
         NexMess v{pkg.version}
       </div>
 
@@ -439,7 +449,11 @@ export default function SettingsPage() {
       <ConfirmDialog
         open={demoteMemberId !== null}
         title="Demote Manager"
-        message={demoteMemberId === user?.id ? "Are you sure you want to demote yourself? You will lose manager access immediately." : "Demote this manager back to a regular member?"}
+        message={
+          demoteMemberId === user?.id
+            ? 'Are you sure you want to demote yourself? You will lose manager access immediately.'
+            : 'Demote this manager back to a regular member?'
+        }
         confirmText="Demote"
         variant="warning"
         onConfirm={handleConfirmDemoteMember}
@@ -449,10 +463,10 @@ export default function SettingsPage() {
       {/* Support / Contact Floating Button */}
       <button
         onClick={() => setIsSupportOpen(true)}
-        className="fixed bottom-24 md:bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-nex-primary text-white shadow-xl shadow-nex-primary/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 group"
+        className="bg-nex-primary shadow-nex-primary/30 group fixed right-6 bottom-24 z-40 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 md:bottom-6"
         aria-label="Support and Contact"
       >
-        <MessageCircle className="w-6 h-6 group-hover:animate-pulse" />
+        <MessageCircle className="h-6 w-6 group-hover:animate-pulse" />
       </button>
 
       {/* Support Modal */}

@@ -28,25 +28,41 @@ export default function CreateMessPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto py-12">
+    <div className="mx-auto max-w-md py-12">
       <div className="nex-card p-8">
-        <div className="w-14 h-14 rounded-card bg-nex-primary-light mx-auto flex items-center justify-center mb-6">
-          <Home className="w-7 h-7 text-nex-primary" />
+        <div className="rounded-card bg-nex-primary-light mx-auto mb-6 flex h-14 w-14 items-center justify-center">
+          <Home className="text-nex-primary h-7 w-7" />
         </div>
-        <h1 className="text-2xl font-bold text-nex-text text-center mb-1">Create a Mess</h1>
-        <p className="text-nex-muted text-center mb-8">Start managing your shared living space</p>
+        <h1 className="text-nex-text mb-1 text-center text-2xl font-bold">Create a Mess</h1>
+        <p className="text-nex-muted mb-8 text-center">Start managing your shared living space</p>
 
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-nex-text mb-1.5">Mess Name</label>
+            <label className="text-nex-text mb-1.5 block text-sm font-medium">Mess Name</label>
             <input
-              type="text" value={name} onChange={e => setName(e.target.value)}
-              className="nex-input" placeholder="e.g., Sunrise Mess" required id="mess-name-input"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="nex-input"
+              placeholder="e.g., Sunrise Mess"
+              required
+              id="mess-name-input"
             />
           </div>
-          <button type="submit" disabled={loading} className="nex-btn-primary w-full py-3 disabled:opacity-50" id="create-mess-btn">
-            {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              : <> Create & Continue <ArrowRight className="w-4 h-4" /></>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="nex-btn-primary w-full py-3 disabled:opacity-50"
+            id="create-mess-btn"
+          >
+            {loading ? (
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <>
+                {' '}
+                Create & Continue <ArrowRight className="h-4 w-4" />
+              </>
+            )}
           </button>
         </form>
       </div>

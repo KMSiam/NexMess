@@ -35,7 +35,9 @@ export default function ChatBubble({
   const sender = (msg as any).profiles
 
   // Group reactions by emoji
-  const reactionsByEmoji = reactions.reduce<Record<string, { count: number; userReacted: string | null; ids: string[] }>>((acc, curr) => {
+  const reactionsByEmoji = reactions.reduce<
+    Record<string, { count: number; userReacted: string | null; ids: string[] }>
+  >((acc, curr) => {
     if (!acc[curr.emoji]) {
       acc[curr.emoji] = { count: 0, userReacted: null, ids: [] }
     }
@@ -58,30 +60,41 @@ export default function ChatBubble({
   }
 
   return (
-    <div className={`flex gap-2 group/bubble relative ${isOwn ? 'justify-end' : 'justify-start'}`}>
+    <div className={`group/bubble relative flex gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
       {!isOwn && (
-        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-[10px] sm:text-xs font-semibold shrink-0">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-slate-300 to-slate-400 text-[10px] font-semibold text-white sm:h-8 sm:w-8 sm:text-xs">
           {sender?.avatar_url ? (
-            <img src={sender.avatar_url} alt="" className="w-full h-full object-cover" />
+            <img src={sender.avatar_url} alt="" className="h-full w-full object-cover" />
           ) : (
             getInitials(sender?.username || '?')
           )}
         </div>
       )}
-      
-      <div className={`max-w-[80%] sm:max-w-[70%] relative ${isOwn ? 'order-1' : ''}`}>
-        {!isOwn && <p className="text-xs text-nex-muted mb-0.5 ml-1">{sender?.username}</p>}
-        
+
+      <div className={`relative max-w-[80%] sm:max-w-[70%] ${isOwn ? 'order-1' : ''}`}>
+        {!isOwn && <p className="text-nex-muted mb-0.5 ml-1 text-xs">{sender?.username}</p>}
+
         {/* Message Content Bubble */}
         <div className="relative">
-          <div className={`px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${
-            isOwn
-              ? 'bg-nex-primary text-white rounded-br-sm'
-              : 'bg-nex-elevated text-nex-text rounded-bl-sm border border-nex-border/50'
-          }`}>
+          <div
+            className={`rounded-2xl px-3 py-2 text-sm break-words whitespace-pre-wrap ${
+              isOwn
+                ? 'bg-nex-primary rounded-br-sm text-white'
+                : 'bg-nex-elevated text-nex-text border-nex-border/50 rounded-bl-sm border'
+            }`}
+          >
             {msg.message_type === 'image' ? (
-              <a href={msg.text} target="_blank" rel="noreferrer" className="block max-w-xs overflow-hidden rounded-lg">
-                <img src={msg.text} alt="Chat media" className="w-full h-auto object-cover hover:scale-102 transition-transform duration-200" />
+              <a
+                href={msg.text}
+                target="_blank"
+                rel="noreferrer"
+                className="block max-w-xs overflow-hidden rounded-lg"
+              >
+                <img
+                  src={msg.text}
+                  alt="Chat media"
+                  className="h-auto w-full object-cover transition-transform duration-200 hover:scale-102"
+                />
               </a>
             ) : (
               msg.text
@@ -89,29 +102,33 @@ export default function ChatBubble({
           </div>
 
           {/* Quick Action Button Panel (hover to trigger) */}
-          <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-1 bg-nex-surface border border-nex-border shadow-md rounded-full px-1.5 py-1 opacity-0 group-hover/bubble:opacity-100 transition-opacity z-10 ${
-            isOwn ? 'right-full mr-2' : 'left-full ml-2'
-          }`}>
+          <div
+            className={`bg-nex-surface border-nex-border absolute top-1/2 z-10 flex -translate-y-1/2 items-center gap-1 rounded-full border px-1.5 py-1 opacity-0 shadow-md transition-opacity group-hover/bubble:opacity-100 ${
+              isOwn ? 'right-full mr-2' : 'left-full ml-2'
+            }`}
+          >
             <button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="p-1 text-nex-muted hover:text-nex-text hover:bg-nex-hover rounded-full transition-colors"
+              className="text-nex-muted hover:text-nex-text hover:bg-nex-hover rounded-full p-1 transition-colors"
               title="Add reaction"
             >
-              <Smile className="w-3.5 h-3.5" />
+              <Smile className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
 
         {/* Emoji Reaction Selector Drawer */}
         {showEmojiPicker && (
-          <div className={`absolute z-20 bg-nex-surface border border-nex-border shadow-lg rounded-full px-2 py-1 flex gap-1.5 animate-slide-up mt-1 ${
-            isOwn ? 'right-0' : 'left-0'
-          }`}>
-            {COMMON_EMOJIS.map(emoji => (
+          <div
+            className={`bg-nex-surface border-nex-border animate-slide-up absolute z-20 mt-1 flex gap-1.5 rounded-full border px-2 py-1 shadow-lg ${
+              isOwn ? 'right-0' : 'left-0'
+            }`}
+          >
+            {COMMON_EMOJIS.map((emoji) => (
               <button
                 key={emoji}
                 onClick={() => handleEmojiClick(emoji)}
-                className="hover:scale-125 transition-transform px-1 text-base"
+                className="px-1 text-base transition-transform hover:scale-125"
               >
                 {emoji}
               </button>
@@ -121,12 +138,16 @@ export default function ChatBubble({
 
         {/* Rendered Reactions Badges */}
         {reactions.length > 0 && (
-          <div className={`flex flex-wrap gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+          <div className={`mt-1 flex flex-wrap gap-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
             {Object.entries(reactionsByEmoji).map(([emoji, data]) => (
               <button
                 key={emoji}
-                onClick={() => data.userReacted ? onRemoveReaction(data.userReacted) : onAddReaction(msg.id, emoji)}
-                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs border ${
+                onClick={() =>
+                  data.userReacted
+                    ? onRemoveReaction(data.userReacted)
+                    : onAddReaction(msg.id, emoji)
+                }
+                className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-xs ${
                   data.userReacted
                     ? 'bg-nex-primary-light border-nex-primary/30 text-nex-primary'
                     : 'bg-nex-elevated border-nex-border text-nex-text'
@@ -139,7 +160,7 @@ export default function ChatBubble({
           </div>
         )}
 
-        <p className={`text-[10px] text-nex-muted mt-0.5 ${isOwn ? 'text-right mr-1' : 'ml-1'}`}>
+        <p className={`text-nex-muted mt-0.5 text-[10px] ${isOwn ? 'mr-1 text-right' : 'ml-1'}`}>
           {format(new Date(msg.created_at), 'h:mm a')}
         </p>
       </div>

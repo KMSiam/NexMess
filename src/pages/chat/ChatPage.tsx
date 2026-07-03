@@ -28,7 +28,7 @@ export default function ChatPage() {
 
   const { profile } = useAuthStore()
   const { currentMess, members } = useMessStore()
-  
+
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [reactions, setReactions] = useState<Reaction[]>([])
   const [newMessage, setNewMessage] = useState('')
@@ -39,83 +39,88 @@ export default function ChatPage() {
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const membersRef = useRef(members)
-  useEffect(() => { membersRef.current = members }, [members])
+  useEffect(() => {
+    membersRef.current = members
+  }, [members])
 
   // Fetch initial messages and reactions in parallel
-  const fetchMessagesAndReactions = useCallback(async (limit = PAGE_SIZE, beforeId?: string) => {
-    if (!currentMess?.id) return
+  const fetchMessagesAndReactions = useCallback(
+    async (limit = PAGE_SIZE, beforeId?: string) => {
+      if (!currentMess?.id) return
 
-    let query = supabase
-      .from('chat_messages')
-      .select('*, profiles(username, avatar_url)')
-      .eq('mess_id', currentMess.id)
-      .order('created_at', { ascending: false })
-      .limit(limit)
+      let query = supabase
+        .from('chat_messages')
+        .select('*, profiles(username, avatar_url)')
+        .eq('mess_id', currentMess.id)
+        .order('created_at', { ascending: false })
+        .limit(limit)
 
-    if (beforeId) {
-      // Find the message's created_at timestamp to query before it
-      const beforeMsg = messages.find(m => m.id === beforeId)
-      if (beforeMsg) {
-        query = query.lt('created_at', beforeMsg.created_at)
-      }
-    }
-
-    const { data: rawMsgs, error } = await query
-    if (error) {
-      toast.error('Failed to load messages')
-      return
-    }
-
-    const fetchedMsgs = (rawMsgs as ChatMessage[] || []).reverse()
-    
-    if (fetchedMsgs.length < limit) {
-      setHasMore(false)
-    }
-
-    if (beforeId) {
-      // If loading history, prepend messages and preserve scroll
-      const container = messagesContainerRef.current
-      const scrollHeightBefore = container?.scrollHeight || 0
-      const scrollTopBefore = container?.scrollTop || 0
-
-      setMessages(prev => [...fetchedMsgs, ...prev])
-
-      // Adjust scroll position after render
-      setTimeout(() => {
-        if (container) {
-          const scrollHeightAfter = container.scrollHeight
-          container.scrollTop = scrollTopBefore + (scrollHeightAfter - scrollHeightBefore)
+      if (beforeId) {
+        // Find the message's created_at timestamp to query before it
+        const beforeMsg = messages.find((m) => m.id === beforeId)
+        if (beforeMsg) {
+          query = query.lt('created_at', beforeMsg.created_at)
         }
-      }, 0)
-    } else {
-      // Initial load
-      setMessages(fetchedMsgs)
-      // Scroll to bottom after render
-      setTimeout(() => {
-        if (messagesContainerRef.current) {
-          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
-        }
-        bottomRef.current?.scrollIntoView({ behavior: 'auto' })
-      }, 100)
-    }
-
-    // Load reactions for the loaded messages
-    if (fetchedMsgs.length > 0) {
-      const msgIds = fetchedMsgs.map(m => m.id)
-      const { data: rxData } = await supabase
-        .from('chat_reactions')
-        .select('*')
-        .in('message_id', msgIds)
-      
-      if (rxData) {
-        setReactions(prev => {
-          // Remove duplicates and combine
-          const filteredPrev = prev.filter(r => !msgIds.includes(r.message_id))
-          return [...filteredPrev, ...(rxData as Reaction[])]
-        })
       }
-    }
-  }, [currentMess?.id, messages])
+
+      const { data: rawMsgs, error } = await query
+      if (error) {
+        toast.error('Failed to load messages')
+        return
+      }
+
+      const fetchedMsgs = ((rawMsgs as ChatMessage[]) || []).reverse()
+
+      if (fetchedMsgs.length < limit) {
+        setHasMore(false)
+      }
+
+      if (beforeId) {
+        // If loading history, prepend messages and preserve scroll
+        const container = messagesContainerRef.current
+        const scrollHeightBefore = container?.scrollHeight || 0
+        const scrollTopBefore = container?.scrollTop || 0
+
+        setMessages((prev) => [...fetchedMsgs, ...prev])
+
+        // Adjust scroll position after render
+        setTimeout(() => {
+          if (container) {
+            const scrollHeightAfter = container.scrollHeight
+            container.scrollTop = scrollTopBefore + (scrollHeightAfter - scrollHeightBefore)
+          }
+        }, 0)
+      } else {
+        // Initial load
+        setMessages(fetchedMsgs)
+        // Scroll to bottom after render
+        setTimeout(() => {
+          if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+          }
+          bottomRef.current?.scrollIntoView({ behavior: 'auto' })
+        }, 100)
+      }
+
+      // Load reactions for the loaded messages
+      if (fetchedMsgs.length > 0) {
+        const msgIds = fetchedMsgs.map((m) => m.id)
+        const { data: rxData } = await supabase
+          .from('chat_reactions')
+          .select('*')
+          .in('message_id', msgIds)
+
+        if (rxData) {
+          setReactions((prev) => {
+            // Remove duplicates and combine
+            const filteredPrev = prev.filter((r) => !msgIds.includes(r.message_id))
+            return [...filteredPrev, ...(rxData as Reaction[])]
+          })
+        }
+      }
+    },
+    [currentMess?.id, messages]
+  )
 
   // Initial load
   useEffect(() => {
@@ -123,7 +128,7 @@ export default function ChatPage() {
       setHasMore(true)
       fetchMessagesAndReactions(PAGE_SIZE)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMess?.id])
 
   // Load older messages on scroll-to-top
@@ -141,7 +146,7 @@ export default function ChatPage() {
   useRealtimeTable(
     [
       { table: 'chat_messages', filter: `mess_id=eq.${currentMess?.id}` },
-      { table: 'chat_reactions' } // Reactions table doesn't have direct mess_id, we filter internally or rely on SELECT RLS
+      { table: 'chat_reactions' }, // Reactions table doesn't have direct mess_id, we filter internally or rely on SELECT RLS
     ],
     () => {
       // Direct notification handler
@@ -154,43 +159,58 @@ export default function ChatPage() {
 
     const channel = supabase
       .channel('chat-realtime-custom')
-      .on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'chat_messages',
-        filter: `mess_id=eq.${currentMess.id}`,
-      }, (payload) => {
-        const newMsg = payload.new as any
-        setMessages(prev => {
-          if (prev.some(m => m.id === newMsg.id)) return prev
-          const senderProfile = membersRef.current.find(m => m.user_id === newMsg.sender_id)?.profiles
-          const completeMsg = {
-            ...newMsg,
-            profiles: senderProfile || { username: 'Unknown' }
-          }
-          return [...prev, completeMsg as ChatMessage]
-        })
-        // Scroll to bottom if user is already at the bottom
-        const container = messagesContainerRef.current
-        if (container) {
-          const isAtBottom = container.scrollHeight - container.clientHeight - container.scrollTop < 100
-          if (isAtBottom) {
-            setTimeout(() => {
-              bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-            }, 50)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `mess_id=eq.${currentMess.id}`,
+        },
+        (payload) => {
+          const newMsg = payload.new as any
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === newMsg.id)) return prev
+            const senderProfile = membersRef.current.find(
+              (m) => m.user_id === newMsg.sender_id
+            )?.profiles
+            const completeMsg = {
+              ...newMsg,
+              profiles: senderProfile || { username: 'Unknown' },
+            }
+            return [...prev, completeMsg as ChatMessage]
+          })
+          // Scroll to bottom if user is already at the bottom
+          const container = messagesContainerRef.current
+          if (container) {
+            const isAtBottom =
+              container.scrollHeight - container.clientHeight - container.scrollTop < 100
+            if (isAtBottom) {
+              setTimeout(() => {
+                bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+              }, 50)
+            }
           }
         }
-      })
-      .on('postgres_changes', {
-        event: '*', schema: 'public', table: 'chat_reactions'
-      }, (payload) => {
-        const eventType = payload.eventType
-        if (eventType === 'INSERT') {
-          const newRx = payload.new as Reaction
-          setReactions(prev => [...prev, newRx])
-        } else if (eventType === 'DELETE') {
-          const oldRx = payload.old as { id: string }
-          setReactions(prev => prev.filter(r => r.id !== oldRx.id))
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'chat_reactions',
+        },
+        (payload) => {
+          const eventType = payload.eventType
+          if (eventType === 'INSERT') {
+            const newRx = payload.new as Reaction
+            setReactions((prev) => [...prev, newRx])
+          } else if (eventType === 'DELETE') {
+            const oldRx = payload.old as { id: string }
+            setReactions((prev) => prev.filter((r) => r.id !== oldRx.id))
+          }
         }
-      })
+      )
       .subscribe()
 
     return () => {
@@ -198,9 +218,13 @@ export default function ChatPage() {
     }
   }, [currentMess?.id])
 
-  const handleSend = async (e?: React.FormEvent<HTMLFormElement>, customText?: string, messageType: 'text' | 'image' = 'text') => {
+  const handleSend = async (
+    e?: React.FormEvent<HTMLFormElement>,
+    customText?: string,
+    messageType: 'text' | 'image' = 'text'
+  ) => {
     if (e) e.preventDefault()
-    
+
     const textToSend = customText || newMessage.trim()
     if (!textToSend || !profile?.id || !currentMess?.id) return
 
@@ -208,7 +232,7 @@ export default function ChatPage() {
     setSending(true)
 
     const tempId = 'temp-' + Date.now()
-    
+
     // Optimistic UI update
     const optimisticMsg = {
       id: tempId,
@@ -217,27 +241,31 @@ export default function ChatPage() {
       text: msgText,
       message_type: messageType,
       created_at: new Date().toISOString(),
-      profiles: { username: profile.username, avatar_url: profile.avatar_url }
+      profiles: { username: profile.username, avatar_url: profile.avatar_url },
     }
-    setMessages(prev => [...prev, optimisticMsg as any])
+    setMessages((prev) => [...prev, optimisticMsg as any])
     if (!customText) setNewMessage('')
     setSending(false)
 
     // Actual DB Insert
-    const { data, error } = await supabase.from('chat_messages').insert({
-      mess_id: currentMess.id,
-      sender_id: profile.id,
-      text: msgText,
-      message_type: messageType,
-    }).select('*, profiles(username, avatar_url)').single()
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .insert({
+        mess_id: currentMess.id,
+        sender_id: profile.id,
+        text: msgText,
+        message_type: messageType,
+      })
+      .select('*, profiles(username, avatar_url)')
+      .single()
 
     if (data && !error) {
-      setMessages(prev => prev.map(m => m.id === tempId ? (data as ChatMessage) : m))
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? (data as ChatMessage) : m)))
       setTimeout(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
       }, 50)
     } else {
-      setMessages(prev => prev.filter(m => m.id !== tempId))
+      setMessages((prev) => prev.filter((m) => m.id !== tempId))
       toast.error('Failed to send message')
     }
   }
@@ -247,9 +275,10 @@ export default function ChatPage() {
     const { error } = await supabase.from('chat_reactions').insert({
       message_id: messageId,
       user_id: profile.id,
-      emoji
+      emoji,
     })
-    if (error && error.code !== '23505') { // Unique constraint violation is fine
+    if (error && error.code !== '23505') {
+      // Unique constraint violation is fine
       toast.error('Failed to add reaction')
     }
   }
@@ -264,11 +293,11 @@ export default function ChatPage() {
   if (!currentMess) return null
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-8rem)] md:h-[calc(100vh-6rem)]">
-      <div className="flex items-center justify-between mb-3 shrink-0">
+    <div className="mx-auto flex h-[calc(100dvh-8rem)] max-w-3xl flex-col md:h-[calc(100vh-6rem)]">
+      <div className="mb-3 flex shrink-0 items-center justify-between">
         <div className="flex items-center gap-3">
-          <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-nex-primary" />
-          <h1 className="text-xl sm:text-2xl font-bold text-nex-text">Group Chat</h1>
+          <MessageSquare className="text-nex-primary h-5 w-5 sm:h-6 sm:w-6" />
+          <h1 className="text-nex-text text-xl font-bold sm:text-2xl">Group Chat</h1>
         </div>
       </div>
 
@@ -276,25 +305,27 @@ export default function ChatPage() {
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="flex-1 nex-card p-3 sm:p-4 overflow-y-auto space-y-4 relative"
+        className="nex-card relative flex-1 space-y-4 overflow-y-auto p-3 sm:p-4"
       >
         {loadingOlder && (
           <div className="flex justify-center py-2">
-            <RefreshCw className="w-4 h-4 text-nex-primary animate-spin" />
+            <RefreshCw className="text-nex-primary h-4 w-4 animate-spin" />
           </div>
         )}
 
         {messages.length === 0 && !loadingOlder && (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-            <MessageSquare className="w-12 h-12 text-nex-muted/20 mb-2 animate-bounce" />
-            <p className="text-sm font-medium text-nex-text">No messages yet</p>
-            <p className="text-xs text-nex-muted max-w-xs mt-1">Start the conversation with your mess members!</p>
+            <MessageSquare className="text-nex-muted/20 mb-2 h-12 w-12 animate-bounce" />
+            <p className="text-nex-text text-sm font-medium">No messages yet</p>
+            <p className="text-nex-muted mt-1 max-w-xs text-xs">
+              Start the conversation with your mess members!
+            </p>
           </div>
         )}
 
         {messages.map((msg) => {
           const isOwn = msg.sender_id === profile?.id
-          const msgReactions = reactions.filter(r => r.message_id === msg.id)
+          const msgReactions = reactions.filter((r) => r.message_id === msg.id)
           return (
             <ChatBubble
               key={msg.id}
@@ -311,7 +342,7 @@ export default function ChatPage() {
       </div>
 
       {/* Input controls */}
-      <form onSubmit={(e) => handleSend(e)} className="mt-2 flex gap-2 shrink-0">
+      <form onSubmit={(e) => handleSend(e)} className="mt-2 flex shrink-0 gap-2">
         <ImageUploader
           messId={currentMess.id}
           onUploadComplete={(url) => handleSend(undefined, url, 'image')}
@@ -319,7 +350,7 @@ export default function ChatPage() {
         <input
           type="text"
           value={newMessage}
-          onChange={e => setNewMessage(e.target.value)}
+          onChange={(e) => setNewMessage(e.target.value)}
           maxLength={2000}
           className="nex-input flex-1 text-base"
           placeholder="Type a message..."
@@ -332,7 +363,7 @@ export default function ChatPage() {
           className="nex-btn-primary px-4 disabled:opacity-50"
           id="chat-send"
         >
-          <Send className="w-4 h-4" />
+          <Send className="h-4 w-4" />
         </button>
       </form>
     </div>

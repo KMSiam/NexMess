@@ -11,7 +11,14 @@ interface AlertBannersProps {
   onQuickMealToggle: (tab: 'today' | 'tomorrow', type: 'lunch' | 'dinner') => void
 }
 
-export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMan, isManager = false, onQuickMealToggle }: AlertBannersProps) {
+export default function AlertBanners({
+  mealsData,
+  stats,
+  unpaidFixed,
+  isBazaarMan,
+  isManager = false,
+  onQuickMealToggle,
+}: AlertBannersProps) {
   // Cut-off reminder: only for *today* and only when the meal isn't already on
   const lunchLeft = !mealsData.today.lunch ? mealCutoffApproaching('lunch') : null
   const dinnerLeft = !mealsData.today.dinner ? mealCutoffApproaching('dinner') : null
@@ -19,34 +26,38 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
   if (lunchLeft !== null) banners.push({ type: 'lunch', minutes: lunchLeft })
   if (dinnerLeft !== null) banners.push({ type: 'dinner', minutes: dinnerLeft })
 
-  const alertsList: { id: string; type: 'critical' | 'warning' | 'info'; element: React.ReactNode }[] = []
+  const alertsList: {
+    id: string
+    type: 'critical' | 'warning' | 'info'
+    element: React.ReactNode
+  }[] = []
 
   // 1. Cutoff Alerts
-  banners.forEach(b => {
+  banners.forEach((b) => {
     alertsList.push({
       id: `cutoff-${b.type}`,
       type: 'warning',
       element: (
-        <div className="flex items-center justify-between gap-3 w-full">
+        <div className="flex w-full items-center justify-between gap-3">
           <div className="flex items-start gap-2.5">
-            <Clock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+            <Clock className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-nex-text">
+              <p className="text-nex-text text-xs font-semibold">
                 {b.type === 'lunch' ? 'Lunch' : 'Dinner'} Cut-off approaching ({b.minutes}m)
               </p>
-              <p className="text-[10px] text-nex-muted truncate max-w-[200px] sm:max-w-xs">
+              <p className="text-nex-muted max-w-[200px] truncate text-[10px] sm:max-w-xs">
                 Locks at {mealCutoffLabel(b.type)}.
               </p>
             </div>
           </div>
           <button
             onClick={() => onQuickMealToggle('today', b.type)}
-            className="text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-1 rounded-md shrink-0"
+            className="shrink-0 rounded-md bg-amber-500/10 px-2 py-1 text-[10px] font-bold tracking-wider text-amber-600 uppercase hover:bg-amber-500/20 dark:text-amber-400"
           >
             Mark On
           </button>
         </div>
-      )
+      ),
     })
   })
 
@@ -57,15 +68,15 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
       type: 'critical',
       element: (
         <div className="flex items-start gap-2.5">
-          <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
           <div>
-            <p className="text-xs font-semibold text-nex-text">
+            <p className="text-nex-text text-xs font-semibold">
               Low Balance ({formatCurrency(stats.balance)})
             </p>
-            <p className="text-[10px] text-nex-muted">Please deposit funds soon.</p>
+            <p className="text-nex-muted text-[10px]">Please deposit funds soon.</p>
           </div>
         </div>
-      )
+      ),
     })
   }
 
@@ -76,15 +87,13 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
       type: 'warning',
       element: (
         <div className="flex items-start gap-2.5">
-          <Wallet className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+          <Wallet className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" />
           <div>
-            <p className="text-xs font-semibold text-nex-text">
-              {unpaidFixed} Unpaid Mess Bills
-            </p>
-            <p className="text-[10px] text-nex-muted">Fixed costs pending payment.</p>
+            <p className="text-nex-text text-xs font-semibold">{unpaidFixed} Unpaid Mess Bills</p>
+            <p className="text-nex-muted text-[10px]">Fixed costs pending payment.</p>
           </div>
         </div>
-      )
+      ),
     })
   }
 
@@ -95,39 +104,35 @@ export default function AlertBanners({ mealsData, stats, unpaidFixed, isBazaarMa
       type: 'info',
       element: (
         <div className="flex items-start gap-2.5">
-          <ShoppingBag className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+          <ShoppingBag className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
           <div>
-            <p className="text-xs font-semibold text-nex-text">
-              🛒 You're the Bazaar Man today!
-            </p>
-            <p className="text-[10px] text-nex-muted">Remember to log expenses.</p>
+            <p className="text-nex-text text-xs font-semibold">🛒 You're the Bazaar Man today!</p>
+            <p className="text-nex-muted text-[10px]">Remember to log expenses.</p>
           </div>
         </div>
-      )
+      ),
     })
   }
 
   return (
-    <div className="nex-card p-5 h-full flex flex-col justify-between min-h-[160px]">
+    <div className="nex-card flex h-full min-h-[160px] flex-col justify-between p-5">
       <div>
-        <div className="flex items-center gap-2 mb-3 shrink-0">
-          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-          <h4 className="text-xs font-bold uppercase tracking-wider text-nex-text">
-            Mess Alerts
-          </h4>
+        <div className="mb-3 flex shrink-0 items-center gap-2">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500" />
+          <h4 className="text-nex-text text-xs font-bold tracking-wider uppercase">Mess Alerts</h4>
         </div>
 
         {alertsList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-4 text-center shrink-0">
-            <CheckCircle className="w-7 h-7 text-emerald-500 mb-1" />
-            <p className="text-xs text-nex-muted font-medium">All systems normal. No alerts.</p>
+          <div className="flex shrink-0 flex-col items-center justify-center py-4 text-center">
+            <CheckCircle className="mb-1 h-7 w-7 text-emerald-500" />
+            <p className="text-nex-muted text-xs font-medium">All systems normal. No alerts.</p>
           </div>
         ) : (
-          <div className="space-y-3 mt-2 divide-y divide-nex-border">
+          <div className="divide-nex-border mt-2 space-y-3 divide-y">
             {alertsList.map((alert, idx) => (
               <div
                 key={alert.id}
-                className={`flex items-center justify-between w-full ${idx > 0 ? 'pt-3' : ''}`}
+                className={`flex w-full items-center justify-between ${idx > 0 ? 'pt-3' : ''}`}
               >
                 {alert.element}
               </div>

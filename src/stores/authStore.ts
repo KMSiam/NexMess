@@ -32,7 +32,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (get().initialized || get().unsubscribe) return
 
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       set({ session, user: session?.user ?? null })
 
       if (session?.user) {
@@ -40,19 +42,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       // Listen for auth changes and store unsubscribe
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (event: AuthChangeEvent, session: Session | null) => {
-          if (event === 'SIGNED_OUT') {
-            set({ session: null, user: null, profile: null })
-            return
-          }
-          if (!session) return
-          set({ session, user: session.user })
-          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-            void get().fetchProfile()
-          }
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+        if (event === 'SIGNED_OUT') {
+          set({ session: null, user: null, profile: null })
+          return
         }
-      )
+        if (!session) return
+        set({ session, user: session.user })
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+          void get().fetchProfile()
+        }
+      })
 
       set({ unsubscribe: subscription.unsubscribe })
     } finally {
@@ -68,11 +70,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const user = get().user
     if (!user) return
 
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single()
+    const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
 
     if (data) {
       set({ profile: data as Profile })
@@ -107,7 +105,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ session: null, user: null, profile: null })
     // Clear mess data so the next account on this device doesn't see stale state
     useMessStore.getState().reset()
-    try { localStorage.removeItem('nexmess-store') } catch { /* storage unavailable */ }
+    try {
+      localStorage.removeItem('nexmess-store')
+    } catch {
+      /* storage unavailable */
+    }
 
     // Then tell Supabase to sign out (scope: 'local' avoids network issues)
     await supabase.auth.signOut({ scope: 'local' })

@@ -25,7 +25,7 @@ export function useRealtimeTable(
   tables: string | TableSubscription | TableSubscription[],
   filterOrCallback: string | (() => void),
   callback?: () => void,
-  debounceMs = 300,
+  debounceMs = 300
 ) {
   const callbackRef = useRef(callback ?? (filterOrCallback as () => void))
   const latestCallback = callback ?? (filterOrCallback as () => void)
@@ -57,7 +57,7 @@ export function useRealtimeTable(
       debounceTimer = setTimeout(() => callbackRef.current(), debounceMs)
     }
 
-    const channelName = `rt-${subs.map(s => s.table).join('-')}-${Date.now()}`
+    const channelName = `rt-${subs.map((s) => s.table).join('-')}-${Date.now()}`
     let channel = supabase.channel(channelName)
 
     for (const sub of subs) {
@@ -69,7 +69,7 @@ export function useRealtimeTable(
           table: sub.table,
           ...(sub.filter ? { filter: sub.filter } : {}),
         },
-        debouncedCallback,
+        debouncedCallback
       )
     }
 
@@ -79,6 +79,6 @@ export function useRealtimeTable(
       if (debounceTimer) clearTimeout(debounceTimer)
       supabase.removeChannel(channel)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tablesDep, filterDep, debounceMs])
 }

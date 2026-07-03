@@ -51,7 +51,9 @@ export default function OnboardingPage() {
           .upload(path, avatarFile, { upsert: true })
 
         if (!uploadError) {
-          const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+          const {
+            data: { publicUrl },
+          } = supabase.storage.from('avatars').getPublicUrl(path)
           avatar_url = publicUrl
         }
       }
@@ -61,7 +63,7 @@ export default function OnboardingPage() {
         ...(avatar_url && { avatar_url }),
       })
 
-      toast.success('Profile set up! Let\'s go 🚀')
+      toast.success("Profile set up! Let's go 🚀")
       navigate('/dashboard')
     } catch {
       toast.error('Something went wrong. Try again.')
@@ -70,16 +72,16 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-nex-bg flex items-center justify-center p-6">
-      <div className="nex-card p-8 max-w-md w-full">
-        <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 rounded-lg overflow-hidden">
-            <img src={logoIcon} alt="NexMess" className="w-full h-full" />
+    <div className="bg-nex-bg flex min-h-screen items-center justify-center p-6">
+      <div className="nex-card w-full max-w-md p-8">
+        <div className="mb-6 flex items-center gap-2">
+          <div className="h-8 w-8 overflow-hidden rounded-lg">
+            <img src={logoIcon} alt="NexMess" className="h-full w-full" />
           </div>
-          <span className="text-sm font-semibold text-nex-primary">NexMess</span>
+          <span className="text-nex-primary text-sm font-semibold">NexMess</span>
         </div>
 
-        <h1 className="text-2xl font-bold text-nex-text mb-1">Set up your profile</h1>
+        <h1 className="text-nex-text mb-1 text-2xl font-bold">Set up your profile</h1>
         <p className="text-nex-muted mb-8">Choose a username and avatar to get started</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -88,45 +90,62 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="relative w-24 h-24 rounded-full bg-gradient-to-br from-nex-primary-light to-nex-hover border-2 border-dashed border-nex-border hover:border-nex-primary flex items-center justify-center transition-colors group overflow-hidden"
+              className="from-nex-primary-light to-nex-hover border-nex-border hover:border-nex-primary group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed bg-gradient-to-br transition-colors"
               id="avatar-upload"
             >
               {avatarPreview ? (
-                <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                <img
+                  src={avatarPreview}
+                  alt="Avatar"
+                  className="h-full w-full rounded-full object-cover"
+                />
               ) : (
                 <div className="flex flex-col items-center gap-1">
-                  <Camera className="w-6 h-6 text-nex-muted group-hover:text-nex-primary transition-colors" />
-                  <span className="text-[10px] text-nex-muted">Upload</span>
+                  <Camera className="text-nex-muted group-hover:text-nex-primary h-6 w-6 transition-colors" />
+                  <span className="text-nex-muted text-[10px]">Upload</span>
                 </div>
               )}
               {avatarPreview && (
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
-                  <Camera className="w-5 h-5 text-white" />
+                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 opacity-0 transition-opacity group-hover:opacity-100">
+                  <Camera className="h-5 w-5 text-white" />
                 </div>
               )}
             </button>
-            <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="hidden"
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-nex-text mb-1.5">Username</label>
+            <label className="text-nex-text mb-1.5 block text-sm font-medium">Username</label>
             <input
               type="text"
               value={username}
-              onChange={e => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
               className="nex-input"
               placeholder="e.g., kamal_ahmed"
               required
               id="onboarding-username"
             />
-            <p className="text-xs text-nex-muted mt-1">This will be visible to your mess members</p>
+            <p className="text-nex-muted mt-1 text-xs">This will be visible to your mess members</p>
           </div>
 
-          <button type="submit" disabled={loading} className="nex-btn-primary w-full py-3 disabled:opacity-50" id="onboarding-submit">
+          <button
+            type="submit"
+            disabled={loading}
+            className="nex-btn-primary w-full py-3 disabled:opacity-50"
+            id="onboarding-submit"
+          >
             {loading ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
-              <>Continue to Dashboard <ArrowRight className="w-4 h-4" /></>
+              <>
+                Continue to Dashboard <ArrowRight className="h-4 w-4" />
+              </>
             )}
           </button>
         </form>

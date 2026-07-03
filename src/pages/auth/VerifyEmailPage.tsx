@@ -3,17 +3,18 @@ import { MailCheck } from 'lucide-react'
 
 export default function VerifyEmailPage() {
   return (
-    <div className="min-h-screen bg-nex-bg flex items-center justify-center p-6">
-      <div className="nex-card p-8 max-w-md w-full text-center">
-        <div className="w-16 h-16 rounded-full bg-nex-primary-light mx-auto flex items-center justify-center mb-6">
-          <MailCheck className="w-8 h-8 text-nex-primary" />
+    <div className="bg-nex-bg flex min-h-screen items-center justify-center p-6">
+      <div className="nex-card w-full max-w-md p-8 text-center">
+        <div className="bg-nex-primary-light mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full">
+          <MailCheck className="text-nex-primary h-8 w-8" />
         </div>
-        <h1 className="text-2xl font-bold text-nex-text mb-2">Check your email</h1>
+        <h1 className="text-nex-text mb-2 text-2xl font-bold">Check your email</h1>
         <p className="text-nex-muted mb-6 leading-relaxed">
-          We've sent a verification link to your email address. Click the link to verify your account and start using NexMess.
+          We've sent a verification link to your email address. Click the link to verify your
+          account and start using NexMess.
         </p>
-        <div className="nex-card bg-nex-elevated p-4 mb-6">
-          <p className="text-sm text-nex-muted">
+        <div className="nex-card bg-nex-elevated mb-6 p-4">
+          <p className="text-nex-muted text-sm">
             📧 Didn't receive the email? Check your spam folder or{' '}
             <button className="text-nex-primary font-medium hover:underline">resend it</button>.
           </p>

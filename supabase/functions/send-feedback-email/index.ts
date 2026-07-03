@@ -18,12 +18,15 @@ Deno.serve(async (req) => {
     }
 
     const payload = await req.json()
-    
+
     // Check if it's a webhook payload
     const record = payload.type === 'INSERT' ? payload.record : payload
 
     if (!record || !record.message) {
-      return new Response(JSON.stringify({ error: 'Invalid payload, missing message' }), { status: 400, headers: CORS })
+      return new Response(JSON.stringify({ error: 'Invalid payload, missing message' }), {
+        status: 400,
+        headers: CORS,
+      })
     }
 
     const name = record.name || 'Anonymous'
@@ -45,14 +48,14 @@ Deno.serve(async (req) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${resendApiKey}`
+        Authorization: `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
         from: 'NexMess <onboarding@resend.dev>', // Resend testing domain (or update to custom domain)
         to: 'k.m.siam2019@gmail.com',
         subject: `New NexMess Feedback from ${name}`,
-        html: htmlBody
-      })
+        html: htmlBody,
+      }),
     })
 
     if (!res.ok) {
@@ -69,9 +72,9 @@ Deno.serve(async (req) => {
     })
   } catch (err: any) {
     console.error('Edge Function Error:', err)
-    return new Response(JSON.stringify({ error: err.message }), { 
-      status: 500, 
-      headers: { ...CORS, 'Content-Type': 'application/json' } 
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { ...CORS, 'Content-Type': 'application/json' },
     })
   }
 })

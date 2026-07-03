@@ -8,12 +8,23 @@ import type { FixedCost } from '../../../types/database'
 interface FixedCostTabProps {
   fixedCosts: FixedCost[]
   isManager: boolean
-  onAddFixedCost: (category: string, amount: number, label: string, editId: string | null) => Promise<void>
+  onAddFixedCost: (
+    category: string,
+    amount: number,
+    label: string,
+    editId: string | null
+  ) => Promise<void>
   onMarkPaid: (id: string) => Promise<void>
   onDeleteFixedCost: (id: string) => Promise<void>
 }
 
-export default function FixedCostTab({ fixedCosts, isManager, onAddFixedCost, onMarkPaid, onDeleteFixedCost }: FixedCostTabProps) {
+export default function FixedCostTab({
+  fixedCosts,
+  isManager,
+  onAddFixedCost,
+  onMarkPaid,
+  onDeleteFixedCost,
+}: FixedCostTabProps) {
   const [showAddFixed, setShowAddFixed] = useState(false)
   const [editFixedCostId, setEditFixedCostId] = useState<string | null>(null)
   const [fixCategory, setFixCategory] = useState('rent')
@@ -51,23 +62,34 @@ export default function FixedCostTab({ fixedCosts, isManager, onAddFixedCost, on
     setFixLabel('')
   }
 
-  const icons: Record<string, string> = { rent: '🏠', utilities: '💡', maid: '🧹', internet: '🌐', gas: '🔥', other: '📋' }
+  const icons: Record<string, string> = {
+    rent: '🏠',
+    utilities: '💡',
+    maid: '🧹',
+    internet: '🌐',
+    gas: '🔥',
+    other: '📋',
+  }
 
   return (
     <div className="space-y-4">
       {isManager && (
         <button onClick={() => setShowAddFixed(!showAddFixed)} className="nex-btn-primary text-sm">
-          <Plus className="w-4 h-4" /> Add Fixed Cost
+          <Plus className="h-4 w-4" /> Add Fixed Cost
         </button>
       )}
 
       {showAddFixed && (
-        <div className="nex-card p-5 animate-slide-up">
+        <div className="nex-card animate-slide-up p-5">
           <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-nex-text mb-1">Category</label>
-                <select value={fixCategory} onChange={e => setFixCategory(e.target.value)} className="nex-input">
+                <label className="text-nex-text mb-1 block text-sm font-medium">Category</label>
+                <select
+                  value={fixCategory}
+                  onChange={(e) => setFixCategory(e.target.value)}
+                  className="nex-input"
+                >
                   <option value="rent">🏠 Rent</option>
                   <option value="utilities">💡 Utilities</option>
                   <option value="maid">🧹 Maid</option>
@@ -77,55 +99,111 @@ export default function FixedCostTab({ fixedCosts, isManager, onAddFixedCost, on
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-nex-text mb-1">Amount (৳)</label>
-                <input type="number" value={fixAmount} onChange={e => setFixAmount(e.target.value)}
-                  className="nex-input" placeholder="0.00" required step="0.01" min="0" />
+                <label className="text-nex-text mb-1 block text-sm font-medium">Amount (৳)</label>
+                <input
+                  type="number"
+                  value={fixAmount}
+                  onChange={(e) => setFixAmount(e.target.value)}
+                  className="nex-input"
+                  placeholder="0.00"
+                  required
+                  step="0.01"
+                  min="0"
+                />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-nex-text mb-1">Label (optional)</label>
-              <input type="text" value={fixLabel} onChange={e => setFixLabel(e.target.value)} className="nex-input" placeholder="e.g., Electric bill May" />
+              <label className="text-nex-text mb-1 block text-sm font-medium">
+                Label (optional)
+              </label>
+              <input
+                type="text"
+                value={fixLabel}
+                onChange={(e) => setFixLabel(e.target.value)}
+                className="nex-input"
+                placeholder="e.g., Electric bill May"
+              />
             </div>
             <div className="flex gap-2">
-              <button type="submit" disabled={loading} className="nex-btn-primary disabled:opacity-50">{editFixedCostId ? 'Update' : 'Save'}</button>
-              <button type="button" onClick={handleCancel} className="nex-btn-secondary">Cancel</button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="nex-btn-primary disabled:opacity-50"
+              >
+                {editFixedCostId ? 'Update' : 'Save'}
+              </button>
+              <button type="button" onClick={handleCancel} className="nex-btn-secondary">
+                Cancel
+              </button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="nex-card divide-y divide-nex-border">
+      <div className="nex-card divide-nex-border divide-y">
         {fixedCosts.length === 0 ? (
-          <EmptyState icon={DollarSign} title="No fixed costs listed" description={`All fixed costs for ${format(new Date(), 'MMMM yyyy')} will show here.`} />
-        ) : fixedCosts.map(fc => (
-          <div key={fc.id} className="flex items-center justify-between px-5 py-3 hover:bg-nex-hover transition-colors">
-            <div className="flex items-center gap-3">
-              <span className="text-lg">{icons[fc.category] || '📋'}</span>
-              <div>
-                <p className="text-sm font-medium text-nex-text capitalize">{fc.label || fc.category}</p>
-                <p className="text-xs text-nex-muted">{fc.month}</p>
+          <EmptyState
+            icon={DollarSign}
+            title="No fixed costs listed"
+            description={`All fixed costs for ${format(new Date(), 'MMMM yyyy')} will show here.`}
+          />
+        ) : (
+          fixedCosts.map((fc) => (
+            <div
+              key={fc.id}
+              className="hover:bg-nex-hover flex items-center justify-between px-5 py-3 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-lg">{icons[fc.category] || '📋'}</span>
+                <div>
+                  <p className="text-nex-text text-sm font-medium capitalize">
+                    {fc.label || fc.category}
+                  </p>
+                  <p className="text-nex-muted text-xs">{fc.month}</p>
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col items-end gap-1">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-amber-600">{formatCurrency(Number(fc.amount))}</p>
-                {isManager && (
-                  <button onClick={() => onDeleteFixedCost(fc.id)} className="text-red-500 hover:text-red-700 transition-colors p-1" title="Delete fixed cost">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+              <div className="flex flex-col items-end gap-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-amber-600">
+                    {formatCurrency(Number(fc.amount))}
+                  </p>
+                  {isManager && (
+                    <button
+                      onClick={() => onDeleteFixedCost(fc.id)}
+                      className="p-1 text-red-500 transition-colors hover:text-red-700"
+                      title="Delete fixed cost"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                {fc.is_paid ? (
+                  <span className="text-nex-success flex items-center gap-0.5 text-xs">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Paid
+                  </span>
+                ) : (
+                  isManager && (
+                    <div className="mt-1 flex gap-2">
+                      <button
+                        onClick={() => startEdit(fc)}
+                        className="text-nex-primary text-xs font-medium transition-colors hover:text-blue-700"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => onMarkPaid(fc.id)}
+                        className="flex items-center gap-0.5 text-xs font-medium text-emerald-600 transition-colors hover:text-emerald-800"
+                      >
+                        <CheckCircle2 className="h-3 w-3" /> Mark Paid
+                      </button>
+                    </div>
+                  )
                 )}
               </div>
-              {fc.is_paid ? (
-                <span className="text-xs text-nex-success flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" />Paid</span>
-              ) : isManager && (
-                <div className="flex gap-2 mt-1">
-                  <button onClick={() => startEdit(fc)} className="text-xs font-medium text-nex-primary hover:text-blue-700 transition-colors">Edit</button>
-                  <button onClick={() => onMarkPaid(fc.id)} className="text-xs font-medium text-emerald-600 hover:text-emerald-800 transition-colors flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" /> Mark Paid</button>
-                </div>
-              )}
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   )

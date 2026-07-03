@@ -3,13 +3,31 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { Meal } from '../../types/database'
-import { Utensils, ChevronLeft, ChevronRight, Sun, Moon, ShieldCheck, X, Download } from 'lucide-react'
+import {
+  Utensils,
+  ChevronLeft,
+  ChevronRight,
+  Sun,
+  Moon,
+  ShieldCheck,
+  X,
+  Download,
+} from 'lucide-react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import {
-  format, startOfMonth, endOfMonth, eachDayOfInterval,
-  addMonths, subMonths, isToday, isSameMonth, startOfWeek, endOfWeek,
-  isBefore, startOfDay,
+  format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  addMonths,
+  subMonths,
+  isToday,
+  isSameMonth,
+  startOfWeek,
+  endOfWeek,
+  isBefore,
+  startOfDay,
 } from 'date-fns'
 import toast from 'react-hot-toast'
 import { isMealCutoffPassed, mealCutoffLabel } from '../../lib/utils'
@@ -31,7 +49,9 @@ export default function MealsPage() {
     return () => clearInterval(id)
   }, [tick])
 
-  const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager' && m.status === 'approved')
+  const isManager = members.some(
+    (m) => m.user_id === user?.id && m.role === 'manager' && m.status === 'approved'
+  )
 
   // Manager override modal state
   const [overrideOpen, setOverrideOpen] = useState(false)
@@ -100,21 +120,32 @@ export default function MealsPage() {
     }
 
     if (isMealCutoffPassed(date, type)) {
-      toast.error(`${type === 'lunch' ? 'Lunch' : 'Dinner'} cut-off (${mealCutoffLabel(type)}) has passed`)
+      toast.error(
+        `${type === 'lunch' ? 'Lunch' : 'Dinner'} cut-off (${mealCutoffLabel(type)}) has passed`
+      )
       return
     }
 
-    const existing = meals.find(m => m.user_id === user.id && m.date === date)
+    const existing = meals.find((m) => m.user_id === user.id && m.date === date)
     const currentLunch = existing?.lunch ?? false
     const currentDinner = existing?.dinner ?? false
 
     const newValue = type === 'lunch' ? !currentLunch : !currentDinner
 
     // Optimistic update
-    setMeals(prev => {
-      const idx = prev.findIndex(m => m.user_id === user.id && m.date === date)
+    setMeals((prev) => {
+      const idx = prev.findIndex((m) => m.user_id === user.id && m.date === date)
       const updated = {
-        ...(existing || { id: 'temp', user_id: user.id, mess_id: currentMess.id, date, lunch: false, dinner: false, guest_lunch: 0, guest_dinner: 0 }),
+        ...(existing || {
+          id: 'temp',
+          user_id: user.id,
+          mess_id: currentMess.id,
+          date,
+          lunch: false,
+          dinner: false,
+          guest_lunch: 0,
+          guest_dinner: 0,
+        }),
         [type]: newValue,
       } as Meal
       if (idx >= 0) {
@@ -129,12 +160,15 @@ export default function MealsPage() {
     // meal column stays identical (OLD = NEW) and the trigger's lunch_changed / dinner_changed
     // stays false. Including the other column caused false "cut-off has passed" raises when
     // local state was stale vs the DB value.
-    const { error } = await supabase.from('meals').upsert({
-      user_id: user.id,
-      mess_id: currentMess.id,
-      date,
-      [type]: newValue,
-    }, { onConflict: 'user_id,mess_id,date' })
+    const { error } = await supabase.from('meals').upsert(
+      {
+        user_id: user.id,
+        mess_id: currentMess.id,
+        date,
+        [type]: newValue,
+      },
+      { onConflict: 'user_id,mess_id,date' }
+    )
 
     if (error) {
       toast.error(error.message || 'Failed to update meal')
@@ -160,12 +194,14 @@ export default function MealsPage() {
         setOvGuestLunch(data?.guest_lunch ?? 0)
         setOvGuestDinner(data?.guest_dinner ?? 0)
       })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [overrideOpen, ovUserId, ovDate, currentMess?.id])
 
   const openOverride = (presetUserId?: string, presetDate?: string) => {
     if (!isManager) return
-    setOvUserId(presetUserId || members.find(m => m.status === 'approved')?.user_id || '')
+    setOvUserId(presetUserId || members.find((m) => m.status === 'approved')?.user_id || '')
     setOvDate(presetDate || format(new Date(), 'yyyy-MM-dd'))
     setOvLunch(false)
     setOvDinner(false)
@@ -203,18 +239,29 @@ export default function MealsPage() {
 
   // Monthly stats
   const monthlyStats = useMemo(() => {
-    const relevantMeals = meals.filter(m => m.date.startsWith(monthStr) && (viewMode === 'all' || m.user_id === user?.id))
-    const lunchCount = relevantMeals.reduce((acc, m) => acc + (m.lunch ? 1 : 0) + (m.guest_lunch || 0), 0)
-    const dinnerCount = relevantMeals.reduce((acc, m) => acc + (m.dinner ? 1 : 0) + (m.guest_dinner || 0), 0)
+    const relevantMeals = meals.filter(
+      (m) => m.date.startsWith(monthStr) && (viewMode === 'all' || m.user_id === user?.id)
+    )
+    const lunchCount = relevantMeals.reduce(
+      (acc, m) => acc + (m.lunch ? 1 : 0) + (m.guest_lunch || 0),
+      0
+    )
+    const dinnerCount = relevantMeals.reduce(
+      (acc, m) => acc + (m.dinner ? 1 : 0) + (m.guest_dinner || 0),
+      0
+    )
     return { total: lunchCount + dinnerCount, lunch: lunchCount, dinner: dinnerCount }
   }, [meals, user?.id, monthStr, viewMode])
 
   const handleDownloadMealPDF = () => {
     if (!currentMess) return
-    const monthMeals = meals.filter(m => m.date.startsWith(monthStr))
+    const monthMeals = meals.filter((m) => m.date.startsWith(monthStr))
 
     // Group counts per user
-    const byUser = new Map<string, { lunch: number; dinner: number; gLunch: number; gDinner: number }>()
+    const byUser = new Map<
+      string,
+      { lunch: number; dinner: number; gLunch: number; gDinner: number }
+    >()
     for (const m of monthMeals) {
       const cur = byUser.get(m.user_id) || { lunch: 0, dinner: 0, gLunch: 0, gDinner: 0 }
       cur.lunch += m.lunch ? 1 : 0
@@ -225,7 +272,7 @@ export default function MealsPage() {
     }
 
     const nameOf = (uid: string): string => {
-      const mem = members.find(m => m.user_id === uid)
+      const mem = members.find((m) => m.user_id === uid)
       const p = mem?.profiles as { username?: string } | null | undefined
       return p?.username || 'Unknown'
     }
@@ -261,232 +308,281 @@ export default function MealsPage() {
   // Get meal for a specific date
   const getMealForDate = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd')
-    return meals.find(m => m.user_id === user?.id && m.date === dateStr)
+    return meals.find((m) => m.user_id === user?.id && m.date === dateStr)
   }
 
   // Get all member meals for a date (for "all" view)
   const getAllMealsForDate = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd')
-    return meals.filter(m => m.date === dateStr)
+    return meals.filter((m) => m.date === dateStr)
   }
 
   if (!currentMess) return null
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5">
+    <div className="mx-auto max-w-5xl space-y-5">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Utensils className="w-6 h-6 text-nex-primary" />
-          <h1 className="text-2xl font-bold text-nex-text">Meal Calendar</h1>
+          <Utensils className="text-nex-primary h-6 w-6" />
+          <h1 className="text-nex-text text-2xl font-bold">Meal Calendar</h1>
         </div>
-        <div className="flex flex-row items-center justify-start sm:justify-end gap-2 mt-4 sm:mt-0 w-full sm:w-auto overflow-x-auto scrollbar-none pb-1 sm:pb-0">
+        <div className="scrollbar-none mt-4 flex w-full flex-row items-center justify-start gap-2 overflow-x-auto pb-1 sm:mt-0 sm:w-auto sm:justify-end sm:pb-0">
           <button
             onClick={handleDownloadMealPDF}
-            className="flex justify-center items-center shrink-0 gap-1.5 px-3 py-1.5 text-xs font-medium rounded-btn border border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover transition-colors shadow-sm"
+            className="rounded-btn border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover flex shrink-0 items-center justify-center gap-1.5 border px-3 py-1.5 text-xs font-medium shadow-sm transition-colors"
             title="Download meal report (PDF)"
           >
-            <Download className="w-3.5 h-3.5 text-nex-primary" />
+            <Download className="text-nex-primary h-3.5 w-3.5" />
             PDF
           </button>
-          
+
           {isManager && (
             <button
               onClick={() => openOverride()}
-              className="flex justify-center items-center shrink-0 gap-1.5 px-3 py-1.5 text-xs font-medium rounded-btn border border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover transition-colors shadow-sm"
+              className="rounded-btn border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover flex shrink-0 items-center justify-center gap-1.5 border px-3 py-1.5 text-xs font-medium shadow-sm transition-colors"
               title="Override a member's meal (bypasses cut-off)"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-nex-primary" />
+              <ShieldCheck className="text-nex-primary h-3.5 w-3.5" />
               Override
             </button>
           )}
-          
+
           {/* View Toggles */}
-          <div className="flex shrink-0 gap-1 bg-nex-elevated p-1 rounded-btn shadow-sm">
-            <button onClick={() => setViewMode('personal')}
-              className={`shrink-0 px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
-                viewMode === 'personal' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'
-              }`}>My Meals</button>
-            <button onClick={() => setViewMode('all')}
-              className={`shrink-0 px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
-                viewMode === 'all' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'
-              }`}>All Members</button>
+          <div className="bg-nex-elevated rounded-btn flex shrink-0 gap-1 p-1 shadow-sm">
+            <button
+              onClick={() => setViewMode('personal')}
+              className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
+                viewMode === 'personal'
+                  ? 'bg-nex-surface text-nex-text shadow-sm'
+                  : 'text-nex-muted hover:text-nex-text'
+              }`}
+            >
+              My Meals
+            </button>
+            <button
+              onClick={() => setViewMode('all')}
+              className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
+                viewMode === 'all'
+                  ? 'bg-nex-surface text-nex-text shadow-sm'
+                  : 'text-nex-muted hover:text-nex-text'
+              }`}
+            >
+              All Members
+            </button>
           </div>
         </div>
       </div>
 
       {/* Month Navigator + Stats */}
       <div className="nex-card p-5">
-        <div className="flex items-center justify-between mb-4">
-          <button onClick={() => setCurrentDate(subMonths(currentDate, 1))}
-            className="p-2 rounded-btn hover:bg-nex-hover text-nex-muted transition-colors">
-            <ChevronLeft className="w-5 h-5" />
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+            className="rounded-btn hover:bg-nex-hover text-nex-muted p-2 transition-colors"
+          >
+            <ChevronLeft className="h-5 w-5" />
           </button>
-          <h2 className="text-lg font-semibold text-nex-text">{format(currentDate, 'MMMM yyyy')}</h2>
-          <button onClick={() => setCurrentDate(addMonths(currentDate, 1))}
-            className="p-2 rounded-btn hover:bg-nex-hover text-nex-muted transition-colors">
-            <ChevronRight className="w-5 h-5" />
+          <h2 className="text-nex-text text-lg font-semibold">
+            {format(currentDate, 'MMMM yyyy')}
+          </h2>
+          <button
+            onClick={() => setCurrentDate(addMonths(currentDate, 1))}
+            className="rounded-btn hover:bg-nex-hover text-nex-muted p-2 transition-colors"
+          >
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="mb-5 grid grid-cols-3 gap-3">
           <div className="bg-nex-primary-light rounded-xl p-3 text-center">
-            <p className="text-2xl font-bold text-nex-primary">{monthlyStats.total}</p>
-            <p className="text-xs text-blue-600 uppercase tracking-wider font-medium">Total Meals</p>
+            <p className="text-nex-primary text-2xl font-bold">{monthlyStats.total}</p>
+            <p className="text-xs font-medium tracking-wider text-blue-600 uppercase">
+              Total Meals
+            </p>
           </div>
-          <div className="bg-amber-500/10 rounded-xl p-3 text-center">
+          <div className="rounded-xl bg-amber-500/10 p-3 text-center">
             <p className="text-2xl font-bold text-amber-600">{monthlyStats.lunch}</p>
-            <p className="text-xs text-amber-600 uppercase tracking-wider font-medium">Lunch</p>
+            <p className="text-xs font-medium tracking-wider text-amber-600 uppercase">Lunch</p>
           </div>
-          <div className="bg-indigo-500/10 rounded-xl p-3 text-center">
+          <div className="rounded-xl bg-indigo-500/10 p-3 text-center">
             <p className="text-2xl font-bold text-indigo-600">{monthlyStats.dinner}</p>
-            <p className="text-xs text-indigo-600 uppercase tracking-wider font-medium">Dinner</p>
+            <p className="text-xs font-medium tracking-wider text-indigo-600 uppercase">Dinner</p>
           </div>
         </div>
 
         {/* Calendar Grid */}
-        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-        <div className="min-w-[320px] grid grid-cols-7 gap-1">
-          {/* Day Headers */}
-          {['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map(d => (
-            <div key={d} className="text-center text-xs font-semibold text-nex-muted uppercase tracking-wider py-2">
-              {d}
-            </div>
-          ))}
-
-          {/* Days */}
-          {calendarDays.map(day => {
-            const dateStr = format(day, 'yyyy-MM-dd')
-            const meal = getMealForDate(day)
-            const allMeals = viewMode === 'all' ? getAllMealsForDate(day) : []
-            const inMonth = isSameMonth(day, currentDate)
-            const today = isToday(day)
-            const isPastDate = isBefore(day, startOfDay(new Date()))
-
-            const managerClickable = isManager && viewMode === 'all' && inMonth
-            return (
+        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <div className="grid min-w-[320px] grid-cols-7 gap-1">
+            {/* Day Headers */}
+            {['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((d) => (
               <div
-                key={dateStr}
-                onClick={managerClickable ? () => openOverride(undefined, dateStr) : undefined}
-                role={managerClickable ? 'button' : undefined}
-                tabIndex={managerClickable ? 0 : undefined}
-                className={`relative min-h-[72px] p-1.5 rounded-xl border transition-colors ${
-                  today ? 'border-nex-primary bg-nex-primary-light' :
-                  inMonth ? 'border-nex-border bg-nex-surface' : 'border-transparent bg-nex-elevated/50'
-                } ${managerClickable ? 'cursor-pointer hover:border-nex-primary' : ''}`}
+                key={d}
+                className="text-nex-muted py-2 text-center text-xs font-semibold tracking-wider uppercase"
               >
-                <p className={`text-xs font-medium text-center mb-1 ${
-                  today ? 'text-nex-primary' : inMonth ? 'text-nex-text' : 'text-nex-muted/40'
-                }`}>
-                  {format(day, 'd')}
-                </p>
-
-                {inMonth && viewMode === 'personal' && (() => {
-                  const lunchLocked = isPastDate || isMealCutoffPassed(dateStr, 'lunch')
-                  const dinnerLocked = isPastDate || isMealCutoffPassed(dateStr, 'dinner')
-                  const lunchTitle = isPastDate
-                    ? 'Cannot update past meals'
-                    : isMealCutoffPassed(dateStr, 'lunch')
-                      ? `Lunch cut-off (${mealCutoffLabel('lunch')}) has passed`
-                      : 'Toggle Lunch'
-                  const dinnerTitle = isPastDate
-                    ? 'Cannot update past meals'
-                    : isMealCutoffPassed(dateStr, 'dinner')
-                      ? `Dinner cut-off (${mealCutoffLabel('dinner')}) has passed`
-                      : 'Toggle Dinner'
-                  return (
-                  <div className="flex flex-col gap-0.5">
-                    <button
-                      onClick={() => toggleMeal(dateStr, 'lunch')}
-                      disabled={lunchLocked}
-                      className={`w-full flex items-center justify-center gap-0.5 px-1 py-1 rounded text-[10px] font-medium transition-colors ${
-                        meal?.lunch || (meal?.guest_lunch || 0) > 0
-                          ? 'bg-amber-500/15 text-amber-500'
-                          : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
-                      } ${lunchLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title={lunchTitle}
-                    >
-                      <Sun className="w-2.5 h-2.5" /> L {(meal?.guest_lunch || 0) > 0 && `+${meal?.guest_lunch}`}
-                    </button>
-                    <button
-                      onClick={() => toggleMeal(dateStr, 'dinner')}
-                      disabled={dinnerLocked}
-                      className={`w-full flex items-center justify-center gap-0.5 px-1 py-1 rounded text-[10px] font-medium transition-colors ${
-                        meal?.dinner || (meal?.guest_dinner || 0) > 0
-                          ? 'bg-indigo-500/15 text-indigo-400'
-                          : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
-                      } ${dinnerLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title={dinnerTitle}
-                    >
-                      <Moon className="w-2.5 h-2.5" /> D {(meal?.guest_dinner || 0) > 0 && `+${meal?.guest_dinner}`}
-                    </button>
-                  </div>
-                  )
-                })()}
-
-                {inMonth && viewMode === 'all' && allMeals.length > 0 && (() => {
-                  const lunchTotal = allMeals.reduce((s, m) => s + (m.lunch ? 1 : 0) + (m.guest_lunch || 0), 0)
-                  const dinnerTotal = allMeals.reduce((s, m) => s + (m.dinner ? 1 : 0) + (m.guest_dinner || 0), 0)
-                  if (lunchTotal === 0 && dinnerTotal === 0) return null
-                  return (
-                    <div className="flex flex-col gap-0.5 mt-1 items-center">
-                      {lunchTotal > 0 && (
-                        <div className="flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded w-full justify-center">
-                          <span>L:</span>
-                          <span>{lunchTotal}</span>
-                        </div>
-                      )}
-                      {dinnerTotal > 0 && (
-                        <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded w-full justify-center">
-                          <span>D:</span>
-                          <span>{dinnerTotal}</span>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })()}
+                {d}
               </div>
-            )
-          })}
-        </div>
+            ))}
+
+            {/* Days */}
+            {calendarDays.map((day) => {
+              const dateStr = format(day, 'yyyy-MM-dd')
+              const meal = getMealForDate(day)
+              const allMeals = viewMode === 'all' ? getAllMealsForDate(day) : []
+              const inMonth = isSameMonth(day, currentDate)
+              const today = isToday(day)
+              const isPastDate = isBefore(day, startOfDay(new Date()))
+
+              const managerClickable = isManager && viewMode === 'all' && inMonth
+              return (
+                <div
+                  key={dateStr}
+                  onClick={managerClickable ? () => openOverride(undefined, dateStr) : undefined}
+                  role={managerClickable ? 'button' : undefined}
+                  tabIndex={managerClickable ? 0 : undefined}
+                  className={`relative min-h-[72px] rounded-xl border p-1.5 transition-colors ${
+                    today
+                      ? 'border-nex-primary bg-nex-primary-light'
+                      : inMonth
+                        ? 'border-nex-border bg-nex-surface'
+                        : 'bg-nex-elevated/50 border-transparent'
+                  } ${managerClickable ? 'hover:border-nex-primary cursor-pointer' : ''}`}
+                >
+                  <p
+                    className={`mb-1 text-center text-xs font-medium ${
+                      today ? 'text-nex-primary' : inMonth ? 'text-nex-text' : 'text-nex-muted/40'
+                    }`}
+                  >
+                    {format(day, 'd')}
+                  </p>
+
+                  {inMonth &&
+                    viewMode === 'personal' &&
+                    (() => {
+                      const lunchLocked = isPastDate || isMealCutoffPassed(dateStr, 'lunch')
+                      const dinnerLocked = isPastDate || isMealCutoffPassed(dateStr, 'dinner')
+                      const lunchTitle = isPastDate
+                        ? 'Cannot update past meals'
+                        : isMealCutoffPassed(dateStr, 'lunch')
+                          ? `Lunch cut-off (${mealCutoffLabel('lunch')}) has passed`
+                          : 'Toggle Lunch'
+                      const dinnerTitle = isPastDate
+                        ? 'Cannot update past meals'
+                        : isMealCutoffPassed(dateStr, 'dinner')
+                          ? `Dinner cut-off (${mealCutoffLabel('dinner')}) has passed`
+                          : 'Toggle Dinner'
+                      return (
+                        <div className="flex flex-col gap-0.5">
+                          <button
+                            onClick={() => toggleMeal(dateStr, 'lunch')}
+                            disabled={lunchLocked}
+                            className={`flex w-full items-center justify-center gap-0.5 rounded px-1 py-1 text-[10px] font-medium transition-colors ${
+                              meal?.lunch || (meal?.guest_lunch || 0) > 0
+                                ? 'bg-amber-500/15 text-amber-500'
+                                : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
+                            } ${lunchLocked ? 'cursor-not-allowed opacity-50' : ''}`}
+                            title={lunchTitle}
+                          >
+                            <Sun className="h-2.5 w-2.5" /> L{' '}
+                            {(meal?.guest_lunch || 0) > 0 && `+${meal?.guest_lunch}`}
+                          </button>
+                          <button
+                            onClick={() => toggleMeal(dateStr, 'dinner')}
+                            disabled={dinnerLocked}
+                            className={`flex w-full items-center justify-center gap-0.5 rounded px-1 py-1 text-[10px] font-medium transition-colors ${
+                              meal?.dinner || (meal?.guest_dinner || 0) > 0
+                                ? 'bg-indigo-500/15 text-indigo-400'
+                                : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
+                            } ${dinnerLocked ? 'cursor-not-allowed opacity-50' : ''}`}
+                            title={dinnerTitle}
+                          >
+                            <Moon className="h-2.5 w-2.5" /> D{' '}
+                            {(meal?.guest_dinner || 0) > 0 && `+${meal?.guest_dinner}`}
+                          </button>
+                        </div>
+                      )
+                    })()}
+
+                  {inMonth &&
+                    viewMode === 'all' &&
+                    allMeals.length > 0 &&
+                    (() => {
+                      const lunchTotal = allMeals.reduce(
+                        (s, m) => s + (m.lunch ? 1 : 0) + (m.guest_lunch || 0),
+                        0
+                      )
+                      const dinnerTotal = allMeals.reduce(
+                        (s, m) => s + (m.dinner ? 1 : 0) + (m.guest_dinner || 0),
+                        0
+                      )
+                      if (lunchTotal === 0 && dinnerTotal === 0) return null
+                      return (
+                        <div className="mt-1 flex flex-col items-center gap-0.5">
+                          {lunchTotal > 0 && (
+                            <div className="flex w-full items-center justify-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-500">
+                              <span>L:</span>
+                              <span>{lunchTotal}</span>
+                            </div>
+                          )}
+                          {dinnerTotal > 0 && (
+                            <div className="flex w-full items-center justify-center gap-1 rounded bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-bold text-indigo-400">
+                              <span>D:</span>
+                              <span>{dinnerTotal}</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
 
       {/* Manager Override Modal */}
       {overrideOpen && isManager && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setOverrideOpen(false)}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setOverrideOpen(false)}
+        >
           <form
             onSubmit={submitOverride}
             onClick={(e) => e.stopPropagation()}
-            className="nex-card w-full max-w-md p-5 space-y-4"
+            className="nex-card w-full max-w-md space-y-4 p-5"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-nex-primary" />
-                <h3 className="text-lg font-semibold text-nex-text">Manager Override</h3>
+                <ShieldCheck className="text-nex-primary h-5 w-5" />
+                <h3 className="text-nex-text text-lg font-semibold">Manager Override</h3>
               </div>
-              <button type="button" onClick={() => setOverrideOpen(false)}
-                className="p-1 rounded hover:bg-nex-hover text-nex-muted">
-                <X className="w-4 h-4" />
+              <button
+                type="button"
+                onClick={() => setOverrideOpen(false)}
+                className="hover:bg-nex-hover text-nex-muted rounded p-1"
+              >
+                <X className="h-4 w-4" />
               </button>
             </div>
-            <p className="text-xs text-nex-muted">
+            <p className="text-nex-muted text-xs">
               Edit a member's meal even after the cut-off has passed. Use sparingly.
             </p>
 
             <div>
-              <label className="block text-xs font-medium text-nex-text mb-1">Member</label>
+              <label className="text-nex-text mb-1 block text-xs font-medium">Member</label>
               <select
                 value={ovUserId}
-                onChange={e => setOvUserId(e.target.value)}
+                onChange={(e) => setOvUserId(e.target.value)}
                 className="nex-input w-full"
                 required
               >
-                <option value="" disabled>Select a member</option>
+                <option value="" disabled>
+                  Select a member
+                </option>
                 {members
-                  .filter(m => m.status === 'approved')
-                  .map(m => (
+                  .filter((m) => m.status === 'approved')
+                  .map((m) => (
                     <option key={m.user_id} value={m.user_id}>
                       {m.profiles?.username || m.user_id.slice(0, 8)}
                       {m.user_id === user?.id ? ' (you)' : ''}
@@ -496,38 +592,58 @@ export default function MealsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-nex-text mb-1">Date</label>
+              <label className="text-nex-text mb-1 block text-xs font-medium">Date</label>
               <input
                 type="date"
                 value={ovDate}
-                onChange={e => setOvDate(e.target.value)}
+                onChange={(e) => setOvDate(e.target.value)}
                 className="nex-input w-full"
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <label className="flex items-center gap-2 p-3 rounded-btn border border-nex-border bg-nex-surface cursor-pointer">
-                <input type="checkbox" checked={ovLunch} onChange={e => setOvLunch(e.target.checked)} />
-                <Sun className="w-4 h-4 text-amber-500" />
-                <span className="text-sm text-nex-text">Lunch</span>
+              <label className="rounded-btn border-nex-border bg-nex-surface flex cursor-pointer items-center gap-2 border p-3">
+                <input
+                  type="checkbox"
+                  checked={ovLunch}
+                  onChange={(e) => setOvLunch(e.target.checked)}
+                />
+                <Sun className="h-4 w-4 text-amber-500" />
+                <span className="text-nex-text text-sm">Lunch</span>
               </label>
-              <label className="flex items-center gap-2 p-3 rounded-btn border border-nex-border bg-nex-surface cursor-pointer">
-                <input type="checkbox" checked={ovDinner} onChange={e => setOvDinner(e.target.checked)} />
-                <Moon className="w-4 h-4 text-indigo-400" />
-                <span className="text-sm text-nex-text">Dinner</span>
+              <label className="rounded-btn border-nex-border bg-nex-surface flex cursor-pointer items-center gap-2 border p-3">
+                <input
+                  type="checkbox"
+                  checked={ovDinner}
+                  onChange={(e) => setOvDinner(e.target.checked)}
+                />
+                <Moon className="h-4 w-4 text-indigo-400" />
+                <span className="text-nex-text text-sm">Dinner</span>
               </label>
               <div>
-                <label className="block text-xs font-medium text-nex-muted mb-1">Guest Lunch</label>
-                <input type="number" min={0} max={20} value={ovGuestLunch}
-                  onChange={e => setOvGuestLunch(Math.max(0, parseInt(e.target.value) || 0))}
-                  className="nex-input w-full" />
+                <label className="text-nex-muted mb-1 block text-xs font-medium">Guest Lunch</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={20}
+                  value={ovGuestLunch}
+                  onChange={(e) => setOvGuestLunch(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="nex-input w-full"
+                />
               </div>
               <div>
-                <label className="block text-xs font-medium text-nex-muted mb-1">Guest Dinner</label>
-                <input type="number" min={0} max={20} value={ovGuestDinner}
-                  onChange={e => setOvGuestDinner(Math.max(0, parseInt(e.target.value) || 0))}
-                  className="nex-input w-full" />
+                <label className="text-nex-muted mb-1 block text-xs font-medium">
+                  Guest Dinner
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={20}
+                  value={ovGuestDinner}
+                  onChange={(e) => setOvGuestDinner(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="nex-input w-full"
+                />
               </div>
             </div>
 
@@ -535,14 +651,14 @@ export default function MealsPage() {
               <button
                 type="button"
                 onClick={() => setOverrideOpen(false)}
-                className="flex-1 px-4 py-2 rounded-btn border border-nex-border bg-nex-surface text-nex-text text-sm font-medium hover:bg-nex-hover"
+                className="rounded-btn border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover flex-1 border px-4 py-2 text-sm font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={ovSaving || !ovUserId}
-                className="flex-1 nex-btn-primary text-sm disabled:opacity-50"
+                className="nex-btn-primary flex-1 text-sm disabled:opacity-50"
               >
                 {ovSaving ? 'Saving…' : 'Save Override'}
               </button>

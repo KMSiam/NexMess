@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ───────────────────────────────────────────
    NexMess — Modern Ocean Blue Design System
@@ -7,28 +7,28 @@
 
 @theme {
   /* ── Color Tokens ─────────────────────── */
-  --color-nex-bg:            var(--nex-bg);
-  --color-nex-surface:       var(--nex-surface);
-  --color-nex-primary:       var(--nex-primary);
-  --color-nex-primary-dark:  var(--nex-primary-dark);
+  --color-nex-bg: var(--nex-bg);
+  --color-nex-surface: var(--nex-surface);
+  --color-nex-primary: var(--nex-primary);
+  --color-nex-primary-dark: var(--nex-primary-dark);
   --color-nex-primary-light: var(--nex-primary-light);
-  --color-nex-text:          var(--nex-text);
-  --color-nex-muted:         var(--nex-muted);
-  --color-nex-border:        var(--nex-border);
-  --color-nex-success:       #10B981;
+  --color-nex-text: var(--nex-text);
+  --color-nex-muted: var(--nex-muted);
+  --color-nex-border: var(--nex-border);
+  --color-nex-success: #10b981;
   --color-nex-success-light: var(--nex-success-light);
-  --color-nex-danger:        #F43F5E;
-  --color-nex-danger-light:  var(--nex-danger-light);
-  --color-nex-warning:       #F59E0B;
-  --color-nex-hover:         var(--nex-hover);
-  --color-nex-elevated:      var(--nex-elevated);
+  --color-nex-danger: #f43f5e;
+  --color-nex-danger-light: var(--nex-danger-light);
+  --color-nex-warning: #f59e0b;
+  --color-nex-hover: var(--nex-hover);
+  --color-nex-elevated: var(--nex-elevated);
 
   /* ── Font Family ──────────────────────── */
   --font-sans: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
 
   /* ── Border Radius ────────────────────── */
   --radius-card: 16px;
-  --radius-btn:  8px;
+  --radius-btn: 8px;
 
   /* ── Shadows ──────────────────────────── */
   --shadow-card: var(--nex-shadow-card);
@@ -41,50 +41,65 @@
   --animate-pulse-soft: pulseSoft 2s ease-in-out infinite;
 
   @keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 
   @keyframes slideUp {
-    0% { opacity: 0; transform: translateY(10px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes pulseSoft {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
 }
 
 /* ── Theme Variables ──────────────────── */
 :root {
-  --nex-primary: #4A6D56;
-  --nex-primary-dark: #3A5643;
-  --nex-primary-light: #EDF2EE;
-  --nex-bg: #FAF5F0;
-  --nex-surface: #FFFFFF;
+  --nex-primary: #4a6d56;
+  --nex-primary-dark: #3a5643;
+  --nex-primary-light: #edf2ee;
+  --nex-bg: #faf5f0;
+  --nex-surface: #ffffff;
   --nex-glass-bg: rgba(255, 255, 255, 0.7);
-  --nex-text: #221E1A;
-  --nex-muted: #8C8276;
-  --nex-border: #F2ECE4;
-  --nex-success-light: #ECFDF5;
-  --nex-danger-light: #FFF1F2;
-  --nex-hover: #F7F2EB;
-  --nex-elevated: #FAF5F0;
+  --nex-text: #221e1a;
+  --nex-muted: #8c8276;
+  --nex-border: #f2ece4;
+  --nex-success-light: #ecfdf5;
+  --nex-danger-light: #fff1f2;
+  --nex-hover: #f7f2eb;
+  --nex-elevated: #faf5f0;
   --nex-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
   --nex-shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
 }
 
 .dark {
-  --nex-primary: #4A6D56;
-  --nex-primary-dark: #3A5643;
+  --nex-primary: #4a6d56;
+  --nex-primary-dark: #3a5643;
   --nex-primary-light: rgba(74, 109, 86, 0.12);
-  --nex-bg: #0C0C0D;
+  --nex-bg: #0c0c0d;
   --nex-surface: #161618;
   --nex-glass-bg: rgba(22, 22, 24, 0.7);
-  --nex-text: #F4F4F5;
-  --nex-muted: #8F8F92;
-  --nex-border: #2B2B2F;
+  --nex-text: #f4f4f5;
+  --nex-muted: #8f8f92;
+  --nex-border: #2b2b2f;
   --nex-success-light: rgba(16, 185, 129, 0.12);
   --nex-danger-light: rgba(244, 63, 94, 0.12);
   --nex-hover: #222225;
@@ -109,10 +124,13 @@
     color: var(--color-nex-text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
   }
 
-  button, [role="button"] {
+  button,
+  [role='button'] {
     touch-action: manipulation;
   }
 
@@ -122,11 +140,18 @@
   }
 
   /* Prevent zoom on input focus (iOS) */
-  input, select, textarea {
+  input,
+  select,
+  textarea {
     font-size: 16px;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-weight: 600;
     color: var(--color-nex-text);
     letter-spacing: -0.025em;
@@ -138,10 +163,20 @@
   }
 
   /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--color-nex-border); border-radius: 9999px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--color-nex-muted); }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-nex-border);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-nex-muted);
+  }
 }
 
 /* ── Component Classes ─────────────────── */
@@ -152,7 +187,9 @@
     border-radius: var(--radius-card);
     border: 1px solid var(--color-nex-border);
     box-shadow: var(--shadow-card);
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    transition:
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
   }
   .nex-card:hover {
     box-shadow: var(--shadow-card-hover);
@@ -184,7 +221,7 @@
     transition: all 0.15s ease-out;
   }
   .nex-btn-primary:hover {
-    background: linear-gradient(135deg, #2B4032, var(--nex-primary-dark));
+    background: linear-gradient(135deg, #2b4032, var(--nex-primary-dark));
   }
   .nex-btn-primary:active {
     transform: scale(0.98);
@@ -235,7 +272,7 @@
     transition: all 0.15s ease-out;
   }
   .nex-btn-danger:hover {
-    background-color: #E11D48;
+    background-color: #e11d48;
   }
 
   /* Input */
@@ -324,8 +361,19 @@
 
 /* ── Theme Switch Transition Animations ── */
 @layer base {
-  body, header, aside, .nex-card, .nex-glass, nav, .nex-nav-active, .nex-nav-inactive {
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  body,
+  header,
+  aside,
+  .nex-card,
+  .nex-glass,
+  nav,
+  .nex-nav-active,
+  .nex-nav-inactive {
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease,
+      color 0.3s ease,
+      box-shadow 0.3s ease;
   }
 }
 

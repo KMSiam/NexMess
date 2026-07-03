@@ -33,11 +33,13 @@ const CreateMessPage = lazy(() => import('./pages/mess/CreateMessPage'))
 const JoinMessPage = lazy(() => import('./pages/mess/JoinMessPage'))
 const ActivityLogPage = lazy(() => import('./pages/activity/ActivityLogPage'))
 const NotFoundPage = lazy(() => import('./pages/not-found/NotFoundPage'))
+const PrivacyPage = lazy(() => import('./pages/privacy/PrivacyPage'))
+const TermsPage = lazy(() => import('./pages/terms/TermsPage'))
 
 function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-nex-bg">
-      <div className="w-8 h-8 border-2 border-nex-primary border-t-transparent rounded-full animate-spin" />
+    <div className="bg-nex-bg flex min-h-screen items-center justify-center">
+      <div className="border-nex-primary h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
     </div>
   )
 }
@@ -67,6 +69,8 @@ function App() {
           <Routes>
             {/* Public Landing Page */}
             <Route path="/" element={<LandingPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPage />} />
+            <Route path="/terms-of-service" element={<TermsPage />} />
 
             {/* Public / Guest routes */}
             <Route element={<GuestGuard />}>

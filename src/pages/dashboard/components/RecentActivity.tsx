@@ -11,29 +11,41 @@ interface RecentActivityProps {
 export default function RecentActivity({ activities }: RecentActivityProps) {
   return (
     <div className="nex-card p-5">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-nex-primary" />
-          <h4 className="text-sm font-semibold text-nex-text uppercase tracking-wider">Recent Activity</h4>
+          <Activity className="text-nex-primary h-4 w-4" />
+          <h4 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
+            Recent Activity
+          </h4>
         </div>
         {activities.length > 0 && (
-          <Link to="/activity" className="text-xs font-semibold text-nex-primary hover:underline">
+          <Link to="/activity" className="text-nex-primary text-xs font-semibold hover:underline">
             View All
           </Link>
         )}
       </div>
       <div className="space-y-3">
         {activities.length === 0 ? (
-          <EmptyState icon={Activity} title="No recent activity" description="Expenses and deposits will appear here." />
-        ) : activities.map(act => (
-          <div key={act.id} className="flex items-start gap-3">
-            <div className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${act.type === 'deposit' ? 'bg-nex-success' : 'bg-amber-500'}`} />
-            <div>
-              <p className="text-sm text-nex-text">{act.text}</p>
-              <p className="text-[10px] text-nex-muted">{format(new Date(act.time), 'MMM d, h:mm a')}</p>
+          <EmptyState
+            icon={Activity}
+            title="No recent activity"
+            description="Expenses and deposits will appear here."
+          />
+        ) : (
+          activities.map((act) => (
+            <div key={act.id} className="flex items-start gap-3">
+              <div
+                className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${act.type === 'deposit' ? 'bg-nex-success' : 'bg-amber-500'}`}
+              />
+              <div>
+                <p className="text-nex-text text-sm">{act.text}</p>
+                <p className="text-nex-muted text-[10px]">
+                  {format(new Date(act.time), 'MMM d, h:mm a')}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   )

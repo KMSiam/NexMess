@@ -15,7 +15,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
   const [showPanel, setShowPanel] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
 
-  const unreadCount = notifications.filter(n => !n.is_read).length
+  const unreadCount = notifications.filter((n) => !n.is_read).length
 
   const fetchNotifications = useCallback(async () => {
     if (!user?.id) return
@@ -35,13 +35,21 @@ export default function NotificationBell({ className }: NotificationBellProps) {
     // Real-time subscription
     const channel = supabase
       .channel('notifications-' + user.id)
-      .on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'notifications',
-        filter: `user_id=eq.${user.id}`,
-      }, () => fetchNotifications())
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => fetchNotifications()
+      )
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [user?.id, fetchNotifications])
 
   // Close on click outside
@@ -57,25 +65,35 @@ export default function NotificationBell({ className }: NotificationBellProps) {
 
   const markRead = async (id: string) => {
     await supabase.from('notifications').update({ is_read: true }).eq('id', id)
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
   }
 
   const markAllRead = async () => {
     if (!user?.id) return
-    await supabase.from('notifications').update({ is_read: true }).eq('user_id', user.id).eq('is_read', false)
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+    await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false)
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
   }
 
   const deleteNotification = async (id: string) => {
     await supabase.from('notifications').delete().eq('id', id)
-    setNotifications(prev => prev.filter(n => n.id !== id))
+    setNotifications((prev) => prev.filter((n) => n.id !== id))
   }
 
   const getIcon = (type: string) => {
     const icons: Record<string, string> = {
-      bazaar_reminder: '🛒', join_request: '👤', join_approved: '✅',
-      join_rejected: '❌', expense_added: '💰', balance_due: '⚠️',
-      meal_reminder: '🍽️', deposit_verified: '💳', system: '🔔',
+      bazaar_reminder: '🛒',
+      join_request: '👤',
+      join_approved: '✅',
+      join_rejected: '❌',
+      expense_added: '💰',
+      balance_due: '⚠️',
+      meal_reminder: '🍽️',
+      deposit_verified: '💳',
+      system: '🔔',
     }
     return icons[type] || '🔔'
   }
@@ -84,12 +102,12 @@ export default function NotificationBell({ className }: NotificationBellProps) {
     <div className={`relative ${className || ''}`} ref={panelRef}>
       <button
         onClick={() => setShowPanel(!showPanel)}
-        className="relative p-2 rounded-btn text-nex-muted hover:bg-nex-hover transition-colors"
+        className="rounded-btn text-nex-muted hover:bg-nex-hover relative p-2 transition-colors"
         id="notification-bell"
       >
-        <Bell className="w-5 h-5" />
+        <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-nex-danger text-white text-[10px] font-bold flex items-center justify-center">
+          <span className="bg-nex-danger absolute top-1 right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -97,55 +115,72 @@ export default function NotificationBell({ className }: NotificationBellProps) {
 
       {/* Panel */}
       {showPanel && (
-        <div className="absolute right-0 top-12 w-80 sm:w-96 nex-card shadow-lg z-50 max-h-[70vh] overflow-hidden flex flex-col animate-slide-up">
+        <div className="nex-card animate-slide-up absolute top-12 right-0 z-50 flex max-h-[70vh] w-80 flex-col overflow-hidden shadow-lg sm:w-96">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-nex-border">
-            <h3 className="text-sm font-semibold text-nex-text">Notifications</h3>
+          <div className="border-nex-border flex items-center justify-between border-b px-4 py-3">
+            <h3 className="text-nex-text text-sm font-semibold">Notifications</h3>
             <div className="flex gap-2">
               {unreadCount > 0 && (
-                <button onClick={markAllRead} className="text-xs text-nex-primary hover:underline flex items-center gap-1">
-                  <CheckCheck className="w-3 h-3" /> Mark all read
+                <button
+                  onClick={markAllRead}
+                  className="text-nex-primary flex items-center gap-1 text-xs hover:underline"
+                >
+                  <CheckCheck className="h-3 w-3" /> Mark all read
                 </button>
               )}
-              <button onClick={() => setShowPanel(false)} className="text-nex-muted hover:text-nex-text">
-                <X className="w-4 h-4" />
+              <button
+                onClick={() => setShowPanel(false)}
+                className="text-nex-muted hover:text-nex-text"
+              >
+                <X className="h-4 w-4" />
               </button>
             </div>
           </div>
 
           {/* List */}
-          <div className="overflow-y-auto flex-1 divide-y divide-nex-border">
+          <div className="divide-nex-border flex-1 divide-y overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <Bell className="w-8 h-8 text-nex-muted/30 mx-auto mb-2" />
-                <p className="text-sm text-nex-muted">No notifications yet</p>
+                <Bell className="text-nex-muted/30 mx-auto mb-2 h-8 w-8" />
+                <p className="text-nex-muted text-sm">No notifications yet</p>
               </div>
-            ) : notifications.map(n => (
-              <div
-                key={n.id}
-                className={`px-4 py-3 hover:bg-nex-hover transition-colors cursor-pointer ${
-                  !n.is_read ? 'bg-nex-primary-light' : ''
-                }`}
-                onClick={() => !n.is_read && markRead(n.id)}
-              >
-                <div className="flex gap-3">
-                  <span className="text-lg shrink-0">{getIcon(n.type)}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm ${!n.is_read ? 'font-semibold text-nex-text' : 'text-nex-text'}`}>
-                      {n.title}
-                    </p>
-                    {n.body && <p className="text-xs text-nex-muted mt-0.5 line-clamp-2">{n.body}</p>}
-                    <p className="text-[10px] text-nex-muted mt-1">
-                      {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
-                    </p>
+            ) : (
+              notifications.map((n) => (
+                <div
+                  key={n.id}
+                  className={`hover:bg-nex-hover cursor-pointer px-4 py-3 transition-colors ${
+                    !n.is_read ? 'bg-nex-primary-light' : ''
+                  }`}
+                  onClick={() => !n.is_read && markRead(n.id)}
+                >
+                  <div className="flex gap-3">
+                    <span className="shrink-0 text-lg">{getIcon(n.type)}</span>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={`text-sm ${!n.is_read ? 'text-nex-text font-semibold' : 'text-nex-text'}`}
+                      >
+                        {n.title}
+                      </p>
+                      {n.body && (
+                        <p className="text-nex-muted mt-0.5 line-clamp-2 text-xs">{n.body}</p>
+                      )}
+                      <p className="text-nex-muted mt-1 text-[10px]">
+                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                      </p>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        deleteNotification(n.id)
+                      }}
+                      className="text-nex-muted/40 hover:text-nex-danger shrink-0 self-start transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </div>
-                  <button onClick={(e) => { e.stopPropagation(); deleteNotification(n.id) }}
-                    className="text-nex-muted/40 hover:text-nex-danger shrink-0 self-start transition-colors">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       )}

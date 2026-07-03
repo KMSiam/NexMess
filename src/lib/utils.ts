@@ -21,7 +21,7 @@ export function formatCurrency(amount: number): string {
 export function getInitials(name: string): string {
   return name
     .split(' ')
-    .map(n => n[0])
+    .map((n) => n[0])
     .join('')
     .toUpperCase()
     .slice(0, 2)
@@ -36,7 +36,8 @@ export function getFoodEmoji(foodName: string) {
   if (lower.includes('veg') || lower.includes('সবজি') || lower.includes('শাক')) return '🥬'
   if (lower.includes('dal') || lower.includes('ডাল') || lower.includes('lentil')) return '🥣'
   if (lower.includes('mutton') || lower.includes('খাসি')) return '🍖'
-  if (lower.includes('biryani') || lower.includes('বিরিয়ানি') || lower.includes('polao')) return '🍲'
+  if (lower.includes('biryani') || lower.includes('বিরিয়ানি') || lower.includes('polao'))
+    return '🍲'
   if (lower.includes('khichuri') || lower.includes('খিচুড়ি')) return '🍛'
   if (lower.includes('rice') || lower.includes('ভাত')) return '🍚'
   if (lower.includes('potato') || lower.includes('আলু')) return '🥔'
@@ -69,7 +70,7 @@ export function isMealCutoffPassed(dateStr: string, type: 'lunch' | 'dinner'): b
   const todayDhaka = dhakaToday()
   if (dateStr < todayDhaka) return true // Past dates are always locked
   if (dateStr > todayDhaka) return false // Future dates are never locked
-  
+
   const { hour } = dhakaParts()
   return hour >= MEAL_CUTOFF_HOURS[type]
 }
@@ -80,10 +81,7 @@ export function mealCutoffLabel(type: 'lunch' | 'dinner'): string {
 
 // Is the cut-off approaching within `windowMinutes` (default 60)?
 // Returns minutesLeft when in window, otherwise null.
-export function mealCutoffApproaching(
-  type: 'lunch' | 'dinner',
-  windowMinutes = 60,
-): number | null {
+export function mealCutoffApproaching(type: 'lunch' | 'dinner', windowMinutes = 60): number | null {
   const { hour, minute } = dhakaParts()
   const cutoffH = MEAL_CUTOFF_HOURS[type]
   const minutesNow = hour * 60 + minute

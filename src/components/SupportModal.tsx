@@ -14,7 +14,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
+
   const modalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -33,20 +33,18 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
     }
 
     setIsSubmitting(true)
-    
+
     try {
       // Insert into user_feedback (without .select() because RLS prevents reading)
-      const { error } = await supabase
-        .from('user_feedback')
-        .insert([{ name, email, message }])
-        
+      const { error } = await supabase.from('user_feedback').insert([{ name, email, message }])
+
       if (error) throw error
 
       // Call the edge function directly to ensure email is sent
       await supabase.functions.invoke('send-feedback-email', {
-        body: { name, email, message }
+        body: { name, email, message },
       })
-      
+
       toast.success('Your message has been sent successfully!')
       setName('')
       setEmail('')
@@ -64,12 +62,12 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
@@ -77,68 +75,74 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             ref={modalRef}
-            className="fixed bottom-24 right-6 w-[calc(100vw-3rem)] max-w-sm bg-nex-surface border border-nex-border shadow-2xl rounded-2xl z-50 overflow-hidden flex flex-col"
+            className="bg-nex-surface border-nex-border fixed right-6 bottom-24 z-50 flex w-[calc(100vw-3rem)] max-w-sm flex-col overflow-hidden rounded-2xl border shadow-2xl"
           >
-            <div className="flex items-center justify-between p-4 border-b border-nex-border bg-nex-bg/50">
+            <div className="border-nex-border bg-nex-bg/50 flex items-center justify-between border-b p-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-nex-primary/10 flex items-center justify-center">
-                  <MessageCircle className="w-4 h-4 text-nex-primary" />
+                <div className="bg-nex-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
+                  <MessageCircle className="text-nex-primary h-4 w-4" />
                 </div>
-                <h3 className="font-bold text-nex-text text-sm">Support & Contact</h3>
+                <h3 className="text-nex-text text-sm font-bold">Support & Contact</h3>
               </div>
-              <button 
+              <button
                 onClick={onClose}
-                className="p-1.5 text-nex-muted hover:text-nex-text hover:bg-nex-border/50 rounded-lg transition-colors"
+                className="text-nex-muted hover:text-nex-text hover:bg-nex-border/50 rounded-lg p-1.5 transition-colors"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </button>
             </div>
-            
-            <form onSubmit={handleSubmit} className="p-4 space-y-4">
+
+            <form onSubmit={handleSubmit} className="space-y-4 p-4">
               <div>
-                <label className="block text-xs font-semibold text-nex-muted mb-1 ml-1">Name (Optional)</label>
+                <label className="text-nex-muted mb-1 ml-1 block text-xs font-semibold">
+                  Name (Optional)
+                </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Doe"
-                  className="w-full bg-nex-bg border border-nex-border rounded-xl px-3 py-2 text-sm text-nex-text focus:outline-none focus:ring-2 focus:ring-nex-primary/50 transition-all"
+                  className="bg-nex-bg border-nex-border text-nex-text focus:ring-nex-primary/50 w-full rounded-xl border px-3 py-2 text-sm transition-all focus:ring-2 focus:outline-none"
                   disabled={isSubmitting}
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-nex-muted mb-1 ml-1">Email (Optional)</label>
+                <label className="text-nex-muted mb-1 ml-1 block text-xs font-semibold">
+                  Email (Optional)
+                </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="john@example.com"
-                  className="w-full bg-nex-bg border border-nex-border rounded-xl px-3 py-2 text-sm text-nex-text focus:outline-none focus:ring-2 focus:ring-nex-primary/50 transition-all"
+                  className="bg-nex-bg border-nex-border text-nex-text focus:ring-nex-primary/50 w-full rounded-xl border px-3 py-2 text-sm transition-all focus:ring-2 focus:outline-none"
                   disabled={isSubmitting}
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-nex-muted mb-1 ml-1">Message</label>
+                <label className="text-nex-muted mb-1 ml-1 block text-xs font-semibold">
+                  Message
+                </label>
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="How can we help?"
                   required
                   rows={4}
-                  className="w-full bg-nex-bg border border-nex-border rounded-xl px-3 py-2 text-sm text-nex-text focus:outline-none focus:ring-2 focus:ring-nex-primary/50 transition-all resize-none"
+                  className="bg-nex-bg border-nex-border text-nex-text focus:ring-nex-primary/50 w-full resize-none rounded-xl border px-3 py-2 text-sm transition-all focus:ring-2 focus:outline-none"
                   disabled={isSubmitting}
                 />
               </div>
               <button
                 type="submit"
                 disabled={isSubmitting || !message.trim()}
-                className="w-full nex-btn-primary py-2.5 flex items-center justify-center gap-2 rounded-xl text-sm font-bold shadow-lg shadow-nex-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="nex-btn-primary shadow-nex-primary/20 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold shadow-lg transition-all disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 ) : (
                   <>
-                    <Send className="w-4 h-4" /> Send Message
+                    <Send className="h-4 w-4" /> Send Message
                   </>
                 )}
               </button>

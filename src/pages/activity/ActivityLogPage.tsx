@@ -30,10 +30,30 @@ export default function ActivityLogPage() {
     setLoading(true)
 
     const [expRes, depRes, noticeRes, memberRes] = await Promise.all([
-      supabase.from('expenses').select('id, amount, description, category, created_at, profiles(username)').eq('mess_id', currentMess.id).order('created_at', { ascending: false }).limit(20),
-      supabase.from('deposits').select('id, amount, note, created_at, profiles!deposits_user_id_fkey(username)').eq('mess_id', currentMess.id).order('created_at', { ascending: false }).limit(20),
-      supabase.from('notices').select('id, message, created_at, created_by, profiles(username)').eq('mess_id', currentMess.id).order('created_at', { ascending: false }).limit(20),
-      supabase.from('mess_members').select('joined_at, role, status, profiles(username)').eq('mess_id', currentMess.id).order('joined_at', { ascending: false }).limit(20),
+      supabase
+        .from('expenses')
+        .select('id, amount, description, category, created_at, profiles(username)')
+        .eq('mess_id', currentMess.id)
+        .order('created_at', { ascending: false })
+        .limit(20),
+      supabase
+        .from('deposits')
+        .select('id, amount, note, created_at, profiles!deposits_user_id_fkey(username)')
+        .eq('mess_id', currentMess.id)
+        .order('created_at', { ascending: false })
+        .limit(20),
+      supabase
+        .from('notices')
+        .select('id, message, created_at, created_by, profiles(username)')
+        .eq('mess_id', currentMess.id)
+        .order('created_at', { ascending: false })
+        .limit(20),
+      supabase
+        .from('mess_members')
+        .select('joined_at, role, status, profiles(username)')
+        .eq('mess_id', currentMess.id)
+        .order('joined_at', { ascending: false })
+        .limit(20),
     ])
 
     const compiledLogs: LogItem[] = []
@@ -100,23 +120,29 @@ export default function ActivityLogPage() {
   }, [fetchActivityLogs])
 
   const icons = {
-    expense: { element: <Receipt className="w-4 h-4 text-amber-600" />, bg: 'bg-amber-500/10' },
-    deposit: { element: <PiggyBank className="w-4 h-4 text-emerald-600" />, bg: 'bg-emerald-500/10' },
-    notice: { element: <Megaphone className="w-4 h-4 text-blue-600" />, bg: 'bg-blue-500/10' },
-    member: { element: <UserPlus className="w-4 h-4 text-purple-600" />, bg: 'bg-purple-500/10' },
+    expense: { element: <Receipt className="h-4 w-4 text-amber-600" />, bg: 'bg-amber-500/10' },
+    deposit: {
+      element: <PiggyBank className="h-4 w-4 text-emerald-600" />,
+      bg: 'bg-emerald-500/10',
+    },
+    notice: { element: <Megaphone className="h-4 w-4 text-blue-600" />, bg: 'bg-blue-500/10' },
+    member: { element: <UserPlus className="h-4 w-4 text-purple-600" />, bg: 'bg-purple-500/10' },
   }
 
   if (!currentMess) return null
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center gap-3">
-        <Link to="/dashboard" className="p-2 rounded-btn hover:bg-nex-hover text-nex-muted transition-colors">
-          <ArrowLeft className="w-5 h-5" />
+        <Link
+          to="/dashboard"
+          className="rounded-btn hover:bg-nex-hover text-nex-muted p-2 transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5" />
         </Link>
         <div className="flex items-center gap-2">
-          <Activity className="w-6 h-6 text-nex-primary" />
-          <h1 className="text-2xl font-bold text-nex-text">Full Activity Log</h1>
+          <Activity className="text-nex-primary h-6 w-6" />
+          <h1 className="text-nex-text text-2xl font-bold">Full Activity Log</h1>
         </div>
       </div>
 
@@ -124,37 +150,44 @@ export default function ActivityLogPage() {
         {loading ? (
           <div className="space-y-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex gap-4 items-center">
-                <div className="w-8 h-8 rounded-full bg-nex-elevated shrink-0 animate-pulse" />
+              <div key={i} className="flex items-center gap-4">
+                <div className="bg-nex-elevated h-8 w-8 shrink-0 animate-pulse rounded-full" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-3 w-1/4 bg-nex-elevated rounded animate-pulse" />
-                  <div className="h-3 w-3/4 bg-nex-elevated rounded animate-pulse" />
+                  <div className="bg-nex-elevated h-3 w-1/4 animate-pulse rounded" />
+                  <div className="bg-nex-elevated h-3 w-3/4 animate-pulse rounded" />
                 </div>
               </div>
             ))}
           </div>
         ) : logs.length === 0 ? (
-          <p className="text-center text-nex-muted py-8 text-sm">No activity recorded yet.</p>
+          <p className="text-nex-muted py-8 text-center text-sm">No activity recorded yet.</p>
         ) : (
-          <div className="space-y-6 relative before:absolute before:top-2 before:bottom-2 before:left-[17px] before:w-0.5 before:bg-nex-border">
-            {logs.map(log => {
+          <div className="before:bg-nex-border relative space-y-6 before:absolute before:top-2 before:bottom-2 before:left-[17px] before:w-0.5">
+            {logs.map((log) => {
               const iconMeta = icons[log.type]
               return (
-                <div key={log.id} className="flex gap-4 relative">
-                  <div className={`w-9 h-9 rounded-full ${iconMeta.bg} flex items-center justify-center shrink-0 z-10 border border-nex-bg`}>
+                <div key={log.id} className="relative flex gap-4">
+                  <div
+                    className={`h-9 w-9 rounded-full ${iconMeta.bg} border-nex-bg z-10 flex shrink-0 items-center justify-center border`}
+                  >
                     {iconMeta.element}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-4">
-                      <p className="text-sm font-semibold text-nex-text">{log.title}</p>
-                      <p className="text-[10px] text-nex-muted whitespace-nowrap">
+                      <p className="text-nex-text text-sm font-semibold">{log.title}</p>
+                      <p className="text-nex-muted text-[10px] whitespace-nowrap">
                         {format(new Date(log.created_at), 'MMM d, h:mm a')}
                       </p>
                     </div>
-                    <p className="text-xs text-nex-muted mt-1 leading-relaxed">{log.description}</p>
+                    <p className="text-nex-muted mt-1 text-xs leading-relaxed">{log.description}</p>
                     {log.amount && (
-                      <p className="text-xs font-semibold text-nex-text mt-1">
-                        Amount: <span className={log.type === 'deposit' ? 'text-nex-success' : 'text-nex-text'}>{formatCurrency(log.amount)}</span>
+                      <p className="text-nex-text mt-1 text-xs font-semibold">
+                        Amount:{' '}
+                        <span
+                          className={log.type === 'deposit' ? 'text-nex-success' : 'text-nex-text'}
+                        >
+                          {formatCurrency(log.amount)}
+                        </span>
                       </p>
                     )}
                   </div>

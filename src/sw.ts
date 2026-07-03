@@ -5,7 +5,8 @@ declare const self: ServiceWorkerGlobalScope
 
 cleanupOutdatedCaches()
 // vite-plugin-pwa injects the precache manifest at build time
-const manifest = (self as unknown as { __WB_MANIFEST: { url: string; revision: string | null }[] }).__WB_MANIFEST
+const manifest = (self as unknown as { __WB_MANIFEST: { url: string; revision: string | null }[] })
+  .__WB_MANIFEST
 if (manifest) {
   precacheAndRoute(manifest)
 }
@@ -27,12 +28,10 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close()
   const url = (event.notification.data?.url as string) ?? '/dashboard'
   event.waitUntil(
-    self.clients
-      .matchAll({ type: 'window', includeUncontrolled: true })
-      .then((clientList) => {
-        const existing = clientList.find((c) => c.url.startsWith(self.location.origin))
-        if (existing && 'focus' in existing) return existing.focus()
-        return self.clients.openWindow(url)
-      })
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      const existing = clientList.find((c) => c.url.startsWith(self.location.origin))
+      if (existing && 'focus' in existing) return existing.focus()
+      return self.clients.openWindow(url)
+    })
   )
 })

@@ -6,10 +6,24 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import {
-  Home, Utensils, MessageSquare, Wallet, ShoppingBag,
-  Settings, LogOut, CheckCircle2,
-  CalendarClock, PanelLeft, PanelLeftClose, X, MoreHorizontal,
-  Sun, Moon, History, ChevronDown, Sparkles
+  Home,
+  Utensils,
+  MessageSquare,
+  Wallet,
+  ShoppingBag,
+  Settings,
+  LogOut,
+  CheckCircle2,
+  CalendarClock,
+  PanelLeft,
+  PanelLeftClose,
+  X,
+  MoreHorizontal,
+  Sun,
+  Moon,
+  History,
+  ChevronDown,
+  Sparkles,
 } from 'lucide-react'
 import NotificationBell from '../NotificationBell'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
@@ -31,8 +45,15 @@ export default function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { profile, user, signOut } = useAuthStore()
-  const { currentMess, messes, members, setCurrentMess, fetchUserMesses, reset: resetMess } = useMessStore()
-  const isManager = members.some(m => m.user_id === user?.id && m.role === 'manager')
+  const {
+    currentMess,
+    messes,
+    members,
+    setCurrentMess,
+    fetchUserMesses,
+    reset: resetMess,
+  } = useMessStore()
+  const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [showMessDropdown, setShowMessDropdown] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
@@ -53,7 +74,7 @@ export default function AppLayout() {
         { to: '/dashboard', icon: Home, label: 'Dashboard' },
         { to: '/settings', icon: Settings, label: 'Settings' },
       ]
-  
+
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('nexmess-theme')
     return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -84,7 +105,7 @@ export default function AppLayout() {
 
     doc.startViewTransition(() => {
       flushSync(() => {
-        setIsDark(prev => !prev)
+        setIsDark((prev) => !prev)
       })
     })
   }
@@ -103,7 +124,7 @@ export default function AppLayout() {
   // Listen for changes to the user's OWN membership (e.g., when they get approved)
   useEffect(() => {
     if (!profile?.id) return
-    
+
     const channel = supabase
       .channel(`user-membership-${profile.id}`)
       .on(
@@ -122,64 +143,84 @@ export default function AppLayout() {
   }, [profile?.id, fetchUserMesses])
 
   return (
-    <div className="min-h-dvh bg-nex-bg flex">
+    <div className="bg-nex-bg flex min-h-dvh">
       {/* ── Desktop Sidebar ────────────────── */}
-      <aside className={`hidden md:flex flex-col h-screen sticky top-0 nex-glass border-r border-nex-border/50 transition-all duration-300 ${
-        sidebarCollapsed ? 'w-[72px]' : 'w-64'
-      }`}>
+      <aside
+        className={`nex-glass border-nex-border/50 sticky top-0 hidden h-screen flex-col border-r transition-all duration-300 md:flex ${
+          sidebarCollapsed ? 'w-[72px]' : 'w-64'
+        }`}
+      >
         {/* Logo */}
-        <div className={`flex items-center border-b border-nex-border/50 ${sidebarCollapsed ? 'flex-col gap-2 px-2 py-3' : 'gap-3 px-4 py-4'}`}>
-          <img src={logoIcon} alt="NexMess" className="w-9 h-9 rounded-card shrink-0" />
-          {!sidebarCollapsed && <h1 className="text-lg font-bold text-nex-text tracking-tight flex-1">NexMess</h1>}
+        <div
+          className={`border-nex-border/50 flex items-center border-b ${sidebarCollapsed ? 'flex-col gap-2 px-2 py-3' : 'gap-3 px-4 py-4'}`}
+        >
+          <img src={logoIcon} alt="NexMess" className="rounded-card h-9 w-9 shrink-0" />
+          {!sidebarCollapsed && (
+            <h1 className="text-nex-text flex-1 text-lg font-bold tracking-tight">NexMess</h1>
+          )}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1.5 rounded-btn text-nex-muted hover:bg-nex-hover transition-colors"
+            className="rounded-btn text-nex-muted hover:bg-nex-hover p-1.5 transition-colors"
           >
-            {sidebarCollapsed ? <PanelLeft className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+            {sidebarCollapsed ? (
+              <PanelLeft className="h-4 w-4" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4" />
+            )}
           </button>
         </div>
 
         {/* Mess Selector removed from sidebar */}
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-3 space-y-1">
+        <nav className="flex-1 space-y-1 px-3 py-3">
           {sidebarItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
               title={label}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm transition-colors ${
+                `rounded-btn flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
                   isActive ? 'nex-nav-active' : 'nex-nav-inactive'
                 } ${sidebarCollapsed ? 'justify-center' : ''}`
               }
             >
-              <Icon className="w-5 h-5 shrink-0" />
+              <Icon className="h-5 w-5 shrink-0" />
               {!sidebarCollapsed && <span>{label}</span>}
             </NavLink>
           ))}
         </nav>
 
         {/* User */}
-        <div className="px-3 py-3 border-t border-nex-border/50">
+        <div className="border-nex-border/50 border-t px-3 py-3">
           <div className={`flex items-center gap-3 ${sidebarCollapsed ? 'justify-center' : ''}`}>
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-semibold shrink-0">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-semibold text-white">
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                <img
+                  src={profile.avatar_url}
+                  alt=""
+                  className="h-full w-full rounded-full object-cover"
+                />
               ) : (
                 getInitials(profile?.username || 'U')
               )}
             </div>
             {!sidebarCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-nex-text truncate flex items-center gap-1.5">
+              <div className="min-w-0 flex-1">
+                <p className="text-nex-text flex items-center gap-1.5 truncate text-sm font-medium">
                   {profile?.username || 'User'}
                   {profile?.is_verified && (
-                    <span className="nex-verified"><CheckCircle2 className="w-3 h-3" /></span>
+                    <span className="nex-verified">
+                      <CheckCircle2 className="h-3 w-3" />
+                    </span>
                   )}
                 </p>
-                <button onClick={handleSignOut} disabled={signingOut} className="text-xs text-nex-muted hover:text-nex-danger flex items-center gap-1 transition-colors disabled:opacity-50">
-                  <LogOut className="w-3 h-3" /> {signingOut ? 'Signing out...' : 'Sign out'}
+                <button
+                  onClick={handleSignOut}
+                  disabled={signingOut}
+                  className="text-nex-muted hover:text-nex-danger flex items-center gap-1 text-xs transition-colors disabled:opacity-50"
+                >
+                  <LogOut className="h-3 w-3" /> {signingOut ? 'Signing out...' : 'Sign out'}
                 </button>
               </div>
             )}
@@ -188,9 +229,9 @@ export default function AppLayout() {
       </aside>
 
       {/* ── Main Content ───────────────────── */}
-      <div className="flex-1 min-w-0 flex flex-col pb-16 md:pb-0">
+      <div className="flex min-w-0 flex-1 flex-col pb-16 md:pb-0">
         {/* Header */}
-        <header className="sticky top-0 z-10 nex-glass border-b border-nex-border/50 px-4 md:px-6 py-3">
+        <header className="nex-glass border-nex-border/50 sticky top-0 z-10 border-b px-4 py-3 md:px-6">
           <div className="flex items-center justify-between">
             {/* Header Mess Selector (Desktop & Mobile) */}
             <div className="relative">
@@ -198,54 +239,60 @@ export default function AppLayout() {
                 <>
                   <button
                     onClick={() => setShowMessDropdown(!showMessDropdown)}
-                    className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-nex-elevated hover:bg-nex-hover border border-nex-border/50 transition-colors text-left"
+                    className="bg-nex-elevated hover:bg-nex-hover border-nex-border/50 flex items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left transition-colors"
                   >
-                    <div className="w-6.5 h-6.5 rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                    <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 text-xs font-bold text-white">
                       {currentMess.name[0]}
                     </div>
                     <div className="min-w-0 pr-1">
-                      <p className="text-sm font-semibold text-nex-text leading-tight truncate max-w-[140px] sm:max-w-[200px]">{currentMess.name}</p>
-                      <p className="text-[10px] text-nex-muted font-mono leading-none mt-0.5">{currentMess.unique_code}</p>
+                      <p className="text-nex-text max-w-[140px] truncate text-sm leading-tight font-semibold sm:max-w-[200px]">
+                        {currentMess.name}
+                      </p>
+                      <p className="text-nex-muted mt-0.5 font-mono text-[10px] leading-none">
+                        {currentMess.unique_code}
+                      </p>
                     </div>
                     {messes.length > 1 && (
-                      <ChevronDown className="w-3.5 h-3.5 text-nex-muted shrink-0 ml-0.5" />
+                      <ChevronDown className="text-nex-muted ml-0.5 h-3.5 w-3.5 shrink-0" />
                     )}
                   </button>
 
                   {showMessDropdown && messes.length > 1 && (
-                    <div className="absolute top-full left-0 mt-1.5 w-48 bg-nex-bg border border-nex-border rounded-xl shadow-xl p-1 z-20 space-y-0.5 animate-slide-down">
-                      {messes.filter(m => m.id !== currentMess.id).map(mess => (
-                        <button
-                          key={mess.id}
-                          onClick={() => {
-                            setCurrentMess(mess)
-                            setShowMessDropdown(false)
-                          }}
-                          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-nex-hover text-left text-xs text-nex-text transition-colors"
-                        >
-                          <div className="w-5.5 h-5.5 rounded bg-nex-elevated text-nex-muted flex items-center justify-center text-[10px] font-bold">
-                            {mess.name[0]}
-                          </div>
-                          <span className="truncate">{mess.name}</span>
-                        </button>
-                      ))}
+                    <div className="bg-nex-bg border-nex-border animate-slide-down absolute top-full left-0 z-20 mt-1.5 w-48 space-y-0.5 rounded-xl border p-1 shadow-xl">
+                      {messes
+                        .filter((m) => m.id !== currentMess.id)
+                        .map((mess) => (
+                          <button
+                            key={mess.id}
+                            onClick={() => {
+                              setCurrentMess(mess)
+                              setShowMessDropdown(false)
+                            }}
+                            className="hover:bg-nex-hover text-nex-text flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs transition-colors"
+                          >
+                            <div className="bg-nex-elevated text-nex-muted flex h-5.5 w-5.5 items-center justify-center rounded text-[10px] font-bold">
+                              {mess.name[0]}
+                            </div>
+                            <span className="truncate">{mess.name}</span>
+                          </button>
+                        ))}
                     </div>
                   )}
                 </>
               ) : (
                 <div className="flex items-center gap-2">
-                  <img src={logoIcon} alt="NexMess" className="w-7 h-7" />
-                  <span className="text-sm font-bold text-nex-text">NexMess</span>
+                  <img src={logoIcon} alt="NexMess" className="h-7 w-7" />
+                  <span className="text-nex-text text-sm font-bold">NexMess</span>
                 </div>
               )}
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-btn hover:bg-nex-hover text-nex-muted transition-colors"
+                className="rounded-btn hover:bg-nex-hover text-nex-muted p-2 transition-colors"
                 title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               >
-                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
               <NotificationBell />
             </div>
@@ -253,7 +300,7 @@ export default function AppLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-6 overflow-hidden">
+        <main className="flex-1 overflow-hidden p-4 md:p-6">
           <GlobalErrorBoundary>
             <AnimatePresence mode="wait">
               <motion.div
@@ -272,13 +319,28 @@ export default function AppLayout() {
       </div>
 
       {/* ── Mobile Bottom Nav ──────────────── */}
-      <MobileBottomNav handleSignOut={handleSignOut} signingOut={signingOut} isManager={isManager} hasMess={!!currentMess} />
+      <MobileBottomNav
+        handleSignOut={handleSignOut}
+        signingOut={signingOut}
+        isManager={isManager}
+        hasMess={!!currentMess}
+      />
     </div>
   )
 }
 
 /* ── Mobile Bottom Navigation with "More" Menu ── */
-function MobileBottomNav({ handleSignOut, signingOut, isManager, hasMess }: { handleSignOut: () => void; signingOut: boolean; isManager: boolean; hasMess: boolean }) {
+function MobileBottomNav({
+  handleSignOut,
+  signingOut,
+  isManager,
+  hasMess,
+}: {
+  handleSignOut: () => void
+  signingOut: boolean
+  isManager: boolean
+  hasMess: boolean
+}) {
   const [showMore, setShowMore] = useState(false)
 
   const mainTabs = hasMess
@@ -292,56 +354,90 @@ function MobileBottomNav({ handleSignOut, signingOut, isManager, hasMess }: { ha
     <>
       {/* Overlay */}
       {showMore && (
-        <div className="md:hidden fixed inset-0 z-20 bg-black/20 backdrop-blur-sm" onClick={() => setShowMore(false)} />
+        <div
+          className="fixed inset-0 z-20 bg-black/20 backdrop-blur-sm md:hidden"
+          onClick={() => setShowMore(false)}
+        />
       )}
 
       {/* More Menu Popup */}
       {showMore && (
-        <div className="md:hidden fixed bottom-16 right-2 left-2 z-30 nex-card p-2 shadow-xl border border-nex-border animate-slide-up safe-area-bottom">
-          <NavLink to="/market" onClick={() => setShowMore(false)}
-            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
-            <ShoppingBag className="w-5 h-5" /> Market Schedule
+        <div className="nex-card border-nex-border animate-slide-up safe-area-bottom fixed right-2 bottom-16 left-2 z-30 border p-2 shadow-xl md:hidden">
+          <NavLink
+            to="/market"
+            onClick={() => setShowMore(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
+            }
+          >
+            <ShoppingBag className="h-5 w-5" /> Market Schedule
           </NavLink>
-          <NavLink to="/chat" onClick={() => setShowMore(false)}
-            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
-            <MessageSquare className="w-5 h-5" /> Chat
+          <NavLink
+            to="/chat"
+            onClick={() => setShowMore(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
+            }
+          >
+            <MessageSquare className="h-5 w-5" /> Chat
           </NavLink>
-          <NavLink to="/routine" onClick={() => setShowMore(false)}
-            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
-            <CalendarClock className="w-5 h-5" /> Meal Routine
+          <NavLink
+            to="/routine"
+            onClick={() => setShowMore(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
+            }
+          >
+            <CalendarClock className="h-5 w-5" /> Meal Routine
           </NavLink>
           {isManager && (
-            <NavLink to="/history" onClick={() => setShowMore(false)}
-              className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
-              <History className="w-5 h-5" /> History
+            <NavLink
+              to="/history"
+              onClick={() => setShowMore(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
+              }
+            >
+              <History className="h-5 w-5" /> History
             </NavLink>
           )}
-          <NavLink to="/settings" onClick={() => setShowMore(false)}
-            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
-            <Settings className="w-5 h-5" /> Settings
+          <NavLink
+            to="/settings"
+            onClick={() => setShowMore(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
+            }
+          >
+            <Settings className="h-5 w-5" /> Settings
           </NavLink>
-          <div className="border-t border-nex-border my-1" />
-          <button onClick={handleSignOut} disabled={signingOut}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-600 hover:bg-nex-danger-light transition-colors disabled:opacity-50">
-            <LogOut className="w-5 h-5" /> {signingOut ? 'Signing out...' : 'Sign Out'}
+          <div className="border-nex-border my-1 border-t" />
+          <button
+            onClick={handleSignOut}
+            disabled={signingOut}
+            className="hover:bg-nex-danger-light flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-red-600 transition-colors disabled:opacity-50"
+          >
+            <LogOut className="h-5 w-5" /> {signingOut ? 'Signing out...' : 'Sign Out'}
           </button>
         </div>
       )}
 
       {/* Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 nex-glass border-t border-nex-border/50 z-20 safe-area-bottom" style={{ transform: 'translate3d(0,0,0)', WebkitTransform: 'translate3d(0,0,0)' }}>
+      <nav
+        className="nex-glass border-nex-border/50 safe-area-bottom fixed inset-x-0 bottom-0 z-20 border-t md:hidden"
+        style={{ transform: 'translate3d(0,0,0)', WebkitTransform: 'translate3d(0,0,0)' }}
+      >
         <div className="flex items-center justify-around py-1.5">
           {mainTabs.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+                `flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors ${
                   isActive ? 'text-nex-primary' : 'text-nex-muted'
                 }`
               }
             >
-              <Icon className="w-5 h-5" />
+              <Icon className="h-5 w-5" />
               <span className="text-[10px] font-medium">{label}</span>
             </NavLink>
           ))}
@@ -349,9 +445,9 @@ function MobileBottomNav({ handleSignOut, signingOut, isManager, hasMess }: { ha
           {hasMess && (
             <button
               onClick={() => setShowMore(!showMore)}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${showMore ? 'text-nex-primary' : 'text-nex-muted'}`}
+              className={`flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors ${showMore ? 'text-nex-primary' : 'text-nex-muted'}`}
             >
-              {showMore ? <X className="w-5 h-5" /> : <MoreHorizontal className="w-5 h-5" />}
+              {showMore ? <X className="h-5 w-5" /> : <MoreHorizontal className="h-5 w-5" />}
               <span className="text-[10px] font-medium">More</span>
             </button>
           )}
@@ -361,10 +457,12 @@ function MobileBottomNav({ handleSignOut, signingOut, isManager, hasMess }: { ha
             <button
               onClick={handleSignOut}
               disabled={signingOut}
-              className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors text-nex-muted hover:text-red-500 disabled:opacity-50"
+              className="text-nex-muted flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors hover:text-red-500 disabled:opacity-50"
             >
-              <LogOut className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{signingOut ? 'Signing out...' : 'Sign Out'}</span>
+              <LogOut className="h-5 w-5" />
+              <span className="text-[10px] font-medium">
+                {signingOut ? 'Signing out...' : 'Sign Out'}
+              </span>
             </button>
           )}
         </div>

@@ -32,33 +32,36 @@ export default function NoticeBoard({
   }
 
   return (
-    <div className="nex-card p-5 h-full flex flex-col justify-between min-h-[160px]">
+    <div className="nex-card flex h-full min-h-[160px] flex-col justify-between p-5">
       <div>
-        <div className="flex items-center justify-between gap-3 mb-3 shrink-0">
+        <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Pin className="w-4 h-4 text-indigo-500 rotate-45 shrink-0" />
-            <h4 className="text-xs font-bold uppercase tracking-wider text-nex-text">
+            <Pin className="h-4 w-4 shrink-0 rotate-45 text-indigo-500" />
+            <h4 className="text-nex-text text-xs font-bold tracking-wider uppercase">
               Notice Board
             </h4>
           </div>
           {isManager && !showInput && (
             <button
-              onClick={() => { setShowInput(true); setNoticeText(notice?.message || '') }}
-              className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+              onClick={() => {
+                setShowInput(true)
+                setNoticeText(notice?.message || '')
+              }}
+              className="flex items-center gap-1 text-[10px] font-bold tracking-wider text-indigo-600 uppercase hover:underline dark:text-indigo-400"
             >
-              <Plus className="w-3 h-3" /> {notice ? 'Edit' : 'Post'}
+              <Plus className="h-3 w-3" /> {notice ? 'Edit' : 'Post'}
             </button>
           )}
         </div>
 
         {/* Input Form for managers */}
         {showInput && isManager ? (
-          <form onSubmit={handleSave} className="space-y-2.5 animate-slide-up mt-2">
+          <form onSubmit={handleSave} className="animate-slide-up mt-2 space-y-2.5">
             <input
               type="text"
               value={noticeText}
-              onChange={e => setNoticeText(e.target.value)}
-              className="nex-input w-full text-sm py-2 px-3"
+              onChange={(e) => setNoticeText(e.target.value)}
+              className="nex-input w-full px-3 py-2 text-sm"
               placeholder="Type your notice here..."
               maxLength={200}
               required
@@ -68,14 +71,14 @@ export default function NoticeBoard({
               <button
                 type="submit"
                 disabled={loading || !noticeText.trim()}
-                className="nex-btn-primary py-1.5 px-3 text-xs disabled:opacity-50 flex items-center gap-1"
+                className="nex-btn-primary flex items-center gap-1 px-3 py-1.5 text-xs disabled:opacity-50"
               >
-                <Send className="w-3.5 h-3.5" /> Save
+                <Send className="h-3.5 w-3.5" /> Save
               </button>
               <button
                 type="button"
                 onClick={() => setShowInput(false)}
-                className="nex-btn-secondary py-1.5 px-3 text-xs"
+                className="nex-btn-secondary px-3 py-1.5 text-xs"
               >
                 Cancel
               </button>
@@ -86,7 +89,7 @@ export default function NoticeBoard({
                     await onDismissNotice()
                     setShowInput(false)
                   }}
-                  className="nex-btn-secondary py-1.5 px-3 text-xs !text-red-500 hover:!bg-red-500/10 border-red-500/20 ml-auto"
+                  className="nex-btn-secondary ml-auto border-red-500/20 px-3 py-1.5 text-xs !text-red-500 hover:!bg-red-500/10"
                 >
                   Remove Notice
                 </button>
@@ -94,13 +97,13 @@ export default function NoticeBoard({
             </div>
           </form>
         ) : notice ? (
-          <p className="text-sm font-medium text-nex-text leading-relaxed break-words">
+          <p className="text-nex-text text-sm leading-relaxed font-medium break-words">
             {notice.message}
           </p>
         ) : (
-          <div className="flex flex-col items-center justify-center py-4 text-center shrink-0">
-            <Megaphone className="w-7 h-7 text-slate-400 dark:text-slate-600 mb-1" />
-            <p className="text-xs text-nex-muted font-medium">No active notice pinned.</p>
+          <div className="flex shrink-0 flex-col items-center justify-center py-4 text-center">
+            <Megaphone className="mb-1 h-7 w-7 text-slate-400 dark:text-slate-600" />
+            <p className="text-nex-muted text-xs font-medium">No active notice pinned.</p>
           </div>
         )}
       </div>

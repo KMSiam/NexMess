@@ -14,23 +14,25 @@ interface SettleUpSheetProps {
 export default function SettleUpSheet({ settlements }: SettleUpSheetProps) {
   return (
     <div className="nex-card p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <ArrowRight className="w-4 h-4 text-nex-success" />
-        <h3 className="text-sm font-semibold text-nex-text">Settle Up</h3>
-        <span className="text-xs text-nex-muted">— minimum payments to close the month</span>
+      <div className="mb-3 flex items-center gap-2">
+        <ArrowRight className="text-nex-success h-4 w-4" />
+        <h3 className="text-nex-text text-sm font-semibold">Settle Up</h3>
+        <span className="text-nex-muted text-xs">— minimum payments to close the month</span>
       </div>
       {settlements.length === 0 ? (
-        <p className="text-sm text-nex-muted">Everyone is squared up. No transfers needed.</p>
+        <p className="text-nex-muted text-sm">Everyone is squared up. No transfers needed.</p>
       ) : (
-        <ul className="divide-y divide-nex-border">
+        <ul className="divide-nex-border divide-y">
           {settlements.map((t, idx) => (
             <li key={idx} className="flex items-center justify-between py-2.5 text-sm">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="font-medium text-nex-danger truncate">{t.from}</span>
-                <ArrowRight className="w-3.5 h-3.5 text-nex-muted flex-shrink-0" />
-                <span className="font-medium text-nex-success truncate">{t.to}</span>
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="text-nex-danger truncate font-medium">{t.from}</span>
+                <ArrowRight className="text-nex-muted h-3.5 w-3.5 flex-shrink-0" />
+                <span className="text-nex-success truncate font-medium">{t.to}</span>
               </div>
-              <span className="font-semibold text-nex-text whitespace-nowrap ml-3">{formatCurrency(t.amount)}</span>
+              <span className="text-nex-text ml-3 font-semibold whitespace-nowrap">
+                {formatCurrency(t.amount)}
+              </span>
             </li>
           ))}
         </ul>

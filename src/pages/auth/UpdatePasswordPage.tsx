@@ -15,7 +15,9 @@ export default function UpdatePasswordPage() {
 
   // Wait for the PASSWORD_RECOVERY event from the email link, then navigate after update
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
         setReady(true)
       }
@@ -49,7 +51,7 @@ export default function UpdatePasswordPage() {
 
     setLoading(true)
     const { error } = await supabase.auth.updateUser({
-      password: password
+      password: password,
     })
 
     if (error) {
@@ -62,76 +64,78 @@ export default function UpdatePasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-nex-bg flex">
+    <div className="bg-nex-bg flex min-h-screen">
       {/* Left: Branding */}
-      <div className="hidden lg:flex flex-col justify-center items-center w-1/2 bg-gradient-to-br from-[#3A5643] via-[#4A6D56] to-[#5F886E] text-white p-12">
+      <div className="hidden w-1/2 flex-col items-center justify-center bg-gradient-to-br from-[#3A5643] via-[#4A6D56] to-[#5F886E] p-12 text-white lg:flex">
         <div className="max-w-md">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden">
-              <img src={logoIcon} alt="NexMess" className="w-10 h-10" />
+          <div className="mb-8 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white/20 backdrop-blur">
+              <img src={logoIcon} alt="NexMess" className="h-10 w-10" />
             </div>
             <h1 className="text-3xl font-bold">NexMess</h1>
           </div>
-          <h2 className="text-4xl font-bold leading-tight mb-4">
-            Secure your account
-          </h2>
-          <p className="text-[#EDF2EE] text-lg leading-relaxed">
+          <h2 className="mb-4 text-4xl leading-tight font-bold">Secure your account</h2>
+          <p className="text-lg leading-relaxed text-[#EDF2EE]">
             Please enter your new password below.
           </p>
         </div>
       </div>
 
       {/* Right: Form */}
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl overflow-hidden">
-              <img src={logoIcon} alt="NexMess" className="w-full h-full" />
+          <div className="mb-8 flex items-center gap-3 lg:hidden">
+            <div className="h-10 w-10 overflow-hidden rounded-xl">
+              <img src={logoIcon} alt="NexMess" className="h-full w-full" />
             </div>
-            <h1 className="text-2xl font-bold text-nex-text">NexMess</h1>
+            <h1 className="text-nex-text text-2xl font-bold">NexMess</h1>
           </div>
 
-          <h2 className="text-2xl font-bold text-nex-text mb-1">Set new password</h2>
+          <h2 className="text-nex-text mb-1 text-2xl font-bold">Set new password</h2>
           <p className="text-nex-muted mb-8">Almost done! Enter your new secure password.</p>
-          
+
           {!ready ? (
             <div className="flex flex-col items-center gap-3 py-8">
-              <div className="w-8 h-8 border-3 border-nex-primary border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-nex-muted">Verifying your reset link...</p>
+              <div className="border-nex-primary h-8 w-8 animate-spin rounded-full border-3 border-t-transparent" />
+              <p className="text-nex-muted text-sm">Verifying your reset link...</p>
             </div>
           ) : (
             <form onSubmit={handleUpdate} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-nex-text mb-1.5">New Password</label>
+                <label className="text-nex-text mb-1.5 block text-sm font-medium">
+                  New Password
+                </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nex-muted" />
+                  <Lock className="text-nex-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    className="nex-input pl-10 pr-10"
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="nex-input pr-10 pl-10"
                     placeholder="Min. 8 chars, letters + numbers"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-nex-muted hover:text-nex-text"
+                    className="text-nex-muted hover:text-nex-text absolute top-1/2 right-3 -translate-y-1/2"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-nex-text mb-1.5">Confirm New Password</label>
+                <label className="text-nex-text mb-1.5 block text-sm font-medium">
+                  Confirm New Password
+                </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nex-muted" />
+                  <Lock className="text-nex-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                   <input
                     type="password"
                     value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="nex-input pl-10"
                     placeholder="••••••••"
                     required
@@ -142,12 +146,14 @@ export default function UpdatePasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="nex-btn-primary w-full py-3 disabled:opacity-50 mt-6"
+                className="nex-btn-primary mt-6 w-full py-3 disabled:opacity-50"
               >
                 {loading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 ) : (
-                  <>Update Password <ArrowRight className="w-4 h-4" /></>
+                  <>
+                    Update Password <ArrowRight className="h-4 w-4" />
+                  </>
                 )}
               </button>
             </form>

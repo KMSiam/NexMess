@@ -29,6 +29,7 @@
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - A [Supabase](https://supabase.com) project
 
@@ -52,24 +53,24 @@ npm run dev
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
+| Variable                 | Description                   |
+| ------------------------ | ----------------------------- |
+| `VITE_SUPABASE_URL`      | Your Supabase project URL     |
 | `VITE_SUPABASE_ANON_KEY` | Your Supabase public anon key |
 
 ## 🏗️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 19, TypeScript, Vite |
-| Styling | Tailwind CSS v4, Custom Design System |
-| State | Zustand (persisted) |
-| Backend | Supabase (PostgreSQL, Auth, Realtime, Storage, Deno Edge Functions) |
-| Routing | React Router v7 |
-| PWA & SW | Vite PWA Plugin, Custom Service Worker (`src/sw.ts`) |
-| PDF Reports | jsPDF, jspdf-autotable |
-| Animations | Framer Motion |
-| Notifications | react-hot-toast, Web Push API (VAPID) |
+| Layer         | Technology                                                          |
+| ------------- | ------------------------------------------------------------------- |
+| Frontend      | React 19, TypeScript, Vite                                          |
+| Styling       | Tailwind CSS v4, Custom Design System                               |
+| State         | Zustand (persisted)                                                 |
+| Backend       | Supabase (PostgreSQL, Auth, Realtime, Storage, Deno Edge Functions) |
+| Routing       | React Router v7                                                     |
+| PWA & SW      | Vite PWA Plugin, Custom Service Worker (`src/sw.ts`)                |
+| PDF Reports   | jsPDF, jspdf-autotable                                              |
+| Animations    | Framer Motion                                                       |
+| Notifications | react-hot-toast, Web Push API (VAPID)                               |
 
 ## 📁 Project Structure
 

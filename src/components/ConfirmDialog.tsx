@@ -85,26 +85,28 @@ export default function ConfirmDialog({
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-start gap-4 mb-4">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${styles.icon}`}>
-                  <AlertTriangle className="w-5 h-5" />
+              <div className="mb-4 flex items-start gap-4">
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${styles.icon}`}
+                >
+                  <AlertTriangle className="h-5 w-5" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-nex-text">{title}</h3>
-                  <p className="text-sm text-nex-muted mt-1 leading-relaxed">{message}</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-nex-text text-lg font-semibold">{title}</h3>
+                  <p className="text-nex-muted mt-1 text-sm leading-relaxed">{message}</p>
                 </div>
                 <button
                   onClick={handleCancel}
-                  className="p-1 rounded-btn text-nex-muted hover:bg-nex-hover transition-colors shrink-0"
+                  className="rounded-btn text-nex-muted hover:bg-nex-hover shrink-0 p-1 transition-colors"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
 
               {/* Optional confirmation input */}
               {needsInput && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-nex-text mb-1">
+                  <label className="text-nex-text mb-1 block text-sm font-medium">
                     {confirmInputLabel || `Type "${confirmInput}" to confirm`}
                   </label>
                   <input
@@ -119,7 +121,7 @@ export default function ConfirmDialog({
               )}
 
               {/* Actions */}
-              <div className="flex justify-end gap-2 mt-5">
+              <div className="mt-5 flex justify-end gap-2">
                 <button onClick={handleCancel} className="nex-btn-secondary">
                   {cancelText}
                 </button>

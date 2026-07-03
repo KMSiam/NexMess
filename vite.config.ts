@@ -37,17 +37,17 @@ export default defineConfig({
             src: '/favicon.svg',
             sizes: '192x192',
             type: 'image/svg+xml',
-            purpose: 'any maskable'
+            purpose: 'any maskable',
           },
           {
             src: '/favicon.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
-            purpose: 'any maskable'
-          }
-        ]
-      }
-    })
+            purpose: 'any maskable',
+          },
+        ],
+      },
+    }),
   ],
   build: {
     chunkSizeWarningLimit: 1500,
@@ -56,7 +56,12 @@ export default defineConfig({
         manualChunks(id) {
           if (id.includes('node_modules')) {
             // Framework core
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('scheduler')) {
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('react-router') ||
+              id.includes('scheduler')
+            ) {
               return 'react-core'
             }
             // State + data
@@ -64,7 +69,11 @@ export default defineConfig({
               return 'state-data'
             }
             // UI + animations
-            if (id.includes('framer-motion') || id.includes('lucide-react') || id.includes('react-hot-toast')) {
+            if (
+              id.includes('framer-motion') ||
+              id.includes('lucide-react') ||
+              id.includes('react-hot-toast')
+            ) {
               return 'ui-animations'
             }
             // PDF generation (heavy)

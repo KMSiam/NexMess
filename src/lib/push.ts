@@ -43,10 +43,18 @@ export async function subscribeToPush(userId: string): Promise<boolean> {
       keys: { p256dh: string; auth: string }
     }
 
-    const { error } = await supabase.from('push_subscriptions').upsert(
-      { user_id: userId, endpoint, p256dh: keys.p256dh, auth: keys.auth, updated_at: new Date().toISOString() },
-      { onConflict: 'user_id,endpoint' }
-    )
+    const { error } = await supabase
+      .from('push_subscriptions')
+      .upsert(
+        {
+          user_id: userId,
+          endpoint,
+          p256dh: keys.p256dh,
+          auth: keys.auth,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,endpoint' }
+      )
 
     if (error) {
       console.error('Failed to save push subscription to DB:', error)
@@ -67,7 +75,11 @@ export async function unsubscribeFromPush(userId: string): Promise<boolean> {
     if (subscription) {
       const endpoint = subscription.endpoint
       await subscription.unsubscribe()
-      const { error } = await supabase.from('push_subscriptions').delete().eq('user_id', userId).eq('endpoint', endpoint)
+      const { error } = await supabase
+        .from('push_subscriptions')
+        .delete()
+        .eq('user_id', userId)
+        .eq('endpoint', endpoint)
       if (error) {
         console.error('Failed to delete push subscription from DB:', error)
         return false

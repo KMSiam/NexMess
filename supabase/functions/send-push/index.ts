@@ -21,7 +21,9 @@ Deno.serve(async (req) => {
     const privateKey = Deno.env.get('VAPID_PRIVATE_KEY')
 
     if (!subject || !publicKey || !privateKey) {
-      throw new Error(`Missing VAPID secrets: VAPID_SUBJECT=${!!subject}, VAPID_PUBLIC_KEY=${!!publicKey}, VAPID_PRIVATE_KEY=${!!privateKey}`)
+      throw new Error(
+        `Missing VAPID secrets: VAPID_SUBJECT=${!!subject}, VAPID_PUBLIC_KEY=${!!publicKey}, VAPID_PRIVATE_KEY=${!!privateKey}`
+      )
     }
 
     webPush.setVapidDetails(subject, publicKey, privateKey)
@@ -30,7 +32,9 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
     if (!supabaseUrl || !serviceRoleKey) {
-      throw new Error('Missing Supabase environment variables: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
+      throw new Error(
+        'Missing Supabase environment variables: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY'
+      )
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey)
@@ -44,7 +48,10 @@ Deno.serve(async (req) => {
 
     const { user_id, title, body: msgBody, url } = body
     if (!user_id || !title) {
-      return new Response(JSON.stringify({ error: 'user_id and title are required' }), { status: 400, headers: CORS })
+      return new Response(JSON.stringify({ error: 'user_id and title are required' }), {
+        status: 400,
+        headers: CORS,
+      })
     }
 
     const { data: subs, error } = await supabase
@@ -57,7 +64,9 @@ Deno.serve(async (req) => {
     }
 
     if (!subs?.length) {
-      return new Response(JSON.stringify({ sent: 0, skipped: 'no subscriptions' }), { headers: CORS })
+      return new Response(JSON.stringify({ sent: 0, skipped: 'no subscriptions' }), {
+        headers: CORS,
+      })
     }
 
     const payload = JSON.stringify({ title, body: msgBody ?? '', url: url ?? '/dashboard' })
