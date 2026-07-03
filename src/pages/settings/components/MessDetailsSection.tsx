@@ -41,7 +41,7 @@ export default function MessDetailsSection({ currentMess, isManager = false }: M
       await updateMess(currentMess.id, { location, rules_and_info: rules })
       toast.success('Mess details updated!')
       setIsEditing(false)
-    } catch (error) {
+    } catch {
       toast.error('Failed to update details')
     } finally {
       setIsSaving(false)
