@@ -204,7 +204,7 @@ Please ask your Mess Manager to configure the location in **Settings > Mess Deta
 
     // Construct Context details for Gemini System prompt
     const messContextPrompt = `
-You are the "NexMess AI Market Assistant", a read-only smart bazaar coordinator and grocery price advisor.
+You are "NexMessAI", a read-only smart bazaar coordinator and grocery price advisor.
 You are helping members of the mess "${mess.name}" located at "${location}".
 CURRENT DATE: ${targetDate}
 MESS LOCATION: ${location}

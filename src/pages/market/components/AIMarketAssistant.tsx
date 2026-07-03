@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
+import { usePageTitle } from '../../../hooks/usePageTitle'
 
 interface Message {
   id: string
@@ -22,6 +23,7 @@ interface Message {
 }
 
 export default function AIMarketAssistant() {
+  usePageTitle('NexMessAI')
   const { session, user } = useAuthStore()
   const { currentMess } = useMessStore()
   const [messages, setMessages] = useState<Message[]>([])
@@ -138,7 +140,7 @@ export default function AIMarketAssistant() {
         <div className="nex-card p-5 space-y-4">
           <h3 className="text-sm font-semibold text-nex-text uppercase tracking-wider flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-nex-primary animate-pulse" />
-            Market Assistant
+            NexMessAI
           </h3>
           <p className="text-xs text-nex-muted leading-relaxed">
             Your personal, read-only coordinator powered by Google Gemini. The assistant analyses meal routines, upcoming bazaar shifts, and recent spending.
@@ -197,7 +199,7 @@ export default function AIMarketAssistant() {
               <Bot className="w-5 h-5 text-nex-primary" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-nex-text">Shared AI Market Log</h4>
+              <h4 className="text-sm font-bold text-nex-text">NexMessAI Log</h4>
               <p className="text-[10px] text-nex-muted">
                 {hasLocation ? `Analyzing market at ${messLocation}` : 'Location unconfigured'}
               </p>
@@ -243,7 +245,7 @@ export default function AIMarketAssistant() {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 px-1">
                       <span className="text-[10px] font-semibold text-nex-text">
-                        {m.is_ai ? 'Market Assistant' : (m.profiles?.username || 'Member')}
+                        {m.is_ai ? 'NexMessAI' : (m.profiles?.username || 'Member')}
                       </span>
                       <span className="text-[9px] text-nex-muted">
                         {format(new Date(m.created_at), 'hh:mm a')}
@@ -271,7 +273,7 @@ export default function AIMarketAssistant() {
                 <Bot className="w-4 h-4" />
               </div>
               <div className="space-y-1">
-                <span className="text-[10px] font-semibold text-nex-text px-1">Market Assistant</span>
+                <span className="text-[10px] font-semibold text-nex-text px-1">NexMessAI</span>
                 <div className="rounded-2xl p-3 bg-nex-surface border border-nex-border flex items-center gap-1.5 min-w-[70px] justify-center">
                   <Loader2 className="w-4 h-4 text-nex-primary animate-spin" />
                   <span className="text-[10px] text-nex-muted font-medium">Searching web...</span>

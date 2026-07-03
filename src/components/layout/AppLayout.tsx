@@ -9,7 +9,7 @@ import {
   Home, Utensils, MessageSquare, Wallet, ShoppingBag,
   Settings, LogOut, CheckCircle2,
   CalendarClock, PanelLeft, PanelLeftClose, X, MoreHorizontal,
-  Sun, Moon, History, ChevronDown
+  Sun, Moon, History, ChevronDown, Sparkles
 } from 'lucide-react'
 import NotificationBell from '../NotificationBell'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
@@ -22,6 +22,7 @@ const navItems = [
   { to: '/chat', icon: MessageSquare, label: 'Chat' },
   { to: '/finance', icon: Wallet, label: 'Finance' },
   { to: '/market', icon: ShoppingBag, label: 'Market' },
+  { to: '/market-assistant', icon: Sparkles, label: 'NexMessAI' },
   { to: '/routine', icon: CalendarClock, label: 'Routine' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
@@ -43,6 +44,7 @@ export default function AppLayout() {
         { to: '/chat', icon: MessageSquare, label: 'Chat' },
         { to: '/finance', icon: Wallet, label: 'Finance' },
         { to: '/market', icon: ShoppingBag, label: 'Market' },
+        { to: '/market-assistant', icon: Sparkles, label: 'NexMessAI' },
         { to: '/routine', icon: CalendarClock, label: 'Routine' },
         ...(isManager ? [{ to: '/history', icon: History, label: 'History' }] : []),
         { to: '/settings', icon: Settings, label: 'Settings' },
@@ -299,6 +301,10 @@ function MobileBottomNav({ handleSignOut, signingOut, isManager, hasMess }: { ha
           <NavLink to="/market" onClick={() => setShowMore(false)}
             className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
             <ShoppingBag className="w-5 h-5" /> Market Schedule
+          </NavLink>
+          <NavLink to="/market-assistant" onClick={() => setShowMore(false)}
+            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>
+            <Sparkles className="w-5 h-5" /> NexMessAI
           </NavLink>
           <NavLink to="/routine" onClick={() => setShowMore(false)}
             className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`}>

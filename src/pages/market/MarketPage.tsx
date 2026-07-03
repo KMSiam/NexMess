@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { MarketSchedule } from '../../types/database'
 import {
   ShoppingBag, Plus, ChevronLeft, ChevronRight, Trash2,
-  Calendar, ArrowRightLeft, Sparkles
+  Calendar, ArrowRightLeft
 } from 'lucide-react'
 import {
   format, startOfWeek, endOfWeek, addWeeks, subWeeks,
@@ -16,13 +16,11 @@ import toast from 'react-hot-toast'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { Skeleton } from '../../components/Skeleton'
 import ConfirmDialog from '../../components/ConfirmDialog'
-import AIMarketAssistant from './components/AIMarketAssistant'
 
 export default function MarketPage() {
   usePageTitle('Market')
   const { user, session } = useAuthStore()
   const { currentMess, members } = useMessStore()
-  const [activeTab, setActiveTab] = useState<'schedule' | 'assistant'>('schedule')
   const [schedules, setSchedules] = useState<MarketSchedule[]>([])
   const [currentWeek, setCurrentWeek] = useState(new Date())
   const [showAdd, setShowAdd] = useState(false)
@@ -234,7 +232,8 @@ export default function MarketPage() {
       setCurrentWeek(addWeeks(currentWeek, 1))
     }
     setLoading(false)
-  }  if (!currentMess) return null
+  }
+  if (!currentMess) return null
 
   return (
     <div className="max-w-5xl mx-auto space-y-5">
@@ -242,11 +241,9 @@ export default function MarketPage() {
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
         <div className="flex items-center gap-3">
           <ShoppingBag className="w-6 h-6 text-nex-primary" />
-          <h1 className="text-2xl font-bold text-nex-text">
-            {activeTab === 'schedule' ? 'Bazaar Schedule' : 'Market Assistant'}
-          </h1>
+          <h1 className="text-2xl font-bold text-nex-text">Bazaar Schedule</h1>
         </div>
-        {isManager && activeTab === 'schedule' && (
+        {isManager && (
           <div className="flex gap-2">
             <button onClick={autoAssign} disabled={loading} className="nex-btn-secondary text-xs flex-1 sm:flex-none justify-center" id="auto-assign-btn">
               <ArrowRightLeft className="w-4 h-4" /> Auto Assign
@@ -258,35 +255,7 @@ export default function MarketPage() {
         )}
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b border-nex-border pb-1">
-        <button
-          onClick={() => setActiveTab('schedule')}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-t-xl transition-all duration-200 border-b-2 ${
-            activeTab === 'schedule'
-              ? 'border-nex-primary text-nex-primary bg-nex-elevated/20'
-              : 'border-transparent text-nex-muted hover:text-nex-text hover:bg-nex-hover/10'
-          }`}
-        >
-          <Calendar className="w-4 h-4" />
-          Bazaar Schedule
-        </button>
-        <button
-          onClick={() => setActiveTab('assistant')}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-t-xl transition-all duration-200 border-b-2 ${
-            activeTab === 'assistant'
-              ? 'border-nex-primary text-nex-primary bg-nex-elevated/20'
-              : 'border-transparent text-nex-muted hover:text-nex-text hover:bg-nex-hover/10'
-          }`}
-        >
-          <Sparkles className="w-4 h-4" />
-          AI Market Assistant
-        </button>
-      </div>
-
-      {activeTab === 'schedule' ? (
-        <>
-          {/* Add Form */}
+      {/* Add Form */}
           {showAdd && isManager && (
             <div className="nex-card p-5 animate-slide-up">
               <h3 className="text-lg font-semibold text-nex-text mb-4">Assign Bazaar Duty</h3>
@@ -520,18 +489,14 @@ export default function MarketPage() {
           </div>
 
           <ConfirmDialog
-            open={deleteScheduleId !== null}
-            title="Remove Bazaar Assignment"
-            message="Are you sure you want to remove this bazaar schedule assignment?"
-            confirmText="Remove"
-            variant="danger"
-            onConfirm={confirmDelete}
-            onCancel={() => setDeleteScheduleId(null)}
-          />
-        </>
-      ) : (
-        <AIMarketAssistant />
-      )}
+        open={deleteScheduleId !== null}
+        title="Remove Bazaar Assignment"
+        message="Are you sure you want to remove this bazaar schedule assignment?"
+        confirmText="Remove"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteScheduleId(null)}
+      />
     </div>
   )
 }

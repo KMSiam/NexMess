@@ -25,6 +25,7 @@ const MealsPage = lazy(() => import('./pages/meals/MealsPage'))
 const ChatPage = lazy(() => import('./pages/chat/ChatPage'))
 const FinancePage = lazy(() => import('./pages/finance/FinancePage'))
 const MarketPage = lazy(() => import('./pages/market/MarketPage'))
+const AIMarketAssistant = lazy(() => import('./pages/market/components/AIMarketAssistant'))
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'))
 const RoutinePage = lazy(() => import('./pages/routine/RoutinePage'))
 const HistoryPage = lazy(() => import('./pages/history/HistoryPage'))
@@ -94,6 +95,7 @@ function App() {
                   <Route path="/chat" element={<ChatPage />} />
                   <Route path="/finance" element={<FinancePage />} />
                   <Route path="/market" element={<MarketPage />} />
+                  <Route path="/market-assistant" element={<AIMarketAssistant />} />
                   <Route path="/routine" element={<RoutinePage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/activity" element={<ActivityLogPage />} />
