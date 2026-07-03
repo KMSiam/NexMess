@@ -54,6 +54,8 @@ export default function FinancePage() {
   const totalExpenses = expenses.filter(e => e.date.startsWith(currentMonth)).reduce((s, e) => s + Number(e.amount), 0)
   const totalDeposits = deposits.filter(d => d.date.startsWith(currentMonth) && d.verified).reduce((s, d) => s + Number(d.amount), 0)
   const totalFixed = fixedCosts.reduce((s, f) => s + Number(f.amount), 0)
+  const paidFixed = fixedCosts.filter(f => f.is_paid).reduce((s, f) => s + Number(f.amount), 0)
+  const messBalance = totalDeposits - totalExpenses - paidFixed
 
   // Calculations for settlement transfers (greedy algorithm)
   const settlements = (() => {
@@ -361,6 +363,7 @@ export default function FinancePage() {
         totalExpenses={totalExpenses}
         totalDeposits={totalDeposits}
         totalFixed={totalFixed}
+        messBalance={messBalance}
       />
 
       {/* Tab Switcher */}
