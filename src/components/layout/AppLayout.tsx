@@ -14,7 +14,6 @@ import {
   Settings,
   LogOut,
   CheckCircle2,
-  CalendarClock,
   PanelLeft,
   PanelLeftClose,
   X,
@@ -35,9 +34,8 @@ const navItems = [
   { to: '/meals', icon: Utensils, label: 'Meals' },
   { to: '/market-assistant', icon: Sparkles, label: 'NexMessAI' },
   { to: '/finance', icon: Wallet, label: 'Finance' },
-  { to: '/market', icon: ShoppingBag, label: 'Market' },
+  { to: '/market', icon: ShoppingBag, label: 'Market & Routine' },
   { to: '/chat', icon: MessageSquare, label: 'Chat' },
-  { to: '/routine', icon: CalendarClock, label: 'Routine' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
 
@@ -64,9 +62,8 @@ export default function AppLayout() {
         { to: '/meals', icon: Utensils, label: 'Meals' },
         { to: '/market-assistant', icon: Sparkles, label: 'NexMessAI' },
         { to: '/finance', icon: Wallet, label: 'Finance' },
-        { to: '/market', icon: ShoppingBag, label: 'Market' },
+        { to: '/market', icon: ShoppingBag, label: 'Market & Routine' },
         { to: '/chat', icon: MessageSquare, label: 'Chat' },
-        { to: '/routine', icon: CalendarClock, label: 'Routine' },
         ...(isManager ? [{ to: '/history', icon: History, label: 'History' }] : []),
         { to: '/settings', icon: Settings, label: 'Settings' },
       ]
@@ -370,7 +367,7 @@ function MobileBottomNav({
               `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
             }
           >
-            <ShoppingBag className="h-5 w-5" /> Market Schedule
+            <ShoppingBag className="h-5 w-5" /> Market & Routine
           </NavLink>
           <NavLink
             to="/chat"
@@ -380,15 +377,6 @@ function MobileBottomNav({
             }
           >
             <MessageSquare className="h-5 w-5" /> Chat
-          </NavLink>
-          <NavLink
-            to="/routine"
-            onClick={() => setShowMore(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
-            }
-          >
-            <CalendarClock className="h-5 w-5" /> Meal Routine
           </NavLink>
           {isManager && (
             <NavLink

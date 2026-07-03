@@ -27,7 +27,6 @@ const FinancePage = lazy(() => import('./pages/finance/FinancePage'))
 const MarketPage = lazy(() => import('./pages/market/MarketPage'))
 const AIMarketAssistant = lazy(() => import('./pages/market/components/AIMarketAssistant'))
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'))
-const RoutinePage = lazy(() => import('./pages/routine/RoutinePage'))
 const HistoryPage = lazy(() => import('./pages/history/HistoryPage'))
 const CreateMessPage = lazy(() => import('./pages/mess/CreateMessPage'))
 const JoinMessPage = lazy(() => import('./pages/mess/JoinMessPage'))
@@ -100,7 +99,6 @@ function App() {
                   <Route path="/finance" element={<FinancePage />} />
                   <Route path="/market" element={<MarketPage />} />
                   <Route path="/market-assistant" element={<AIMarketAssistant />} />
-                  <Route path="/routine" element={<RoutinePage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/activity" element={<ActivityLogPage />} />
 

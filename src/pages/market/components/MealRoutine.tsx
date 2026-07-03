@@ -1,13 +1,12 @@
 import { useEffect, useState, useCallback } from 'react'
-import { useAuthStore } from '../../stores/authStore'
-import { useMessStore } from '../../stores/messStore'
-import { supabase } from '../../lib/supabase'
+import { useAuthStore } from '../../../stores/authStore'
+import { useMessStore } from '../../../stores/messStore'
+import { supabase } from '../../../lib/supabase'
 import { CalendarClock, Pencil, Save, X } from 'lucide-react'
-import EmptyState from '../../components/EmptyState'
-import { Skeleton } from '../../components/Skeleton'
-import { getFoodEmoji } from '../../lib/utils'
+import EmptyState from '../../../components/EmptyState'
+import { Skeleton } from '../../../components/Skeleton'
+import { getFoodEmoji } from '../../../lib/utils'
 import toast from 'react-hot-toast'
-import { usePageTitle } from '../../hooks/usePageTitle'
 
 const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 
@@ -30,8 +29,7 @@ interface RoutineRow {
   dinner: string
 }
 
-export default function RoutinePage() {
-  usePageTitle('Routine')
+export default function MealRoutine() {
   const { user } = useAuthStore()
   const { currentMess, members } = useMessStore()
   const [routines, setRoutines] = useState<RoutineRow[]>([])
@@ -143,12 +141,12 @@ export default function RoutinePage() {
   const hasAnyData = routines.some((r) => r.lunch || r.dinner)
 
   return (
-    <div className="mx-auto max-w-5xl space-y-5">
-      {/* Header */}
+    <div className="space-y-5">
+      {/* Header Controls */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <CalendarClock className="text-nex-primary h-6 w-6" />
-          <h1 className="text-nex-text text-2xl font-bold">Meal Routine</h1>
+          <h2 className="text-nex-text text-xl font-bold">Meal Routine</h2>
         </div>
         {isManager && (
           <div className="flex gap-2">
