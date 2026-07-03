@@ -43,18 +43,16 @@ export async function subscribeToPush(userId: string): Promise<boolean> {
       keys: { p256dh: string; auth: string }
     }
 
-    const { error } = await supabase
-      .from('push_subscriptions')
-      .upsert(
-        {
-          user_id: userId,
-          endpoint,
-          p256dh: keys.p256dh,
-          auth: keys.auth,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id,endpoint' }
-      )
+    const { error } = await supabase.from('push_subscriptions').upsert(
+      {
+        user_id: userId,
+        endpoint,
+        p256dh: keys.p256dh,
+        auth: keys.auth,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id,endpoint' }
+    )
 
     if (error) {
       console.error('Failed to save push subscription to DB:', error)
