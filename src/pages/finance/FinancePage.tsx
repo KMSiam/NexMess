@@ -152,12 +152,42 @@ export default function FinancePage() {
     if (!currentMess?.id || !user?.id) return
     const { error } = await supabase.from('deposits').insert({
       mess_id: currentMess.id, user_id: userId, amount,
-      note: note.trim().slice(0, 500), date: format(new Date(), 'yyyy-MM-dd'), verified: true, verified_by: user.id,
+      note: note.trim().slice(0, 500), date: format(new Date(), 'yyyy-MM-dd'), verified: false, verified_by: null,
     })
 
     if (error) toast.error('Failed to add deposit')
     else {
       toast.success('Deposit recorded!')
+      refetch()
+    }
+  }
+
+  const handleConfirmDeposit = async (id: string) => {
+    if (!user?.id) return
+    const { error } = await supabase.from('deposits').update({ verified: true, verified_by: user.id }).eq('id', id)
+    if (error) toast.error('Failed to verify deposit')
+    else {
+      toast.success('Deposit verified!')
+      refetch()
+    }
+  }
+
+  const handleDeleteDeposit = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this deposit?')) return
+    const { error } = await supabase.from('deposits').delete().eq('id', id)
+    if (error) toast.error('Failed to delete deposit')
+    else {
+      toast.success('Deposit deleted!')
+      refetch()
+    }
+  }
+
+  const handleDeleteFixedCost = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this fixed cost?')) return
+    const { error } = await supabase.from('fixed_costs').delete().eq('id', id)
+    if (error) toast.error('Failed to delete fixed cost')
+    else {
+      toast.success('Fixed cost deleted!')
       refetch()
     }
   }
@@ -361,7 +391,10 @@ export default function FinancePage() {
           deposits={deposits}
           approvedMembers={approvedMembers}
           isManager={isManager}
+          currentUserId={user?.id || ''}
           onAddDeposit={handleAddDeposit}
+          onConfirmDeposit={handleConfirmDeposit}
+          onDeleteDeposit={handleDeleteDeposit}
         />
       )}
 
@@ -371,6 +404,7 @@ export default function FinancePage() {
           isManager={isManager}
           onAddFixedCost={handleAddFixedCost}
           onMarkPaid={(id) => { setPaidFixedCostId(id); return Promise.resolve(); }}
+          onDeleteFixedCost={handleDeleteFixedCost}
         />
       )}
 

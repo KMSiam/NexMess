@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, PiggyBank, CheckCircle2 } from 'lucide-react'
+import { Plus, PiggyBank, CheckCircle2, Trash2, Clock } from 'lucide-react'
 import { format } from 'date-fns'
 import { formatCurrency } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
@@ -9,10 +9,13 @@ interface DepositTabProps {
   deposits: Deposit[]
   approvedMembers: MessMember[]
   isManager: boolean
+  currentUserId: string
   onAddDeposit: (userId: string, amount: number, note: string) => Promise<void>
+  onConfirmDeposit: (id: string) => Promise<void>
+  onDeleteDeposit: (id: string) => Promise<void>
 }
 
-export default function DepositTab({ deposits, approvedMembers, isManager, onAddDeposit }: DepositTabProps) {
+export default function DepositTab({ deposits, approvedMembers, isManager, currentUserId, onAddDeposit, onConfirmDeposit, onDeleteDeposit }: DepositTabProps) {
   const [showAddDeposit, setShowAddDeposit] = useState(false)
   const [depUserId, setDepUserId] = useState('')
   const [depAmount, setDepAmount] = useState('')
@@ -86,9 +89,25 @@ export default function DepositTab({ deposits, approvedMembers, isManager, onAdd
                 <p className="text-xs text-nex-muted">{format(new Date(dep.date), 'MMM d')} {dep.note && `· ${dep.note}`}</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-semibold text-nex-success">{formatCurrency(Number(dep.amount))}</p>
-              {dep.verified && <span className="text-xs text-nex-success flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" />Verified</span>}
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-nex-success">{formatCurrency(Number(dep.amount))}</p>
+                {isManager && (
+                  <button onClick={() => onDeleteDeposit(dep.id)} className="text-red-500 hover:text-red-700 transition-colors p-1" title="Delete deposit">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              {dep.verified ? (
+                <span className="text-xs text-nex-success flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" />Verified</span>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-amber-500 flex items-center gap-0.5"><Clock className="w-3 h-3" />Pending</span>
+                  {dep.user_id === currentUserId && (
+                    <button onClick={() => onConfirmDeposit(dep.id)} className="text-xs font-medium bg-nex-primary text-white px-2 py-0.5 rounded hover:bg-blue-700 transition-colors">Confirm</button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}

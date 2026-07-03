@@ -1,7 +1,7 @@
 {
   "name": "nexmess",
   "private": true,
-  "version": "1.20.15",
+  "version": "1.21.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, CheckCircle2, DollarSign } from 'lucide-react'
+import { Plus, CheckCircle2, DollarSign, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { formatCurrency } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
@@ -10,9 +10,10 @@ interface FixedCostTabProps {
   isManager: boolean
   onAddFixedCost: (category: string, amount: number, label: string, editId: string | null) => Promise<void>
   onMarkPaid: (id: string) => Promise<void>
+  onDeleteFixedCost: (id: string) => Promise<void>
 }
 
-export default function FixedCostTab({ fixedCosts, isManager, onAddFixedCost, onMarkPaid }: FixedCostTabProps) {
+export default function FixedCostTab({ fixedCosts, isManager, onAddFixedCost, onMarkPaid, onDeleteFixedCost }: FixedCostTabProps) {
   const [showAddFixed, setShowAddFixed] = useState(false)
   const [editFixedCostId, setEditFixedCostId] = useState<string | null>(null)
   const [fixCategory, setFixCategory] = useState('rent')
@@ -106,7 +107,14 @@ export default function FixedCostTab({ fixedCosts, isManager, onAddFixedCost, on
               </div>
             </div>
             <div className="flex flex-col items-end gap-1">
-              <p className="text-sm font-semibold text-amber-600">{formatCurrency(Number(fc.amount))}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-amber-600">{formatCurrency(Number(fc.amount))}</p>
+                {isManager && (
+                  <button onClick={() => onDeleteFixedCost(fc.id)} className="text-red-500 hover:text-red-700 transition-colors p-1" title="Delete fixed cost">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
               {fc.is_paid ? (
                 <span className="text-xs text-nex-success flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" />Paid</span>
               ) : isManager && (
