@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { flushSync } from 'react-dom'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -304,7 +304,15 @@ export default function AppLayout() {
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="h-full w-full"
               >
-                <Outlet />
+                <Suspense
+                  fallback={
+                    <div className="flex h-[50vh] items-center justify-center">
+                      <div className="border-nex-primary h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
+                    </div>
+                  }
+                >
+                  <Outlet />
+                </Suspense>
               </motion.div>
             </AnimatePresence>
           </GlobalErrorBoundary>
