@@ -1,14 +1,13 @@
 import { useEffect, useState, useCallback } from 'react'
-import { useMessStore } from '../../stores/messStore'
-import { useAuthStore } from '../../stores/authStore'
-import { supabase } from '../../lib/supabase'
+import { useMessStore } from '../../../stores/messStore'
+import { useAuthStore } from '../../../stores/authStore'
+import { supabase } from '../../../lib/supabase'
 import { History, Plus, Download, RefreshCw, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
-import { formatCurrency } from '../../lib/utils'
-import { buildReportPdf, computeSettlements, ReportData } from '../../lib/reportPdf'
+import { formatCurrency } from '../../../lib/utils'
+import { buildReportPdf, computeSettlements, ReportData } from '../../../lib/reportPdf'
 import toast from 'react-hot-toast'
-import { CardSkeleton, ListSkeleton } from '../../components/Skeleton'
-import { usePageTitle } from '../../hooks/usePageTitle'
+import { CardSkeleton, ListSkeleton } from '../../../components/Skeleton'
 
 // Shape of a monthly_reports row (RLS-scoped: managers only see their mess's rows)
 interface MonthlyReport {
@@ -47,8 +46,7 @@ interface ReportSummary {
   fixedCosts: FixedEntry[]
 }
 
-export default function HistoryPage() {
-  usePageTitle('History')
+export default function HistoryTab() {
   const { currentMess } = useMessStore()
   const { profile } = useAuthStore()
   const [reports, setReports] = useState<MonthlyReport[]>([])
@@ -138,6 +136,7 @@ export default function HistoryPage() {
       p_mess_id: currentMess.id,
       p_month: genMonth,
     })
+    setGenMonth('') // Reset or keep? Keeping picker value is fine, but lets keep it
     setBusy(false)
     if (error) {
       toast.error(error.message || 'Failed to generate report')
@@ -170,15 +169,7 @@ export default function HistoryPage() {
   const monthLabel = (m: string) => format(new Date(m + '-01'), 'MMMM yyyy')
 
   return (
-    <div className="mx-auto max-w-5xl space-y-5">
-      <div className="flex items-center gap-3">
-        <History className="text-nex-primary h-6 w-6" />
-        <h1 className="text-nex-text text-2xl font-bold">History</h1>
-        <span className="text-nex-muted hidden text-xs sm:inline">
-          — archived monthly reports (manager only)
-        </span>
-      </div>
-
+    <div className="space-y-5">
       {/* Generate for month */}
       <div className="nex-card flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
         <div className="flex-1">

@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Download,
   FileSpreadsheet,
+  History,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { buildReportPdf } from '../../lib/reportPdf'
@@ -28,8 +29,9 @@ import DepositTab from './components/DepositTab'
 import FixedCostTab from './components/FixedCostTab'
 import SummaryTab from './components/SummaryTab'
 import SettleUpSheet from './components/SettleUpSheet'
+import HistoryTab from './components/HistoryTab'
 
-type Tab = 'expenses' | 'deposits' | 'fixed' | 'summary'
+type Tab = 'expenses' | 'deposits' | 'fixed' | 'summary' | 'history'
 
 export default function FinancePage() {
   usePageTitle('Finance')
@@ -363,6 +365,7 @@ export default function FinancePage() {
     { key: 'deposits', label: 'Deposits', icon: PiggyBank },
     { key: 'fixed', label: 'Fixed Costs', icon: DollarSign },
     { key: 'summary', label: 'Summary', icon: TrendingUp },
+    ...(isManager ? [{ key: 'history' as const, label: 'History', icon: History }] : []),
   ]
 
   if (!currentMess) return null
@@ -484,6 +487,10 @@ export default function FinancePage() {
           <SummaryTab financeMembers={financeMembers} balances={balances} totalFixed={totalFixed} />
           <SettleUpSheet settlements={settlements} />
         </div>
+      )}
+
+      {activeTab === 'history' && isManager && (
+        <HistoryTab />
       )}
 
       {/* Confirmation Dialog for marking fixed costs as paid */}

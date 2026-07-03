@@ -5,7 +5,7 @@ import { useAuthStore } from './stores/authStore'
 import { useMessStore } from './stores/messStore'
 
 // Guards
-import { AuthGuard, GuestGuard, OnboardingGuard, ManagerGuard } from './guards/AuthGuard'
+import { AuthGuard, GuestGuard, OnboardingGuard } from './guards/AuthGuard'
 
 // Layouts
 import AppLayout from './components/layout/AppLayout'
@@ -27,7 +27,6 @@ const FinancePage = lazy(() => import('./pages/finance/FinancePage'))
 const MarketPage = lazy(() => import('./pages/market/MarketPage'))
 const AIMarketAssistant = lazy(() => import('./pages/market/components/AIMarketAssistant'))
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'))
-const HistoryPage = lazy(() => import('./pages/history/HistoryPage'))
 const CreateMessPage = lazy(() => import('./pages/mess/CreateMessPage'))
 const JoinMessPage = lazy(() => import('./pages/mess/JoinMessPage'))
 const ActivityLogPage = lazy(() => import('./pages/activity/ActivityLogPage'))
@@ -102,10 +101,7 @@ function App() {
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/activity" element={<ActivityLogPage />} />
 
-                  {/* Manager-only section */}
-                  <Route element={<ManagerGuard />}>
-                    <Route path="/history" element={<HistoryPage />} />
-                  </Route>
+
                 </Route>
               </Route>
             </Route>

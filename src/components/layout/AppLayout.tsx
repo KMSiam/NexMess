@@ -20,7 +20,6 @@ import {
   MoreHorizontal,
   Sun,
   Moon,
-  History,
   ChevronDown,
   Sparkles,
 } from 'lucide-react'
@@ -42,16 +41,14 @@ const navItems = [
 export default function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { profile, user, signOut } = useAuthStore()
+  const { profile, signOut } = useAuthStore()
   const {
     currentMess,
     messes,
-    members,
     setCurrentMess,
     fetchUserMesses,
     reset: resetMess,
   } = useMessStore()
-  const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [showMessDropdown, setShowMessDropdown] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
@@ -64,7 +61,6 @@ export default function AppLayout() {
         { to: '/finance', icon: Wallet, label: 'Finance' },
         { to: '/market', icon: ShoppingBag, label: 'Market & Routine' },
         { to: '/chat', icon: MessageSquare, label: 'Chat' },
-        ...(isManager ? [{ to: '/history', icon: History, label: 'History' }] : []),
         { to: '/settings', icon: Settings, label: 'Settings' },
       ]
     : [
@@ -319,7 +315,6 @@ export default function AppLayout() {
       <MobileBottomNav
         handleSignOut={handleSignOut}
         signingOut={signingOut}
-        isManager={isManager}
         hasMess={!!currentMess}
       />
     </div>
@@ -330,12 +325,10 @@ export default function AppLayout() {
 function MobileBottomNav({
   handleSignOut,
   signingOut,
-  isManager,
   hasMess,
 }: {
   handleSignOut: () => void
   signingOut: boolean
-  isManager: boolean
   hasMess: boolean
 }) {
   const [showMore, setShowMore] = useState(false)
@@ -378,17 +371,7 @@ function MobileBottomNav({
           >
             <MessageSquare className="h-5 w-5" /> Chat
           </NavLink>
-          {isManager && (
-            <NavLink
-              to="/history"
-              onClick={() => setShowMore(false)}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
-              }
-            >
-              <History className="h-5 w-5" /> History
-            </NavLink>
-          )}
+
           <NavLink
             to="/settings"
             onClick={() => setShowMore(false)}
