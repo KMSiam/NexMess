@@ -4,7 +4,7 @@ import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import { Settings, User, Users, Home, Bell, AlertTriangle, MessageCircle } from 'lucide-react'
-import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
+import { isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import SupportModal from '../../components/SupportModal'
@@ -28,7 +28,7 @@ export default function SettingsPage() {
 
   const [pushEnabled, setPushEnabled] = useState(false)
   const [pushLoading, setPushLoading] = useState(false)
-  const pushSupported = isPushSupported()
+
   const [activeTab, setActiveTab] = useState<'profile' | 'members' | 'mess' | 'notifications' | 'danger'>('profile')
   const [isSupportOpen, setIsSupportOpen] = useState(false)
 

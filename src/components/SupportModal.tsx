@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { X, Send, MessageCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
 
 interface SupportModalProps {
