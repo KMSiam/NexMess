@@ -7,7 +7,7 @@ import { useAuthStore } from '../../stores/authStore'
 import pkg from '../../../package.json'
 import { useEffect, useState } from 'react'
 import { MessageCircle } from 'lucide-react'
-import SupportModal from './SupportModal'
+import SupportModal from '../../components/SupportModal'
 
 export default function LandingPage() {
   usePageTitle('Smart Mess Management')

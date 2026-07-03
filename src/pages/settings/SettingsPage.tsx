@@ -3,10 +3,11 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { useNavigate } from 'react-router-dom'
-import { Settings, User, Users, Home, Bell, AlertTriangle } from 'lucide-react'
+import { Settings, User, Users, Home, Bell, AlertTriangle, MessageCircle } from 'lucide-react'
 import { isPushSupported, isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
+import SupportModal from '../../components/SupportModal'
 import pkg from '../../../package.json'
 
 // Custom Hooks
@@ -29,6 +30,7 @@ export default function SettingsPage() {
   const [pushLoading, setPushLoading] = useState(false)
   const pushSupported = isPushSupported()
   const [activeTab, setActiveTab] = useState<'profile' | 'members' | 'mess' | 'notifications' | 'danger'>('profile')
+  const [isSupportOpen, setIsSupportOpen] = useState(false)
 
   // Modal Dialogs States
   const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false)
@@ -445,6 +447,18 @@ export default function SettingsPage() {
         onConfirm={handleConfirmDemoteMember}
         onCancel={() => setDemoteMemberId(null)}
       />
+
+      {/* Support / Contact Floating Button */}
+      <button
+        onClick={() => setIsSupportOpen(true)}
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-nex-primary text-white shadow-xl shadow-nex-primary/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 group"
+        aria-label="Support and Contact"
+      >
+        <MessageCircle className="w-6 h-6 group-hover:animate-pulse" />
+      </button>
+
+      {/* Support Modal */}
+      <SupportModal isOpen={isSupportOpen} onClose={() => setIsSupportOpen(false)} />
     </div>
   )
 }
