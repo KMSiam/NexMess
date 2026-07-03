@@ -134,7 +134,7 @@ export default function AIMarketAssistant() {
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-12rem)] min-h-[480px]">
       
       {/* Sidebar: Location Details & Guidelines */}
-      <div className="lg:col-span-1 flex flex-col gap-4">
+      <div className="hidden lg:flex lg:col-span-1 flex-col gap-4">
         <div className="nex-card p-5 space-y-4">
           <h3 className="text-sm font-semibold text-nex-text uppercase tracking-wider flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-nex-primary animate-pulse" />
@@ -287,6 +287,26 @@ export default function AIMarketAssistant() {
 
         {/* Input form */}
         <div className="p-4 border-t border-nex-border bg-nex-elevated/40">
+          {/* Horizontal scrolling suggestions for mobile */}
+          {hasLocation && (
+            <div 
+              className="flex gap-2 overflow-x-auto pb-3 lg:hidden -mx-2 px-2"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {suggestions.map((s, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => handleSuggestClick(s.text)}
+                  disabled={loading}
+                  className="shrink-0 px-3 py-1.5 text-[10px] bg-nex-elevated hover:bg-nex-hover border border-nex-border rounded-full text-nex-text whitespace-nowrap transition-all shadow-sm active:scale-95"
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {!hasLocation ? (
             <div className="p-2.5 bg-nex-danger/10 border border-nex-danger/20 rounded-xl text-center text-xs text-nex-danger font-medium">
               You must set a location in Settings to enable the AI Market Assistant.

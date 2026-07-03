@@ -292,7 +292,7 @@ Format it as a clean daily bulletin.`,
 
     // Fallback: If grounded search failed (due to 429/credits/no-billing), retry without the search tool
     if (!isGrounded || !responseText) {
-      console.log("Executing fallback Gemini call without search grounding...");
+      console.warn("Executing fallback Gemini call without search grounding...");
       const fallbackResponse = await fetch(geminiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
