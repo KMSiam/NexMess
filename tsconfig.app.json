@@ -26,11 +26,9 @@
     "jsx": "react-jsx",
 
     /* Path mapping */
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
-    },
-    "ignoreDeprecations": "5.0"
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src"]
 }
