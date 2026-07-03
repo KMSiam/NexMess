@@ -280,35 +280,35 @@ export default function MealsPage() {
           <Utensils className="w-6 h-6 text-nex-primary" />
           <h1 className="text-2xl font-bold text-nex-text">Meal Calendar</h1>
         </div>
-        <div className="flex flex-col items-stretch sm:items-end gap-2 mt-4 sm:mt-0 w-full sm:w-auto">
+        <div className="flex flex-row items-center justify-start sm:justify-end gap-2 mt-4 sm:mt-0 w-full sm:w-auto overflow-x-auto scrollbar-none pb-1 sm:pb-0">
           <button
             onClick={handleDownloadMealPDF}
-            className="flex justify-center items-center gap-1.5 px-3 py-2 text-sm sm:text-xs font-medium rounded-btn border border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover transition-colors shadow-sm"
+            className="flex justify-center items-center shrink-0 gap-1.5 px-3 py-1.5 text-xs font-medium rounded-btn border border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover transition-colors shadow-sm"
             title="Download meal report (PDF)"
           >
-            <Download className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-nex-primary" />
+            <Download className="w-3.5 h-3.5 text-nex-primary" />
             PDF
           </button>
           
           {isManager && (
             <button
               onClick={() => openOverride()}
-              className="flex justify-center items-center gap-1.5 px-3 py-2 text-sm sm:text-xs font-medium rounded-btn border border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover transition-colors shadow-sm"
+              className="flex justify-center items-center shrink-0 gap-1.5 px-3 py-1.5 text-xs font-medium rounded-btn border border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover transition-colors shadow-sm"
               title="Override a member's meal (bypasses cut-off)"
             >
-              <ShieldCheck className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-nex-primary" />
+              <ShieldCheck className="w-3.5 h-3.5 text-nex-primary" />
               Override
             </button>
           )}
           
           {/* View Toggles */}
-          <div className="flex w-full sm:w-auto max-w-full overflow-x-auto scrollbar-none gap-1 bg-nex-elevated p-1 rounded-btn shadow-sm">
+          <div className="flex shrink-0 gap-1 bg-nex-elevated p-1 rounded-btn shadow-sm">
             <button onClick={() => setViewMode('personal')}
-              className={`flex-1 sm:flex-none justify-center shrink-0 px-4 py-2 sm:py-1.5 text-sm sm:text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
+              className={`shrink-0 px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                 viewMode === 'personal' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'
               }`}>My Meals</button>
             <button onClick={() => setViewMode('all')}
-              className={`flex-1 sm:flex-none justify-center shrink-0 px-4 py-2 sm:py-1.5 text-sm sm:text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
+              className={`shrink-0 px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                 viewMode === 'all' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'
               }`}>All Members</button>
           </div>
