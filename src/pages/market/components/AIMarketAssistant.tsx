@@ -74,7 +74,7 @@ export default function AIMarketAssistant() {
 
   const handleSend = async (textToSend: string) => {
     if (!textToSend.trim() || !currentMess?.id || !session?.access_token || loading) return
-    
+
     setInputText('')
     setLoading(true)
 
@@ -105,7 +105,7 @@ export default function AIMarketAssistant() {
         const errData = await response.json()
         throw new Error(errData.error || 'Failed to get response from assistant.')
       }
-      
+
       // Force refresh of the message logs
       await fetchMessages()
     } catch (error: any) {
@@ -122,7 +122,7 @@ export default function AIMarketAssistant() {
   }
 
   const suggestions = [
-    { label: "Daily price report", text: "Please generate a new daily price report for Dhaka" },
+    { label: "Daily price report", text: "Please generate a new daily price report for this area" },
     { label: "Cheapest place for eggs?", text: "Where can I find the cheapest place to buy eggs and chicken in this area today?" },
     { label: "Check my budget status", text: "Review our recent expenses and suggest how we can optimize our bazaar budget." },
     { label: "Grocery list helper", text: "Create a detailed grocery shopping list for tonight's meals." }
@@ -132,7 +132,7 @@ export default function AIMarketAssistant() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-14rem)] min-h-[440px] max-w-4xl mx-auto">
-      
+
       {/* Sidebar: Location Details & Guidelines */}
       <div className="hidden lg:flex lg:col-span-1 flex-col gap-4">
         <div className="nex-card p-5 space-y-4">
@@ -158,7 +158,7 @@ export default function AIMarketAssistant() {
               </div>
             )}
           </div>
-          
+
           <div className="text-xs text-nex-muted space-y-1.5 border-t border-nex-border pt-3">
             <span className="font-semibold text-nex-text block mb-1">Safety & Scope Bounds:</span>
             <p>• Cannot add or delete expenses.</p>
@@ -213,7 +213,7 @@ export default function AIMarketAssistant() {
               <div className="max-w-md">
                 <p className="text-sm font-semibold text-nex-text">No Assistant Messages yet</p>
                 <p className="text-xs text-nex-muted mt-1 leading-relaxed">
-                  {hasLocation 
+                  {hasLocation
                     ? "Send a message or select a suggestion chip to start discussing grocery prices and budget reminders."
                     : "Configure a location in Mess Details Settings. The AI needs a location to crawl local grocery prices."}
                 </p>
@@ -228,11 +228,10 @@ export default function AIMarketAssistant() {
                   className={`flex items-start gap-2.5 max-w-[85%] ${isMe ? 'ml-auto flex-row-reverse' : 'mr-auto'}`}
                 >
                   {/* Sender Avatar / Icon */}
-                  <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold ${
-                    m.is_ai 
-                      ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white' 
+                  <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold ${m.is_ai
+                      ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white'
                       : 'bg-nex-elevated text-nex-text border border-nex-border'
-                  }`}>
+                    }`}>
                     {m.is_ai ? (
                       <Bot className="w-4 h-4" />
                     ) : (
@@ -251,13 +250,12 @@ export default function AIMarketAssistant() {
                       </span>
                     </div>
 
-                    <div className={`rounded-2xl p-3.5 text-xs leading-relaxed whitespace-pre-wrap ${
-                      m.is_daily_update 
+                    <div className={`rounded-2xl p-3.5 text-xs leading-relaxed whitespace-pre-wrap ${m.is_daily_update
                         ? 'bg-nex-primary-light border border-nex-primary/30 text-nex-text shadow-sm'
-                        : m.is_ai 
+                        : m.is_ai
                           ? 'bg-nex-surface border border-nex-border text-nex-text shadow-sm'
                           : 'bg-nex-primary text-white shadow-sm'
-                    }`}>
+                      }`}>
                       {m.text}
                     </div>
                   </div>
@@ -289,7 +287,7 @@ export default function AIMarketAssistant() {
         <div className="p-4 border-t border-nex-border bg-nex-elevated/40">
           {/* Horizontal scrolling suggestions for mobile */}
           {hasLocation && (
-            <div 
+            <div
               className="flex gap-2 overflow-x-auto pb-3 lg:hidden -mx-2 px-2"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
