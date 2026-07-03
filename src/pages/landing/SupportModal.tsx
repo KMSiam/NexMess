@@ -35,19 +35,16 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
     setIsSubmitting(true)
     
     try {
-      // Insert into user_feedback
-      const { data, error } = await supabase
+      // Insert into user_feedback (without .select() because RLS prevents reading)
+      const { error } = await supabase
         .from('user_feedback')
         .insert([{ name, email, message }])
-        .select()
-        .single()
         
       if (error) throw error
 
       // Call the edge function directly to ensure email is sent
-      // Since it's anonymous, we just invoke it
       await supabase.functions.invoke('send-feedback-email', {
-        body: data
+        body: { name, email, message }
       })
       
       toast.success('Your message has been sent successfully!')
