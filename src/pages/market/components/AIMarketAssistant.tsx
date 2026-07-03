@@ -3,7 +3,7 @@ import { useAuthStore } from '../../../stores/authStore'
 import { useMessStore } from '../../../stores/messStore'
 import { supabase } from '../../../lib/supabase'
 import {
-  Send, Sparkles, MapPin, Bot, User, AlertCircle, Loader2, ArrowRight
+  Send, Sparkles, MapPin, Bot, User, AlertCircle, Loader2
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
@@ -167,25 +167,7 @@ export default function AIMarketAssistant() {
           </div>
         </div>
 
-        {/* Suggestion Chips Box (Hidden if location is missing) */}
-        {hasLocation && (
-          <div className="nex-card p-4 hidden lg:block space-y-2">
-            <span className="text-[11px] font-semibold text-nex-muted uppercase tracking-wider block mb-1">Quick Questions</span>
-            <div className="flex flex-col gap-2">
-              {suggestions.map((s, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleSuggestClick(s.text)}
-                  disabled={loading}
-                  className="w-full text-left p-2.5 text-xs bg-nex-elevated hover:bg-nex-hover border border-nex-border rounded-xl text-nex-text transition-all duration-200 flex items-center justify-between group"
-                >
-                  <span className="truncate pr-2">{s.label}</span>
-                  <ArrowRight className="w-3 h-3 text-nex-muted group-hover:text-nex-primary group-hover:translate-x-0.5 transition-all" />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+
       </div>
 
       {/* Main Chat Panel */}
@@ -287,10 +269,10 @@ export default function AIMarketAssistant() {
 
         {/* Input form */}
         <div className="p-4 border-t border-nex-border bg-nex-elevated/40">
-          {/* Horizontal scrolling suggestions for mobile */}
+          {/* Horizontal scrolling suggestions */}
           {hasLocation && (
             <div 
-              className="flex gap-2 overflow-x-auto pb-3 lg:hidden -mx-2 px-2"
+              className="flex gap-2 overflow-x-auto pb-3 -mx-2 px-2"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {suggestions.map((s, i) => (
