@@ -244,29 +244,83 @@ Format it as a clean daily bulletin.`,
       });
     }
 
-    // Call Gemini API with Search Grounding
+    // Call Gemini API with Search Grounding (try paid/grounded first)
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
-    const response = await fetch(geminiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: contentsPayload,
-        systemInstruction: {
-          parts: [{ text: messContextPrompt }],
-        },
-        tools: [{ google_search: {} }],
-      }),
-    });
+    
+    let responseText = "";
+    let isGrounded = true;
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Gemini API Error details:", errText);
-      throw new Error(`Gemini API returned status ${response.status}: ${errText}`);
+    try {
+      const response = await fetch(geminiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: contentsPayload,
+          systemInstruction: {
+            parts: [{ text: messContextPrompt }],
+          },
+          tools: [{ google_search: {} }],
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.warn("Search Grounding API call returned non-200. Status:", response.status, errText);
+        // Check if it's billing or credit exhaustion or search tool block
+        if (
+          response.status === 429 || 
+          response.status === 403 || 
+          errText.includes("RESOURCE_EXHAUSTED") || 
+          errText.includes("billing") || 
+          errText.includes("prepayment") || 
+          errText.includes("credits")
+        ) {
+          console.warn("Search Grounding failed or billing depleted. Retrying without search grounding...");
+          isGrounded = false;
+        } else {
+          throw new Error(`Gemini API returned status ${response.status}: ${errText}`);
+        }
+      } else {
+        const resultJson = await response.json();
+        const candidate = resultJson.candidates?.[0];
+        responseText = candidate?.content?.parts?.[0]?.text || "";
+      }
+    } catch (e) {
+      console.error("Initial grounded call failed:", e);
+      isGrounded = false;
     }
 
-    const resultJson = await response.json();
-    const candidate = resultJson.candidates?.[0];
-    const responseText = candidate?.content?.parts?.[0]?.text || "I was unable to retrieve price reports right now. Please try again later.";
+    // Fallback: If grounded search failed (due to 429/credits/no-billing), retry without the search tool
+    if (!isGrounded || !responseText) {
+      console.log("Executing fallback Gemini call without search grounding...");
+      const fallbackResponse = await fetch(geminiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: contentsPayload,
+          systemInstruction: {
+            parts: [{ 
+              text: messContextPrompt + "\n\nADDITIONAL INFO:\nLive Google Search is currently disabled or key credits are depleted. Fall back to your general knowledge or estimate typical local prices for this region. Add a short warning notice at the very end of your response stating that live search is disabled and billing setup is required." 
+            }],
+          }
+        }),
+      });
+
+      if (!fallbackResponse.ok) {
+        const errText = await fallbackResponse.text();
+        console.error("Gemini Fallback API Error details:", errText);
+        throw new Error(`Gemini API returned status ${fallbackResponse.status}: ${errText}`);
+      }
+
+      const resultJson = await fallbackResponse.json();
+      const candidate = resultJson.candidates?.[0];
+      responseText = candidate?.content?.parts?.[0]?.text || "I was unable to retrieve price reports right now. Please check your Gemini API Studio billing/prepayment credits.";
+      
+      // Append a clear footer warning to the response if not already present
+      if (!responseText.includes("Live search is disabled")) {
+        responseText += "\n\n*(Notice: Live Google Search is disabled due to depleted API prepayment credits. Showing estimates based on general market trends.)*";
+      }
+    }
 
     // Insert user question and AI response into database (shared chat logs)
     if (action === "generate_daily_update") {
