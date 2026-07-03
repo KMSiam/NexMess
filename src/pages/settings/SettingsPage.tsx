@@ -449,7 +449,7 @@ export default function SettingsPage() {
       {/* Support / Contact Floating Button */}
       <button
         onClick={() => setIsSupportOpen(true)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-nex-primary text-white shadow-xl shadow-nex-primary/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 group"
+        className="fixed bottom-24 md:bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-nex-primary text-white shadow-xl shadow-nex-primary/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 group"
         aria-label="Support and Contact"
       >
         <MessageCircle className="w-6 h-6 group-hover:animate-pulse" />
