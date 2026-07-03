@@ -20,6 +20,8 @@ export interface Mess {
   public_info: Record<string, unknown>
   max_members: number
   is_active: boolean
+  location?: string | null
+  rules_and_info?: string | null
   created_at: string
 }
 

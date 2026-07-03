@@ -14,6 +14,7 @@ interface MessState {
   setCurrentMess: (mess: Mess) => void
   fetchMembers: (messId: string) => Promise<void>
   createMess: (name: string, userId: string) => Promise<Mess | null>
+  updateMess: (messId: string, updates: Partial<Mess>) => Promise<void>
   joinMess: (code: string, userId: string) => Promise<{ success: boolean; error?: string }>
   cancelJoinRequest: (messId: string, userId: string) => Promise<void>
   reset: () => void
@@ -99,6 +100,22 @@ export const useMessStore = create<MessState>()(
         await get().fetchUserMesses(userId)
         set({ currentMess: mess as Mess })
         return mess as Mess
+      },
+
+      updateMess: async (messId, updates) => {
+        const { data, error } = await supabase
+          .from('messes')
+          .update(updates)
+          .eq('id', messId)
+          .select()
+          .single()
+
+        if (!error && data) {
+          set((state) => ({
+            currentMess: state.currentMess?.id === messId ? (data as Mess) : state.currentMess,
+            messes: state.messes.map((m) => (m.id === messId ? (data as Mess) : m)),
+          }))
+        }
       },
 
       joinMess: async (code, userId) => {

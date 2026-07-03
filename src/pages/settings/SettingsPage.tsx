@@ -354,7 +354,7 @@ export default function SettingsPage() {
           />
         )}
 
-        {activeTab === 'mess' && <MessDetailsSection currentMess={currentMess} />}
+        {activeTab === 'mess' && <MessDetailsSection currentMess={currentMess} isManager={isManager} />}
 
         {activeTab === 'notifications' && (
           <PushNotificationSection
