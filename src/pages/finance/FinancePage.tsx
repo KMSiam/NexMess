@@ -364,10 +364,10 @@ export default function FinancePage() {
       />
 
       {/* Tab Switcher */}
-      <div className="flex gap-1 bg-nex-elevated p-1 rounded-btn overflow-x-auto">
+      <div className="flex w-full max-w-full gap-1 bg-nex-elevated p-1 rounded-btn overflow-x-auto scrollbar-none">
         {tabs.map(({ key, label, icon: Icon }) => (
           <button key={key} onClick={() => setActiveTab(key)}
-            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
+            className={`shrink-0 flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
               activeTab === key ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'
             }`}>
             <Icon className="w-3.5 h-3.5" /> {label}

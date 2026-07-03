@@ -299,13 +299,13 @@ export default function MealsPage() {
               Override
             </button>
           )}
-          <div className="flex gap-1 bg-nex-elevated p-1 rounded-btn">
+          <div className="flex w-full max-w-full overflow-x-auto scrollbar-none gap-1 bg-nex-elevated p-1 rounded-btn">
             <button onClick={() => setViewMode('personal')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              className={`shrink-0 px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                 viewMode === 'personal' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'
               }`}>My Meals</button>
             <button onClick={() => setViewMode('all')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              className={`shrink-0 px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                 viewMode === 'all' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'
               }`}>All Members</button>
           </div>
