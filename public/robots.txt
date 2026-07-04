@@ -17,4 +17,4 @@ Disallow: /onboarding
 Disallow: /mess/
 
 # Replace with your actual domain when connected
-Sitemap: https://your-domain.com/sitemap.xml
+Sitemap: https://nex-mess.vercel.app/sitemap.xml
