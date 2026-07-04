@@ -1,10 +1,5 @@
 User-agent: *
-Allow: /$
-Allow: /login
-Allow: /register
-Allow: /forgot-password
-Allow: /privacy-policy
-Allow: /terms-of-service
+Allow: /
 Disallow: /dashboard
 Disallow: /meals
 Disallow: /chat
