@@ -33,6 +33,31 @@ interface FixedEntry {
   amount: number
 }
 
+interface ExpenseEntry {
+  date: string
+  category: string
+  description: string
+  amount: number
+  logged_by: string
+}
+
+interface MealEntry {
+  date: string
+  username: string
+  user_id: string
+  lunch: boolean
+  dinner: boolean
+  guest_lunch: number
+  guest_dinner: number
+}
+
+interface DepositEntry {
+  date: string
+  username: string
+  amount: number
+  note: string
+}
+
 // Mirrors the JSONB compiled by archive_monthly_report()
 interface ReportSummary {
   month: string
@@ -44,6 +69,9 @@ interface ReportSummary {
   financeMembersCount: number
   balances: BalanceEntry[]
   fixedCosts: FixedEntry[]
+  dailyExpenses?: ExpenseEntry[]
+  dailyMeals?: MealEntry[]
+  dailyDeposits?: DepositEntry[]
 }
 
 export default function HistoryTab() {
@@ -105,6 +133,7 @@ export default function HistoryTab() {
   const buildData = (report: MonthlyReport): ReportData => {
     const s = report.summary
     const members = (s.balances || []).map((b) => ({
+      user_id: b.user_id,
       username: b.username,
       status: b.status as 'approved' | 'left',
       meals: Number(b.personal_meals || 0),
@@ -114,6 +143,7 @@ export default function HistoryTab() {
     const perPersonFixed = s.financeMembersCount > 0 ? s.totalFixed / s.financeMembersCount : 0
     return {
       messName: currentMess.name,
+      messLocation: currentMess.location,
       month: report.month,
       generatedBy: report.generated_by ? profile?.username || 'Manager' : 'Auto',
       isArchived: true,
@@ -126,6 +156,9 @@ export default function HistoryTab() {
       members,
       fixedCosts: s.fixedCosts || [],
       settlements: computeSettlements(members, perPersonFixed),
+      dailyExpenses: s.dailyExpenses || [],
+      dailyMeals: s.dailyMeals || [],
+      dailyDeposits: s.dailyDeposits || [],
     }
   }
 

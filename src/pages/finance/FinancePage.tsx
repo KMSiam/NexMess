@@ -11,7 +11,7 @@ import {
   Download,
   History,
 } from 'lucide-react'
-import { format } from 'date-fns'
+import { format, endOfMonth } from 'date-fns'
 import { buildReportPdf } from '../../lib/reportPdf'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
@@ -284,13 +284,14 @@ export default function FinancePage() {
     setPaidFixedCostId(null)
   }
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     if (!currentMess) return
 
     const reportMembers = financeMembers.map((m) => {
       const p = m.profiles as { username?: string } | null
       const b = balances[m.user_id] || {}
       return {
+        user_id: m.user_id,
         username: p?.username || 'Unknown',
         status: m.status,
         meals: Number(b.personal_meals || 0),
@@ -306,8 +307,49 @@ export default function FinancePage() {
       0
     )
 
+    // Fetch daily meals and daily expenses for the current month
+    const monthStartStr = `${currentMonth}-01`
+    const monthEndStr = format(endOfMonth(new Date(monthStartStr)), 'yyyy-MM-dd')
+
+    const { data: rawMeals } = await supabase
+      .from('meals')
+      .select('date, user_id, lunch, dinner, guest_lunch, guest_dinner, profiles(username)')
+      .eq('mess_id', currentMess.id)
+      .gte('date', monthStartStr)
+      .lte('date', monthEndStr)
+
+    const dailyMeals = (rawMeals || []).map((m) => ({
+      date: m.date,
+      username: (m.profiles as any)?.username || 'Member',
+      user_id: m.user_id,
+      lunch: m.lunch,
+      dinner: m.dinner,
+      guest_lunch: m.guest_lunch || 0,
+      guest_dinner: m.guest_dinner || 0,
+    }))
+
+    const dailyExpenses = expenses
+      .filter((e) => e.date.startsWith(currentMonth))
+      .map((e) => ({
+        date: e.date,
+        category: e.category || '',
+        description: e.description || '',
+        amount: Number(e.amount),
+        logged_by: (e as any).profiles?.username || 'Unknown',
+      }))
+
+    const dailyDeposits = deposits
+      .filter((d) => d.date.startsWith(currentMonth) && d.verified)
+      .map((d) => ({
+        date: d.date,
+        username: (d as any).profiles?.username || 'Member',
+        amount: Number(d.amount),
+        note: d.note || '',
+      }))
+
     buildReportPdf({
       messName: currentMess.name,
+      messLocation: currentMess.location,
       month: currentMonth,
       generatedBy: profile?.username || 'Manager',
       totalExpenses: Number(totalExpenses || 0),
@@ -322,6 +364,9 @@ export default function FinancePage() {
         amount: fc.amount,
       })),
       settlements,
+      dailyExpenses,
+      dailyMeals,
+      dailyDeposits,
     })
     toast.success('PDF Report Downloaded!')
   }

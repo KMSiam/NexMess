@@ -86,6 +86,9 @@ DECLARE
   v_member_count   int;
   v_balances       jsonb := '[]'::jsonb;
   v_fixed          jsonb := '[]'::jsonb;
+  v_daily_expenses jsonb := '[]'::jsonb;
+  v_daily_meals    jsonb := '[]'::jsonb;
+  v_daily_deposits jsonb := '[]'::jsonb;
   v_summary        jsonb;
   v_row            public.monthly_reports%ROWTYPE;
   v_member         RECORD;
@@ -161,6 +164,43 @@ BEGIN
   FROM public.fixed_costs fc
   WHERE fc.mess_id = p_mess_id AND fc.month = p_month;
 
+  -- ── Daily bazaar expenses for the PDF ────────────────────────
+  SELECT COALESCE(jsonb_agg(jsonb_build_object(
+    'date',        e.date,
+    'category',    COALESCE(e.category, ''),
+    'description', COALESCE(e.description, ''),
+    'amount',      e.amount,
+    'logged_by',   COALESCE(p.username, 'Unknown')
+  ) ORDER BY e.date ASC), '[]'::jsonb) INTO v_daily_expenses
+  FROM public.expenses e
+  LEFT JOIN public.profiles p ON p.id = e.logged_by
+  WHERE e.mess_id = p_mess_id AND e.date BETWEEN v_month_start AND v_month_end;
+
+  -- ── Daily meals for the PDF ──────────────────────────────────
+  SELECT COALESCE(jsonb_agg(jsonb_build_object(
+    'date',         m.date,
+    'username',     COALESCE(p.username, 'Member'),
+    'user_id',      m.user_id,
+    'lunch',        m.lunch,
+    'dinner',       m.dinner,
+    'guest_lunch',  COALESCE(m.guest_lunch, 0),
+    'guest_dinner', COALESCE(m.guest_dinner, 0)
+  ) ORDER BY m.date ASC), '[]'::jsonb) INTO v_daily_meals
+  FROM public.meals m
+  LEFT JOIN public.profiles p ON p.id = m.user_id
+  WHERE m.mess_id = p_mess_id AND m.date BETWEEN v_month_start AND v_month_end;
+
+  -- ── Daily verified deposits for the PDF ──────────────────────
+  SELECT COALESCE(jsonb_agg(jsonb_build_object(
+    'date',      d.date,
+    'username',  COALESCE(p.username, 'Member'),
+    'amount',    d.amount,
+    'note',      COALESCE(d.note, '')
+  ) ORDER BY d.date ASC), '[]'::jsonb) INTO v_daily_deposits
+  FROM public.deposits d
+  LEFT JOIN public.profiles p ON p.id = d.user_id
+  WHERE d.mess_id = p_mess_id AND d.verified = true AND d.date BETWEEN v_month_start AND v_month_end;
+
   v_summary := jsonb_build_object(
     'month',               p_month,
     'totalExpenses',       v_total_expenses,
@@ -170,7 +210,10 @@ BEGIN
     'mealRate',            v_meal_rate,
     'financeMembersCount', v_member_count,
     'balances',            v_balances,
-    'fixedCosts',          v_fixed
+    'fixedCosts',          v_fixed,
+    'dailyExpenses',       v_daily_expenses,
+    'dailyMeals',          v_daily_meals,
+    'dailyDeposits',       v_daily_deposits
   );
 
   -- ── Upsert the compiled snapshot ─────────────────────────────
