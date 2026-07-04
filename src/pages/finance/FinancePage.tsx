@@ -67,7 +67,7 @@ export default function FinancePage() {
   const paidFixed = fixedCosts.filter((f) => f.is_paid).reduce((s, f) => s + Number(f.amount), 0)
   const messBalance = totalDeposits - totalExpenses - paidFixed
 
-  // Calculations for settlement transfers (greedy algorithm)
+  // Calculations for settlement transfers (Centralized Clearing via Mess Treasury)
   const settlements = (() => {
     const perPersonFixed = financeMembers.length > 0 ? totalFixed / financeMembers.length : 0
     const creditors: { name: string; amount: number }[] = []
@@ -84,19 +84,26 @@ export default function FinancePage() {
       else if (realBalance < -0.5) debtors.push({ name, amount: -realBalance })
     })
 
-    creditors.sort((a, b) => b.amount - a.amount)
-    debtors.sort((a, b) => b.amount - a.amount)
     const transfers: { from: string; to: string; amount: number }[] = []
-    let i = 0,
-      j = 0
-    while (i < debtors.length && j < creditors.length) {
-      const amt = Math.min(debtors[i].amount, creditors[j].amount)
-      transfers.push({ from: debtors[i].name, to: creditors[j].name, amount: Math.round(amt) })
-      debtors[i].amount -= amt
-      creditors[j].amount -= amt
-      if (debtors[i].amount < 0.5) i++
-      if (creditors[j].amount < 0.5) j++
-    }
+
+    // 1. Debtors pay to Mess Treasury
+    debtors.forEach((d) => {
+      transfers.push({
+        from: d.name,
+        to: 'Mess Treasury',
+        amount: Math.round(d.amount),
+      })
+    })
+
+    // 2. Mess Treasury pays to Creditors
+    creditors.forEach((c) => {
+      transfers.push({
+        from: 'Mess Treasury',
+        to: c.name,
+        amount: Math.round(c.amount),
+      })
+    })
+
     return transfers
   })()
 
