@@ -11,10 +11,7 @@ import {
   Moon,
   ShieldCheck,
   X,
-  Download,
 } from 'lucide-react'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 import {
   format,
   startOfMonth,
@@ -253,57 +250,7 @@ export default function MealsPage() {
     return { total: lunchCount + dinnerCount, lunch: lunchCount, dinner: dinnerCount }
   }, [meals, user?.id, monthStr, viewMode])
 
-  const handleDownloadMealPDF = () => {
-    if (!currentMess) return
-    const monthMeals = meals.filter((m) => m.date.startsWith(monthStr))
 
-    // Group counts per user
-    const byUser = new Map<
-      string,
-      { lunch: number; dinner: number; gLunch: number; gDinner: number }
-    >()
-    for (const m of monthMeals) {
-      const cur = byUser.get(m.user_id) || { lunch: 0, dinner: 0, gLunch: 0, gDinner: 0 }
-      cur.lunch += m.lunch ? 1 : 0
-      cur.dinner += m.dinner ? 1 : 0
-      cur.gLunch += m.guest_lunch || 0
-      cur.gDinner += m.guest_dinner || 0
-      byUser.set(m.user_id, cur)
-    }
-
-    const nameOf = (uid: string): string => {
-      const mem = members.find((m) => m.user_id === uid)
-      const p = mem?.profiles as { username?: string } | null | undefined
-      return p?.username || 'Unknown'
-    }
-
-    const doc = new jsPDF()
-    doc.setFontSize(18)
-    doc.text(`${currentMess.name} - Meal Report`, 14, 20)
-    doc.setFontSize(10)
-    doc.setTextColor(100)
-    doc.text(`Month: ${format(currentDate, 'MMMM yyyy')}`, 14, 27)
-    doc.setTextColor(0)
-
-    const rows = Array.from(byUser.entries())
-      .map(([uid, c]) => {
-        const total = c.lunch + c.dinner + c.gLunch + c.gDinner
-        return [nameOf(uid), c.lunch, c.dinner, c.gLunch, c.gDinner, total]
-      })
-      .sort((a, b) => Number(b[5]) - Number(a[5]))
-
-    autoTable(doc, {
-      startY: 35,
-      head: [['Member', 'Lunch', 'Dinner', 'Guest L', 'Guest D', 'Total']],
-      body: rows,
-      theme: 'grid',
-      headStyles: { fillColor: [59, 130, 246] },
-      columnStyles: { 5: { fontStyle: 'bold', halign: 'right' } },
-    })
-
-    doc.save(`NexMess_${currentMess.name.replace(/\s+/g, '_')}_Meals_${monthStr}.pdf`)
-    toast.success('Meal report downloaded')
-  }
 
   // Get meal for a specific date
   const getMealForDate = (date: Date) => {
@@ -328,14 +275,6 @@ export default function MealsPage() {
           <h1 className="text-nex-text text-2xl font-bold">Meal Calendar</h1>
         </div>
         <div className="scrollbar-none mt-4 flex w-full flex-row items-center justify-start gap-2 overflow-x-auto pb-1 sm:mt-0 sm:w-auto sm:justify-end sm:pb-0">
-          <button
-            onClick={handleDownloadMealPDF}
-            className="rounded-btn border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover flex shrink-0 items-center justify-center gap-1.5 border px-3 py-1.5 text-xs font-medium shadow-sm transition-colors"
-            title="Download meal report (PDF)"
-          >
-            <Download className="text-nex-primary h-3.5 w-3.5" />
-            PDF
-          </button>
 
           {isManager && (
             <button

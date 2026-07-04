@@ -9,7 +9,6 @@ import {
   DollarSign,
   TrendingUp,
   Download,
-  FileSpreadsheet,
   History,
 } from 'lucide-react'
 import { format } from 'date-fns'
@@ -327,38 +326,7 @@ export default function FinancePage() {
     toast.success('PDF Report Downloaded!')
   }
 
-  // Export Expenses to CSV format
-  const handleExportCSV = () => {
-    if (expenses.length === 0) {
-      toast.error('No expenses to export')
-      return
-    }
 
-    const headers = ['Date', 'Category', 'Description', 'Amount (BDT)', 'Logged By']
-    const rows = expenses.map((e) => [
-      e.date,
-      e.category || '',
-      e.description || '',
-      e.amount.toString(),
-      (e as any).profiles?.username || 'Unknown',
-    ])
-
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      [
-        headers.join(','),
-        ...rows.map((r) => r.map((val) => `"${val.replace(/"/g, '""')}"`).join(',')),
-      ].join('\n')
-
-    const encodedUri = encodeURI(csvContent)
-    const link = document.createElement('a')
-    link.setAttribute('href', encodedUri)
-    link.setAttribute('download', `NexMess_Expenses_${currentMonth}.csv`)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    toast.success('CSV Report Exported!')
-  }
 
   const tabs: { key: Tab; label: string; icon: any }[] = [
     { key: 'expenses', label: 'Expenses', icon: Receipt },
@@ -405,14 +373,7 @@ export default function FinancePage() {
           <h1 className="text-nex-text text-2xl font-bold">Finance</h1>
         </div>
         <div className="flex flex-wrap gap-2">
-          {activeTab === 'expenses' && expenses.length > 0 && (
-            <button
-              onClick={handleExportCSV}
-              className="nex-btn-secondary flex items-center gap-1.5 px-3 py-2 text-xs"
-            >
-              <FileSpreadsheet className="h-4 w-4" /> Export CSV
-            </button>
-          )}
+
           {activeTab === 'summary' && isManager && (
             <button
               onClick={handleDownloadPDF}
