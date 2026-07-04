@@ -24,10 +24,12 @@ export default function LandingPage() {
   const [isSupportOpen, setIsSupportOpen] = useState(false)
   const [lunchActive, setLunchActive] = useState(true)
   const [dinnerActive, setDinnerActive] = useState(false)
+  const [lunchGuests, setLunchGuests] = useState(0)
+  const [dinnerGuests, setDinnerGuests] = useState(0)
   const [activities, setActivities] = useState([
-    { id: 1, text: 'Siam added $45.00 for grocery', time: '10m ago' },
-    { id: 2, text: 'Abir turned OFF dinner', time: '1h ago' },
-    { id: 3, text: 'Weekly bazaar schedule rotated', time: '3h ago' },
+    { id: 1, text: 'Siam posted: Dinner is Chicken Curry! 🍗', time: '10m ago' },
+    { id: 2, text: 'Siam added ৳1,450.00 bazaar cost', time: '1h ago' },
+    { id: 3, text: 'Abir turned OFF dinner for tomorrow', time: '2h ago' },
   ])
 
   const toggleLunch = () => {
@@ -35,7 +37,7 @@ export default function LandingPage() {
     setLunchActive(nextState)
     const newAct = {
       id: Date.now(),
-      text: `You turned ${nextState ? 'ON' : 'OFF'} lunch`,
+      text: `You updated Lunch status to ${nextState ? 'Eating' : 'Skipping'}`,
       time: 'Just now',
     }
     setActivities((prev) => [newAct, ...prev.slice(0, 3)])
@@ -46,17 +48,53 @@ export default function LandingPage() {
     setDinnerActive(nextState)
     const newAct = {
       id: Date.now(),
-      text: `You turned ${nextState ? 'ON' : 'OFF'} dinner`,
+      text: `You updated Dinner status to ${nextState ? 'Eating' : 'Skipping'}`,
       time: 'Just now',
     }
     setActivities((prev) => [newAct, ...prev.slice(0, 3)])
   }
 
-  const activeMeals = 18 + (lunchActive ? 1 : 0) + (dinnerActive ? 1 : 0)
-  const mealRate = 2.45
-  const deposit = 50.00
-  const personalCost = activeMeals * mealRate + 12.00
-  const balance = deposit - personalCost
+  const updateLunchGuests = (delta: number) => {
+    setLunchGuests((prev) => {
+      const nextVal = Math.max(0, prev + delta)
+      if (nextVal !== prev) {
+        const newAct = {
+          id: Date.now(),
+          text: `You updated Lunch guest count to ${nextVal}`,
+          time: 'Just now',
+        }
+        setActivities((act) => [newAct, ...act.slice(0, 3)])
+      }
+      return nextVal
+    })
+  }
+
+  const updateDinnerGuests = (delta: number) => {
+    setDinnerGuests((prev) => {
+      const nextVal = Math.max(0, prev + delta)
+      if (nextVal !== prev) {
+        const newAct = {
+          id: Date.now(),
+          text: `You updated Dinner guest count to ${nextVal}`,
+          time: 'Just now',
+        }
+        setActivities((act) => [newAct, ...act.slice(0, 3)])
+      }
+      return nextVal
+    })
+  }
+
+  // Live recalculating metrics in Bangladeshi Taka (৳) to match your real system
+  const pastMeals = 16.5
+  const mealsToday = (lunchActive ? 1 : 0) + lunchGuests
+  const mealsTonight = (dinnerActive ? 1 : 0) + dinnerGuests
+  const totalMeals = pastMeals + mealsToday + mealsTonight
+  const mealRate = 75
+  const deposit = 1800
+  const fixedCosts = 280
+  const totalCost = totalMeals * mealRate + fixedCosts
+  const balance = deposit - totalCost
+  const messTotalSpent = 6450
 
   useEffect(() => {
     if (initialized && user) {
@@ -136,112 +174,164 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Main Interactive Grid */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {/* Daily Meal Toggles */}
-              <div className="flex flex-col gap-3 rounded-xl border border-nex-border bg-nex-bg/50 p-4">
-                <h4 className="text-nex-text text-xs font-bold">Meal Logging</h4>
-                <p className="text-nex-muted text-[10px] leading-tight mb-2">
-                  Toggle meals to update counts. Cut-off time is 8:00 AM.
-                </p>
-
-                {/* Lunch Switch */}
-                <button
-                  onClick={toggleLunch}
-                  className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
-                    lunchActive
-                      ? 'border-nex-primary bg-nex-primary/5 text-nex-text shadow-sm'
-                      : 'border-nex-border bg-nex-surface text-nex-muted'
-                  }`}
+            {/* Real Stats Grid Preview */}
+            <div className="grid grid-cols-2 gap-3 mb-4 sm:grid-cols-4">
+              <div className="rounded-xl border border-nex-border bg-nex-surface p-3 text-center shadow-sm">
+                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">My Meals</p>
+                <motion.p
+                  key={totalMeals}
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  className="text-nex-text mt-0.5 text-sm font-bold"
                 >
-                  <div className="flex flex-col items-start">
-                    <span className="text-[11px] font-semibold">Lunch</span>
-                    <span className="text-[9px] opacity-80">12:00 PM</span>
-                  </div>
-                  <div
-                    className={`h-5 w-9 rounded-full p-0.5 transition-colors duration-200 ease-in-out flex ${
-                      lunchActive ? 'bg-nex-primary justify-end' : 'bg-nex-border justify-start'
-                    }`}
-                  >
-                    <motion.div
-                      layout
-                      className="h-4 w-4 rounded-full bg-white shadow-md"
-                      transition={{ type: 'spring', stiffness: 700, damping: 30 }}
-                    />
-                  </div>
-                </button>
-
-                {/* Dinner Switch */}
-                <button
-                  onClick={toggleDinner}
-                  className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
-                    dinnerActive
-                      ? 'border-nex-primary bg-nex-primary/5 text-nex-text shadow-sm'
-                      : 'border-nex-border bg-nex-surface text-nex-muted'
-                  }`}
-                >
-                  <div className="flex flex-col items-start">
-                    <span className="text-[11px] font-semibold">Dinner</span>
-                    <span className="text-[9px] opacity-80">8:00 PM</span>
-                  </div>
-                  <div
-                    className={`h-5 w-9 rounded-full p-0.5 transition-colors duration-200 ease-in-out flex ${
-                      dinnerActive ? 'bg-nex-primary justify-end' : 'bg-nex-border justify-start'
-                    }`}
-                  >
-                    <motion.div
-                      layout
-                      className="h-4 w-4 rounded-full bg-white shadow-md"
-                      transition={{ type: 'spring', stiffness: 700, damping: 30 }}
-                    />
-                  </div>
-                </button>
+                  {totalMeals.toFixed(1)}
+                </motion.p>
               </div>
+              <div className="rounded-xl border border-nex-border bg-nex-surface p-3 text-center shadow-sm">
+                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">Balance</p>
+                <motion.p
+                  key={balance}
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  className={`mt-0.5 text-sm font-bold ${balance >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}
+                >
+                  ৳ {balance.toFixed(0)}
+                </motion.p>
+              </div>
+              <div className="rounded-xl border border-nex-border bg-nex-surface p-3 text-center shadow-sm">
+                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">Meal Rate</p>
+                <p className="text-nex-text mt-0.5 text-sm font-bold">৳ {mealRate}</p>
+              </div>
+              <div className="rounded-xl border border-nex-border bg-nex-surface p-3 text-center shadow-sm">
+                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">Mess Spent</p>
+                <p className="text-amber-600 mt-0.5 text-sm font-bold">৳ {messTotalSpent}</p>
+              </div>
+            </div>
 
-              {/* Dynamic Ledger Statement */}
-              <div className="flex flex-col gap-3 rounded-xl border border-nex-border bg-nex-bg/50 p-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-nex-text text-xs font-bold">Ledger Balance</h4>
-                  <span
-                    className={`nex-badge ${
-                      balance >= 0 ? 'nex-badge-success' : 'nex-badge-danger'
-                    } text-[9px]`}
-                  >
-                    {balance >= 0 ? 'Surplus' : 'Due'}
+            {/* Meal Selector Preview */}
+            <div className="rounded-xl border border-nex-border bg-nex-bg/50 p-4">
+              <div className="mb-3.5 flex items-center justify-between">
+                <h4 className="text-nex-text text-xs font-semibold uppercase tracking-wider">My Meals</h4>
+                <div className="bg-nex-border/50 rounded-md flex p-0.5">
+                  <span className="bg-white text-nex-text rounded px-2 py-0.5 text-[10px] font-semibold shadow-xs">
+                    Today
+                  </span>
+                  <span className="text-nex-muted rounded px-2 py-0.5 text-[10px] font-medium opacity-60">
+                    Tomorrow
                   </span>
                 </div>
+              </div>
 
-                <div className="flex flex-col gap-2 text-[11px] pt-1">
-                  <div className="flex justify-between border-b border-nex-border/50 pb-1.5">
-                    <span className="text-nex-muted">Deposit</span>
-                    <span className="text-nex-text font-semibold">$50.00</span>
-                  </div>
-                  <div className="flex justify-between border-b border-nex-border/50 pb-1.5">
-                    <span className="text-nex-muted">Meals Eaten</span>
-                    <motion.span
-                      key={activeMeals}
-                      initial={{ scale: 1.2, color: 'var(--nex-primary)' }}
-                      animate={{ scale: 1, color: 'var(--nex-text)' }}
-                      className="font-semibold"
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {/* Lunch Box */}
+                <div
+                  className={`flex flex-col rounded-lg border p-3.5 transition-colors duration-200 ${
+                    lunchActive || lunchGuests > 0
+                      ? 'bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/10'
+                      : 'bg-nex-surface border-nex-border'
+                  }`}
+                >
+                  <div className="mb-2.5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">☀️</span>
+                      <div>
+                        <p className="text-nex-text text-[11px] font-semibold">Lunch</p>
+                        <p
+                          className={`text-[9px] font-medium ${
+                            lunchActive ? 'text-emerald-600 font-bold' : 'text-nex-muted'
+                          }`}
+                        >
+                          {lunchActive ? 'Eating' : 'Skipping'}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={toggleLunch}
+                      className={`relative h-6 w-10 rounded-full transition-colors duration-200 flex items-center p-0.5 ${
+                        lunchActive ? 'bg-emerald-500 justify-end' : 'bg-nex-border justify-start'
+                      }`}
                     >
-                      {activeMeals}
-                    </motion.span>
+                      <motion.span
+                        layout
+                        className="h-4.5 w-4.5 rounded-full bg-white shadow-sm"
+                        transition={{ type: 'spring', stiffness: 700, damping: 30 }}
+                      />
+                    </button>
                   </div>
-                  <div className="flex justify-between border-b border-nex-border/50 pb-1.5">
-                    <span className="text-nex-muted">Meal Rate</span>
-                    <span className="text-nex-text font-semibold">${mealRate.toFixed(2)}</span>
+                  <div className="flex items-center justify-between border-t border-slate-100/50 pt-2.5">
+                    <p className="text-[10px] font-medium text-slate-500">Guests</p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => updateLunchGuests(-1)}
+                        disabled={lunchGuests === 0}
+                        className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-5 w-5 items-center justify-center rounded border disabled:opacity-50 text-[10px] font-bold cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <span className="w-3 text-center text-[11px] font-semibold">{lunchGuests}</span>
+                      <button
+                        onClick={() => updateLunchGuests(1)}
+                        className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-5 w-5 items-center justify-center rounded border text-[10px] font-bold cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex justify-between font-semibold pt-1">
-                    <span className="text-nex-text">Balance</span>
-                    <motion.span
-                      key={balance}
-                      initial={{ scale: 1.1 }}
-                      animate={{ scale: 1 }}
-                      className={balance >= 0 ? 'text-emerald-600' : 'text-rose-600'}
+                </div>
+
+                {/* Dinner Box */}
+                <div
+                  className={`flex flex-col rounded-lg border p-3.5 transition-colors duration-200 ${
+                    dinnerActive || dinnerGuests > 0
+                      ? 'bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/10'
+                      : 'bg-nex-surface border-nex-border'
+                  }`}
+                >
+                  <div className="mb-2.5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🌙</span>
+                      <div>
+                        <p className="text-nex-text text-[11px] font-semibold">Dinner</p>
+                        <p
+                          className={`text-[9px] font-medium ${
+                            dinnerActive ? 'text-emerald-600 font-bold' : 'text-nex-muted'
+                          }`}
+                        >
+                          {dinnerActive ? 'Eating' : 'Skipping'}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={toggleDinner}
+                      className={`relative h-6 w-10 rounded-full transition-colors duration-200 flex items-center p-0.5 ${
+                        dinnerActive ? 'bg-emerald-500 justify-end' : 'bg-nex-border justify-start'
+                      }`}
                     >
-                      {balance >= 0 ? '+' : ''}
-                      {balance.toFixed(2)}
-                    </motion.span>
+                      <motion.span
+                        layout
+                        className="h-4.5 w-4.5 rounded-full bg-white shadow-sm"
+                        transition={{ type: 'spring', stiffness: 700, damping: 30 }}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-slate-100/50 pt-2.5">
+                    <p className="text-[10px] font-medium text-slate-500">Guests</p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => updateDinnerGuests(-1)}
+                        disabled={dinnerGuests === 0}
+                        className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-5 w-5 items-center justify-center rounded border disabled:opacity-50 text-[10px] font-bold cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <span className="w-3 text-center text-[11px] font-semibold">{dinnerGuests}</span>
+                      <button
+                        onClick={() => updateDinnerGuests(1)}
+                        className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-5 w-5 items-center justify-center rounded border text-[10px] font-bold cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
