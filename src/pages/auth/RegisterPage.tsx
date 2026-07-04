@@ -12,9 +12,15 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [agreeTerms, setAgreeTerms] = useState(false)
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (!agreeTerms) {
+      toast.error('You must agree to the Terms of Service and Privacy Policy')
+      return
+    }
 
     if (password !== confirmPassword) {
       toast.error('Passwords do not match')
@@ -46,6 +52,10 @@ export default function RegisterPage() {
   }
 
   const handleGoogleSignup = async () => {
+    if (!agreeTerms) {
+      toast.error('You must agree to the Terms of Service and Privacy Policy')
+      return
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/dashboard` },
@@ -178,6 +188,42 @@ export default function RegisterPage() {
                   id="register-confirm-password"
                 />
               </div>
+            </div>
+
+            {/* Terms & Privacy Policy Checkbox */}
+            <div className="flex items-start gap-2.5 py-1">
+              <input
+                type="checkbox"
+                id="agree-terms"
+                checked={agreeTerms}
+                onChange={(e) => setAgreeTerms(e.target.checked)}
+                className="border-nex-border bg-nex-surface text-nex-primary accent-nex-primary focus:ring-nex-primary mt-0.5 h-4 w-4 cursor-pointer rounded"
+                required
+              />
+              <label
+                htmlFor="agree-terms"
+                className="text-nex-muted cursor-pointer text-xs leading-normal select-none"
+              >
+                I agree to the{' '}
+                <Link
+                  to="/terms-of-service"
+                  className="text-nex-primary font-semibold hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Terms of Service
+                </Link>{' '}
+                and{' '}
+                <Link
+                  to="/privacy-policy"
+                  className="text-nex-primary font-semibold hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Privacy Policy
+                </Link>
+                .
+              </label>
             </div>
 
             <button
