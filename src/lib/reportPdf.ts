@@ -130,10 +130,9 @@ export function buildReportPdf(data: ReportData): void {
   const headerBottomY = data.isArchived ? (data.messLocation ? 41 : 37) : (data.messLocation ? 36 : 32)
   doc.line(14, headerBottomY, pageWidth - 14, headerBottomY)
 
-  // Executive Summary Title
+  // 1. Executive Monthly Summary
   let currentY = addSectionTitle('Executive Monthly Summary', headerBottomY + 10)
 
-  // Financial Summary Table (Replica of UI's Summary Tab)
   const perPersonFixedCost =
     data.financeMembersCount > 0 ? data.totalFixed / data.financeMembersCount : 0
   const totalBazaarAndFixed = data.totalExpenses + data.totalFixed
@@ -163,7 +162,7 @@ export function buildReportPdf(data: ReportData): void {
 
   currentY = (doc as any).lastAutoTable.finalY + 8
 
-  // Fixed Costs List
+  // 2. Monthly Fixed Costs
   if (data.fixedCosts.length > 0) {
     currentY = addSectionTitle('Monthly Fixed Costs', currentY)
     autoTable(doc, {
@@ -180,57 +179,7 @@ export function buildReportPdf(data: ReportData): void {
     currentY = (doc as any).lastAutoTable.finalY + 8
   }
 
-  // Member Financial Breakdowns
-  currentY = addSectionTitle('Member Financial Breakdowns', currentY)
-  autoTable(doc, {
-    startY: currentY,
-    head: [['Member Name', 'Total Meals', 'Meal Cost', 'Fixed Cost', 'Total Exp', 'Deposited', 'Net Balance']],
-    body: data.members.map((m) => {
-      const totalExp = m.mealCost + perPersonFixedCost
-      const realBalance = m.deposited - totalExp
-      return [
-        (m.username || 'Unknown') + (m.status === 'left' ? ' (Left)' : ''),
-        m.meals.toString(),
-        tk(m.mealCost),
-        tk(perPersonFixedCost),
-        tk(totalExp),
-        tk(m.deposited),
-        {
-          content: tk(realBalance),
-          styles: { fontStyle: 'bold', textColor: realBalance >= 0 ? [16, 185, 129] : [239, 68, 68] }
-        }
-      ]
-    }),
-    theme: 'grid',
-    headStyles: { fillColor: [79, 70, 229], textColor: 255 }, // Indigo 600
-    styles: { cellPadding: 2.5, fontSize: 8.5 },
-    columnStyles: { 
-      1: { halign: 'center' },
-      2: { halign: 'right' },
-      3: { halign: 'right' },
-      4: { halign: 'right' },
-      5: { halign: 'right' },
-      6: { halign: 'right' }
-    }
-  })
-  currentY = (doc as any).lastAutoTable.finalY + 8
-
-  // Settlement Transfer Plan (Who Pays Whom)
-  if (data.settlements.length > 0) {
-    currentY = addSectionTitle('Settlement Transfer Plan (Who Pays Whom)', currentY)
-    autoTable(doc, {
-      startY: currentY,
-      head: [['From (Debtor)', '', 'To (Creditor)', 'Amount']],
-      body: data.settlements.map((t) => [t.from, '→', t.to, `Tk ${t.amount.toFixed(0)}`]),
-      theme: 'grid',
-      headStyles: { fillColor: [16, 185, 129], textColor: 255 }, // Emerald 500
-      styles: { cellPadding: 2.2, fontSize: 8.5 },
-      columnStyles: { 1: { halign: 'center', textColor: 100 }, 3: { halign: 'right', fontStyle: 'bold' } }
-    })
-    currentY = (doc as any).lastAutoTable.finalY + 8
-  }
-
-  // Daily Bazaar Expenses Log
+  // 3. Daily Bazaar Expenses Log
   if (data.dailyExpenses && data.dailyExpenses.length > 0) {
     currentY = addSectionTitle('Daily Bazaar Expenses Log', currentY)
 
@@ -254,30 +203,7 @@ export function buildReportPdf(data: ReportData): void {
     currentY = (doc as any).lastAutoTable.finalY + 8
   }
 
-  // Daily Verified Deposits Log
-  if (data.dailyDeposits && data.dailyDeposits.length > 0) {
-    currentY = addSectionTitle('Daily Verified Deposits Log', currentY)
-
-    autoTable(doc, {
-      startY: currentY,
-      head: [['Date', 'Member', 'Note / Reference', 'Amount']],
-      body: data.dailyDeposits.map((d) => [
-        format(new Date(d.date), 'dd MMM yyyy'),
-        d.username,
-        d.note || '-',
-        tk(d.amount)
-      ]),
-      foot: [['', '', 'Total Deposits Collected', tk(data.totalDeposits)]],
-      theme: 'grid',
-      headStyles: { fillColor: [16, 185, 129], textColor: 255 }, // Emerald 500
-      footStyles: { fillColor: [241, 245, 249], textColor: 15, fontStyle: 'bold' },
-      styles: { cellPadding: 2.2, fontSize: 8.5 },
-      columnStyles: { 3: { halign: 'right' } }
-    })
-    currentY = (doc as any).lastAutoTable.finalY + 8
-  }
-
-  // Daily Meal History Matrix
+  // 4. Daily Meal History Matrix
   if (data.dailyMeals && data.dailyMeals.length > 0) {
     currentY = addSectionTitle('Daily Meal History Matrix', currentY)
 
@@ -333,6 +259,79 @@ export function buildReportPdf(data: ReportData): void {
         [matrixHeaders.length - 1]: { halign: 'right', fontStyle: 'bold', cellWidth: 16 }
       }
     })
+    currentY = (doc as any).lastAutoTable.finalY + 8
+  }
+
+  // 5. Daily Verified Deposits Log
+  if (data.dailyDeposits && data.dailyDeposits.length > 0) {
+    currentY = addSectionTitle('Daily Verified Deposits Log', currentY)
+
+    autoTable(doc, {
+      startY: currentY,
+      head: [['Date', 'Member', 'Note / Reference', 'Amount']],
+      body: data.dailyDeposits.map((d) => [
+        format(new Date(d.date), 'dd MMM yyyy'),
+        d.username,
+        d.note || '-',
+        tk(d.amount)
+      ]),
+      foot: [['', '', 'Total Deposits Collected', tk(data.totalDeposits)]],
+      theme: 'grid',
+      headStyles: { fillColor: [16, 185, 129], textColor: 255 }, // Emerald 500
+      footStyles: { fillColor: [241, 245, 249], textColor: 15, fontStyle: 'bold' },
+      styles: { cellPadding: 2.2, fontSize: 8.5 },
+      columnStyles: { 3: { halign: 'right' } }
+    })
+    currentY = (doc as any).lastAutoTable.finalY + 8
+  }
+
+  // 6. Member Financial Breakdowns
+  currentY = addSectionTitle('Member Financial Breakdowns', currentY)
+  autoTable(doc, {
+    startY: currentY,
+    head: [['Member Name', 'Total Meals', 'Meal Cost', 'Fixed Cost', 'Total Exp', 'Deposited', 'Net Balance']],
+    body: data.members.map((m) => {
+      const totalExp = m.mealCost + perPersonFixedCost
+      const realBalance = m.deposited - totalExp
+      return [
+        (m.username || 'Unknown') + (m.status === 'left' ? ' (Left)' : ''),
+        m.meals.toString(),
+        tk(m.mealCost),
+        tk(perPersonFixedCost),
+        tk(totalExp),
+        tk(m.deposited),
+        {
+          content: tk(realBalance),
+          styles: { fontStyle: 'bold', textColor: realBalance >= 0 ? [16, 185, 129] : [239, 68, 68] }
+        }
+      ]
+    }),
+    theme: 'grid',
+    headStyles: { fillColor: [79, 70, 229], textColor: 255 }, // Indigo 600
+    styles: { cellPadding: 2.5, fontSize: 8.5 },
+    columnStyles: { 
+      1: { halign: 'center' },
+      2: { halign: 'right' },
+      3: { halign: 'right' },
+      4: { halign: 'right' },
+      5: { halign: 'right' },
+      6: { halign: 'right' }
+    }
+  })
+  currentY = (doc as any).lastAutoTable.finalY + 8
+
+  // 7. Settlement Transfer Plan (Who Pays Whom)
+  if (data.settlements.length > 0) {
+    currentY = addSectionTitle('Settlement Transfer Plan (Who Pays Whom)', currentY)
+    autoTable(doc, {
+      startY: currentY,
+      head: [['From (Debtor)', '', 'To (Creditor)', 'Amount']],
+      body: data.settlements.map((t) => [t.from, '→', t.to, `Tk ${t.amount.toFixed(0)}`]),
+      theme: 'grid',
+      headStyles: { fillColor: [16, 185, 129], textColor: 255 }, // Emerald 500
+      styles: { cellPadding: 2.2, fontSize: 8.5 },
+      columnStyles: { 1: { halign: 'center', textColor: 100 }, 3: { halign: 'right', fontStyle: 'bold' } }
+    })
   }
 
   // ── FOOTER & PAGE NUMBER STAMPING ──────────────────────────────────────────
@@ -367,8 +366,7 @@ export function buildReportPdf(data: ReportData): void {
 }
 
 /**
- * Compute the greedy minimum-transfers settle-up sheet from a list of members.
- * Mirrors the original FinancePage algorithm so live + archived reports match.
+ * Compute settlements using centralized Mess Treasury/Manager clearing
  */
 export function computeSettlements(
   members: ReportMemberRow[],
@@ -386,19 +384,19 @@ export function computeSettlements(
 
   const transfers: ReportSettlement[] = []
 
-  // 1. Debtors pay to Mess Treasury
+  // 1. Debtors pay to Mess Treasury/Manager
   debtors.forEach((d) => {
     transfers.push({
       from: d.name,
-      to: 'Mess Treasury',
+      to: 'Mess Treasury/Manager',
       amount: Math.round(d.amount)
     })
   })
 
-  // 2. Mess Treasury pays to Creditors
+  // 2. Mess Treasury/Manager pays to Creditors
   creditors.forEach((c) => {
     transfers.push({
-      from: 'Mess Treasury',
+      from: 'Mess Treasury/Manager',
       to: c.name,
       amount: Math.round(c.amount)
     })

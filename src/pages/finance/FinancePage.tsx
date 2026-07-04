@@ -86,19 +86,19 @@ export default function FinancePage() {
 
     const transfers: { from: string; to: string; amount: number }[] = []
 
-    // 1. Debtors pay to Mess Treasury
+    // 1. Debtors pay to Mess Treasury/Manager
     debtors.forEach((d) => {
       transfers.push({
         from: d.name,
-        to: 'Mess Treasury',
+        to: 'Mess Treasury/Manager',
         amount: Math.round(d.amount),
       })
     })
 
-    // 2. Mess Treasury pays to Creditors
+    // 2. Mess Treasury/Manager pays to Creditors
     creditors.forEach((c) => {
       transfers.push({
-        from: 'Mess Treasury',
+        from: 'Mess Treasury/Manager',
         to: c.name,
         amount: Math.round(c.amount),
       })
