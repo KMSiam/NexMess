@@ -173,7 +173,7 @@ BEGIN
     'logged_by',   COALESCE(p.username, 'Unknown')
   ) ORDER BY e.date ASC), '[]'::jsonb) INTO v_daily_expenses
   FROM public.expenses e
-  LEFT JOIN public.profiles p ON p.id = e.logged_by
+  LEFT JOIN public.profiles p ON p.id = e.created_by
   WHERE e.mess_id = p_mess_id AND e.date BETWEEN v_month_start AND v_month_end;
 
   -- ── Daily meals for the PDF ──────────────────────────────────
