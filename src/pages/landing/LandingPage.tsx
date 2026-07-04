@@ -15,7 +15,7 @@ import pkg from '../../../package.json'
 import { useEffect, useState } from 'react'
 import { MessageCircle } from 'lucide-react'
 import SupportModal from '../../components/SupportModal'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 export default function LandingPage() {
   usePageTitle('Smart Mess Management')
@@ -26,62 +26,26 @@ export default function LandingPage() {
   const [dinnerActive, setDinnerActive] = useState(false)
   const [lunchGuests, setLunchGuests] = useState(0)
   const [dinnerGuests, setDinnerGuests] = useState(0)
-  const [activities, setActivities] = useState([
-    { id: 1, text: 'Siam posted: Dinner is Chicken Curry! 🍗', time: '10m ago' },
-    { id: 2, text: 'Siam added ৳1,450.00 bazaar cost', time: '1h ago' },
-    { id: 3, text: 'Abir turned OFF dinner for tomorrow', time: '2h ago' },
+  const [activities] = useState([
+    { id: 1, text: 'Siam added ৳1,450.00 bazaar cost', time: '10m ago', type: 'expense' },
+    { id: 2, text: 'Abir added ৳2,000.00 deposit', time: '1h ago', type: 'deposit' },
+    { id: 3, text: 'Siam added ৳320.00 utility fixed cost', time: '3h ago', type: 'expense' },
   ])
 
   const toggleLunch = () => {
-    const nextState = !lunchActive
-    setLunchActive(nextState)
-    const newAct = {
-      id: Date.now(),
-      text: `You updated Lunch status to ${nextState ? 'Eating' : 'Skipping'}`,
-      time: 'Just now',
-    }
-    setActivities((prev) => [newAct, ...prev.slice(0, 3)])
+    setLunchActive((prev) => !prev)
   }
 
   const toggleDinner = () => {
-    const nextState = !dinnerActive
-    setDinnerActive(nextState)
-    const newAct = {
-      id: Date.now(),
-      text: `You updated Dinner status to ${nextState ? 'Eating' : 'Skipping'}`,
-      time: 'Just now',
-    }
-    setActivities((prev) => [newAct, ...prev.slice(0, 3)])
+    setDinnerActive((prev) => !prev)
   }
 
   const updateLunchGuests = (delta: number) => {
-    setLunchGuests((prev) => {
-      const nextVal = Math.max(0, prev + delta)
-      if (nextVal !== prev) {
-        const newAct = {
-          id: Date.now(),
-          text: `You updated Lunch guest count to ${nextVal}`,
-          time: 'Just now',
-        }
-        setActivities((act) => [newAct, ...act.slice(0, 3)])
-      }
-      return nextVal
-    })
+    setLunchGuests((prev) => Math.max(0, prev + delta))
   }
 
   const updateDinnerGuests = (delta: number) => {
-    setDinnerGuests((prev) => {
-      const nextVal = Math.max(0, prev + delta)
-      if (nextVal !== prev) {
-        const newAct = {
-          id: Date.now(),
-          text: `You updated Dinner guest count to ${nextVal}`,
-          time: 'Just now',
-        }
-        setActivities((act) => [newAct, ...act.slice(0, 3)])
-      }
-      return nextVal
-    })
+    setDinnerGuests((prev) => Math.max(0, prev + delta))
   }
 
   // Live recalculating metrics in Bangladeshi Taka (৳) to match your real system
@@ -340,24 +304,25 @@ export default function LandingPage() {
             {/* Simulated Live Activity Log */}
             <div className="mt-4 rounded-xl border border-nex-border p-4 bg-nex-bg/20">
               <h4 className="text-nex-text text-[10px] font-bold uppercase tracking-wider mb-2">
-                Real-Time Activity log
+                Recent Activity
               </h4>
-              <div className="flex flex-col gap-1.5 min-h-[105px]">
-                <AnimatePresence initial={false}>
-                  {activities.map((act) => (
-                    <motion.div
-                      key={act.id}
-                      initial={{ opacity: 0, y: -15, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                      className="flex items-center justify-between rounded-lg border border-nex-border/50 bg-nex-surface px-3 py-1.5 text-[11px] shadow-sm"
-                    >
+              <div className="flex flex-col gap-2 min-h-[90px]">
+                {activities.map((act) => (
+                  <div
+                    key={act.id}
+                    className="flex items-center gap-2 rounded-lg border border-nex-border/50 bg-nex-surface px-3 py-1.5 text-[11px] shadow-xs"
+                  >
+                    <div
+                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                        act.type === 'deposit' ? 'bg-emerald-500' : 'bg-amber-500'
+                      }`}
+                    />
+                    <div className="flex-1 flex justify-between items-center">
                       <span className="text-nex-text">{act.text}</span>
                       <span className="text-[9px] text-nex-muted">{act.time}</span>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
