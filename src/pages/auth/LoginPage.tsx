@@ -45,12 +45,12 @@ export default function LoginPage() {
       {/* Left: Branding */}
       <div className="hidden w-1/2 flex-col items-center justify-center bg-gradient-to-br from-[#3A5643] via-[#4A6D56] to-[#5F886E] p-12 text-white lg:flex">
         <div className="max-w-md">
-          <div className="mb-8 flex items-center gap-3">
+          <Link to="/" className="mb-8 flex items-center gap-3 transition-opacity hover:opacity-85">
             <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white/20 backdrop-blur">
               <img src={logoIcon} alt="NexMess" className="h-10 w-10" />
             </div>
             <h1 className="text-3xl font-bold">NexMess</h1>
-          </div>
+          </Link>
           <h2 className="mb-4 text-4xl leading-tight font-bold">
             Manage your mess,
             <br />
@@ -75,12 +75,15 @@ export default function LoginPage() {
       <div className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
+          <Link
+            to="/"
+            className="mb-8 flex items-center gap-3 transition-opacity hover:opacity-85 lg:hidden"
+          >
             <div className="h-10 w-10 overflow-hidden rounded-xl">
               <img src={logoIcon} alt="NexMess" className="h-full w-full" />
             </div>
             <h1 className="text-nex-text text-2xl font-bold">NexMess</h1>
-          </div>
+          </Link>
 
           <h2 className="text-nex-text mb-1 text-2xl font-bold">Welcome back</h2>
           <p className="text-nex-muted mb-8">Sign in to continue to your dashboard</p>
