@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /$
+Allow: /login
+Allow: /register
+Allow: /forgot-password
+Allow: /privacy-policy
+Allow: /terms-of-service
+Disallow: /dashboard
+Disallow: /meals
+Disallow: /chat
+Disallow: /finance
+Disallow: /market
+Disallow: /market-assistant
+Disallow: /settings
+Disallow: /activity
+Disallow: /onboarding
+Disallow: /mess/
+
+# Replace with your actual domain when connected
+Sitemap: https://your-domain.com/sitemap.xml
