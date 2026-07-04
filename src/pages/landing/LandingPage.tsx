@@ -9,19 +9,54 @@ import {
   Zap,
 } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
-import heroImg from '../../assets/hero.png'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { useAuthStore } from '../../stores/authStore'
 import pkg from '../../../package.json'
 import { useEffect, useState } from 'react'
 import { MessageCircle } from 'lucide-react'
 import SupportModal from '../../components/SupportModal'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function LandingPage() {
   usePageTitle('Smart Mess Management')
   const { user, initialized } = useAuthStore()
   const navigate = useNavigate()
   const [isSupportOpen, setIsSupportOpen] = useState(false)
+  const [lunchActive, setLunchActive] = useState(true)
+  const [dinnerActive, setDinnerActive] = useState(false)
+  const [activities, setActivities] = useState([
+    { id: 1, text: 'Siam added $45.00 for grocery', time: '10m ago' },
+    { id: 2, text: 'Abir turned OFF dinner', time: '1h ago' },
+    { id: 3, text: 'Weekly bazaar schedule rotated', time: '3h ago' },
+  ])
+
+  const toggleLunch = () => {
+    const nextState = !lunchActive
+    setLunchActive(nextState)
+    const newAct = {
+      id: Date.now(),
+      text: `You turned ${nextState ? 'ON' : 'OFF'} lunch`,
+      time: 'Just now',
+    }
+    setActivities((prev) => [newAct, ...prev.slice(0, 3)])
+  }
+
+  const toggleDinner = () => {
+    const nextState = !dinnerActive
+    setDinnerActive(nextState)
+    const newAct = {
+      id: Date.now(),
+      text: `You turned ${nextState ? 'ON' : 'OFF'} dinner`,
+      time: 'Just now',
+    }
+    setActivities((prev) => [newAct, ...prev.slice(0, 3)])
+  }
+
+  const activeMeals = 18 + (lunchActive ? 1 : 0) + (dinnerActive ? 1 : 0)
+  const mealRate = 2.45
+  const deposit = 50.00
+  const personalCost = activeMeals * mealRate + 12.00
+  const balance = deposit - personalCost
 
   useEffect(() => {
     if (initialized && user) {
@@ -84,14 +119,157 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Right illustration / graphic */}
+        {/* Right illustration / graphic - Interactive Mockup Dashboard */}
         <div className="flex w-full max-w-md flex-1 justify-center lg:max-w-none">
-          <div className="border-nex-border animate-pulse-soft relative flex aspect-square w-full max-w-lg items-center justify-center rounded-3xl border bg-gradient-to-br from-blue-500/10 to-indigo-500/10 p-6 shadow-xl">
-            <img
-              src={heroImg}
-              alt="NexMess Mockup"
-              className="border-nex-border h-auto w-4/5 rounded-2xl border object-contain shadow-lg"
-            />
+          <div className="border-nex-border relative flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border bg-nex-surface/80 p-5 shadow-2xl backdrop-blur-md">
+            {/* Window Controls */}
+            <div className="border-nex-border mb-4 flex items-center justify-between border-b pb-3 text-xs">
+              <div className="flex items-center gap-1.5">
+                <span className="h-3 w-3 rounded-full bg-red-400" />
+                <span className="h-3 w-3 rounded-full bg-amber-400" />
+                <span className="h-3 w-3 rounded-full bg-green-400" />
+              </div>
+              <span className="text-nex-muted font-mono">nexmess.app/dashboard</span>
+              <div className="flex items-center gap-1">
+                <span className="h-2 w-2 animate-ping rounded-full bg-emerald-500" />
+                <span className="text-emerald-500 text-[10px] font-bold">LIVE</span>
+              </div>
+            </div>
+
+            {/* Main Interactive Grid */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {/* Daily Meal Toggles */}
+              <div className="flex flex-col gap-3 rounded-xl border border-nex-border bg-nex-bg/50 p-4">
+                <h4 className="text-nex-text text-xs font-bold">Meal Logging</h4>
+                <p className="text-nex-muted text-[10px] leading-tight mb-2">
+                  Toggle meals to update counts. Cut-off time is 8:00 AM.
+                </p>
+
+                {/* Lunch Switch */}
+                <button
+                  onClick={toggleLunch}
+                  className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
+                    lunchActive
+                      ? 'border-nex-primary bg-nex-primary/5 text-nex-text shadow-sm'
+                      : 'border-nex-border bg-nex-surface text-nex-muted'
+                  }`}
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="text-[11px] font-semibold">Lunch</span>
+                    <span className="text-[9px] opacity-80">12:00 PM</span>
+                  </div>
+                  <div
+                    className={`h-5 w-9 rounded-full p-0.5 transition-colors duration-200 ease-in-out flex ${
+                      lunchActive ? 'bg-nex-primary justify-end' : 'bg-nex-border justify-start'
+                    }`}
+                  >
+                    <motion.div
+                      layout
+                      className="h-4 w-4 rounded-full bg-white shadow-md"
+                      transition={{ type: 'spring', stiffness: 700, damping: 30 }}
+                    />
+                  </div>
+                </button>
+
+                {/* Dinner Switch */}
+                <button
+                  onClick={toggleDinner}
+                  className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
+                    dinnerActive
+                      ? 'border-nex-primary bg-nex-primary/5 text-nex-text shadow-sm'
+                      : 'border-nex-border bg-nex-surface text-nex-muted'
+                  }`}
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="text-[11px] font-semibold">Dinner</span>
+                    <span className="text-[9px] opacity-80">8:00 PM</span>
+                  </div>
+                  <div
+                    className={`h-5 w-9 rounded-full p-0.5 transition-colors duration-200 ease-in-out flex ${
+                      dinnerActive ? 'bg-nex-primary justify-end' : 'bg-nex-border justify-start'
+                    }`}
+                  >
+                    <motion.div
+                      layout
+                      className="h-4 w-4 rounded-full bg-white shadow-md"
+                      transition={{ type: 'spring', stiffness: 700, damping: 30 }}
+                    />
+                  </div>
+                </button>
+              </div>
+
+              {/* Dynamic Ledger Statement */}
+              <div className="flex flex-col gap-3 rounded-xl border border-nex-border bg-nex-bg/50 p-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-nex-text text-xs font-bold">Ledger Balance</h4>
+                  <span
+                    className={`nex-badge ${
+                      balance >= 0 ? 'nex-badge-success' : 'nex-badge-danger'
+                    } text-[9px]`}
+                  >
+                    {balance >= 0 ? 'Surplus' : 'Due'}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-2 text-[11px] pt-1">
+                  <div className="flex justify-between border-b border-nex-border/50 pb-1.5">
+                    <span className="text-nex-muted">Deposit</span>
+                    <span className="text-nex-text font-semibold">$50.00</span>
+                  </div>
+                  <div className="flex justify-between border-b border-nex-border/50 pb-1.5">
+                    <span className="text-nex-muted">Meals Eaten</span>
+                    <motion.span
+                      key={activeMeals}
+                      initial={{ scale: 1.2, color: 'var(--nex-primary)' }}
+                      animate={{ scale: 1, color: 'var(--nex-text)' }}
+                      className="font-semibold"
+                    >
+                      {activeMeals}
+                    </motion.span>
+                  </div>
+                  <div className="flex justify-between border-b border-nex-border/50 pb-1.5">
+                    <span className="text-nex-muted">Meal Rate</span>
+                    <span className="text-nex-text font-semibold">${mealRate.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold pt-1">
+                    <span className="text-nex-text">Balance</span>
+                    <motion.span
+                      key={balance}
+                      initial={{ scale: 1.1 }}
+                      animate={{ scale: 1 }}
+                      className={balance >= 0 ? 'text-emerald-600' : 'text-rose-600'}
+                    >
+                      {balance >= 0 ? '+' : ''}
+                      {balance.toFixed(2)}
+                    </motion.span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Simulated Live Activity Log */}
+            <div className="mt-4 rounded-xl border border-nex-border p-4 bg-nex-bg/20">
+              <h4 className="text-nex-text text-[10px] font-bold uppercase tracking-wider mb-2">
+                Real-Time Activity log
+              </h4>
+              <div className="flex flex-col gap-1.5 min-h-[105px]">
+                <AnimatePresence initial={false}>
+                  {activities.map((act) => (
+                    <motion.div
+                      key={act.id}
+                      initial={{ opacity: 0, y: -15, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      className="flex items-center justify-between rounded-lg border border-nex-border/50 bg-nex-surface px-3 py-1.5 text-[11px] shadow-sm"
+                    >
+                      <span className="text-nex-text">{act.text}</span>
+                      <span className="text-[9px] text-nex-muted">{act.time}</span>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
         </div>
       </section>
