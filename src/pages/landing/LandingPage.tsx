@@ -131,7 +131,7 @@ export default function LandingPage() {
                 <span className="h-3 w-3 rounded-full bg-amber-400" />
                 <span className="h-3 w-3 rounded-full bg-green-400" />
               </div>
-              <span className="text-nex-muted font-mono">nexmess.app/dashboard</span>
+              <span className="text-nex-muted font-mono">nex-mess.vercel.app/dashboard</span>
               <div className="flex items-center gap-1">
                 <span className="h-2 w-2 animate-ping rounded-full bg-emerald-500" />
                 <span className="text-emerald-500 text-[10px] font-bold">LIVE</span>
@@ -189,11 +189,10 @@ export default function LandingPage() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {/* Lunch Box */}
                 <div
-                  className={`flex flex-col rounded-lg border p-3.5 transition-colors duration-200 ${
-                    lunchActive || lunchGuests > 0
-                      ? 'bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/10'
-                      : 'bg-nex-surface border-nex-border'
-                  }`}
+                  className={`flex flex-col rounded-lg border p-3.5 transition-colors duration-200 ${lunchActive || lunchGuests > 0
+                    ? 'bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/10'
+                    : 'bg-nex-surface border-nex-border'
+                    }`}
                 >
                   <div className="mb-2.5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -201,9 +200,8 @@ export default function LandingPage() {
                       <div>
                         <p className="text-nex-text text-[11px] font-semibold">Lunch</p>
                         <p
-                          className={`text-[9px] font-medium ${
-                            lunchActive ? 'text-emerald-600 font-bold' : 'text-nex-muted'
-                          }`}
+                          className={`text-[9px] font-medium ${lunchActive ? 'text-emerald-600 font-bold' : 'text-nex-muted'
+                            }`}
                         >
                           {lunchActive ? 'Eating' : 'Skipping'}
                         </p>
@@ -211,9 +209,8 @@ export default function LandingPage() {
                     </div>
                     <button
                       onClick={toggleLunch}
-                      className={`relative h-6 w-10 rounded-full transition-colors duration-200 flex items-center p-0.5 ${
-                        lunchActive ? 'bg-emerald-500 justify-end' : 'bg-nex-border justify-start'
-                      }`}
+                      className={`relative h-6 w-10 rounded-full transition-colors duration-200 flex items-center p-0.5 ${lunchActive ? 'bg-emerald-500 justify-end' : 'bg-nex-border justify-start'
+                        }`}
                     >
                       <motion.span
                         layout
@@ -245,11 +242,10 @@ export default function LandingPage() {
 
                 {/* Dinner Box */}
                 <div
-                  className={`flex flex-col rounded-lg border p-3.5 transition-colors duration-200 ${
-                    dinnerActive || dinnerGuests > 0
-                      ? 'bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/10'
-                      : 'bg-nex-surface border-nex-border'
-                  }`}
+                  className={`flex flex-col rounded-lg border p-3.5 transition-colors duration-200 ${dinnerActive || dinnerGuests > 0
+                    ? 'bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/10'
+                    : 'bg-nex-surface border-nex-border'
+                    }`}
                 >
                   <div className="mb-2.5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -257,9 +253,8 @@ export default function LandingPage() {
                       <div>
                         <p className="text-nex-text text-[11px] font-semibold">Dinner</p>
                         <p
-                          className={`text-[9px] font-medium ${
-                            dinnerActive ? 'text-emerald-600 font-bold' : 'text-nex-muted'
-                          }`}
+                          className={`text-[9px] font-medium ${dinnerActive ? 'text-emerald-600 font-bold' : 'text-nex-muted'
+                            }`}
                         >
                           {dinnerActive ? 'Eating' : 'Skipping'}
                         </p>
@@ -267,9 +262,8 @@ export default function LandingPage() {
                     </div>
                     <button
                       onClick={toggleDinner}
-                      className={`relative h-6 w-10 rounded-full transition-colors duration-200 flex items-center p-0.5 ${
-                        dinnerActive ? 'bg-emerald-500 justify-end' : 'bg-nex-border justify-start'
-                      }`}
+                      className={`relative h-6 w-10 rounded-full transition-colors duration-200 flex items-center p-0.5 ${dinnerActive ? 'bg-emerald-500 justify-end' : 'bg-nex-border justify-start'
+                        }`}
                     >
                       <motion.span
                         layout
@@ -313,9 +307,8 @@ export default function LandingPage() {
                     className="flex items-center gap-2 rounded-lg border border-nex-border/50 bg-nex-surface px-3 py-1.5 text-[11px] shadow-xs"
                   >
                     <div
-                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                        act.type === 'deposit' ? 'bg-emerald-500' : 'bg-amber-500'
-                      }`}
+                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${act.type === 'deposit' ? 'bg-emerald-500' : 'bg-amber-500'
+                        }`}
                     />
                     <div className="flex-1 flex justify-between items-center">
                       <span className="text-nex-text">{act.text}</span>
