@@ -7,6 +7,7 @@ import {
   ArrowRight,
   ShieldCheck,
   Zap,
+  Sparkles,
 } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import { usePageTitle } from '../../hooks/usePageTitle'
@@ -335,7 +336,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <div className="nex-card flex flex-col space-y-3 p-6">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
                 <Calendar className="h-5 w-5" />
@@ -377,6 +378,16 @@ export default function LandingPage() {
               <p className="text-nex-muted flex-1 text-xs leading-relaxed">
                 Integrated messaging workspace with inline image sharing, reactions, and automated
                 status logs.
+              </p>
+            </div>
+
+            <div className="nex-card flex flex-col space-y-3 p-6">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600">
+                <Sparkles className="h-5 w-5 animate-pulse" />
+              </div>
+              <h3 className="text-nex-text font-bold">NexMessAI</h3>
+              <p className="text-nex-muted flex-1 text-xs leading-relaxed">
+                Integrated smart AI assistant for automated grocery lists, location-aware market deals, smart pricing forecasts, and diet feedback.
               </p>
             </div>
           </div>
