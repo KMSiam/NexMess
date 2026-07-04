@@ -157,6 +157,17 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* About Section for SEO */}
+      <section className="mx-auto max-w-3xl px-6 py-12 text-center">
+        <h2 className="text-nex-text mb-3 text-lg font-bold">About NexMess (NesMess)</h2>
+        <p className="text-nex-muted mx-auto max-w-2xl text-xs leading-relaxed">
+          NexMess (also referred to as <strong>NesMess</strong> or <strong>Nex Mess</strong>) is a
+          lightweight, cloud-based Smart Mess Management System designed to streamline daily meal
+          counting, automated hostel dining logistics, and monthly grocery/bazaar expense
+          distribution for roommates, shared student apartments, and bachelors.
+        </p>
+      </section>
+
       {/* Footer */}
       <footer className="text-nex-muted border-nex-border/50 mt-auto border-t px-6 py-8 text-center text-xs">
         <div className="mb-2 flex items-center justify-center gap-1.5">
