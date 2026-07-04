@@ -1,4 +1,4 @@
-# ⚡ NexMess (NesMess) — Smart Mess Management
+# ⚡ NexMess — Smart Mess Management
 
 > NexMess is an open-source Smart Mess Management platform built with React, TypeScript, and Supabase, deployed at [https://nex-mess.vercel.app/](https://nex-mess.vercel.app/). It is a next-generation real-time system for shared living to track daily meals, split grocery/bazaar expenses, and coordinate with housemates.
 
