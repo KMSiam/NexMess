@@ -46,6 +46,17 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   const { initialize, user } = useAuthStore()
   const { fetchUserMesses } = useMessStore()
 
+  // Initialize theme globally (for public landing, login, and private pages)
+  useEffect(() => {
+    const saved = localStorage.getItem('nexmess-theme')
+    const isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [])
+
   useEffect(() => {
     initialize()
   }, [initialize])

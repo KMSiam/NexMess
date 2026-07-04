@@ -64,7 +64,7 @@ export default function AppLayout() {
 
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('nexmess-theme')
-    return saved === 'dark'
+    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
   })
 
   useEffect(() => {
