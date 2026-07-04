@@ -98,8 +98,6 @@ export function buildReportPdf(data: ReportData): void {
     return y + 8
   }
 
-  // ── PAGE 1: EXECUTIVE FINANCE SUMMARY ──────────────────────────────────────
-
   // Header Wording
   doc.setFontSize(22)
   doc.setFont('helvetica', 'bold')
@@ -163,7 +161,7 @@ export function buildReportPdf(data: ReportData): void {
     columnStyles: { 1: { halign: 'right' } }
   })
 
-  currentY = (doc as any).lastAutoTable.finalY + 12
+  currentY = (doc as any).lastAutoTable.finalY + 8
 
   // Fixed Costs List
   if (data.fixedCosts.length > 0) {
@@ -179,28 +177,11 @@ export function buildReportPdf(data: ReportData): void {
       styles: { cellPadding: 2.2, fontSize: 8.5 },
       columnStyles: { 1: { halign: 'right' } }
     })
-    currentY = (doc as any).lastAutoTable.finalY + 12
+    currentY = (doc as any).lastAutoTable.finalY + 8
   }
 
-  // Settle-up sheet
-  if (data.settlements.length > 0) {
-    currentY = addSectionTitle('Settlement Transfer Plan (Who Pays Whom)', currentY)
-    autoTable(doc, {
-      startY: currentY,
-      head: [['From (Debtor)', '', 'To (Creditor)', 'Amount']],
-      body: data.settlements.map((t) => [t.from, '→', t.to, `Tk ${t.amount.toFixed(0)}`]),
-      theme: 'grid',
-      headStyles: { fillColor: [16, 185, 129], textColor: 255 }, // Emerald 500
-      styles: { cellPadding: 2.2, fontSize: 8.5 },
-      columnStyles: { 1: { halign: 'center', textColor: 100 }, 3: { halign: 'right', fontStyle: 'bold' } }
-    })
-  }
-
-
-  // ── PAGE 2: MEMBER DETAIL BREAKDOWN ────────────────────────────────────────
-  doc.addPage()
-  
-  currentY = addSectionTitle('Member Financial Breakdowns', 20)
+  // Member Financial Breakdowns
+  currentY = addSectionTitle('Member Financial Breakdowns', currentY)
   autoTable(doc, {
     startY: currentY,
     head: [['Member Name', 'Total Meals', 'Meal Cost', 'Fixed Cost', 'Total Exp', 'Deposited', 'Net Balance']],
@@ -232,36 +213,26 @@ export function buildReportPdf(data: ReportData): void {
       6: { halign: 'right' }
     }
   })
+  currentY = (doc as any).lastAutoTable.finalY + 8
 
-  currentY = (doc as any).lastAutoTable.finalY + 25
-
-  // Verification & Signature block
-  if (currentY > pageHeight - 45) {
-    doc.addPage()
-    currentY = 30
+  // Settlement Transfer Plan (Who Pays Whom)
+  if (data.settlements.length > 0) {
+    currentY = addSectionTitle('Settlement Transfer Plan (Who Pays Whom)', currentY)
+    autoTable(doc, {
+      startY: currentY,
+      head: [['From (Debtor)', '', 'To (Creditor)', 'Amount']],
+      body: data.settlements.map((t) => [t.from, '→', t.to, `Tk ${t.amount.toFixed(0)}`]),
+      theme: 'grid',
+      headStyles: { fillColor: [16, 185, 129], textColor: 255 }, // Emerald 500
+      styles: { cellPadding: 2.2, fontSize: 8.5 },
+      columnStyles: { 1: { halign: 'center', textColor: 100 }, 3: { halign: 'right', fontStyle: 'bold' } }
+    })
+    currentY = (doc as any).lastAutoTable.finalY + 8
   }
-  
-  doc.setDrawColor(200)
-  doc.setLineWidth(0.3)
-  
-  // Manager Signature Line
-  doc.line(20, currentY, 80, currentY)
-  doc.setFontSize(8.5)
-  doc.setFont('helvetica', 'normal')
-  doc.setTextColor(100)
-  doc.text('Prepared By: Mess Manager', 20, currentY + 4)
-  doc.text('Name: ______________________', 20, currentY + 8)
 
-  // Representative Signature Line
-  doc.line(pageWidth - 80, currentY, pageWidth - 20, currentY)
-  doc.text('Verified By: Member Representative', pageWidth - 80, currentY + 4)
-  doc.text('Name: ______________________', pageWidth - 80, currentY + 8)
-
-
-  // ── PAGE 3: DAILY BAZAAR EXPENSES LOG ──────────────────────────────────────
+  // Daily Bazaar Expenses Log
   if (data.dailyExpenses && data.dailyExpenses.length > 0) {
-    doc.addPage()
-    currentY = addSectionTitle('Daily Bazaar Expenses Log', 20)
+    currentY = addSectionTitle('Daily Bazaar Expenses Log', currentY)
 
     autoTable(doc, {
       startY: currentY,
@@ -280,12 +251,12 @@ export function buildReportPdf(data: ReportData): void {
       styles: { cellPadding: 2.2, fontSize: 8.5 },
       columnStyles: { 4: { halign: 'right' } }
     })
+    currentY = (doc as any).lastAutoTable.finalY + 8
   }
 
-  // ── PAGE 4: DAILY DEPOSITS LOG ─────────────────────────────────────────────
+  // Daily Verified Deposits Log
   if (data.dailyDeposits && data.dailyDeposits.length > 0) {
-    doc.addPage()
-    currentY = addSectionTitle('Daily Verified Deposits Log', 20)
+    currentY = addSectionTitle('Daily Verified Deposits Log', currentY)
 
     autoTable(doc, {
       startY: currentY,
@@ -303,12 +274,12 @@ export function buildReportPdf(data: ReportData): void {
       styles: { cellPadding: 2.2, fontSize: 8.5 },
       columnStyles: { 3: { halign: 'right' } }
     })
+    currentY = (doc as any).lastAutoTable.finalY + 8
   }
 
-  // ── PAGE 5: DAILY MEAL HISTORY MATRIX ──────────────────────────────────────
+  // Daily Meal History Matrix
   if (data.dailyMeals && data.dailyMeals.length > 0) {
-    doc.addPage()
-    currentY = addSectionTitle('Daily Meal History Matrix', 20)
+    currentY = addSectionTitle('Daily Meal History Matrix', currentY)
 
     const days = eachDayOfInterval({ start: startDate, end: endDate })
     const matrixMembers = data.members
@@ -395,6 +366,10 @@ export function buildReportPdf(data: ReportData): void {
   doc.save(`NexMess_${safeName}_Financial_Record_${data.month}.pdf`)
 }
 
+/**
+ * Compute the greedy minimum-transfers settle-up sheet from a list of members.
+ * Mirrors the original FinancePage algorithm so live + archived reports match.
+ */
 export function computeSettlements(
   members: ReportMemberRow[],
   perPersonFixed: number
