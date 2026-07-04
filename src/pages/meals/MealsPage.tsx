@@ -3,15 +3,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { Meal } from '../../types/database'
-import {
-  Utensils,
-  ChevronLeft,
-  ChevronRight,
-  Sun,
-  Moon,
-  ShieldCheck,
-  X,
-} from 'lucide-react'
+import { Utensils, ChevronLeft, ChevronRight, Sun, Moon, ShieldCheck, X } from 'lucide-react'
 import {
   format,
   startOfMonth,
@@ -250,8 +242,6 @@ export default function MealsPage() {
     return { total: lunchCount + dinnerCount, lunch: lunchCount, dinner: dinnerCount }
   }, [meals, user?.id, monthStr, viewMode])
 
-
-
   // Get meal for a specific date
   const getMealForDate = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd')
@@ -275,7 +265,6 @@ export default function MealsPage() {
           <h1 className="text-nex-text text-2xl font-bold">Meal Calendar</h1>
         </div>
         <div className="scrollbar-none mt-4 flex w-full flex-row items-center justify-start gap-2 overflow-x-auto pb-1 sm:mt-0 sm:w-auto sm:justify-end sm:pb-0">
-
           {isManager && (
             <button
               onClick={() => openOverride()}

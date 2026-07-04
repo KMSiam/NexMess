@@ -127,7 +127,13 @@ export function buildReportPdf(data: ReportData): void {
   // Divider Line
   doc.setDrawColor(226, 232, 240) // Slate 200
   doc.setLineWidth(0.5)
-  const headerBottomY = data.isArchived ? (data.messLocation ? 41 : 37) : (data.messLocation ? 36 : 32)
+  const headerBottomY = data.isArchived
+    ? data.messLocation
+      ? 41
+      : 37
+    : data.messLocation
+      ? 36
+      : 32
   doc.line(14, headerBottomY, pageWidth - 14, headerBottomY)
 
   // 1. Executive Monthly Summary
@@ -146,18 +152,24 @@ export function buildReportPdf(data: ReportData): void {
       ['Total Fixed Costs', tk(data.totalFixed)],
       ['Total Monthly Cost (Bazaar + Fixed)', tk(totalBazaarAndFixed)],
       ['Total Verified Deposits Collected', tk(data.totalDeposits)],
-      ['Net Treasury Balance (Surplus / Deficit)', {
-        content: tk(messBalance),
-        styles: { fontStyle: 'bold', textColor: messBalance >= 0 ? [16, 185, 129] : [239, 68, 68] }
-      }],
+      [
+        'Net Treasury Balance (Surplus / Deficit)',
+        {
+          content: tk(messBalance),
+          styles: {
+            fontStyle: 'bold',
+            textColor: messBalance >= 0 ? [16, 185, 129] : [239, 68, 68],
+          },
+        },
+      ],
       ['Total Meals Served in Mess', data.totalMeals.toString()],
       ['Mess Meal Rate (Bazaar Cost / Total Meals)', tk(data.mealRate)],
-      ['Fixed Cost Share (Per Member)', tk(perPersonFixedCost)]
+      ['Fixed Cost Share (Per Member)', tk(perPersonFixedCost)],
     ],
     theme: 'grid',
     headStyles: { fillColor: [15, 23, 42], textColor: 255 }, // Slate 900
     styles: { cellPadding: 2.5, fontSize: 9 },
-    columnStyles: { 1: { halign: 'right' } }
+    columnStyles: { 1: { halign: 'right' } },
   })
 
   currentY = (doc as any).lastAutoTable.finalY + 8
@@ -174,7 +186,7 @@ export function buildReportPdf(data: ReportData): void {
       headStyles: { fillColor: [59, 130, 246], textColor: 255 }, // Blue 500
       footStyles: { fillColor: [241, 245, 249], textColor: 15, fontStyle: 'bold' },
       styles: { cellPadding: 2.2, fontSize: 8.5 },
-      columnStyles: { 1: { halign: 'right' } }
+      columnStyles: { 1: { halign: 'right' } },
     })
     currentY = (doc as any).lastAutoTable.finalY + 8
   }
@@ -191,14 +203,14 @@ export function buildReportPdf(data: ReportData): void {
         e.category || '-',
         e.description || '-',
         e.logged_by || 'Unknown',
-        tk(e.amount)
+        tk(e.amount),
       ]),
       foot: [['', '', '', 'Total Bazaar Expenses', tk(data.totalExpenses)]],
       theme: 'grid',
       headStyles: { fillColor: [59, 130, 246], textColor: 255 }, // Blue 500
       footStyles: { fillColor: [241, 245, 249], textColor: 15, fontStyle: 'bold' },
       styles: { cellPadding: 2.2, fontSize: 8.5 },
-      columnStyles: { 4: { halign: 'right' } }
+      columnStyles: { 4: { halign: 'right' } },
     })
     currentY = (doc as any).lastAutoTable.finalY + 8
   }
@@ -210,16 +222,20 @@ export function buildReportPdf(data: ReportData): void {
     const days = eachDayOfInterval({ start: startDate, end: endDate })
     const matrixMembers = data.members
 
-    const matrixHeaders = ['Date', ...matrixMembers.map(m => m.username), 'Daily Total']
-    
+    const matrixHeaders = ['Date', ...matrixMembers.map((m) => m.username), 'Daily Total']
+
     const matrixRows = days.map((day) => {
       const dateStr = format(day, 'yyyy-MM-dd')
       const dayMeals = data.dailyMeals!.filter((m) => m.date === dateStr)
-      
+
       const cols = matrixMembers.map((member) => {
         const record = dayMeals.find((m) => m.user_id === member.user_id)
         if (!record) return '-'
-        const total = (record.lunch ? 1 : 0) + (record.dinner ? 1 : 0) + record.guest_lunch + record.guest_dinner
+        const total =
+          (record.lunch ? 1 : 0) +
+          (record.dinner ? 1 : 0) +
+          record.guest_lunch +
+          record.guest_dinner
         return total > 0 ? total.toString() : '-'
       })
 
@@ -233,8 +249,8 @@ export function buildReportPdf(data: ReportData): void {
     const matrixFooters = [
       'Total Meals',
       ...matrixMembers.map((member) => {
-        const total = data.dailyMeals!
-          .filter((m) => m.user_id === member.user_id)
+        const total = data
+          .dailyMeals!.filter((m) => m.user_id === member.user_id)
           .reduce(
             (sum, r) =>
               sum + (r.lunch ? 1 : 0) + (r.dinner ? 1 : 0) + r.guest_lunch + r.guest_dinner,
@@ -242,7 +258,7 @@ export function buildReportPdf(data: ReportData): void {
           )
         return total.toFixed(1)
       }),
-      data.totalMeals.toFixed(1)
+      data.totalMeals.toFixed(1),
     ]
 
     autoTable(doc, {
@@ -252,12 +268,18 @@ export function buildReportPdf(data: ReportData): void {
       foot: [matrixFooters],
       theme: 'grid',
       headStyles: { fillColor: [15, 23, 42], textColor: 255, fontSize: 7, halign: 'center' },
-      footStyles: { fillColor: [241, 245, 249], textColor: 15, fontStyle: 'bold', fontSize: 7, halign: 'center' },
+      footStyles: {
+        fillColor: [241, 245, 249],
+        textColor: 15,
+        fontStyle: 'bold',
+        fontSize: 7,
+        halign: 'center',
+      },
       styles: { cellPadding: 1.5, fontSize: 6.5, halign: 'center' },
       columnStyles: {
         0: { halign: 'left', cellWidth: 22 },
-        [matrixHeaders.length - 1]: { halign: 'right', fontStyle: 'bold', cellWidth: 16 }
-      }
+        [matrixHeaders.length - 1]: { halign: 'right', fontStyle: 'bold', cellWidth: 16 },
+      },
     })
     currentY = (doc as any).lastAutoTable.finalY + 8
   }
@@ -273,14 +295,14 @@ export function buildReportPdf(data: ReportData): void {
         format(new Date(d.date), 'dd MMM yyyy'),
         d.username,
         d.note || '-',
-        tk(d.amount)
+        tk(d.amount),
       ]),
       foot: [['', '', 'Total Deposits Collected', tk(data.totalDeposits)]],
       theme: 'grid',
       headStyles: { fillColor: [16, 185, 129], textColor: 255 }, // Emerald 500
       footStyles: { fillColor: [241, 245, 249], textColor: 15, fontStyle: 'bold' },
       styles: { cellPadding: 2.2, fontSize: 8.5 },
-      columnStyles: { 3: { halign: 'right' } }
+      columnStyles: { 3: { halign: 'right' } },
     })
     currentY = (doc as any).lastAutoTable.finalY + 8
   }
@@ -289,7 +311,17 @@ export function buildReportPdf(data: ReportData): void {
   currentY = addSectionTitle('Member Financial Breakdowns', currentY)
   autoTable(doc, {
     startY: currentY,
-    head: [['Member Name', 'Total Meals', 'Meal Cost', 'Fixed Cost', 'Total Exp', 'Deposited', 'Net Balance']],
+    head: [
+      [
+        'Member Name',
+        'Total Meals',
+        'Meal Cost',
+        'Fixed Cost',
+        'Total Exp',
+        'Deposited',
+        'Net Balance',
+      ],
+    ],
     body: data.members.map((m) => {
       const totalExp = m.mealCost + perPersonFixedCost
       const realBalance = m.deposited - totalExp
@@ -302,21 +334,24 @@ export function buildReportPdf(data: ReportData): void {
         tk(m.deposited),
         {
           content: tk(realBalance),
-          styles: { fontStyle: 'bold', textColor: realBalance >= 0 ? [16, 185, 129] : [239, 68, 68] }
-        }
+          styles: {
+            fontStyle: 'bold',
+            textColor: realBalance >= 0 ? [16, 185, 129] : [239, 68, 68],
+          },
+        },
       ]
     }),
     theme: 'grid',
     headStyles: { fillColor: [79, 70, 229], textColor: 255 }, // Indigo 600
     styles: { cellPadding: 2.5, fontSize: 8.5 },
-    columnStyles: { 
+    columnStyles: {
       1: { halign: 'center' },
       2: { halign: 'right' },
       3: { halign: 'right' },
       4: { halign: 'right' },
       5: { halign: 'right' },
-      6: { halign: 'right' }
-    }
+      6: { halign: 'right' },
+    },
   })
   currentY = (doc as any).lastAutoTable.finalY + 8
 
@@ -330,7 +365,10 @@ export function buildReportPdf(data: ReportData): void {
       theme: 'grid',
       headStyles: { fillColor: [16, 185, 129], textColor: 255 }, // Emerald 500
       styles: { cellPadding: 2.2, fontSize: 8.5 },
-      columnStyles: { 1: { halign: 'center', textColor: 100 }, 3: { halign: 'right', fontStyle: 'bold' } }
+      columnStyles: {
+        1: { halign: 'center', textColor: 100 },
+        3: { halign: 'right', fontStyle: 'bold' },
+      },
     })
   }
 
@@ -342,11 +380,7 @@ export function buildReportPdf(data: ReportData): void {
     doc.setTextColor(150)
 
     // Page X of Y bottom-right
-    doc.text(
-      `Page ${i} of ${totalPages}`,
-      pageWidth - 25,
-      pageHeight - 9
-    )
+    doc.text(`Page ${i} of ${totalPages}`, pageWidth - 25, pageHeight - 9)
 
     // branding & timestamp bottom-left
     doc.text(
@@ -389,7 +423,7 @@ export function computeSettlements(
     transfers.push({
       from: d.name,
       to: 'Mess Treasury/Manager',
-      amount: Math.round(d.amount)
+      amount: Math.round(d.amount),
     })
   })
 
@@ -398,7 +432,7 @@ export function computeSettlements(
     transfers.push({
       from: 'Mess Treasury/Manager',
       to: c.name,
-      amount: Math.round(c.amount)
+      amount: Math.round(c.amount),
     })
   })
 

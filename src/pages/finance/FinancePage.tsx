@@ -2,15 +2,7 @@ import { useState } from 'react'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
-import {
-  Wallet,
-  Receipt,
-  PiggyBank,
-  DollarSign,
-  TrendingUp,
-  Download,
-  History,
-} from 'lucide-react'
+import { Wallet, Receipt, PiggyBank, DollarSign, TrendingUp, Download, History } from 'lucide-react'
 import { format, endOfMonth } from 'date-fns'
 import { buildReportPdf } from '../../lib/reportPdf'
 import toast from 'react-hot-toast'
@@ -378,8 +370,6 @@ export default function FinancePage() {
     toast.success('PDF Report Downloaded!')
   }
 
-
-
   const tabs: { key: Tab; label: string; icon: any }[] = [
     { key: 'expenses', label: 'Expenses', icon: Receipt },
     { key: 'deposits', label: 'Deposits', icon: PiggyBank },
@@ -425,7 +415,6 @@ export default function FinancePage() {
           <h1 className="text-nex-text text-2xl font-bold">Finance</h1>
         </div>
         <div className="flex flex-wrap gap-2">
-
           {activeTab === 'summary' && isManager && (
             <button
               onClick={handleDownloadPDF}
@@ -502,9 +491,7 @@ export default function FinancePage() {
         </div>
       )}
 
-      {activeTab === 'history' && isManager && (
-        <HistoryTab />
-      )}
+      {activeTab === 'history' && isManager && <HistoryTab />}
 
       {/* Confirmation Dialog for marking fixed costs as paid */}
       <ConfirmDialog

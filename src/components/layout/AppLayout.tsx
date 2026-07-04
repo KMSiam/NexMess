@@ -42,13 +42,7 @@ export default function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { profile, signOut } = useAuthStore()
-  const {
-    currentMess,
-    messes,
-    setCurrentMess,
-    fetchUserMesses,
-    reset: resetMess,
-  } = useMessStore()
+  const { currentMess, messes, setCurrentMess, fetchUserMesses, reset: resetMess } = useMessStore()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [showMessDropdown, setShowMessDropdown] = useState(false)
   const [signingOut, setSigningOut] = useState(false)

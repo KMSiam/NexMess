@@ -14,10 +14,10 @@ export default function MarketPage() {
       <div className="border-nex-border flex border-b">
         <button
           onClick={() => setActiveTab('bazaar')}
-          className={`flex items-center gap-2 px-4 pb-3 text-sm font-semibold transition-all border-b-2 -mb-[2px] focus:outline-none ${
+          className={`-mb-[2px] flex items-center gap-2 border-b-2 px-4 pb-3 text-sm font-semibold transition-all focus:outline-none ${
             activeTab === 'bazaar'
               ? 'border-nex-primary text-nex-primary'
-              : 'border-transparent text-nex-muted hover:text-nex-text'
+              : 'text-nex-muted hover:text-nex-text border-transparent'
           }`}
         >
           <ShoppingBag className="h-4.5 w-4.5" />
@@ -25,10 +25,10 @@ export default function MarketPage() {
         </button>
         <button
           onClick={() => setActiveTab('routine')}
-          className={`flex items-center gap-2 px-4 pb-3 text-sm font-semibold transition-all border-b-2 -mb-[2px] focus:outline-none ${
+          className={`-mb-[2px] flex items-center gap-2 border-b-2 px-4 pb-3 text-sm font-semibold transition-all focus:outline-none ${
             activeTab === 'routine'
               ? 'border-nex-primary text-nex-primary'
-              : 'border-transparent text-nex-muted hover:text-nex-text'
+              : 'text-nex-muted hover:text-nex-text border-transparent'
           }`}
         >
           <CalendarClock className="h-4.5 w-4.5" />
@@ -37,9 +37,7 @@ export default function MarketPage() {
       </div>
 
       {/* Tab Content */}
-      <div className="min-h-0">
-        {activeTab === 'bazaar' ? <BazaarSchedule /> : <MealRoutine />}
-      </div>
+      <div className="min-h-0">{activeTab === 'bazaar' ? <BazaarSchedule /> : <MealRoutine />}</div>
     </div>
   )
 }

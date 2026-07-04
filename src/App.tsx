@@ -100,8 +100,6 @@ function App() {
                   <Route path="/market-assistant" element={<AIMarketAssistant />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/activity" element={<ActivityLogPage />} />
-
-
                 </Route>
               </Route>
             </Route>
