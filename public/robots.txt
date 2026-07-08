@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /meals
+Disallow: /chat
+Disallow: /finance
+Disallow: /market
+Disallow: /market-assistant
+Disallow: /settings
+Disallow: /activity
+Disallow: /onboarding
+Disallow: /mess/
+
+Sitemap: https://nex-mess.vercel.app/sitemap.xml
