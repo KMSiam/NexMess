@@ -37,6 +37,7 @@ export async function getDashboardDetails(messId: string) {
   const tomorrowDow = (_dhakaTomorrow.getUTCDay() + 1) % 7
 
   // Run queries in parallel on the server
+  // Run all queries in parallel on the server (single roundtrip)
   const [
     myMeals,
     allMeals,
@@ -47,6 +48,9 @@ export async function getDashboardDetails(messId: string) {
     deposits,
     routines,
     contacts,
+    balances,
+    totalSpentRes,
+    totalMealsRes,
   ] = await Promise.all([
     // 1. Personal Meals
     sql`
@@ -122,34 +126,34 @@ export async function getDashboardDetails(messId: string) {
       WHERE mess_id = ${messId}::uuid
       ORDER BY created_at ASC
     `,
+    // 10. Balance & Stats calculation
+    sql`
+      SELECT * FROM calculate_member_balance(${messId}::uuid, ${currentMonth})
+    `,
+    // 11. Total Bazaar Spent
+    sql`
+      SELECT COALESCE(SUM(amount), 0)::numeric as total_spent
+      FROM expenses
+      WHERE mess_id = ${messId}::uuid
+        AND date_trunc('month', date) = ${startOfMonth}::date
+        AND expense_type = 'bazaar'
+    `,
+    // 12. Total Mess Meals
+    sql`
+      SELECT COALESCE(SUM(
+        (CASE WHEN lunch THEN 1 ELSE 0 END) +
+        (CASE WHEN dinner THEN 1 ELSE 0 END) +
+        COALESCE(guest_lunch, 0) +
+        COALESCE(guest_dinner, 0)
+      ), 0)::numeric AS total_meals
+      FROM meals
+      WHERE mess_id = ${messId}::uuid
+        AND date_trunc('month', date) = ${startOfMonth}::date
+    `,
   ])
 
-  // 10. Balance & Stats calculation
-  const balances = await sql`
-    SELECT * FROM calculate_member_balance(${messId}::uuid, ${currentMonth})
-  `
   const myBalance = balances.find((b: any) => b.user_id === userId)
-
-  const totalSpentRes = await sql`
-    SELECT COALESCE(SUM(amount), 0)::numeric as total_spent
-    FROM expenses
-    WHERE mess_id = ${messId}::uuid
-      AND date_trunc('month', date) = ${startOfMonth}::date
-      AND expense_type = 'bazaar'
-  `
   const totalSpent = Number(totalSpentRes[0]?.total_spent || 0)
-
-  const totalMealsRes = await sql`
-    SELECT COALESCE(SUM(
-      (CASE WHEN lunch THEN 1 ELSE 0 END) +
-      (CASE WHEN dinner THEN 1 ELSE 0 END) +
-      COALESCE(guest_lunch, 0) +
-      COALESCE(guest_dinner, 0)
-    ), 0)::numeric AS total_meals
-    FROM meals
-    WHERE mess_id = ${messId}::uuid
-      AND date_trunc('month', date) = ${startOfMonth}::date
-  `
   const totalMessMeals = Number(totalMealsRes[0]?.total_meals || 0)
   const mealRate = totalMessMeals > 0 ? totalSpent / totalMessMeals : 0
 
@@ -159,7 +163,10 @@ export async function getDashboardDetails(messId: string) {
     myMeals: myMeals as any[],
     allMeals: allMeals as any[],
     notice: (notice[0] as any) || null,
-    schedules: schedules as any[],
+    schedules: schedules.map((s: any) => ({
+      date: s.assigned_date,
+      username: s.username,
+    })),
     unpaidFixedCount: unpaidFixed[0]?.count || 0,
     expenses: expenses as any[],
     deposits: deposits as any[],
