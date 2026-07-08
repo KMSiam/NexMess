@@ -29,7 +29,16 @@ export default function AuthCallbackPage() {
       return
     }
 
+    const completeCallback = () => {
+      if (next === '/update-password') {
+        navigate('/update-password', { replace: true, state: { isRecovery: true } })
+      } else {
+        navigate(next, { replace: true })
+      }
+    }
+
     if (code) {
+      // Code is still in URL, manually exchange it
       supabase.auth
         .exchangeCodeForSession(code)
         .then(({ error }) => {
@@ -37,19 +46,19 @@ export default function AuthCallbackPage() {
             console.error('Code exchange failed:', error.message)
             navigate('/login', { replace: true })
           } else {
-            // For password recovery, pass isRecovery flag via router state
-            // so UpdatePasswordPage can show the form immediately without
-            // waiting for PASSWORD_RECOVERY event (which already fired here)
-            if (next === '/update-password') {
-              navigate('/update-password', { replace: true, state: { isRecovery: true } })
-            } else {
-              navigate(next, { replace: true })
-            }
+            completeCallback()
           }
         })
     } else {
-      // No code — fallback
-      navigate('/login', { replace: true })
+      // No code — it might have been auto-exchanged by Supabase SDK. 
+      // Verify if we have a session.
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          completeCallback()
+        } else {
+          navigate('/login', { replace: true })
+        }
+      })
     }
   }, [navigate])
 
