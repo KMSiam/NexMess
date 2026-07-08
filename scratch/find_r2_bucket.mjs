@@ -1,0 +1,57 @@
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
+
+// Load .env.local manually
+try {
+  const envContent = readFileSync(resolve('.env.local'), 'utf-8')
+  for (const line of envContent.split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+    const parts = trimmed.split('=')
+    if (parts.length >= 2) {
+      const key = parts[0].trim()
+      const val = parts.slice(1).join('=').trim()
+      process.env[key] = val
+    }
+  }
+} catch (e) {
+  console.error('Failed to load .env.local:', e.message)
+}
+
+const r2 = new S3Client({
+  region: 'auto',
+  endpoint: process.env.CF_R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.CF_R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.CF_R2_SECRET_ACCESS_KEY,
+  },
+})
+
+const candidates = [
+  'nexmess',
+  'nex-mess',
+  'avatars',
+  'chat-media',
+  'receipts',
+  'pub-71a45dcba807be46fd6a3f5a99579456'
+]
+
+async function run() {
+  for (const bucket of candidates) {
+    try {
+      console.log(`Trying bucket: "${bucket}"...`)
+      await r2.send(new PutObjectCommand({
+        Bucket: bucket,
+        Key: 'test-connection.txt',
+        Body: 'Hello NexMess R2 Connection Test',
+        ContentType: 'text/plain'
+      }))
+      console.log(`🎉 SUCCESS! Bucket is: "${bucket}"`)
+    } catch (e) {
+      console.log(`  ❌ Failed for "${bucket}": ${e.name} - ${e.message}`)
+    }
+  }
+}
+
+run().catch(console.error)

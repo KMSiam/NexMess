@@ -22,6 +22,7 @@ import {
   deleteMess,
   getUserMesses,
 } from '@/actions/mess'
+import { addPushSubscription, removePushSubscription, checkPushSubscription } from '@/actions/push'
 
 // Sub-components
 import ProfileSection from './components/ProfileSection'
@@ -49,12 +50,48 @@ export default function SettingsClient() {
   } = useMessStore()
 
   const [pushEnabled, setPushEnabled] = useState(false)
-  const [pushLoading, setPushLoading] = useState(false)
+  const [pushLoading, setPushLoading] = useState(true) // Start loading to check status
 
   const [activeTab, setActiveTab] = useState<'profile' | 'members' | 'mess' | 'notifications' | 'danger'>('profile')
   const [isSupportOpen, setIsSupportOpen] = useState(false)
 
-  // Modal Dialogs States
+  // Helper to convert base64 VAPID key to Uint8Array
+  const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+    const raw = window.atob(base64)
+    return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)))
+  }
+
+  // Check active push subscription on mount
+  useEffect(() => {
+    async function checkSubscription() {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        setPushLoading(false)
+        return
+      }
+
+      try {
+        const reg = await navigator.serviceWorker.ready
+        const sub = await reg.pushManager.getSubscription()
+        if (sub && Notification.permission === 'granted') {
+          // Verify with database that the subscription is registered
+          const isSubInDb = await checkPushSubscription(sub.endpoint)
+          setPushEnabled(isSubInDb)
+        } else {
+          setPushEnabled(false)
+        }
+      } catch (err) {
+        console.error('Failed to check push subscription status:', err)
+        setPushEnabled(false)
+      } finally {
+        setPushLoading(false)
+      }
+    }
+
+    checkSubscription()
+  }, [])
+
   const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false)
@@ -86,26 +123,68 @@ export default function SettingsClient() {
   usePusherRealtime(currentMess?.id, ['mess_members'], fetchMembersList)
 
   const handlePushToggle = async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      toast.error('Push notifications are not supported on this browser.')
+      return
+    }
+
+    const VAPID_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+    if (!VAPID_KEY) {
+      toast.error('Push notification credentials are not configured on the server.')
+      return
+    }
+
     setPushLoading(true)
-    // PWA web push placeholder/toggle
-    if (pushEnabled) {
-      setPushEnabled(false)
-      toast.success('Push notifications disabled')
-    } else {
-      if ('Notification' in window && Notification.permission !== 'granted') {
-        const res = await Notification.requestPermission()
-        if (res === 'granted') {
-          setPushEnabled(true)
-          toast.success('Push notifications enabled!')
-        } else {
-          toast.error('Notifications blocked. Enable them in browser settings.')
+
+    try {
+      const reg = await navigator.serviceWorker.ready
+
+      if (pushEnabled) {
+        // Toggle OFF: Unsubscribe locally & delete from DB
+        const sub = await reg.pushManager.getSubscription()
+        if (sub) {
+          await sub.unsubscribe()
+          await removePushSubscription(sub.endpoint)
         }
+        setPushEnabled(false)
+        toast.success('Push notifications disabled')
       } else {
+        // Toggle ON: Request permission and subscribe
+        const permission = await Notification.requestPermission()
+        if (permission !== 'granted') {
+          toast.error('Notifications blocked. Please enable them in browser settings.')
+          setPushLoading(false)
+          return
+        }
+
+        // Unsubscribe from any stale subscriptions first
+        const existingSub = await reg.pushManager.getSubscription()
+        if (existingSub) {
+          await existingSub.unsubscribe()
+        }
+
+        // Create new subscription
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_KEY) as any,
+        })
+
+        const subJson = sub.toJSON()
+        if (!subJson.endpoint || !subJson.keys?.p256dh || !subJson.keys?.auth) {
+          throw new Error('Subscription object is incomplete')
+        }
+
+        // Save to DB
+        await addPushSubscription(subJson.endpoint, subJson.keys.p256dh, subJson.keys.auth)
         setPushEnabled(true)
         toast.success('Push notifications enabled!')
       }
+    } catch (err: any) {
+      console.error('Failed to toggle push notifications:', err)
+      toast.error(err.message || 'Push subscription failed')
+    } finally {
+      setPushLoading(false)
     }
-    setPushLoading(false)
   }
 
   const handleProfileUpdate = async (

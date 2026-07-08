@@ -55,5 +55,14 @@ export default function StoreHydrator({
     useMessStore.getState().setPendingRequests(pendingRequests)
   }, [messes, pendingRequests])
 
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((reg) => console.log('Service Worker registered with scope:', reg.scope))
+        .catch((err) => console.error('Service Worker registration failed:', err))
+    }
+  }, [])
+
   return <>{children}</>
 }
