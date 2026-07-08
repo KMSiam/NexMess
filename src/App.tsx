@@ -18,6 +18,7 @@ const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'))
 const OnboardingPage = lazy(() => import('./pages/auth/OnboardingPage'))
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'))
 const UpdatePasswordPage = lazy(() => import('./pages/auth/UpdatePasswordPage'))
+const AuthCallbackPage = lazy(() => import('./pages/auth/AuthCallbackPage'))
 
 // App Pages
 const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'))
@@ -91,6 +92,9 @@ function App() {
 
             {/* Password reset — accessible with only a recovery token, no full session required */}
             <Route path="/update-password" element={<UpdatePasswordPage />} />
+
+            {/* PKCE auth callback — handles code exchange for all Supabase email flows */}
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
             {/* Protected routes */}
             <Route element={<AuthGuard />}>

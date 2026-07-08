@@ -28,7 +28,7 @@ export default function VerifyEmailPage() {
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email,
-      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard` },
     })
     setResending(false)
     if (error) {
