@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link, useLocation } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { Lock, Eye, EyeOff, ArrowRight, AlertTriangle } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
@@ -7,45 +7,48 @@ import toast from 'react-hot-toast'
 
 export default function UpdatePasswordPage() {
   const navigate = useNavigate()
-  const location = useLocation()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   
-  // If we came from AuthCallbackPage, the PKCE code exchange is already done
-  // and the event fired, so we start ready.
-  const [ready, setReady] = useState<boolean>(() => {
-    return (location.state as any)?.isRecovery === true
-  })
+  const [ready, setReady] = useState(false)
   const [invalid, setInvalid] = useState(false)
 
   useEffect(() => {
-    // Set a timeout — if PASSWORD_RECOVERY doesn't fire within 4s,
-    // the link is expired or invalid
+    // Check if we already have a session (in case auto-exchange happened quickly)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setReady(true)
+        setInvalid(false)
+      }
+    })
+
+    // Set a timeout — if no session is established within 5s, the link is expired
     const timeout = setTimeout(() => {
-      if (!ready) setInvalid(true)
-    }, 4000)
+      setReady((currentReady) => {
+        if (!currentReady) setInvalid(true)
+        return currentReady
+      })
+    }, 5000)
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
+      if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {
         clearTimeout(timeout)
         setReady(true)
         setInvalid(false)
       }
-      // After updateUser, Supabase fires USER_UPDATED — navigate to dashboard
-      if (event === 'USER_UPDATED' && session) {
-        navigate('/dashboard', { replace: true })
-      }
+      // Only navigate to dashboard if the user updated their profile/password AFTER being ready
+      // We don't want to redirect them before they can change their password
     })
 
     return () => {
       clearTimeout(timeout)
       subscription.unsubscribe()
     }
-  }, [navigate, ready])
+  }, [])
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -73,7 +76,7 @@ export default function UpdatePasswordPage() {
       setLoading(false)
     } else {
       toast.success('Password updated! Redirecting...')
-      // Navigation happens in the onAuthStateChange listener when USER_UPDATED fires
+      setTimeout(() => navigate('/dashboard', { replace: true }), 1000)
     }
   }
 
