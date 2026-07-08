@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { Mail, ArrowRight, ArrowLeft, RefreshCw } from 'lucide-react'
+import { Mail, ArrowRight, ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 
 const COOLDOWN = 60
 
 export default function ForgotPasswordPage() {
+  const [searchParams] = useSearchParams()
+  const isExpired = searchParams.get('expired') === '1'
+
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -87,6 +90,21 @@ export default function ForgotPasswordPage() {
           </Link>
 
           <h2 className="text-nex-text mb-1 text-2xl font-bold">Forgot password?</h2>
+
+          {/* Expired link banner */}
+          {isExpired && (
+            <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+              <div>
+                <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                  Your reset link has expired.
+                </p>
+                <p className="mt-0.5 text-xs text-amber-700 dark:text-amber-400">
+                  Links are only valid for 1 hour. Enter your email below to get a new one.
+                </p>
+              </div>
+            </div>
+          )}
 
           {sent ? (
             <div className="mt-4 space-y-4">

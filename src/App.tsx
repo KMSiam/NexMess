@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { useAuthStore } from './stores/authStore'
 import { useMessStore } from './stores/messStore'
@@ -46,6 +46,27 @@ function PageLoader() {
 function AppInitializer({ children }: { children: React.ReactNode }) {
   const { initialize, user } = useAuthStore()
   const { fetchUserMesses } = useMessStore()
+  const navigate = useNavigate()
+
+  // Handle Supabase error redirects (e.g. expired OTP link)
+  // Supabase sends errors back to the Site URL as #error=...&error_code=...&error_description=...
+  useEffect(() => {
+    const hash = window.location.hash
+    if (!hash.includes('error=')) return
+
+    const params = new URLSearchParams(hash.replace('#', ''))
+    const errorCode = params.get('error_code')
+    const errorDescription = params.get('error_description') ?? 'Something went wrong'
+
+    // Clear the hash from the URL so it doesn't linger
+    window.history.replaceState(null, '', window.location.pathname)
+
+    if (errorCode === 'otp_expired') {
+      navigate('/forgot-password?expired=1', { replace: true })
+    } else {
+      navigate('/login?error=' + encodeURIComponent(errorDescription), { replace: true })
+    }
+  }, [navigate])
 
   // Initialize theme globally (for public landing, login, and private pages)
   useEffect(() => {
