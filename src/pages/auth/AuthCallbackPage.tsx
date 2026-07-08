@@ -37,9 +37,14 @@ export default function AuthCallbackPage() {
             console.error('Code exchange failed:', error.message)
             navigate('/login', { replace: true })
           } else {
-            // For password recovery, Supabase fires PASSWORD_RECOVERY after
-            // code exchange — navigate to update-password to let it handle that
-            navigate(next, { replace: true })
+            // For password recovery, pass isRecovery flag via router state
+            // so UpdatePasswordPage can show the form immediately without
+            // waiting for PASSWORD_RECOVERY event (which already fired here)
+            if (next === '/update-password') {
+              navigate('/update-password', { replace: true, state: { isRecovery: true } })
+            } else {
+              navigate(next, { replace: true })
+            }
           }
         })
     } else {
