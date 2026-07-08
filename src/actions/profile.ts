@@ -8,16 +8,30 @@ import { randomUUID } from 'crypto'
 const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
 
 /**
+ * Module-level cache: Clerk userId → DB UUID
+ * Persists across requests on the same Lambda/server instance.
+ * The mapping is permanent (externalId never changes), so this is safe.
+ */
+const _dbUserIdCache = new Map<string, string>()
+
+/**
  * Helper: Get the database UUID for the current or specified Clerk user.
- * If not set, generates a new UUID, updates Clerk, and ensures profile exists.
+ * Uses a module-level cache to avoid repeated Clerk API network calls.
+ * Only fetches from Clerk on first encounter per server instance.
  */
 export async function getDbUserId(clerkUserId?: string): Promise<string> {
-  let user
-  if (clerkUserId) {
-    user = await clerkClient.users.getUser(clerkUserId)
-  } else {
-    user = await currentUser()
-  }
+  // 1. Get the Clerk user ID cheaply (JWT read, no network)
+  const clerkId = clerkUserId ?? (await auth()).userId
+  if (!clerkId) throw new Error('Unauthorized')
+
+  // 2. Return cached mapping if we've seen this user before
+  const cached = _dbUserIdCache.get(clerkId)
+  if (cached) return cached
+
+  // 3. Slow path: fetch user object from Clerk API (first encounter only)
+  const user = clerkUserId
+    ? await clerkClient.users.getUser(clerkUserId)
+    : await currentUser()
   if (!user) throw new Error('Unauthorized')
 
   let dbUserId = user.externalId
@@ -27,15 +41,15 @@ export async function getDbUserId(clerkUserId?: string): Promise<string> {
     await clerkClient.users.updateUser(user.id, { externalId: dbUserId })
   }
 
-  // Ensure a database profile exists with this UUID
+  // 4. Ensure a database profile exists with this UUID
   const existing = await sql`SELECT 1 FROM profiles WHERE id = ${dbUserId}::uuid LIMIT 1`
   if (!existing[0]) {
     const defaultUsername = user.username || user.emailAddresses[0]?.emailAddress.split('@')[0] || 'user'
-    
+
     // Check if the default username is already taken
     const usernameTaken = await sql`SELECT 1 FROM profiles WHERE username = ${defaultUsername} LIMIT 1`
-    const insertUsername = usernameTaken[0] 
-      ? `${defaultUsername}_${Math.floor(1000 + Math.random() * 9000)}` 
+    const insertUsername = usernameTaken[0]
+      ? `${defaultUsername}_${Math.floor(1000 + Math.random() * 9000)}`
       : defaultUsername
 
     await sql`
@@ -45,8 +59,12 @@ export async function getDbUserId(clerkUserId?: string): Promise<string> {
     `
   }
 
+  // 5. Cache the result for future calls
+  _dbUserIdCache.set(clerkId, dbUserId)
+
   return dbUserId
 }
+
 
 /**
  * Get the current user's Neon database profile.

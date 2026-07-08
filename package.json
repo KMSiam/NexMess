@@ -1,6 +1,6 @@
 {
   "name": "nexmess",
-  "version": "1.27.0",
+  "version": "2.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
