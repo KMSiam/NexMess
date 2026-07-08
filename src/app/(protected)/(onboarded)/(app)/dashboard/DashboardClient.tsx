@@ -28,12 +28,12 @@ import { CardSkeleton, ListSkeleton, Skeleton } from '@/components/Skeleton'
 // Notice and EC Server Actions (we can write them inline or import them)
 import { saveNotice, dismissNotice, addEmergencyContact, deleteEmergencyContact } from '@/actions/dashboardHelpers'
 
-export default function DashboardClient() {
+export default function DashboardClient({ initialData }: { initialData?: any }) {
   const { profile } = useProfileStore()
   const { currentMess, members, pendingRequests } = useMessStore()
 
-  const [data, setData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<any>(initialData || null)
+  const [loading, setLoading] = useState(!initialData)
   const [mealLoading, setMealLoading] = useState(false)
   const [deleteEcId, setDeleteEcId] = useState<string | null>(null)
 
@@ -51,12 +51,18 @@ export default function DashboardClient() {
   }, [currentMess?.id])
 
   useEffect(() => {
+    // Only fetch if we don't have initialData OR if currentMess.id changed after hydration
     if (currentMess?.id) {
-      fetchDetails()
+      if (!initialData) {
+        fetchDetails()
+      } else {
+        setLoading(false)
+      }
     } else {
       setLoading(false)
     }
-  }, [currentMess?.id, fetchDetails])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMess?.id])
 
   // Realtime subscription using Pusher
   usePusherRealtime(

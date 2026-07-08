@@ -72,6 +72,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     setIsDark(isDarkTheme)
   }, [])
 
+  // Sync currentMess.id to a cookie so Server Components can read it
+  useEffect(() => {
+    if (currentMess?.id) {
+      document.cookie = `currentMessId=${currentMess.id}; path=/; max-age=31536000`
+    } else {
+      document.cookie = `currentMessId=; path=/; max-age=0`
+    }
+  }, [currentMess?.id])
+
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark')

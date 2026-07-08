@@ -36,8 +36,7 @@ export async function getDashboardDetails(messId: string) {
   const _dhakaTomorrow = new Date(_dhakaBase.getTime() + 24 * 60 * 60 * 1000)
   const tomorrowDow = (_dhakaTomorrow.getUTCDay() + 1) % 7
 
-  // Run queries in parallel on the server
-  // Run all queries in parallel on the server (single roundtrip)
+  // Run all queries in a single HTTP request using Neon's experimental batch transaction
   const [
     myMeals,
     allMeals,
@@ -51,7 +50,7 @@ export async function getDashboardDetails(messId: string) {
     balances,
     totalSpentRes,
     totalMealsRes,
-  ] = await Promise.all([
+  ] = await sql.transaction([
     // 1. Personal Meals
     sql`
       SELECT date, lunch, dinner, guest_lunch, guest_dinner
@@ -201,7 +200,7 @@ export async function getActivityLogs(messId: string) {
   `
   if (!access[0]) throw new Error('Access denied')
 
-  const [expRes, depRes, noticeRes, memberRes] = await Promise.all([
+  const [expRes, depRes, noticeRes, memberRes] = await sql.transaction([
     sql`
       SELECT e.id, e.amount, e.description, e.category, e.created_at, p.username
       FROM expenses e
