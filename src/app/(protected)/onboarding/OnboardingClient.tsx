@@ -69,10 +69,16 @@ export default function OnboardingClient() {
       }
 
       // Update user database profile
-      await updateProfile({
+      const res = await updateProfile({
         username: username.trim(),
         ...(avatar_url && { avatar_url }),
       })
+
+      if (!res.success) {
+        toast.error(res.error || 'Something went wrong. Try again.')
+        setLoading(false)
+        return
+      }
 
       toast.success("Profile set up! Let's go 🚀")
       // Refresh page context and redirect

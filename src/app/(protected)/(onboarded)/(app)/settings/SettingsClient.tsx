@@ -118,7 +118,7 @@ export default function SettingsClient() {
     emergencyContactNo?: string | null
   ) => {
     try {
-      const updated = await updateProfile({
+      const res = await updateProfile({
         username,
         contact_no: contactNo,
         avatar_url: avatarUrl,
@@ -127,9 +127,11 @@ export default function SettingsClient() {
         verification_doc_url: verificationDocUrl,
         emergency_contact_no: emergencyContactNo,
       })
-      if (updated) {
-        setProfile(updated)
+      if (res.success && res.profile) {
+        setProfile(res.profile)
         toast.success('Profile updated!')
+      } else {
+        toast.error(res.error || 'Failed to update profile')
       }
     } catch (err: any) {
       toast.error(err.message || 'Failed to update profile')

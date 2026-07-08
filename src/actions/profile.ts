@@ -20,25 +20,32 @@ export async function getDbUserId(clerkUserId?: string): Promise<string> {
   }
   if (!user) throw new Error('Unauthorized')
 
-  if (user.externalId) {
-    return user.externalId
+  let dbUserId = user.externalId
+
+  if (!dbUserId) {
+    dbUserId = randomUUID()
+    await clerkClient.users.updateUser(user.id, { externalId: dbUserId })
   }
 
-  // Generate new UUID
-  const newUuid = randomUUID()
-
-  // Update Clerk user's externalId
-  await clerkClient.users.updateUser(user.id, { externalId: newUuid })
-
   // Ensure a database profile exists with this UUID
-  const username = user.username || user.emailAddresses[0]?.emailAddress.split('@')[0] || 'user'
-  await sql`
-    INSERT INTO profiles (id, username, updated_at)
-    VALUES (${newUuid}::uuid, ${username}, now())
-    ON CONFLICT (id) DO NOTHING
-  `
+  const existing = await sql`SELECT 1 FROM profiles WHERE id = ${dbUserId}::uuid LIMIT 1`
+  if (!existing[0]) {
+    const defaultUsername = user.username || user.emailAddresses[0]?.emailAddress.split('@')[0] || 'user'
+    
+    // Check if the default username is already taken
+    const usernameTaken = await sql`SELECT 1 FROM profiles WHERE username = ${defaultUsername} LIMIT 1`
+    const insertUsername = usernameTaken[0] 
+      ? `${defaultUsername}_${Math.floor(1000 + Math.random() * 9000)}` 
+      : defaultUsername
 
-  return newUuid
+    await sql`
+      INSERT INTO profiles (id, username, updated_at)
+      VALUES (${dbUserId}::uuid, ${insertUsername}, now())
+      ON CONFLICT (id) DO NOTHING
+    `
+  }
+
+  return dbUserId
 }
 
 /**
@@ -69,25 +76,32 @@ export async function getProfileById(userId: string): Promise<Profile | null> {
 /**
  * Update the current user's profile
  */
-export async function updateProfile(updates: Partial<Profile>): Promise<Profile | null> {
+export async function updateProfile(updates: Partial<Profile>): Promise<{ success: boolean; error?: string; profile?: Profile | null }> {
   const { userId } = await auth()
   if (!userId) throw new Error('Unauthorized')
 
-  const dbUserId = await getDbUserId(userId)
-  const { username, avatar_url, contact_no, emergency_contact_no } = updates
+  try {
+    const dbUserId = await getDbUserId(userId)
+    const { username, avatar_url, contact_no, emergency_contact_no } = updates
 
-  const rows = await sql`
-    UPDATE profiles
-    SET
-      username             = COALESCE(${username ?? null}, username),
-      avatar_url           = COALESCE(${avatar_url ?? null}, avatar_url),
-      contact_no           = COALESCE(${contact_no ?? null}, contact_no),
-      emergency_contact_no = COALESCE(${emergency_contact_no ?? null}, emergency_contact_no),
-      updated_at           = now()
-    WHERE id = ${dbUserId}::uuid
-    RETURNING *
-  `
-  return (rows[0] as Profile) ?? null
+    const rows = await sql`
+      UPDATE profiles
+      SET
+        username             = COALESCE(${username ?? null}, username),
+        avatar_url           = COALESCE(${avatar_url ?? null}, avatar_url),
+        contact_no           = COALESCE(${contact_no ?? null}, contact_no),
+        emergency_contact_no = COALESCE(${emergency_contact_no ?? null}, emergency_contact_no),
+        updated_at           = now()
+      WHERE id = ${dbUserId}::uuid
+      RETURNING *
+    `
+    return { success: true, profile: (rows[0] as Profile) ?? null }
+  } catch (err: any) {
+    if (err.message?.includes('profiles_username_key')) {
+      return { success: false, error: 'Username is already taken. Please choose a different one.' }
+    }
+    return { success: false, error: err.message || 'Failed to update profile' }
+  }
 }
 
 /**
