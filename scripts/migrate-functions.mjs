@@ -134,39 +134,30 @@ BEGIN
   SELECT COALESCE(SUM(amount), 0) / GREATEST(v_member_count, 1) INTO v_fixed_per_member
   FROM public.fixed_costs WHERE mess_id = p_mess_id AND month = p_month;
 
+  -- The subquery aggregates m.lunch/dinner into numeric SUMs, so use COALESCE directly
   RETURN QUERY
   SELECT
     mm.user_id,
-    COALESCE(
-      (CASE WHEN m.lunch THEN 1 ELSE 0 END) +
-      (CASE WHEN m.dinner THEN 1 ELSE 0 END) +
-      COALESCE(m.guest_lunch, 0) +
-      COALESCE(m.guest_dinner, 0)
-    , 0)::numeric AS total_meals,
-    (COALESCE(
-      (CASE WHEN m.lunch THEN 1 ELSE 0 END) +
-      (CASE WHEN m.dinner THEN 1 ELSE 0 END) +
-      COALESCE(m.guest_lunch, 0) +
-      COALESCE(m.guest_dinner, 0)
-    , 0) * v_meal_rate + v_fixed_per_member)::numeric AS meal_cost,
+    (COALESCE(m.lunch, 0) + COALESCE(m.dinner, 0) +
+     COALESCE(m.guest_lunch, 0) + COALESCE(m.guest_dinner, 0))::numeric AS total_meals,
+    ((COALESCE(m.lunch, 0) + COALESCE(m.dinner, 0) +
+      COALESCE(m.guest_lunch, 0) + COALESCE(m.guest_dinner, 0)) * v_meal_rate
+      + v_fixed_per_member)::numeric AS meal_cost,
     COALESCE(SUM(d.amount) FILTER (WHERE d.verified = true), 0)::numeric AS total_deposits,
     (COALESCE(SUM(d.amount) FILTER (WHERE d.verified = true), 0) -
-     (COALESCE(
-       (CASE WHEN m.lunch THEN 1 ELSE 0 END) +
-       (CASE WHEN m.dinner THEN 1 ELSE 0 END) +
-       COALESCE(m.guest_lunch, 0) +
-       COALESCE(m.guest_dinner, 0)
-     , 0) * v_meal_rate + v_fixed_per_member))::numeric AS balance
+     ((COALESCE(m.lunch, 0) + COALESCE(m.dinner, 0) +
+       COALESCE(m.guest_lunch, 0) + COALESCE(m.guest_dinner, 0)) * v_meal_rate
+       + v_fixed_per_member))::numeric AS balance
   FROM public.mess_members mm
   LEFT JOIN (
-    SELECT user_id,
-      SUM(CASE WHEN lunch THEN 1 ELSE 0 END) AS lunch,
-      SUM(CASE WHEN dinner THEN 1 ELSE 0 END) AS dinner,
-      SUM(COALESCE(guest_lunch, 0)) AS guest_lunch,
-      SUM(COALESCE(guest_dinner, 0)) AS guest_dinner
+    SELECT meals.user_id,
+      SUM(CASE WHEN meals.lunch THEN 1 ELSE 0 END) AS lunch,
+      SUM(CASE WHEN meals.dinner THEN 1 ELSE 0 END) AS dinner,
+      SUM(COALESCE(meals.guest_lunch, 0)) AS guest_lunch,
+      SUM(COALESCE(meals.guest_dinner, 0)) AS guest_dinner
     FROM public.meals
-    WHERE mess_id = p_mess_id AND date BETWEEN v_start_date AND v_end_date
-    GROUP BY user_id
+    WHERE meals.mess_id = p_mess_id AND meals.date BETWEEN v_start_date AND v_end_date
+    GROUP BY meals.user_id
   ) m ON m.user_id = mm.user_id
   LEFT JOIN public.deposits d ON d.user_id = mm.user_id AND d.mess_id = p_mess_id
     AND d.date BETWEEN v_start_date AND v_end_date
