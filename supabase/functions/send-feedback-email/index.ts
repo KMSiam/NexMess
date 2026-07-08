@@ -34,14 +34,33 @@ Deno.serve(async (req) => {
     const message = record.message
 
     const htmlBody = `
-      <h2>New Feedback Received</h2>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Message:</strong></p>
-      <blockquote style="background: #f9f9f9; padding: 15px; border-left: 5px solid #ccc;">
-        ${message.replace(/\n/g, '<br>')}
-      </blockquote>
-      <p><small>Submitted at: ${record.created_at || new Date().toISOString()}</small></p>
+      <div style="font-family:Inter,system-ui,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
+          <div style="background:#4A6D56;border-radius:10px;width:40px;height:40px;display:flex;align-items:center;justify-content:center">
+            <span style="color:white;font-weight:700;font-size:18px">N</span>
+          </div>
+          <span style="font-size:20px;font-weight:700;color:#1a1a1a">NexMess Support</span>
+        </div>
+        
+        <h2 style="font-size:20px;font-weight:600;color:#1a1a1a;margin:0 0 24px">New Support Ticket Received</h2>
+        
+        <div style="background:#f9fafb;border-radius:12px;padding:24px;margin-bottom:24px;">
+          <p style="margin:0 0 12px;font-size:14px;color:#6b7280">
+            <strong>From:</strong> <span style="color:#111827">${name}</span>
+          </p>
+          <p style="margin:0 0 12px;font-size:14px;color:#6b7280">
+            <strong>Reply-To:</strong> <a href="mailto:${email}" style="color:#4A6D56;text-decoration:none">${email}</a>
+          </p>
+          <div style="margin-top:24px;padding-top:24px;border-top:1px solid #e5e7eb;">
+            <p style="margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;font-weight:600">Message</p>
+            <p style="margin:0;font-size:15px;color:#374151;line-height:1.6;white-space:pre-wrap;">${message}</p>
+          </div>
+        </div>
+        
+        <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center;">
+          Submitted at: ${new Date(record.created_at || new Date()).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })}
+        </p>
+      </div>
     `
 
     const res = await fetch('https://api.resend.com/emails', {
