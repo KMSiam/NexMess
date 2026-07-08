@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { Lock, Eye, EyeOff, ArrowRight, AlertTriangle } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
@@ -7,11 +7,17 @@ import toast from 'react-hot-toast'
 
 export default function UpdatePasswordPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [ready, setReady] = useState(false)
+  
+  // If we came from AuthCallbackPage, the PKCE code exchange is already done
+  // and the event fired, so we start ready.
+  const [ready, setReady] = useState<boolean>(() => {
+    return (location.state as any)?.isRecovery === true
+  })
   const [invalid, setInvalid] = useState(false)
 
   useEffect(() => {
