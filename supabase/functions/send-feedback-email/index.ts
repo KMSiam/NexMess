@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
         Authorization: `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        from: 'NexMess <onboarding@resend.dev>', // Resend testing domain (or update to custom domain)
+        from: 'NexMess <support@nexmess.shop>', // Resend testing domain (or update to custom domain)
         to: 'k.m.siam2019@gmail.com',
         subject: `New NexMess Feedback from ${name}`,
         html: htmlBody,
