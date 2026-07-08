@@ -1,30 +1,53 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { Mail, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Mail, ArrowRight, ArrowLeft, RefreshCw } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
+
+const COOLDOWN = 60
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
+  const [cooldown, setCooldown] = useState(0)
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [cooldown])
+
+  const sendReset = async (emailToSend: string) => {
+    setLoading(true)
+    const { error } = await supabase.auth.resetPasswordForEmail(emailToSend, {
+      redirectTo: `${window.location.origin}/update-password`,
+    })
+    setLoading(false)
+    if (error) {
+      toast.error(error.message)
+      return false
+    }
+    return true
+  }
 
   const handleReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setLoading(true)
-
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/update-password`,
-    })
-
-    if (error) {
-      toast.error(error.message)
-    } else {
+    const ok = await sendReset(email)
+    if (ok) {
       toast.success('Password reset link sent!')
       setSent(true)
+      setCooldown(COOLDOWN)
     }
-    setLoading(false)
+  }
+
+  const handleResend = async () => {
+    const ok = await sendReset(email)
+    if (ok) {
+      toast.success('Reset link resent!')
+      setCooldown(COOLDOWN)
+    }
   }
 
   return (
@@ -66,11 +89,37 @@ export default function ForgotPasswordPage() {
           <h2 className="text-nex-text mb-1 text-2xl font-bold">Forgot password?</h2>
 
           {sent ? (
-            <div className="mt-4 rounded-xl border border-green-100 bg-green-50 p-4">
-              <p className="text-sm text-green-800">
-                If an account exists for <b>{email}</b>, we have sent a password reset link. Please
-                check your inbox.
-              </p>
+            <div className="mt-4 space-y-4">
+              <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
+                <p className="text-sm text-green-800 dark:text-green-300">
+                  ✅ If an account exists for <b>{email}</b>, we've sent a password reset link.
+                  Please check your inbox and spam folder.
+                </p>
+              </div>
+
+              <div className="nex-card bg-nex-elevated p-4">
+                <p className="text-nex-muted mb-3 text-sm">Didn't receive it?</p>
+                <button
+                  onClick={handleResend}
+                  disabled={loading || cooldown > 0}
+                  className="nex-btn-secondary w-full justify-center gap-2 disabled:opacity-50"
+                  id="resend-reset-btn"
+                >
+                  {loading ? (
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4" />
+                  )}
+                  {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend reset email'}
+                </button>
+              </div>
+
+              <button
+                onClick={() => { setSent(false); setEmail('') }}
+                className="text-nex-muted hover:text-nex-primary w-full text-center text-sm transition-colors"
+              >
+                Use a different email
+              </button>
             </div>
           ) : (
             <>
@@ -92,6 +141,7 @@ export default function ForgotPasswordPage() {
                       className="nex-input pl-10"
                       placeholder="you@example.com"
                       required
+                      id="forgot-password-email"
                     />
                   </div>
                 </div>
@@ -100,6 +150,7 @@ export default function ForgotPasswordPage() {
                   type="submit"
                   disabled={loading || !email}
                   className="nex-btn-primary w-full py-3 disabled:opacity-50"
+                  id="forgot-password-submit"
                 >
                   {loading ? (
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />

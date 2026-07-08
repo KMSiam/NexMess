@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexMess – Confirm Your Email</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f7f5;font-family:Inter,system-ui,-apple-system,sans-serif">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7f5;padding:40px 16px">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07)">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#3A5643 0%,#4A6D56 50%,#5F886E 100%);padding:36px 40px">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="vertical-align:middle">
+                    <div style="background:rgba(255,255,255,0.2);border-radius:12px;width:44px;height:44px;display:inline-block;text-align:center;line-height:44px">
+                      <span style="color:#ffffff;font-weight:800;font-size:22px">N</span>
+                    </div>
+                  </td>
+                  <td style="padding-left:12px;vertical-align:middle">
+                    <span style="color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px">NexMess</span>
+                  </td>
+                </tr>
+              </table>
+              <div style="margin-top:24px">
+                <h1 style="color:#ffffff;font-size:26px;font-weight:700;margin:0 0 8px;letter-spacing:-0.5px">
+                  Confirm your email ✉️
+                </h1>
+                <p style="color:#c8dfd1;font-size:15px;margin:0;line-height:1.5">
+                  You're one step away from managing your mess smarter.
+                </p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px 40px 32px">
+              <p style="color:#374151;font-size:15px;line-height:1.7;margin:0 0 24px">
+                Hi there 👋
+              </p>
+              <p style="color:#374151;font-size:15px;line-height:1.7;margin:0 0 32px">
+                Thanks for signing up for <strong style="color:#1a1a1a">NexMess</strong>!
+                To complete your registration and activate your account, please verify your email address by clicking the button below.
+              </p>
+
+              <!-- CTA Button -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:0 0 32px">
+                    <a href="{{ .ConfirmationURL }}"
+                       style="background:#4A6D56;color:#ffffff;padding:15px 36px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;display:inline-block;letter-spacing:0.01em;box-shadow:0 4px 12px rgba(74,109,86,0.35)">
+                      Verify Email Address &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Divider -->
+              <div style="border-top:1px solid #e5e7eb;margin:0 0 24px"></div>
+
+              <!-- Plain URL fallback -->
+              <p style="color:#6b7280;font-size:13px;margin:0 0 8px;line-height:1.5">
+                Button not working? Copy and paste this link into your browser:
+              </p>
+              <div style="background:#f0f7f3;border:1px solid #c8dfd1;border-radius:8px;padding:12px 14px;margin:0 0 32px;word-break:break-all">
+                <a href="{{ .ConfirmationURL }}" style="color:#4A6D56;font-size:12px;text-decoration:none;line-height:1.6">
+                  {{ .ConfirmationURL }}
+                </a>
+              </div>
+
+              <!-- Info box -->
+              <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px 16px;margin:0 0 28px">
+                <p style="color:#92400e;font-size:13px;margin:0;line-height:1.5">
+                  ⏰ This link expires in <strong>24 hours</strong>. If you didn't create a NexMess account, you can safely ignore this email.
+                </p>
+              </div>
+
+              <!-- What's next -->
+              <p style="color:#374151;font-size:14px;font-weight:600;margin:0 0 14px">
+                What's next after verifying?
+              </p>
+
+              <!-- Step 1 -->
+              <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:10px">
+                <tr>
+                  <td style="width:28px;vertical-align:top;padding-top:2px">
+                    <div style="background:#4A6D56;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;display:inline-block">
+                      <span style="color:#fff;font-size:11px;font-weight:700">1</span>
+                    </div>
+                  </td>
+                  <td style="color:#6b7280;font-size:13px;line-height:1.6;padding-left:10px">
+                    Complete your profile &amp; set a username
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Step 2 -->
+              <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:10px">
+                <tr>
+                  <td style="width:28px;vertical-align:top;padding-top:2px">
+                    <div style="background:#4A6D56;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;display:inline-block">
+                      <span style="color:#fff;font-size:11px;font-weight:700">2</span>
+                    </div>
+                  </td>
+                  <td style="color:#6b7280;font-size:13px;line-height:1.6;padding-left:10px">
+                    Create or join a mess with your invite code
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Step 3 -->
+              <table cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td style="width:28px;vertical-align:top;padding-top:2px">
+                    <div style="background:#4A6D56;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;display:inline-block">
+                      <span style="color:#fff;font-size:11px;font-weight:700">3</span>
+                    </div>
+                  </td>
+                  <td style="color:#6b7280;font-size:13px;line-height:1.6;padding-left:10px">
+                    Start tracking meals, expenses &amp; bazaar duty
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:24px 40px">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <p style="color:#9ca3af;font-size:12px;margin:0 0 4px;line-height:1.5">
+                      You're receiving this because you signed up at
+                      <a href="https://nexmess.shop" style="color:#4A6D56;text-decoration:none">nexmess.shop</a>.
+                    </p>
+                    <p style="color:#9ca3af;font-size:12px;margin:0;line-height:1.5">
+                      &copy; 2026 NexMess. All rights reserved.
+                    </p>
+                  </td>
+                  <td align="right" style="vertical-align:bottom">
+                    <span style="color:#4A6D56;font-weight:700;font-size:14px">NexMess</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- Outside footer note -->
+        <p style="color:#9ca3af;font-size:11px;margin:20px 0 0;text-align:center">
+          Need help? Contact us at
+          <a href="mailto:support@nexmess.shop" style="color:#4A6D56;text-decoration:none">support@nexmess.shop</a>
+        </p>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
