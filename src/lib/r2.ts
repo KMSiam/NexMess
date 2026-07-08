@@ -39,7 +39,7 @@ export async function getUploadPresignedUrl(
   })
 
   const uploadUrl = await getSignedUrl(r2, command, { expiresIn: 3600 })
-  const publicUrl = `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${key}`
+  const publicUrl = `/api/media?key=${key}`
 
   return { uploadUrl, publicUrl }
 }
@@ -56,6 +56,9 @@ export async function deleteR2Object(bucket: R2Bucket, key: string): Promise<voi
  * Extract the key from an R2 public URL
  */
 export function getKeyFromPublicUrl(url: string): string {
+  if (url.includes('/api/media?key=')) {
+    return url.split('/api/media?key=')[1]
+  }
   const base = process.env.NEXT_PUBLIC_R2_PUBLIC_URL!
   return url.replace(`${base}/`, '')
 }
