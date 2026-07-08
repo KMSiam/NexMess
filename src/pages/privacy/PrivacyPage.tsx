@@ -57,8 +57,8 @@ export default function PrivacyPage() {
               </h2>
               <p className="text-nex-muted pl-8">
                 Welcome to NexMess (accessible at{' '}
-                <a href="https://nex-mess.vercel.app" className="text-blue-500 hover:underline">
-                  https://nex-mess.vercel.app
+                <a href="https://nexmess.shop" className="text-blue-500 hover:underline">
+                  https://nexmess.shop
                 </a>
                 ). We respect your privacy and are committed to protecting the personal data you
                 share with us. This policy describes how we collect, store, use, and protect your

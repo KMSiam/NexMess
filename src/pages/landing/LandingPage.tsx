@@ -132,7 +132,7 @@ export default function LandingPage() {
                 <span className="h-3 w-3 rounded-full bg-amber-400" />
                 <span className="h-3 w-3 rounded-full bg-green-400" />
               </div>
-              <span className="text-nex-muted font-mono">nex-mess.vercel.app/dashboard</span>
+              <span className="text-nex-muted font-mono">nexmess.shop/dashboard</span>
               <div className="flex items-center gap-1">
                 <span className="h-2 w-2 animate-ping rounded-full bg-emerald-500" />
                 <span className="text-emerald-500 text-[10px] font-bold">LIVE</span>

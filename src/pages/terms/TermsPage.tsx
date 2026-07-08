@@ -56,8 +56,8 @@ export default function TermsPage() {
               </h2>
               <p className="text-nex-muted pl-8">
                 By creating an account, linking your Google account, or using NexMess (accessible at{' '}
-                <a href="https://nex-mess.vercel.app" className="text-blue-500 hover:underline">
-                  https://nex-mess.vercel.app
+                <a href="https://nexmess.shop" className="text-blue-500 hover:underline">
+                  https://nexmess.shop
                 </a>
                 ), you agree to be bound by these Terms of Service. If you do not agree to all these
                 terms, you are prohibited from using the platform.
