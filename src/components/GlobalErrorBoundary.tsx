@@ -1,3 +1,5 @@
+'use client'
+
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { ReactNode } from 'react'
@@ -25,7 +27,6 @@ export default function GlobalErrorBoundary({ children }: { children: ReactNode 
     <ErrorBoundary
       FallbackComponent={ErrorFallback}
       onReset={() => {
-        // Reset the state of your app here if needed
         window.location.reload()
       }}
     >

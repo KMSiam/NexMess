@@ -1,7 +1,9 @@
+'use client'
+
 import { useState, useRef, useEffect } from 'react'
 import { X, Send, MessageCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { supabase } from '../lib/supabase'
+import { sendFeedback } from '@/actions/feedback'
 import toast from 'react-hot-toast'
 
 interface SupportModalProps {
@@ -35,16 +37,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
     setIsSubmitting(true)
 
     try {
-      // Insert into user_feedback (without .select() because RLS prevents reading)
-      const { error } = await supabase.from('user_feedback').insert([{ name, email, message }])
-
-      if (error) throw error
-
-      // Call the edge function directly to ensure email is sent
-      await supabase.functions.invoke('send-feedback-email', {
-        body: { name, email, message },
-      })
-
+      await sendFeedback({ name, email, message })
       toast.success('Your message has been sent successfully!')
       setName('')
       setEmail('')

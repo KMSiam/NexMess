@@ -1,16 +1,19 @@
+'use client'
+
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { useAuthStore } from '../stores/authStore'
-import { supabase } from '../lib/supabase'
-import { Notification } from '../types/database'
+import { getNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification as apiDeleteNotification } from '@/actions/notifications'
+import type { Notification } from '@/types/database'
 import { Bell, CheckCheck, Trash2, X } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { useMessStore } from '@/stores/appStore'
+import { usePusherRealtime } from '@/hooks/usePusherRealtime'
 
 interface NotificationBellProps {
   className?: string
 }
 
 export default function NotificationBell({ className }: NotificationBellProps) {
-  const { user } = useAuthStore()
+  const { currentMess } = useMessStore()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [showPanel, setShowPanel] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -18,39 +21,20 @@ export default function NotificationBell({ className }: NotificationBellProps) {
   const unreadCount = notifications.filter((n) => !n.is_read).length
 
   const fetchNotifications = useCallback(async () => {
-    if (!user?.id) return
-    const { data } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(20)
-    if (data) setNotifications(data as Notification[])
-  }, [user?.id])
+    try {
+      const data = await getNotifications()
+      setNotifications(data)
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err)
+    }
+  }, [])
 
   useEffect(() => {
-    if (!user?.id) return
     fetchNotifications()
+  }, [fetchNotifications])
 
-    // Real-time subscription
-    const channel = supabase
-      .channel('notifications-' + user.id)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => fetchNotifications()
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [user?.id, fetchNotifications])
+  // Subscribe to real-time notification changes via Pusher
+  usePusherRealtime(currentMess?.id, ['notifications'], fetchNotifications)
 
   // Close on click outside
   useEffect(() => {
@@ -64,23 +48,30 @@ export default function NotificationBell({ className }: NotificationBellProps) {
   }, [])
 
   const markRead = async (id: string) => {
-    await supabase.from('notifications').update({ is_read: true }).eq('id', id)
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
+    try {
+      await markNotificationRead(id)
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
+    } catch (err) {
+      console.error('Failed to mark read:', err)
+    }
   }
 
   const markAllRead = async () => {
-    if (!user?.id) return
-    await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('user_id', user.id)
-      .eq('is_read', false)
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
+    try {
+      await markAllNotificationsRead()
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
+    } catch (err) {
+      console.error('Failed to mark all read:', err)
+    }
   }
 
-  const deleteNotification = async (id: string) => {
-    await supabase.from('notifications').delete().eq('id', id)
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
+  const handleDelete = async (id: string) => {
+    try {
+      await apiDeleteNotification(id)
+      setNotifications((prev) => prev.filter((n) => n.id !== id))
+    } catch (err) {
+      console.error('Failed to delete notification:', err)
+    }
   }
 
   const getIcon = (type: string) => {
@@ -171,7 +162,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        deleteNotification(n.id)
+                        handleDelete(n.id)
                       }}
                       className="text-nex-muted/40 hover:text-nex-danger shrink-0 self-start transition-colors"
                     >

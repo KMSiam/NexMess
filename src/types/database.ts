@@ -1,3 +1,7 @@
+// types/database.ts
+// Identical TypeScript interfaces — no changes from the Vite project.
+// These map 1:1 to the Neon database schema.
+
 export interface Profile {
   id: string
   username: string | null
@@ -103,6 +107,15 @@ export interface ChatMessage {
   profiles?: Profile
 }
 
+export interface ChatReaction {
+  id: string
+  message_id: string
+  user_id: string
+  emoji: string
+  created_at: string
+  profiles?: Profile
+}
+
 export interface Notification {
   id: string
   user_id: string
@@ -126,10 +139,36 @@ export interface PushSubscription {
 }
 
 export interface MemberBalance {
-  meal_rate: number
-  personal_meals: number
-  individual_cost: number
+  user_id: string
+  total_meals: number
+  meal_cost: number
   total_deposits: number
   balance: number
-  fixed_share: number
+}
+
+export interface Notice {
+  id: string
+  mess_id: string
+  message: string
+  created_by: string
+  is_active: boolean
+  created_at: string
+}
+
+export interface MealRoutine {
+  id: string
+  mess_id: string
+  day_of_week: number
+  lunch: string
+  dinner: string
+  updated_by: string | null
+  updated_at: string
+}
+
+export interface EmergencyContact {
+  id: string
+  mess_id: string
+  name: string
+  phone: string
+  created_at: string
 }

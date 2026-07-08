@@ -14,8 +14,10 @@ export function generateMessCode(): string {
   return code
 }
 
-export function formatCurrency(amount: number): string {
-  return `৳ ${amount.toLocaleString('en-BD', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
+export function formatCurrency(amount: number | string): string {
+  const value = typeof amount === 'number' ? amount : Number(amount)
+  if (isNaN(value)) return '৳ 0'
+  return `৳ ${value.toLocaleString('en-BD', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
 }
 
 export function getInitials(name: string): string {
@@ -56,8 +58,6 @@ export function getGreeting(): string {
 export const MEAL_CUTOFF_HOURS = { lunch: 10, dinner: 16 } as const
 
 function dhakaParts(d: Date = new Date()) {
-  // Dhaka is always UTC+6, no DST — use direct arithmetic to avoid browser Intl hour12 bugs
-  // (some browsers return 1-12 for hour12:false instead of 0-23)
   const t = new Date(d.getTime() + 6 * 60 * 60 * 1000)
   return {
     dateStr: `${t.getUTCFullYear()}-${String(t.getUTCMonth() + 1).padStart(2, '0')}-${String(t.getUTCDate()).padStart(2, '0')}`,
