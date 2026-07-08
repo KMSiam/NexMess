@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { Lock, Eye, EyeOff, ArrowRight, AlertTriangle } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 
@@ -12,26 +12,34 @@ export default function UpdatePasswordPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [ready, setReady] = useState(false)
+  const [invalid, setInvalid] = useState(false)
 
-  // Wait for the PASSWORD_RECOVERY event from the email link, then navigate after update
   useEffect(() => {
+    // Set a timeout — if PASSWORD_RECOVERY doesn't fire within 4s,
+    // the link is expired or invalid
+    const timeout = setTimeout(() => {
+      if (!ready) setInvalid(true)
+    }, 4000)
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+      if (event === 'PASSWORD_RECOVERY') {
+        clearTimeout(timeout)
         setReady(true)
+        setInvalid(false)
       }
-      // After updateUser resolves, Supabase fires USER_UPDATED with the refreshed session
+      // After updateUser, Supabase fires USER_UPDATED — navigate to dashboard
       if (event === 'USER_UPDATED' && session) {
         navigate('/dashboard', { replace: true })
       }
     })
-    // Also check if we already have a session (user clicked link and is already authed)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setReady(true)
-    })
-    return () => subscription.unsubscribe()
-  }, [navigate])
+
+    return () => {
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
+  }, [navigate, ready])
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -95,7 +103,27 @@ export default function UpdatePasswordPage() {
           <h2 className="text-nex-text mb-1 text-2xl font-bold">Set new password</h2>
           <p className="text-nex-muted mb-8">Almost done! Enter your new secure password.</p>
 
-          {!ready ? (
+          {invalid ? (
+            <div className="mt-4 space-y-4">
+              <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+                <div>
+                  <p className="text-sm font-medium text-red-800 dark:text-red-300">
+                    This reset link is invalid or has expired.
+                  </p>
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                    Password reset links expire after 1 hour. Please request a new one.
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/forgot-password"
+                className="nex-btn-primary flex w-full items-center justify-center gap-2 py-3"
+              >
+                Request New Reset Link <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          ) : !ready ? (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="border-nex-primary h-8 w-8 animate-spin rounded-full border-3 border-t-transparent" />
               <p className="text-nex-muted text-sm">Verifying your reset link...</p>

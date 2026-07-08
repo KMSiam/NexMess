@@ -45,6 +45,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+        // PASSWORD_RECOVERY is handled exclusively by UpdatePasswordPage
+        // — do NOT set session here or the user will be treated as fully
+        // logged in and guards will redirect them away from /update-password
+        if (event === 'PASSWORD_RECOVERY') return
+
         if (event === 'SIGNED_OUT') {
           set({ session: null, user: null, profile: null })
           return
