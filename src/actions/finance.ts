@@ -31,7 +31,7 @@ export async function getExpenses(messId: string, month: string): Promise<Expens
 
   const start = `${month}-01`
   const rows = await sql`
-    SELECT e.*, row_to_json(p) as profiles
+    SELECT e.id, e.mess_id, e.amount, e.category, e.description, e.date::text as date, e.expense_type, e.receipt_url, e.created_at::text as created_at, e.created_by, row_to_json(p) as profiles
     FROM expenses e
     LEFT JOIN profiles p ON p.id = e.created_by
     WHERE e.mess_id = ${messId}::uuid
@@ -116,7 +116,7 @@ export async function getDeposits(messId: string, month: string): Promise<Deposi
 
   const start = `${month}-01`
   const rows = await sql`
-    SELECT d.*, row_to_json(p) as profiles
+    SELECT d.id, d.mess_id, d.user_id, d.amount, d.verified, d.verified_by, d.date::text as date, d.note, d.created_at::text as created_at, row_to_json(p) as profiles
     FROM deposits d
     LEFT JOIN profiles p ON p.id = d.user_id
     WHERE d.mess_id = ${messId}::uuid
@@ -274,8 +274,7 @@ export async function getMemberBalances(
 
 export async function getMonthlyReports(messId: string) {
   const userId = await getCurrentUserId()
-  const role = await verifyMember(userId, messId)
-  if (role !== 'manager') throw new Error('Only managers can view monthly reports history')
+  await verifyMember(userId, messId)
 
   const rows = await sql`
     SELECT * FROM monthly_reports
@@ -304,7 +303,7 @@ export async function getDailyMealsForMonth(messId: string, month: string) {
   const monthEndStr = format(endOfMonth(new Date(monthStartStr)), 'yyyy-MM-dd')
 
   const rows = await sql`
-    SELECT m.date, m.user_id, m.lunch, m.dinner, m.guest_lunch, m.guest_dinner, p.username
+    SELECT m.date::text as date, m.user_id, m.lunch, m.dinner, m.guest_lunch, m.guest_dinner, p.username
     FROM meals m
     LEFT JOIN profiles p ON p.id = m.user_id
     WHERE m.mess_id = ${messId}::uuid
