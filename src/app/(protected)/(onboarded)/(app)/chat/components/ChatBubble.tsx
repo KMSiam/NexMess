@@ -106,7 +106,7 @@ export default function ChatBubble({
                 rel="noreferrer"
                 className="block max-w-xs overflow-hidden rounded-lg"
               >
-                // eslint-disable-next-line @next/next/no-img-element
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={msg.text}
                   alt="Chat media"
