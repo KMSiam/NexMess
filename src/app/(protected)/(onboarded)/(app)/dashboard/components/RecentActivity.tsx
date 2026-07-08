@@ -1,7 +1,7 @@
 'use client'
 
 import { Activity } from 'lucide-react'
-import { format } from 'date-fns'
+import { safeFormatDate } from '@/lib/utils'
 import Link from 'next/link'
 import EmptyState from '@/components/EmptyState'
 
@@ -50,7 +50,7 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
               <div>
                 <p className="text-nex-text text-sm">{act.text}</p>
                 <p className="text-nex-muted text-[10px]">
-                  {format(new Date(act.time), 'MMM d, h:mm a')}
+                  {safeFormatDate(act.time, 'MMM d, h:mm a')}
                 </p>
               </div>
             </div>

@@ -25,27 +25,52 @@ export default function BazaarScheduleCard({ schedule }: BazaarScheduleCardProps
             description="Market schedule will appear here."
           />
         ) : (
-          schedule.map((ub, idx) => (
-            <div key={idx} className="flex items-center justify-between pt-3 first:pt-0">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
-                    isToday(new Date(ub.date))
-                      ? 'bg-nex-success-light text-nex-success'
-                      : 'bg-nex-elevated text-nex-muted'
-                  }`}
-                >
-                  {isToday(new Date(ub.date))
-                    ? 'Tdy'
-                    : isTomorrow(new Date(ub.date))
-                      ? 'Tmr'
-                      : format(new Date(ub.date), 'dd')}
+          schedule.map((ub, idx) => {
+            let dateObj: Date | null = null
+            try {
+              if (ub.date) {
+                // Parse YYYY-MM-DD safely
+                const parts = ub.date.split('T')[0].split('-').map(Number)
+                if (parts.length === 3) {
+                  dateObj = new Date(parts[0], parts[1] - 1, parts[2])
+                } else {
+                  dateObj = new Date(ub.date)
+                }
+                if (isNaN(dateObj.getTime())) dateObj = null
+              }
+            } catch {
+              dateObj = null
+            }
+
+            const isTdy = dateObj ? isToday(dateObj) : false
+            const isTmr = dateObj ? isTomorrow(dateObj) : false
+
+            return (
+              <div key={idx} className="flex items-center justify-between pt-3 first:pt-0">
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
+                      isTdy
+                        ? 'bg-nex-success-light text-nex-success'
+                        : 'bg-nex-elevated text-nex-muted'
+                    }`}
+                  >
+                    {isTdy
+                      ? 'Tdy'
+                      : isTmr
+                        ? 'Tmr'
+                        : dateObj
+                          ? format(dateObj, 'dd')
+                          : ''}
+                  </div>
+                  <p className="text-nex-text text-sm font-medium">{ub.username}</p>
                 </div>
-                <p className="text-nex-text text-sm font-medium">{ub.username}</p>
+                <p className="text-nex-muted text-xs">
+                  {dateObj ? format(dateObj, 'MMM d') : ''}
+                </p>
               </div>
-              <p className="text-nex-muted text-xs">{format(new Date(ub.date), 'MMM d')}</p>
-            </div>
-          ))
+            )
+          })
         )}
       </div>
     </div>

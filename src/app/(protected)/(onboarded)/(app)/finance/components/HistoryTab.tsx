@@ -147,7 +147,9 @@ export default function HistoryTab() {
     setBusy(true)
     try {
       await generateMonthlyReport(currentMess.id, genMonth)
-      toast.success(`Report for ${format(new Date(genMonth + '-01'), 'MMMM yyyy')} is ready`)
+      const [yy, mm] = genMonth.split('-').map(Number)
+      const formattedMonth = format(new Date(yy, (mm || 1) - 1, 1), 'MMMM yyyy')
+      toast.success(`Report for ${formattedMonth} is ready`)
       fetchReports()
     } catch (err: any) {
       toast.error(err.message || 'Failed to generate report')
@@ -175,7 +177,10 @@ export default function HistoryTab() {
     toast.success('PDF downloaded')
   }
 
-  const monthLabel = (m: string) => format(new Date(m + '-01'), 'MMMM yyyy')
+  const monthLabel = (m: string) => {
+    const [yy, mm] = m.split('-').map(Number)
+    return format(new Date(yy, (mm || 1) - 1, 1), 'MMMM yyyy')
+  }
 
   return (
     <div className="space-y-5">

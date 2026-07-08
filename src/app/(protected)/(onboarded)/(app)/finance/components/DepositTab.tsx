@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { Plus, PiggyBank, CheckCircle2, Trash2, Clock } from 'lucide-react'
-import { format } from 'date-fns'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, safeFormatDate } from '@/lib/utils'
 import EmptyState from '@/components/EmptyState'
 
 interface Deposit {
@@ -156,7 +155,7 @@ export default function DepositTab({
                     {(dep as any).profiles?.username}
                   </p>
                   <p className="text-nex-muted text-xs">
-                    {format(new Date(dep.date), 'MMM d')} {dep.note && `· ${dep.note}`}
+                    {safeFormatDate(dep.date, 'MMM d')} {dep.note && `· ${dep.note}`}
                   </p>
                 </div>
               </div>

@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { Plus, ImageIcon, Receipt, Edit2, Trash2 } from 'lucide-react'
-import { format } from 'date-fns'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, safeFormatDate } from '@/lib/utils'
 import EmptyState from '@/components/EmptyState'
 import ConfirmDialog from '@/components/ConfirmDialog'
 
@@ -231,7 +230,7 @@ export default function ExpenseTab({
                     )}
                   </p>
                   <p className="text-nex-muted text-xs">
-                    {format(new Date(exp.date), 'MMM d')} · {(exp as any).profiles?.username}
+                    {safeFormatDate(exp.date, 'MMM d')} · {(exp as any).profiles?.username}
                   </p>
                 </div>
               </div>

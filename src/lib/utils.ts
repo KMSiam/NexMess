@@ -1,8 +1,32 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { format } from 'date-fns'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+export function safeFormatDate(dateVal: any, formatStr = 'MMM d'): string {
+  if (!dateVal) return ''
+  try {
+    // If it's a string in YYYY-MM-DD or similar, parse it safely
+    let d: Date
+    if (typeof dateVal === 'string' && dateVal.includes('-')) {
+      const parts = dateVal.split('T')[0].split('-').map(Number)
+      if (parts.length === 3) {
+        d = new Date(parts[0], parts[1] - 1, parts[2])
+      } else {
+        d = new Date(dateVal)
+      }
+    } else {
+      d = new Date(dateVal)
+    }
+    
+    if (isNaN(d.getTime())) return ''
+    return format(d, formatStr)
+  } catch {
+    return ''
+  }
 }
 
 export function generateMessCode(): string {
