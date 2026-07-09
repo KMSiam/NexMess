@@ -37,7 +37,7 @@ export default function RegisterPage() {
     }
 
     setLoading(true)
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard` },
@@ -45,6 +45,10 @@ export default function RegisterPage() {
 
     if (error) {
       toast.error(error.message)
+    } else if (data?.user?.identities && data.user.identities.length === 0) {
+      // Supabase returns an empty identities array if the email already exists
+      // and "Prevent Email Enumeration" is turned on.
+      toast.error('This email is already registered. Please sign in.')
     } else {
       toast.success('Check your email for a verification link!')
       navigate('/verify-email', { state: { email } })
