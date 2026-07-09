@@ -86,6 +86,8 @@ export default function NotificationBell({ className }: NotificationBellProps) {
   const getIcon = (type: string) => {
     const icons: Record<string, string> = {
       bazaar_reminder: '🛒',
+      market_reminder: '🛒',
+      market_report: '📊',
       join_request: '👤',
       join_approved: '✅',
       join_rejected: '❌',

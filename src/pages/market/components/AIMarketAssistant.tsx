@@ -2,10 +2,24 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useAuthStore } from '../../../stores/authStore'
 import { useMessStore } from '../../../stores/messStore'
 import { supabase } from '../../../lib/supabase'
-import { Send, Sparkles, MapPin, Bot, User, AlertCircle, Loader2, ArrowRight } from 'lucide-react'
+import {
+  Send,
+  Sparkles,
+  MapPin,
+  Bot,
+  User,
+  AlertCircle,
+  Loader2,
+  ArrowRight,
+  TrendingDown,
+  ShoppingCart,
+  BarChart3,
+  UtensilsCrossed,
+} from 'lucide-react'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { usePageTitle } from '../../../hooks/usePageTitle'
+import MarkdownRenderer from '../../../components/MarkdownRenderer'
 
 interface Message {
   id: string
@@ -125,18 +139,29 @@ export default function AIMarketAssistant() {
   }
 
   const suggestions = [
-    { label: 'Daily price report', text: 'Please generate a new daily price report for this area' },
     {
-      label: 'Cheapest place for eggs?',
+      icon: BarChart3,
+      label: 'Daily price report',
+      text: 'Please generate a new daily price report for this area',
+      color: 'text-blue-500',
+    },
+    {
+      icon: TrendingDown,
+      label: 'Best deals today?',
       text: 'Where can I find the cheapest place to buy eggs and chicken in this area today?',
+      color: 'text-emerald-500',
     },
     {
-      label: 'Check my budget status',
-      text: 'Review our recent expenses and suggest how we can optimize our bazaar budget.',
+      icon: ShoppingCart,
+      label: 'Shopping list',
+      text: "Create a detailed grocery shopping list for today's meals with quantities and estimated cost.",
+      color: 'text-amber-500',
     },
     {
-      label: 'Grocery list helper',
-      text: "Create a detailed grocery shopping list for tonight's meals.",
+      icon: UtensilsCrossed,
+      label: 'Budget check',
+      text: 'Review our monthly spending so far and suggest how we can optimize our bazaar budget.',
+      color: 'text-purple-500',
     },
   ]
 
@@ -146,8 +171,13 @@ export default function AIMarketAssistant() {
     <div className="mx-auto flex h-[calc(100dvh-8rem)] w-full max-w-4xl flex-col md:h-[calc(100vh-6rem)]">
       <div className="mb-3 flex shrink-0 items-center justify-between px-1">
         <div className="flex items-center gap-3">
-          <Sparkles className="text-nex-primary h-5 w-5 animate-pulse sm:h-6 sm:w-6" />
-          <h1 className="text-nex-text text-xl font-bold sm:text-2xl">NexMessAI</h1>
+          <div className="from-nex-primary/20 to-nex-primary/5 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br">
+            <Sparkles className="text-nex-primary h-5 w-5 animate-pulse" />
+          </div>
+          <div>
+            <h1 className="text-nex-text text-xl font-bold sm:text-2xl">NexMessAI</h1>
+            <p className="text-nex-muted text-[10px]">Smart bazaar assistant powered by Gemini</p>
+          </div>
         </div>
       </div>
 
@@ -157,33 +187,36 @@ export default function AIMarketAssistant() {
           <div className="nex-card space-y-4 p-5">
             <h3 className="text-nex-text flex items-center gap-2 text-sm font-semibold tracking-wider uppercase">
               <Sparkles className="text-nex-primary h-4 w-4 animate-pulse" />
-              NexMessAI
+              Assistant Info
             </h3>
             <p className="text-nex-muted text-xs leading-relaxed">
-              Your personal, read-only coordinator powered by Google Gemini. The assistant analyses
-              meal routines, upcoming bazaar shifts, and recent spending.
+              Your personal bazaar coordinator powered by Google Gemini. Gets live grocery prices,
+              estimates quantities, and tracks your budget.
             </p>
 
             <div className="bg-nex-elevated space-y-2 rounded-xl p-4">
               <div className="text-nex-text flex items-center gap-2 text-xs font-semibold">
                 <MapPin className="text-nex-primary h-4 w-4" />
-                Location Status
+                Location
               </div>
               {hasLocation ? (
                 <p className="text-nex-success font-mono text-xs font-medium">{messLocation}</p>
               ) : (
                 <div className="text-nex-danger flex items-start gap-1.5 text-[11px]">
                   <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  <span>No location configured. Chat features are limited.</span>
+                  <span>No location set. Set it in Settings → Mess Details.</span>
                 </div>
               )}
             </div>
 
             <div className="text-nex-muted border-nex-border space-y-1.5 border-t pt-3 text-xs">
-              <span className="text-nex-text mb-1 block font-semibold">Safety & Scope Bounds:</span>
-              <p>• Cannot add or delete expenses.</p>
-              <p>• Cannot modify members or calendar.</p>
-              <p>• Queries are restricted to your mess.</p>
+              <span className="text-nex-text mb-1 block font-semibold">What it can do:</span>
+              <p>✅ Live grocery prices & deals</p>
+              <p>✅ Shopping lists with quantities</p>
+              <p>✅ Budget analysis & savings tips</p>
+              <p className="text-nex-muted/60 mt-2 text-[10px]">
+                ⚠️ Read-only — can't edit expenses or schedules
+              </p>
             </div>
           </div>
 
@@ -191,7 +224,7 @@ export default function AIMarketAssistant() {
           {hasLocation && (
             <div className="nex-card hidden space-y-2 p-4 lg:block">
               <span className="text-nex-muted mb-1 block text-[11px] font-semibold tracking-wider uppercase">
-                Quick Questions
+                Quick Actions
               </span>
               <div className="flex flex-col gap-2">
                 {suggestions.map((s, i) => (
@@ -199,9 +232,10 @@ export default function AIMarketAssistant() {
                     key={i}
                     onClick={() => handleSuggestClick(s.text)}
                     disabled={loading}
-                    className="bg-nex-elevated hover:bg-nex-hover border-nex-border text-nex-text group flex w-full cursor-pointer items-center justify-between rounded-xl border p-2.5 text-left text-xs transition-all duration-200"
+                    className="bg-nex-elevated hover:bg-nex-hover border-nex-border text-nex-text group flex w-full cursor-pointer items-center gap-2.5 rounded-xl border p-2.5 text-left text-xs transition-all duration-200"
                   >
-                    <span className="truncate pr-2">{s.label}</span>
+                    <s.icon className={`h-3.5 w-3.5 shrink-0 ${s.color}`} />
+                    <span className="flex-1 truncate">{s.label}</span>
                     <ArrowRight className="text-nex-muted group-hover:text-nex-primary h-3 w-3 transition-all group-hover:translate-x-0.5" />
                   </button>
                 ))}
@@ -215,14 +249,17 @@ export default function AIMarketAssistant() {
           {/* Chat Header */}
           <div className="border-nex-border bg-nex-elevated/40 flex items-center justify-between border-b p-4">
             <div className="flex items-center gap-3">
-              <div className="bg-nex-primary/10 border-nex-primary/20 flex h-9 w-9 items-center justify-center rounded-xl border">
-                <Bot className="text-nex-primary h-5 w-5" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-sm">
+                <Bot className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h4 className="text-nex-text text-sm font-bold">NexMessAI Log</h4>
-                <p className="text-nex-muted text-[10px]">
-                  {hasLocation ? `Analyzing market at ${messLocation}` : 'Location unconfigured'}
-                </p>
+                <h4 className="text-nex-text text-sm font-bold">NexMessAI</h4>
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                  <p className="text-nex-muted text-[10px]">
+                    {hasLocation ? messLocation : 'Location unconfigured'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -230,16 +267,35 @@ export default function AIMarketAssistant() {
           {/* Chat Messages Scrolling Area */}
           <div className="bg-nex-bg/20 flex-1 space-y-4 overflow-y-auto p-4">
             {messages.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center space-y-3 p-6 text-center">
-                <Bot className="text-nex-muted/40 h-10 w-10 animate-bounce" />
-                <div className="max-w-md">
-                  <p className="text-nex-text text-sm font-semibold">No Assistant Messages yet</p>
-                  <p className="text-nex-muted mt-1 text-xs leading-relaxed">
-                    {hasLocation
-                      ? 'Send a message or select a suggestion chip to start discussing grocery prices and budget reminders.'
-                      : 'Configure a location in Mess Details Settings. The AI needs a location to crawl local grocery prices.'}
-                  </p>
+              <div className="flex h-full flex-col items-center justify-center p-6 text-center">
+                <div className="from-nex-primary/10 to-nex-primary/5 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br">
+                  <Bot className="text-nex-primary h-8 w-8" />
                 </div>
+                <p className="text-nex-text text-sm font-semibold">
+                  {hasLocation ? "Hey! I'm NexMessAI 👋" : 'Location Required'}
+                </p>
+                <p className="text-nex-muted mt-1.5 max-w-sm text-xs leading-relaxed">
+                  {hasLocation
+                    ? "Ask me about today's grocery prices, create a shopping list, or check your budget. I'll search for live prices in your area!"
+                    : 'Set your mess location in Settings → Mess Details so I can find local grocery prices for you.'}
+                </p>
+
+                {/* Quick action grid in empty state */}
+                {hasLocation && (
+                  <div className="mt-5 grid w-full max-w-sm grid-cols-2 gap-2">
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSuggestClick(s.text)}
+                        disabled={loading}
+                        className="bg-nex-surface hover:bg-nex-hover border-nex-border flex items-center gap-2 rounded-xl border p-3 text-left transition-all active:scale-[0.98]"
+                      >
+                        <s.icon className={`h-4 w-4 shrink-0 ${s.color}`} />
+                        <span className="text-nex-text text-[11px] font-medium">{s.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               messages.map((m) => {
@@ -247,27 +303,27 @@ export default function AIMarketAssistant() {
                 return (
                   <div
                     key={m.id}
-                    className={`flex max-w-[85%] items-start gap-2.5 ${isMe ? 'ml-auto flex-row-reverse' : 'mr-auto'}`}
+                    className={`flex items-start gap-2.5 ${isMe ? 'ml-auto max-w-[80%] flex-row-reverse' : 'mr-auto max-w-[90%]'}`}
                   >
                     {/* Sender Avatar / Icon */}
                     <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
                         m.is_ai
-                          ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white'
+                          ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-sm'
                           : 'bg-nex-elevated text-nex-text border-nex-border border'
                       }`}
                     >
                       {m.is_ai ? (
-                        <Bot className="h-4 w-4" />
+                        <Bot className="h-3.5 w-3.5" />
                       ) : m.profiles?.username ? (
                         m.profiles.username.substring(0, 2).toUpperCase()
                       ) : (
-                        <User className="h-4 w-4" />
+                        <User className="h-3.5 w-3.5" />
                       )}
                     </div>
 
                     {/* Message Bubble Container */}
-                    <div className="space-y-1">
+                    <div className="min-w-0 space-y-0.5">
                       <div className="flex items-center gap-2 px-1">
                         <span className="text-nex-text text-[10px] font-semibold">
                           {m.is_ai ? 'NexMessAI' : m.profiles?.username || 'Member'}
@@ -275,18 +331,27 @@ export default function AIMarketAssistant() {
                         <span className="text-nex-muted text-[9px]">
                           {format(new Date(m.created_at), 'hh:mm a')}
                         </span>
+                        {m.is_daily_update && (
+                          <span className="bg-nex-primary/10 text-nex-primary rounded-full px-1.5 py-0.5 text-[8px] font-semibold">
+                            Daily Report
+                          </span>
+                        )}
                       </div>
 
                       <div
-                        className={`rounded-2xl p-3.5 text-xs leading-relaxed whitespace-pre-wrap ${
+                        className={`overflow-hidden rounded-2xl p-3.5 ${
                           m.is_daily_update
-                            ? 'bg-nex-primary-light border-nex-primary/30 text-nex-text border shadow-sm'
+                            ? 'bg-nex-primary-light border-nex-primary/20 text-nex-text border shadow-sm'
                             : m.is_ai
                               ? 'bg-nex-surface border-nex-border text-nex-text border shadow-sm'
                               : 'bg-nex-primary text-white shadow-sm'
                         }`}
                       >
-                        {m.text}
+                        {m.is_ai ? (
+                          <MarkdownRenderer text={m.text} />
+                        ) : (
+                          <p className="text-xs leading-relaxed whitespace-pre-wrap">{m.text}</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -296,15 +361,22 @@ export default function AIMarketAssistant() {
 
             {/* AI Typing Indicator */}
             {loading && (
-              <div className="mr-auto flex max-w-[80%] animate-pulse items-start gap-2.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-xs font-semibold text-white">
-                  <Bot className="h-4 w-4" />
+              <div className="mr-auto flex max-w-[80%] items-start gap-2.5">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-sm">
+                  <Bot className="h-3.5 w-3.5" />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <span className="text-nex-text px-1 text-[10px] font-semibold">NexMessAI</span>
-                  <div className="bg-nex-surface border-nex-border flex min-w-[70px] items-center justify-center gap-1.5 rounded-2xl border p-3">
+                  <div className="bg-nex-surface border-nex-border flex min-w-[140px] items-center gap-2 rounded-2xl border p-3.5 shadow-sm">
                     <Loader2 className="text-nex-primary h-4 w-4 animate-spin" />
-                    <span className="text-nex-muted text-[10px] font-medium">Searching web...</span>
+                    <div className="space-y-1">
+                      <span className="text-nex-text block text-[10px] font-medium">
+                        Searching prices...
+                      </span>
+                      <span className="text-nex-muted block text-[9px]">
+                        Analyzing live market data
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -327,8 +399,9 @@ export default function AIMarketAssistant() {
                     type="button"
                     onClick={() => handleSuggestClick(s.text)}
                     disabled={loading}
-                    className="bg-nex-elevated hover:bg-nex-hover border-nex-border text-nex-text shrink-0 rounded-full border px-3 py-1.5 text-[10px] whitespace-nowrap shadow-sm transition-all active:scale-95"
+                    className="bg-nex-elevated hover:bg-nex-hover border-nex-border text-nex-text flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] whitespace-nowrap shadow-sm transition-all active:scale-95"
                   >
+                    <s.icon className={`h-3 w-3 ${s.color}`} />
                     {s.label}
                   </button>
                 ))}
@@ -336,8 +409,9 @@ export default function AIMarketAssistant() {
             )}
 
             {!hasLocation ? (
-              <div className="bg-nex-danger/10 border-nex-danger/20 text-nex-danger rounded-xl border p-2.5 text-center text-xs font-medium">
-                You must set a location in Settings to enable the AI Market Assistant.
+              <div className="bg-nex-danger/10 border-nex-danger/20 text-nex-danger flex items-center justify-center gap-2 rounded-xl border p-3 text-xs font-medium">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                Set a location in Settings → Mess Details to enable the AI assistant.
               </div>
             ) : (
               <form
@@ -351,16 +425,22 @@ export default function AIMarketAssistant() {
                   type="text"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Ask about onion prices, shopping lists, or budget reminders..."
-                  className="nex-input flex-1 px-4 py-3 text-base"
+                  placeholder="Ask about prices, shopping lists, or budget..."
+                  className="nex-input flex-1 px-4 py-3 text-sm"
                   disabled={loading}
+                  id="ai-chat-input"
                 />
                 <button
                   type="submit"
                   disabled={loading || !inputText.trim()}
-                  className="nex-btn-primary flex shrink-0 items-center justify-center p-3 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="nex-btn-primary flex shrink-0 items-center justify-center rounded-xl p-3 transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                  id="ai-chat-send"
                 >
-                  <Send className="h-4 w-4" />
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                 </button>
               </form>
             )}

@@ -126,46 +126,8 @@ export default function BazaarSchedule() {
         console.error('Failed to run daily AI report check:', err)
       }
 
-      // 2. Daily Push Reminder Check
-      try {
-        const { data: todaySchedule } = await supabase
-          .from('market_schedules')
-          .select('user_id')
-          .eq('mess_id', currentMess.id)
-          .eq('assigned_date', todayStr)
-          .single()
-
-        if (todaySchedule?.user_id) {
-          const assigneeId = todaySchedule.user_id
-
-          const { data: loggedReminder } = await supabase
-            .from('bazaar_reminders_log')
-            .select('id')
-            .eq('mess_id', currentMess.id)
-            .eq('assigned_date', todayStr)
-            .limit(1)
-
-          if (!loggedReminder || loggedReminder.length === 0) {
-            const { error: logErr } = await supabase.from('bazaar_reminders_log').insert({
-              mess_id: currentMess.id,
-              assigned_date: todayStr,
-              sent_to: assigneeId,
-            })
-
-            if (!logErr) {
-              await supabase.from('notifications').insert({
-                user_id: assigneeId,
-                mess_id: currentMess.id,
-                type: 'market_reminder',
-                title: 'Bazaar Duty Reminder 🛒',
-                body: `You are scheduled for bazaar duty today. Don't forget to check the meals and buy the groceries!`,
-              })
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Failed to run daily push reminder check:', err)
-      }
+      // 2. Bazaar duty reminders are now handled server-side
+      //    by the `morning-reminder` edge function via pg_cron (7:00 AM BST daily)
     }
 
     void runDailyChecks()

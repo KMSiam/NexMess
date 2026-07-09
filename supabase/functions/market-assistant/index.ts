@@ -164,6 +164,24 @@ Please ask your Mess Manager to configure the location in **Settings > Mess Deta
       })
     }
 
+    // Total approved members for per-capita context
+    const { count: totalMembers } = await serviceSupabase
+      .from('mess_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('mess_id', mess_id)
+      .eq('status', 'approved')
+
+    // Monthly spending total (current month)
+    const monthStart = targetDate.substring(0, 7) + '-01' // YYYY-MM-01
+    const { data: monthlyExpenses } = await serviceSupabase
+      .from('expenses')
+      .select('amount')
+      .eq('mess_id', mess_id)
+      .gte('date', monthStart)
+      .lte('date', targetDate)
+
+    const monthlyTotal = monthlyExpenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0
+
     // Fetch today's meal routine (cooking menu)
     const [yr, mo, dy] = targetDate.split('-').map(Number)
     const localDate = new Date(yr, mo - 1, dy)
@@ -181,25 +199,25 @@ Please ask your Mess Manager to configure the location in **Settings > Mess Deta
     const todayDinner = routine?.dinner || ''
     const routineText =
       todayLunch || todayDinner
-        ? `Today's Meal Routine:\n- Lunch: ${todayLunch || 'Not scheduled'}\n- Dinner: ${todayDinner || 'Not scheduled'}`
-        : "Today's Meal Routine: No routine set for today."
+        ? `Lunch: ${todayLunch || 'Not set'} | Dinner: ${todayDinner || 'Not set'}`
+        : 'No routine set for today.'
 
-    // Recent Expenses (last 10 bazaar / costs for budget context)
+    // Recent Expenses (last 15 for better budget pattern analysis)
     const { data: expenses } = await serviceSupabase
       .from('expenses')
       .select('amount, category, description, date')
       .eq('mess_id', mess_id)
       .order('date', { ascending: false })
-      .limit(8)
+      .limit(15)
 
-    // Bazaar Schedule (next 4 duties)
+    // Bazaar Schedule (next 5 duties)
     const { data: schedules } = await serviceSupabase
       .from('market_schedules')
       .select('assigned_date, profiles(username)')
       .eq('mess_id', mess_id)
       .gte('assigned_date', targetDate)
       .order('assigned_date', { ascending: true })
-      .limit(4)
+      .limit(5)
 
     const scheduleList =
       schedules
@@ -215,50 +233,54 @@ Please ask your Mess Manager to configure the location in **Settings > Mess Deta
 
     // Construct Context details for Gemini System prompt
     const messContextPrompt = `
-You are "NexMessAI", a read-only smart bazaar coordinator and grocery price advisor.
-You are helping members of the mess "${mess.name}" located at "${location}".
-CURRENT DATE: ${targetDate}
-MESS LOCATION: ${location}
+You are "NexMessAI" — the smart bazaar assistant for mess "${mess.name}" at "${location}".
+Date: ${targetDate} | Members: ${totalMembers || '?'} | Monthly Spend So Far: ${monthlyTotal}
 
-TODAY'S MEAL ROUTINE (WHAT IS COOKING TODAY):
-${routineText}
+📋 TODAY'S MENU: ${routineText}
+🍽️ MEALS: Lunch ${activeLunchCount} pax | Dinner ${activeDinnerCount} pax
 
-TODAY'S MEAL COUNTS:
-- Lunch: ${activeLunchCount} meals (including guests)
-- Dinner: ${activeDinnerCount} meals (including guests)
-
-UPCOMING BAZAAR SCHEDULE:
+📅 BAZAAR SCHEDULE:
 ${scheduleList}
 
-RECENT BAZAAR EXPENSES:
+💸 RECENT EXPENSES:
 ${expensesList}
 
-STRICT OPERATIONAL RULES:
-1. You are a READ-ONLY advisor. You CANNOT insert expenses, change schedules, or alter any mess configurations. Do not offer to run database edits; instead, guide members on how to do it manually in their respective pages.
-2. You MUST use your Google Search grounding tool to search for real-time local grocery prices, best deals, and price updates based in the location: "${location}".
-3. Keep your answers concise, well-structured (with markdown and bold numbers), and practical. 
-4. Always use the local currency symbol and format standard to the location (e.g., if in Bangladesh, use BDT or ৳; if in India, INR or ₹; if US, $).
-5. If creating a shopping list, prioritize the raw ingredients needed for today's menu (Lunch: "${todayLunch || 'lunch'}", Dinner: "${todayDinner || 'dinner'}") based on today's meal counts (${activeLunchCount} lunch, ${activeDinnerCount} dinner). Estimate quantities.
+═══ RESPONSE STYLE RULES (CRITICAL) ═══
+• Be SHORT & PUNCHY. Members should read your answer in under 30 seconds.
+• Use tables for prices (| Item | Price | Qty | Cost |). Never write prices as paragraphs.
+• Use bold for key numbers, emojis for sections, bullet points for lists.
+• No filler phrases like "Certainly!", "Of course!", "Let me help you with that". Jump straight to the answer.
+• Max 3-4 short sections per response. No wall of text.
+• End with a one-line "💡 Tip:" when useful.
+
+═══ OPERATIONAL RULES ═══
+1. READ-ONLY advisor. Cannot edit data. Guide members to the correct app page instead.
+2. Use Google Search grounding for live local prices at "${location}".
+3. Currency: Use local format (e.g., ৳ for Bangladesh, ₹ for India, $ for US).
+4. Quantity estimation guide: ~100g rice/person, ~120-150g protein/person, ~80g vegetables/person, ~15ml oil/person.
+5. For shopping lists, prioritize today's menu ingredients (Lunch: "${todayLunch || 'TBD'}", Dinner: "${todayDinner || 'TBD'}") for ${activeLunchCount} lunch + ${activeDinnerCount} dinner pax.
+6. If monthly spending looks high, add a brief ⚠️ budget warning.
 `
 
     // Construct Gemini API Payload
     let contentsPayload: any[] = []
 
     if (action === 'generate_daily_update') {
-      // Prompt for daily update
+      // Prompt for daily update — short, structured bulletin
       contentsPayload = [
         {
           role: 'user',
           parts: [
             {
-              text: `Generate today's market price report for essential groceries in ${location}. 
-Include:
-1. Today's Cooking Routine: Highlight today's Lunch & Dinner menus.
-2. Daily Price Overview: Search and display current local prices for key raw ingredients needed to cook today's menu (e.g., if chicken is on the menu, prioritize chicken prices), plus general staples (rice, lentils, oil, potatoes, onion).
-3. Best Value Deals: Highlight store choices/discounts in the area (using Google Search results).
-4. Recommended Quantities & Cost: Estimate the quantities of raw ingredients needed based on today's meal counts (${activeLunchCount} lunch, ${activeDinnerCount} dinner) for today's recipes, and provide a total estimated budget.
+              text: `Daily bazaar briefing for ${location}. Keep it SHORT (under 200 words).
 
-Format it as a clean daily bulletin.`,
+Format exactly like this:
+🍳 **Today's Menu** — one line for lunch & dinner
+📊 **Price Check** — table of key ingredients for today's recipes + staples (rice, oil, onion). Use | Item | ৳/kg | columns.
+🛒 **Shopping List** — quantities needed for ${activeLunchCount} lunch + ${activeDinnerCount} dinner pax, with estimated total cost.
+💡 **Tip** — one money-saving tip for today.
+
+No intros, no filler. Straight to the data.`,
             },
           ],
         },
