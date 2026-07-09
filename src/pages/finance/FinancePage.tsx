@@ -540,7 +540,7 @@ export default function FinancePage() {
         </div>
       )}
 
-      {activeTab === 'history' && isManager && <HistoryTab />}
+      {activeTab === 'history' && <HistoryTab />}
 
       <ConfirmDialog
         open={paidFixedCostId !== null}
