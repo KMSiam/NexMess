@@ -132,6 +132,22 @@ export default function SettingsPage() {
     fetchMembers(currentMess.id)
   }
 
+  const handleToggleVerify = async (userId: string, isVerified: boolean) => {
+    if (!currentMess?.id) return
+    const { error } = await supabase.rpc('manager_verify_member', {
+      p_user_id: userId,
+      p_mess_id: currentMess.id,
+      p_is_verified: isVerified,
+    })
+
+    if (error) {
+      toast.error(error.message || 'Failed to update verification status')
+    } else {
+      toast.success(isVerified ? 'Profile verified!' : 'Profile unverified')
+      fetchMembers(currentMess.id)
+    }
+  }
+
   const handleReject = async (userId: string) => {
     if (!currentMess?.id) return
 
@@ -359,6 +375,7 @@ export default function SettingsPage() {
             onRemove={setRemoveMemberId}
             onMakeManager={setPromoteMemberId}
             onDemoteManager={setDemoteMemberId}
+            onToggleVerify={handleToggleVerify}
           />
         )}
 

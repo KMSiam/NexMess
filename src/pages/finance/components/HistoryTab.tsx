@@ -75,8 +75,9 @@ interface ReportSummary {
 }
 
 export default function HistoryTab() {
-  const { currentMess } = useMessStore()
-  const { profile } = useAuthStore()
+  const { currentMess, members } = useMessStore()
+  const { user, profile } = useAuthStore()
+  const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager' && m.status === 'approved')
   const [reports, setReports] = useState<MonthlyReport[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
@@ -204,30 +205,32 @@ export default function HistoryTab() {
   return (
     <div className="space-y-5">
       {/* Generate for month */}
-      <div className="nex-card flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
-        <div className="flex-1">
-          <label className="text-nex-text mb-1 block text-sm font-medium">
-            Generate report for a month
-          </label>
-          <div className="relative">
-            <Calendar className="text-nex-muted pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-            <input
-              type="month"
-              value={genMonth}
-              max={format(new Date(), 'yyyy-MM')}
-              onChange={(e) => setGenMonth(e.target.value)}
-              className="nex-input pl-9"
-            />
+      {isManager && (
+        <div className="nex-card flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <label className="text-nex-text mb-1 block text-sm font-medium">
+              Generate report for a month
+            </label>
+            <div className="relative">
+              <Calendar className="text-nex-muted pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+              <input
+                type="month"
+                value={genMonth}
+                max={format(new Date(), 'yyyy-MM')}
+                onChange={(e) => setGenMonth(e.target.value)}
+                className="nex-input pl-9"
+              />
+            </div>
           </div>
+          <button
+            onClick={handleGenerate}
+            disabled={busy || !genMonth}
+            className="nex-btn-primary flex items-center gap-2 disabled:opacity-50"
+          >
+            <Plus className="h-4 w-4" /> {busy ? 'Generating...' : 'Generate'}
+          </button>
         </div>
-        <button
-          onClick={handleGenerate}
-          disabled={busy || !genMonth}
-          className="nex-btn-primary flex items-center gap-2 disabled:opacity-50"
-        >
-          <Plus className="h-4 w-4" /> {busy ? 'Generating...' : 'Generate'}
-        </button>
-      </div>
+      )}
 
       {/* Archived reports list */}
       {loading ? (
@@ -269,14 +272,16 @@ export default function HistoryTab() {
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <button
-                    onClick={() => handleRegenerate(r.month)}
-                    disabled={busy}
-                    title="Recompile this month with the latest data"
-                    className="nex-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs disabled:opacity-50"
-                  >
-                    <RefreshCw className="h-3.5 w-3.5" /> Refresh
-                  </button>
+                  {isManager && (
+                    <button
+                      onClick={() => handleRegenerate(r.month)}
+                      disabled={busy}
+                      title="Recompile this month with the latest data"
+                      className="nex-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs disabled:opacity-50"
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" /> Refresh
+                    </button>
+                  )}
                   <button
                     onClick={() => handleDownload(r)}
                     className="nex-btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs"

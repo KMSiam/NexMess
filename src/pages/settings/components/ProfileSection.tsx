@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import { getInitials } from '../../../lib/utils'
 import { supabase } from '../../../lib/supabase'
 import { Camera } from 'lucide-react'
@@ -23,7 +23,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
   const [username, setUsername] = useState(profile?.username || '')
   const [contactNo, setContactNo] = useState(profile?.contact_no || '')
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
-  const [saving, setSaving] = useState(false)
+  const [isPending, startTransition] = useTransition()
   const [uploading, setUploading] = useState(false)
 
   // Verification & emergency contact states
@@ -34,20 +34,45 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
   const [verificationDocUrl, setVerificationDocUrl] = useState(profile?.verification_doc_url || '')
   const [emergencyContactNo, setEmergencyContactNo] = useState(profile?.emergency_contact_no || '')
   const [uploadingDoc, setUploadingDoc] = useState(false)
+  const [docPreviewUrl, setDocPreviewUrl] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (!verificationDocUrl) {
+      setDocPreviewUrl('')
+      return
+    }
+
+    if (
+      verificationDocUrl.startsWith('http://') ||
+      verificationDocUrl.startsWith('https://')
+    ) {
+      setDocPreviewUrl(verificationDocUrl)
+      return
+    }
+
+    supabase.storage
+      .from('verifications')
+      .createSignedUrl(verificationDocUrl, 3600)
+      .then(({ data }) => {
+        if (data?.signedUrl) {
+          setDocPreviewUrl(data.signedUrl)
+        }
+      })
+  }, [verificationDocUrl])
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setSaving(true)
-    await onUpdate(
-      username.trim(),
-      contactNo.trim(),
-      avatarUrl || null,
-      verificationDocType === 'none' ? null : verificationDocType,
-      verificationDocType === 'none' ? null : verificationDocNo.trim(),
-      verificationDocType === 'none' ? null : verificationDocUrl || null,
-      emergencyContactNo.trim() || null
-    )
-    setSaving(false)
+    startTransition(async () => {
+      await onUpdate(
+        username.trim(),
+        contactNo.trim(),
+        avatarUrl || null,
+        verificationDocType === 'none' ? null : verificationDocType,
+        verificationDocType === 'none' ? null : verificationDocNo.trim(),
+        verificationDocType === 'none' ? null : verificationDocUrl || null,
+        emergencyContactNo.trim() || null
+      )
+    })
   }
 
   // Handle avatar upload to Supabase storage 'avatars' bucket
@@ -82,7 +107,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
     setUploading(false)
   }
 
-  // Handle verification document upload to Supabase storage 'avatars' bucket
+  // Handle verification document upload to Supabase storage 'verifications' bucket
   const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !profile?.id) return
@@ -101,14 +126,13 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
     const path = `${profile.id}/verification-${Date.now()}.${ext}`
 
     const { error: uploadError } = await supabase.storage
-      .from('avatars')
+      .from('verifications')
       .upload(path, file, { upsert: true })
 
     if (uploadError) {
       toast.error('Failed to upload document')
     } else {
-      const publicUrl = supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl
-      setVerificationDocUrl(publicUrl)
+      setVerificationDocUrl(path)
       toast.success('Document uploaded! Click save to apply changes.')
     }
     setUploadingDoc(false)
@@ -231,7 +255,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
                       {verificationDocUrl ? (
                         <div className="bg-nex-elevated border-nex-border flex w-full items-center justify-between rounded-lg border px-3 py-1.5">
                           <a
-                            href={verificationDocUrl}
+                            href={docPreviewUrl || '#'}
                             target="_blank"
                             rel="noreferrer"
                             className="text-nex-primary max-w-[150px] truncate text-xs font-medium hover:underline"
@@ -268,10 +292,10 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
         <div className="flex justify-end pt-2">
           <button
             type="submit"
-            disabled={saving || uploading || uploadingDoc}
+            disabled={isPending || uploading || uploadingDoc}
             className="nex-btn-primary disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save Changes'}
+            {isPending ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>

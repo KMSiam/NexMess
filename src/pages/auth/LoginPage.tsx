@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../stores/authStore'
@@ -11,39 +11,37 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [googleLoading, setGoogleLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const [googlePending, startGoogleTransition] = useTransition()
 
-  const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleEmailLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setLoading(true)
+    startTransition(async () => {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-
-    if (error) {
-      toast.error(error.message)
-    } else {
-      if (data?.session) {
-        useAuthStore.getState().setSession(data.session)
-        await useAuthStore.getState().fetchProfile()
+      if (error) {
+        toast.error(error.message)
+      } else {
+        if (data?.session) {
+          useAuthStore.getState().setSession(data.session)
+          await useAuthStore.getState().fetchProfile()
+        }
+        toast.success('Welcome back!')
+        navigate('/dashboard')
       }
-      toast.success('Welcome back!')
-      navigate('/dashboard')
-    }
-    setLoading(false)
+    })
   }
 
-  const handleGoogleLogin = async () => {
-    setGoogleLoading(true)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/dashboard` },
+  const handleGoogleLogin = () => {
+    startGoogleTransition(async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/dashboard` },
+      })
+      if (error) {
+        toast.error(error.message)
+      }
     })
-    if (error) {
-      toast.error(error.message)
-      setGoogleLoading(false)
-    }
-    // Note: on success, browser redirects — no need to reset state
   }
 
   return (
@@ -97,11 +95,11 @@ export default function LoginPage() {
           {/* Google Button */}
           <button
             onClick={handleGoogleLogin}
-            disabled={googleLoading}
+            disabled={googlePending}
             className="rounded-btn border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover mb-6 flex w-full items-center justify-center gap-3 border px-4 py-3 text-sm font-medium transition-colors disabled:opacity-60"
             id="google-login-btn"
           >
-            {googleLoading ? (
+            {googlePending ? (
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
             ) : (
               <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -123,7 +121,7 @@ export default function LoginPage() {
                 />
               </svg>
             )}
-            {googleLoading ? 'Redirecting...' : 'Continue with Google'}
+            {googlePending ? 'Redirecting...' : 'Continue with Google'}
           </button>
 
           <div className="mb-6 flex items-center gap-3">
@@ -184,17 +182,17 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="nex-btn-primary w-full py-3 disabled:opacity-50"
-              id="login-submit"
-            >
-              {loading ? (
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              ) : (
-                <>
-                  Sign In <ArrowRight className="h-4 w-4" />
-                </>
-              )}
+            disabled={isPending}
+            className="nex-btn-primary w-full py-3 disabled:opacity-50"
+            id="login-submit"
+          >
+            {isPending ? (
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <>
+                Sign In <ArrowRight className="h-4 w-4" />
+              </>
+            )}
             </button>
           </form>
 

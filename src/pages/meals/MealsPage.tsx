@@ -21,6 +21,7 @@ import {
 import toast from 'react-hot-toast'
 import { isMealCutoffPassed, mealCutoffLabel } from '../../lib/utils'
 import { usePageTitle } from '../../hooks/usePageTitle'
+import { useRealtimeTable } from '../../hooks/useRealtimeTable'
 
 export default function MealsPage() {
   usePageTitle('Meals')
@@ -80,25 +81,14 @@ export default function MealsPage() {
   }, [currentMess?.id, user, calendarStartStr, calendarEndStr, viewMode])
 
   useEffect(() => {
-    if (!currentMess?.id || !user?.id) return
     fetchMeals()
+  }, [fetchMeals])
 
-    // Real-time subscription for meals
-    const channel = supabase
-      .channel(`meals-${currentMess.id}-${user.id}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'meals', filter: `mess_id=eq.${currentMess.id}` },
-        () => {
-          setTimeout(fetchMeals, 300)
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [currentMess?.id, user?.id, monthStr, viewMode, fetchMeals])
+  // Real-time subscription for meals
+  useRealtimeTable(
+    currentMess?.id ? { table: 'meals', filter: `mess_id=eq.${currentMess.id}` } : [],
+    fetchMeals
+  )
 
   const toggleMeal = async (date: string, type: 'lunch' | 'dinner') => {
     if (!user?.id || !currentMess?.id) return

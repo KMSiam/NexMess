@@ -111,7 +111,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // Clear mess data so the next account on this device doesn't see stale state
     useMessStore.getState().reset()
     try {
-      localStorage.removeItem('nexmess-store')
+      useMessStore.persist.clearStorage()
     } catch {
       /* storage unavailable */
     }

@@ -375,7 +375,7 @@ export default function FinancePage() {
     { key: 'deposits', label: 'Deposits', icon: PiggyBank },
     { key: 'fixed', label: 'Fixed Costs', icon: DollarSign },
     { key: 'summary', label: 'Summary', icon: TrendingUp },
-    ...(isManager ? [{ key: 'history' as const, label: 'History', icon: History }] : []),
+    { key: 'history', label: 'History', icon: History },
   ]
 
   if (!currentMess) return null

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { getInitials } from '../../../lib/utils'
+import { supabase } from '../../../lib/supabase'
+import toast from 'react-hot-toast'
 import {
   UserCheck,
   UserX,
@@ -22,6 +24,7 @@ interface MemberManagementProps {
   onRemove: (userId: string) => void
   onMakeManager: (userId: string) => void
   onDemoteManager: (userId: string) => void
+  onToggleVerify: (userId: string, isVerified: boolean) => void
 }
 
 export default function MemberManagement({
@@ -33,12 +36,30 @@ export default function MemberManagement({
   onRemove,
   onMakeManager,
   onDemoteManager,
+  onToggleVerify,
 }: MemberManagementProps) {
   const [selectedDocUrl, setSelectedDocUrl] = useState<string | null>(null)
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null)
 
   const toggleExpand = (userId: string) => {
     setExpandedUserId((prev) => (prev === userId ? null : userId))
+  }
+
+  const handleViewDoc = async (docUrl: string) => {
+    if (docUrl.startsWith('http://') || docUrl.startsWith('https://')) {
+      setSelectedDocUrl(docUrl)
+      return
+    }
+
+    const { data, error } = await supabase.storage
+      .from('verifications')
+      .createSignedUrl(docUrl, 900)
+
+    if (error || !data?.signedUrl) {
+      toast.error('Failed to retrieve secure copy')
+    } else {
+      setSelectedDocUrl(data.signedUrl)
+    }
   }
 
   return (
@@ -238,7 +259,7 @@ export default function MemberManagement({
                               {p.verification_doc_url ? (
                                 <button
                                   type="button"
-                                  onClick={() => setSelectedDocUrl(p.verification_doc_url)}
+                                  onClick={() => handleViewDoc(p.verification_doc_url)}
                                   className="text-nex-primary bg-nex-primary-light flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition-colors hover:text-blue-500"
                                 >
                                   View Copy
@@ -257,6 +278,22 @@ export default function MemberManagement({
                     {/* Member Actions Row */}
                     {isManager && (
                       <div className="border-nex-border/50 flex flex-wrap items-center justify-end gap-2 border-t pt-4">
+                        {p?.is_verified ? (
+                          <button
+                            onClick={() => onToggleVerify(member.user_id, false)}
+                            className="rounded-xl bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-500 hover:text-white"
+                          >
+                            Unverify Profile
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => onToggleVerify(member.user_id, true)}
+                            className="rounded-xl bg-emerald-500/10 px-3.5 py-2 text-xs font-semibold text-emerald-500 transition-all duration-200 hover:bg-emerald-500 hover:text-white"
+                          >
+                            Verify Profile
+                          </button>
+                        )}
+
                         {member.role === 'member' ? (
                           <button
                             onClick={() => onMakeManager(member.user_id)}

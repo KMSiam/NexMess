@@ -8,7 +8,6 @@ import toast from 'react-hot-toast'
 
 // Hooks
 import { usePageTitle } from '../../hooks/usePageTitle'
-import { useRealtimeTable } from '../../hooks/useRealtimeTable'
 
 // Components
 import ChatBubble from './components/ChatBubble'
@@ -141,17 +140,6 @@ export default function ChatPage() {
       })
     }
   }
-
-  // Set up realtime subscriptions using useRealtimeTable hook
-  useRealtimeTable(
-    [
-      { table: 'chat_messages', filter: `mess_id=eq.${currentMess?.id}` },
-      { table: 'chat_reactions' }, // Reactions table doesn't have direct mess_id, we filter internally or rely on SELECT RLS
-    ],
-    () => {
-      // Direct notification handler
-    }
-  )
 
   // Explicit handlers for Realtime DB events (message insert, reaction updates)
   useEffect(() => {

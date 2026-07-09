@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { Smile } from 'lucide-react'
-import { getInitials } from '../../../lib/utils'
+import { getInitials, isSafeUrl } from '../../../lib/utils'
 import type { ChatMessage, Profile } from '../../../types/database'
 
 interface Reaction {
@@ -85,7 +85,7 @@ export default function ChatBubble({
           >
             {msg.message_type === 'image' ? (
               <a
-                href={msg.text}
+                href={isSafeUrl(msg.text) ? msg.text : '#'}
                 target="_blank"
                 rel="noreferrer"
                 className="block max-w-xs overflow-hidden rounded-lg"

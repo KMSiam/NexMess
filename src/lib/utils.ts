@@ -109,3 +109,14 @@ export function addDaysDhaka(dateStr: string, days: number): string {
 export function dhakaTomorrow(): string {
   return addDaysDhaka(dhakaToday(), 1)
 }
+
+export function isSafeUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    return ['http:', 'https:'].includes(parsed.protocol)
+  } catch {
+    // Relative paths (like /dashboard) or blob URLs are considered safe
+    return url.startsWith('/') || url.startsWith('blob:')
+  }
+}
+
