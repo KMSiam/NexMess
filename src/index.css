@@ -113,6 +113,7 @@
   html {
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
   }
 
   body {
@@ -124,6 +125,8 @@
     color: var(--color-nex-text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
     transition:
       background-color 0.3s ease,
       color 0.3s ease;
