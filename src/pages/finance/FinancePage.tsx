@@ -218,12 +218,24 @@ export default function FinancePage() {
       refetch()
       if (dep) {
         try {
-          sendPushToUser(
-            dep.user_id,
-            `✅ Deposit Verified`,
-            `Your deposit of ৳${dep.amount} has been verified by the manager.`,
-            '/finance'
-          )
+          const isOwnDeposit = dep.user_id === user.id
+          if (isOwnDeposit && currentMess?.manager_id) {
+            // Member confirmed their own deposit, notify the manager
+            sendPushToUser(
+              currentMess.manager_id,
+              `✅ Deposit Confirmed by Member`,
+              `${profile?.username || 'A member'} confirmed the deposit of ৳${dep.amount}.`,
+              '/finance'
+            )
+          } else if (!isOwnDeposit) {
+            // Manager verified a member's deposit, notify the member
+            sendPushToUser(
+              dep.user_id,
+              `✅ Deposit Verified`,
+              `Your deposit of ৳${dep.amount} has been verified by the manager.`,
+              '/finance'
+            )
+          }
         } catch (err) {
           console.error('Failed to send deposit verification push:', err)
         }
@@ -482,6 +494,7 @@ export default function FinancePage() {
           deposits={deposits}
           approvedMembers={approvedMembers}
           isManager={isManager}
+          currentUserId={user?.id || ''}
           onAddDeposit={handleAddDeposit}
           onConfirmDeposit={handleConfirmDeposit}
           onDeleteDeposit={handleDeleteDeposit}
