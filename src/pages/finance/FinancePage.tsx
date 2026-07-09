@@ -190,6 +190,13 @@ export default function FinancePage() {
     else {
       toast.success('Deposit recorded!')
       refetch()
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        mess_id: currentMess.id,
+        type: 'deposit_recorded',
+        title: '💰 Deposit Recorded',
+        body: `Your manager recorded a pending deposit of ৳${amount}${note ? ` (${note})` : ''}.`,
+      })
       try {
         const bodyText = `Your manager recorded a pending deposit of ৳${amount}${note ? ` (${note})` : ''}.`
         sendPushToUser(userId, `💰 Deposit Recorded`, bodyText, '/finance')
@@ -216,11 +223,17 @@ export default function FinancePage() {
     else {
       toast.success('Deposit verified!')
       refetch()
-      if (dep) {
+      if (dep && currentMess?.id) {
         try {
           const isOwnDeposit = dep.user_id === user.id
           if (isOwnDeposit && currentMess?.manager_id) {
-            // Member confirmed their own deposit, notify the manager
+            await supabase.from('notifications').insert({
+              user_id: currentMess.manager_id,
+              mess_id: currentMess.id,
+              type: 'deposit_confirmed',
+              title: '✅ Deposit Confirmed',
+              body: `${profile?.username || 'A member'} confirmed the deposit of ৳${dep.amount}.`,
+            })
             sendPushToUser(
               currentMess.manager_id,
               `✅ Deposit Confirmed by Member`,
@@ -228,7 +241,13 @@ export default function FinancePage() {
               '/finance'
             )
           } else if (!isOwnDeposit) {
-            // Manager verified a member's deposit, notify the member
+            await supabase.from('notifications').insert({
+              user_id: dep.user_id,
+              mess_id: currentMess.id,
+              type: 'deposit_verified',
+              title: '✅ Deposit Verified',
+              body: `Your deposit of ৳${dep.amount} has been verified by the manager.`,
+            })
             sendPushToUser(
               dep.user_id,
               `✅ Deposit Verified`,
