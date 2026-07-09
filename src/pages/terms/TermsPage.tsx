@@ -116,7 +116,7 @@ export default function TermsPage() {
                   </li>
                 </ul>
                 <p>
-                  We do not own user-submitted data. However, you grant NexMess a worldwide, royalty-free, non-exclusive license to host, store, process, and display your data (e.g. expenses, meals, notices) for the co-members of your joined mess group.
+                  In compliance with the Bangladesh Personal Data Protection Act (PDPA), we recognize and declare that you retain full ownership and proprietary rights over your personal data. We do not claim ownership of user-submitted data. However, you grant NexMess a voluntary, specific, and clear license to host, store, process, and display your data (e.g. expenses, meals, notices, chat messages) solely to provide the services described herein to the co-members of your joined mess group. You may withdraw this consent or request deletion of your data at any time, subject to PDPA guidelines and standard data erasure procedures.
                 </p>
               </div>
             </section>

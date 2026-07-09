@@ -167,15 +167,25 @@ export default function PrivacyPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
                   6
                 </span>
-                Your Rights & Data Choices
+                Bangladesh Personal Data Protection Act (PDPA) Compliance
               </h2>
-              <div className="text-nex-muted space-y-2 pl-8">
-                <p>Depending on your jurisdiction (such as GDPR or CCPA), you possess the following rights:</p>
+              <div className="text-nex-muted space-y-3 pl-8">
+                <p>
+                  As we operate under the jurisdiction of Bangladesh, we fully comply with the Bangladesh Personal Data Protection Act (PDPA). The legal framework recognizes your personal data as your property, and we treat it as such:
+                </p>
                 <ul className="list-disc space-y-2 pl-5">
-                  <li><strong className="text-nex-text">Right of Access:</strong> Request a copy of the personal data we hold about you.</li>
-                  <li><strong className="text-nex-text">Right to Rectification:</strong> Edit or correct inaccurate or incomplete details from your Profile settings.</li>
-                  <li><strong className="text-nex-text">Right to Erasure (To Be Forgotten):</strong> Request the permanent deletion of your profile and verification records.</li>
-                  <li><strong className="text-nex-text">Right to Object/Opt-out:</strong> Manage cookies and personalized ads, or opt-out of notifications at any time.</li>
+                  <li>
+                    <strong className="text-nex-text">Citizen Data Ownership & Rights:</strong> You have full ownership of your data and possess the right to access, correct, delete, and withdraw consent. You can manage or delete your profile directly in settings or by reaching out to support.
+                  </li>
+                  <li>
+                    <strong className="text-nex-text">Explicit Consent:</strong> In accordance with PDPA requirements, we obtain your voluntary, specific, and clear consent prior to collecting or processing any personal information.
+                  </li>
+                  <li>
+                    <strong className="text-nex-text">Cross-Border Data Residency:</strong> Under PDPA regulations, classified and restricted citizen personal data must be stored locally within Bangladesh or mirrored securely. We partner with secure hosting providers (Supabase) and coordinate with the National Data Governance Authority (NDGA) to enforce local data mirroring compliance for restricted data.
+                  </li>
+                  <li>
+                    <strong className="text-nex-text">Child Protection & Behavioral Tracking:</strong> We strictly prohibit profiling, behavioral tracking, or targeted advertising directed at children on our platform.
+                  </li>
                 </ul>
               </div>
             </section>
@@ -186,11 +196,17 @@ export default function PrivacyPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
                   7
                 </span>
-                Cookies & Third-Party Advertising
+                Your Rights & Data Choices (GDPR, CCPA & Global Frameworks)
               </h2>
-              <p className="text-nex-muted pl-8">
-                We use secure local storage tokens to keep you authenticated across browser sessions. If we enable Google AdSense, third-party vendors (including Google) may use cookies to serve ads based on your visits to our site or other websites. You can manage or disable personalized advertising by visiting Google's Ad Settings.
-              </p>
+              <div className="text-nex-muted space-y-2 pl-8">
+                <p>Depending on your jurisdiction (such as GDPR, CCPA, or PDPA), you possess the following rights:</p>
+                <ul className="list-disc space-y-2 pl-5">
+                  <li><strong className="text-nex-text">Right of Access:</strong> Request a copy of the personal data we hold about you.</li>
+                  <li><strong className="text-nex-text">Right to Rectification:</strong> Edit or correct inaccurate or incomplete details from your Profile settings.</li>
+                  <li><strong className="text-nex-text">Right to Erasure (To Be Forgotten):</strong> Request the permanent deletion of your profile and verification records.</li>
+                  <li><strong className="text-nex-text">Right to Object/Opt-out:</strong> Manage cookies and personalized ads, or opt-out of notifications at any time.</li>
+                </ul>
+              </div>
             </section>
 
             {/* Section 8 */}
@@ -199,10 +215,23 @@ export default function PrivacyPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
                   8
                 </span>
+                Cookies & Third-Party Advertising
+              </h2>
+              <p className="text-nex-muted pl-8">
+                We use secure local storage tokens to keep you authenticated across browser sessions. If we enable Google AdSense, third-party vendors (including Google) may use cookies to serve ads based on your visits to our site or other websites. You can manage or disable personalized advertising by visiting Google's Ad Settings.
+              </p>
+            </section>
+
+            {/* Section 9 */}
+            <section className="space-y-3">
+              <h2 className="text-nex-text flex items-center gap-2 text-xl font-bold">
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
+                  9
+                </span>
                 Contact & Administration
               </h2>
               <p className="text-nex-muted pl-8">
-                If you have questions regarding this Privacy Policy, or wish to submit a data erasure request, please contact our support team at{' '}
+                If you have questions regarding this Privacy Policy, or wish to submit a data erasure request under the Bangladesh NDGA or other regulatory bodies, please contact our support team at{' '}
                 <a href="mailto:support@nexmess.shop" className="text-blue-500 hover:underline">
                   support@nexmess.shop
                 </a>
