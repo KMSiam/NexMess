@@ -24,14 +24,12 @@ export default function ExpenseTab({
   const [showAddExpense, setShowAddExpense] = useState(false)
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null)
 
-  // Form State
   const [expAmount, setExpAmount] = useState('')
   const [expDesc, setExpDesc] = useState('')
   const [expCategory, setExpCategory] = useState('bazaar')
   const [expFile, setExpFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // Delete State
   const [deleteExpenseId, setDeleteExpenseId] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

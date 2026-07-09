@@ -46,7 +46,6 @@ export default function LoginPage() {
 
   return (
     <div className="bg-nex-bg flex min-h-screen">
-      {/* Left: Branding */}
       <div className="hidden w-1/2 flex-col items-center justify-center bg-gradient-to-br from-[#3A5643] via-[#4A6D56] to-[#5F886E] p-12 text-white lg:flex">
         <div className="max-w-md">
           <Link to="/" className="mb-8 flex items-center gap-3 transition-opacity hover:opacity-85">
@@ -75,10 +74,8 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right: Login Form */}
       <div className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
-          {/* Mobile logo */}
           <Link
             to="/"
             className="mb-8 flex items-center gap-3 transition-opacity hover:opacity-85 lg:hidden"
@@ -92,7 +89,6 @@ export default function LoginPage() {
           <h2 className="text-nex-text mb-1 text-2xl font-bold">Welcome back</h2>
           <p className="text-nex-muted mb-8">Sign in to continue to your dashboard</p>
 
-          {/* Google Button */}
           <button
             onClick={handleGoogleLogin}
             disabled={googlePending}

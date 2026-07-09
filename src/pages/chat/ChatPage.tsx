@@ -6,10 +6,7 @@ import { ChatMessage } from '../../types/database'
 import { Send, MessageSquare, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-// Hooks
 import { usePageTitle } from '../../hooks/usePageTitle'
-
-// Components
 import ChatBubble from './components/ChatBubble'
 import ImageUploader from './components/ImageUploader'
 
@@ -42,7 +39,7 @@ export default function ChatPage() {
     membersRef.current = members
   }, [members])
 
-  // Fetch initial messages and reactions in parallel
+  // Fetch messages and their reactions
   const fetchMessagesAndReactions = useCallback(
     async (limit = PAGE_SIZE, beforeId?: string) => {
       if (!currentMess?.id) return
@@ -55,7 +52,6 @@ export default function ChatPage() {
         .limit(limit)
 
       if (beforeId) {
-        // Find the message's created_at timestamp to query before it
         const beforeMsg = messages.find((m) => m.id === beforeId)
         if (beforeMsg) {
           query = query.lt('created_at', beforeMsg.created_at)
@@ -75,14 +71,13 @@ export default function ChatPage() {
       }
 
       if (beforeId) {
-        // If loading history, prepend messages and preserve scroll
+        // Prepend older messages and preserve scroll position
         const container = messagesContainerRef.current
         const scrollHeightBefore = container?.scrollHeight || 0
         const scrollTopBefore = container?.scrollTop || 0
 
         setMessages((prev) => [...fetchedMsgs, ...prev])
 
-        // Adjust scroll position after render
         setTimeout(() => {
           if (container) {
             const scrollHeightAfter = container.scrollHeight
@@ -90,9 +85,7 @@ export default function ChatPage() {
           }
         }, 0)
       } else {
-        // Initial load
         setMessages(fetchedMsgs)
-        // Scroll to bottom after render
         setTimeout(() => {
           if (messagesContainerRef.current) {
             messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
@@ -101,7 +94,6 @@ export default function ChatPage() {
         }, 100)
       }
 
-      // Load reactions for the loaded messages
       if (fetchedMsgs.length > 0) {
         const msgIds = fetchedMsgs.map((m) => m.id)
         const { data: rxData } = await supabase
@@ -111,7 +103,6 @@ export default function ChatPage() {
 
         if (rxData) {
           setReactions((prev) => {
-            // Remove duplicates and combine
             const filteredPrev = prev.filter((r) => !msgIds.includes(r.message_id))
             return [...filteredPrev, ...(rxData as Reaction[])]
           })
@@ -121,7 +112,6 @@ export default function ChatPage() {
     [currentMess?.id, messages]
   )
 
-  // Initial load
   useEffect(() => {
     if (currentMess?.id) {
       setHasMore(true)
@@ -130,7 +120,7 @@ export default function ChatPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMess?.id])
 
-  // Load older messages on scroll-to-top
+  // Infinite scroll: fetch older messages when reaching top
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget
     if (target.scrollTop === 0 && hasMore && !loadingOlder && messages.length > 0) {
@@ -141,7 +131,7 @@ export default function ChatPage() {
     }
   }
 
-  // Explicit handlers for Realtime DB events (message insert, reaction updates)
+  // Subscriptions for new messages and reaction updates
   useEffect(() => {
     if (!currentMess?.id) return
 
@@ -168,7 +158,7 @@ export default function ChatPage() {
             }
             return [...prev, completeMsg as ChatMessage]
           })
-          // Scroll to bottom if user is already at the bottom
+          // Auto-scroll if user is near bottom
           const container = messagesContainerRef.current
           if (container) {
             const isAtBottom =
@@ -221,7 +211,7 @@ export default function ChatPage() {
 
     const tempId = 'temp-' + Date.now()
 
-    // Optimistic UI update
+    // Optimistically append message to UI
     const optimisticMsg = {
       id: tempId,
       mess_id: currentMess.id,
@@ -234,8 +224,6 @@ export default function ChatPage() {
     setMessages((prev) => [...prev, optimisticMsg as any])
     if (!customText) setNewMessage('')
     setSending(false)
-
-    // Actual DB Insert
     const { data, error } = await supabase
       .from('chat_messages')
       .insert({
@@ -266,7 +254,7 @@ export default function ChatPage() {
       emoji,
     })
     if (error && error.code !== '23505') {
-      // Unique constraint violation is fine
+      // Unique constraint violation (duplicate reaction) is safely ignored
       toast.error('Failed to add reaction')
     }
   }
@@ -289,7 +277,6 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Messages Window */}
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
@@ -329,7 +316,6 @@ export default function ChatPage() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input controls */}
       <form onSubmit={(e) => handleSend(e)} className="mt-2 flex shrink-0 gap-2">
         <ImageUploader
           messId={currentMess.id}

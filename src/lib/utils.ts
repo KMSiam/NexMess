@@ -51,8 +51,7 @@ export function getGreeting(): string {
   return 'Good evening'
 }
 
-// Meal cut-off times — Asia/Dhaka. After cut-off, the meal for *today* can't be toggled.
-// Past dates are blocked elsewhere; future dates are always editable.
+// Meal cut-off times (Asia/Dhaka). After cut-off, today's meal cannot be toggled.
 export const MEAL_CUTOFF_HOURS = { lunch: 10, dinner: 16 } as const
 
 function dhakaParts(d: Date = new Date()) {
@@ -68,8 +67,8 @@ function dhakaParts(d: Date = new Date()) {
 
 export function isMealCutoffPassed(dateStr: string, type: 'lunch' | 'dinner'): boolean {
   const todayDhaka = dhakaToday()
-  if (dateStr < todayDhaka) return true // Past dates are always locked
-  if (dateStr > todayDhaka) return false // Future dates are never locked
+  if (dateStr < todayDhaka) return true
+  if (dateStr > todayDhaka) return false
 
   const { hour } = dhakaParts()
   return hour >= MEAL_CUTOFF_HOURS[type]
@@ -79,8 +78,6 @@ export function mealCutoffLabel(type: 'lunch' | 'dinner'): string {
   return type === 'lunch' ? '10:00 AM' : '4:00 PM'
 }
 
-// Is the cut-off approaching within `windowMinutes` (default 60)?
-// Returns minutesLeft when in window, otherwise null.
 export function mealCutoffApproaching(type: 'lunch' | 'dinner', windowMinutes = 60): number | null {
   const { hour, minute } = dhakaParts()
   const cutoffH = MEAL_CUTOFF_HOURS[type]
@@ -91,7 +88,6 @@ export function mealCutoffApproaching(type: 'lunch' | 'dinner', windowMinutes = 
   return left
 }
 
-// Asia/Dhaka today's date string (YYYY-MM-DD)
 export function dhakaToday(): string {
   return dhakaParts().dateStr
 }

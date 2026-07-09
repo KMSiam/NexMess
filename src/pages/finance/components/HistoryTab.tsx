@@ -130,7 +130,6 @@ export default function HistoryTab() {
 
   if (!currentMess) return null
 
-  // Compile the archived summary JSON into the ReportData shape for the PDF.
   const buildData = (report: MonthlyReport): ReportData => {
     const s = report.summary
     const members = (s.balances || []).map((b) => ({
@@ -170,7 +169,7 @@ export default function HistoryTab() {
       p_mess_id: currentMess.id,
       p_month: genMonth,
     })
-    setGenMonth('') // Reset or keep? Keeping picker value is fine, but lets keep it
+    setGenMonth('')
     setBusy(false)
     if (error) {
       toast.error(error.message || 'Failed to generate report')
@@ -204,7 +203,6 @@ export default function HistoryTab() {
 
   return (
     <div className="space-y-5">
-      {/* Generate for month */}
       {isManager && (
         <div className="nex-card flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
           <div className="flex-1">
@@ -232,7 +230,6 @@ export default function HistoryTab() {
         </div>
       )}
 
-      {/* Archived reports list */}
       {loading ? (
         <div className="space-y-4">
           <CardSkeleton />

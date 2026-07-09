@@ -75,7 +75,6 @@ export default function RegisterPage() {
 
   return (
     <div className="bg-nex-bg flex min-h-screen">
-      {/* Left: Branding */}
       <div className="hidden w-1/2 flex-col items-center justify-center bg-gradient-to-br from-[#3A5643] via-[#4A6D56] to-[#5F886E] p-12 text-white lg:flex">
         <div className="max-w-md">
           <Link to="/" className="mb-8 flex items-center gap-3 transition-opacity hover:opacity-85">
@@ -95,7 +94,6 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* Right: Register Form */}
       <div className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
           <Link
@@ -208,7 +206,6 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Terms & Privacy Policy Checkbox */}
             <div className="flex items-start gap-2.5 py-1">
               <input
                 type="checkbox"

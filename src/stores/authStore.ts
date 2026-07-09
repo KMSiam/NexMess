@@ -28,7 +28,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   unsubscribe: null,
 
   initialize: async () => {
-    // Prevent double-initialization (e.g. StrictMode remounts)
+    // Prevent double-initialization in StrictMode
     if (get().initialized || get().unsubscribe) return
 
     try {
@@ -41,7 +41,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         await get().fetchProfile()
       }
 
-      // Listen for auth changes and store unsubscribe
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
@@ -99,24 +98,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
-    // Unsubscribe from auth listener first
     const unsub = get().unsubscribe
     if (unsub) {
       unsub()
       set({ unsubscribe: null })
     }
 
-    // Clear state first so UI updates immediately
     set({ session: null, user: null, profile: null })
     // Clear mess data so the next account on this device doesn't see stale state
     useMessStore.getState().reset()
     try {
       useMessStore.persist.clearStorage()
     } catch {
-      /* storage unavailable */
     }
 
-    // Then tell Supabase to sign out (scope: 'local' avoids network issues)
+    // Sign out locally to avoid offline network failures
     await supabase.auth.signOut({ scope: 'local' })
   },
 }))

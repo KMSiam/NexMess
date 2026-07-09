@@ -10,10 +10,7 @@ import ConfirmDialog from '../../components/ConfirmDialog'
 import SupportModal from '../../components/SupportModal'
 import pkg from '../../../package.json'
 
-// Custom Hooks
 import { usePageTitle } from '../../hooks/usePageTitle'
-
-// Sub-components
 import ProfileSection from './components/ProfileSection'
 import PushNotificationSection from './components/PushNotificationSection'
 import MessDetailsSection from './components/MessDetailsSection'
@@ -34,7 +31,6 @@ export default function SettingsPage() {
   >('profile')
   const [isSupportOpen, setIsSupportOpen] = useState(false)
 
-  // Modal Dialogs States
   const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false)
@@ -54,7 +50,7 @@ export default function SettingsPage() {
     if (currentMess?.id) {
       fetchMembers(currentMess.id)
 
-      // Real-time listener for members (approvals/requests)
+      // Real-time listener for member status changes
       const channel = supabase
         .channel(`members-${currentMess.id}`)
         .on(
@@ -215,7 +211,7 @@ export default function SettingsPage() {
 
     toast.success('Manager demoted to member')
 
-    // If the user demoted themselves, redirect or reload permissions
+    // If manager demoted themselves, redirect to dashboard to refresh permissions
     if (demoteMemberId === user?.id) {
       navigate('/dashboard')
     } else {
@@ -291,7 +287,6 @@ export default function SettingsPage() {
         <h1 className="text-nex-text text-2xl font-bold">Settings</h1>
       </div>
 
-      {/* Tabs Navigation */}
       <div className="bg-nex-elevated border-nex-border/80 scrollbar-none flex w-full max-w-full gap-1.5 overflow-x-auto rounded-xl border p-1 whitespace-nowrap">
         <button
           onClick={() => setActiveTab('profile')}
@@ -359,7 +354,6 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      {/* Tab Contents */}
       <div className="mt-4 min-h-[300px]">
         {activeTab === 'profile' && (
           <ProfileSection profile={profile} email={user?.email} onUpdate={handleProfileUpdate} />
@@ -403,12 +397,10 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* Version Footer */}
       <div className="text-nex-muted border-nex-border/30 border-t py-4 text-center text-xs">
         NexMess v{pkg.version}
       </div>
 
-      {/* Confirm Dialogs */}
       <ConfirmDialog
         open={confirmLeaveOpen}
         title="Leave Mess"
@@ -477,7 +469,6 @@ export default function SettingsPage() {
         onCancel={() => setDemoteMemberId(null)}
       />
 
-      {/* Support / Contact Floating Button */}
       <button
         onClick={() => setIsSupportOpen(true)}
         className="bg-nex-primary shadow-nex-primary/30 group fixed right-6 bottom-24 z-40 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 md:bottom-6"
@@ -486,7 +477,6 @@ export default function SettingsPage() {
         <MessageCircle className="h-6 w-6 group-hover:animate-pulse" />
       </button>
 
-      {/* Support Modal */}
       <SupportModal isOpen={isSupportOpen} onClose={() => setIsSupportOpen(false)} />
     </div>
   )

@@ -32,6 +32,7 @@ export default function UpdatePasswordPage() {
       })
     }, 5000)
 
+    // Listen for PASSWORD_RECOVERY or SIGNED_IN events signifying the recovery link token was successfully verified.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -40,8 +41,7 @@ export default function UpdatePasswordPage() {
         setReady(true)
         setInvalid(false)
       }
-      // Only navigate to dashboard if the user updated their profile/password AFTER being ready
-      // We don't want to redirect them before they can change their password
+      // Note: We do not automatically redirect here, as the user must submit the form first.
     })
 
     return () => {
@@ -82,7 +82,6 @@ export default function UpdatePasswordPage() {
 
   return (
     <div className="bg-nex-bg flex min-h-screen">
-      {/* Left: Branding */}
       <div className="hidden w-1/2 flex-col items-center justify-center bg-gradient-to-br from-[#3A5643] via-[#4A6D56] to-[#5F886E] p-12 text-white lg:flex">
         <div className="max-w-md">
           <div className="mb-8 flex items-center gap-3">
@@ -98,10 +97,8 @@ export default function UpdatePasswordPage() {
         </div>
       </div>
 
-      {/* Right: Form */}
       <div className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
-          {/* Mobile logo */}
           <div className="mb-8 flex items-center gap-3 lg:hidden">
             <div className="h-10 w-10 overflow-hidden rounded-xl">
               <img src={logoIcon} alt="NexMess" className="h-full w-full" />

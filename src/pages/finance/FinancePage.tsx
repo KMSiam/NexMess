@@ -9,11 +9,9 @@ import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 import ConfirmDialog from '../../components/ConfirmDialog'
 
-// Custom Hooks
 import { useFinanceData } from '../../hooks/useFinanceData'
 import { usePageTitle } from '../../hooks/usePageTitle'
 
-// Decomposed Sub-components
 import FinanceOverview from './components/FinanceOverview'
 import ExpenseTab from './components/ExpenseTab'
 import DepositTab from './components/DepositTab'
@@ -35,7 +33,6 @@ export default function FinancePage() {
   const approvedMembers = members.filter((m) => m.status === 'approved')
   const financeMembers = members.filter((m) => m.status === 'approved' || m.status === 'left')
 
-  // Fetch all finance lists & calculations through custom Hook
   const {
     expenses,
     deposits,
@@ -46,7 +43,6 @@ export default function FinancePage() {
     currentMonth,
   } = useFinanceData(currentMess?.id, members)
 
-  // Paid Confirmation Dialog State
   const [paidFixedCostId, setPaidFixedCostId] = useState<string | null>(null)
 
   const totalExpenses = expenses
@@ -99,7 +95,6 @@ export default function FinancePage() {
     return transfers
   })()
 
-  // Actions
   const handleAddExpense = async (
     amount: number,
     category: string,
@@ -306,7 +301,6 @@ export default function FinancePage() {
       0
     )
 
-    // Fetch daily meals and daily expenses for the current month
     const monthStartStr = `${currentMonth}-01`
     const monthEndStr = format(endOfMonth(new Date(monthStartStr)), 'yyyy-MM-dd')
 
@@ -433,7 +427,6 @@ export default function FinancePage() {
         messBalance={messBalance}
       />
 
-      {/* Tab Switcher */}
       <div className="bg-nex-elevated rounded-btn scrollbar-none flex w-full max-w-full gap-1 overflow-x-auto p-1">
         {tabs.map(({ key, label, icon: Icon }) => (
           <button
@@ -448,7 +441,6 @@ export default function FinancePage() {
         ))}
       </div>
 
-      {/* Tabs panels */}
       {activeTab === 'expenses' && (
         <ExpenseTab
           expenses={expenses}
@@ -493,7 +485,6 @@ export default function FinancePage() {
 
       {activeTab === 'history' && isManager && <HistoryTab />}
 
-      {/* Confirmation Dialog for marking fixed costs as paid */}
       <ConfirmDialog
         open={paidFixedCostId !== null}
         title="Mark Fixed Cost as Paid"

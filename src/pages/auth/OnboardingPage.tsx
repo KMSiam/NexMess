@@ -42,7 +42,7 @@ export default function OnboardingPage() {
     try {
       let avatar_url: string | null = null
 
-      // Upload avatar if selected
+      // Upload avatar to public storage under the user's folder
       if (avatarFile && user) {
         const ext = avatarFile.name.split('.').pop()
         const path = `${user.id}/avatar.${ext}`
@@ -85,7 +85,6 @@ export default function OnboardingPage() {
         <p className="text-nex-muted mb-8">Choose a username and avatar to get started</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Avatar Upload */}
           <div className="flex justify-center">
             <button
               type="button"

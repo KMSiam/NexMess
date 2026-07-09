@@ -74,7 +74,6 @@ export default function ChatBubble({
       <div className={`relative max-w-[80%] sm:max-w-[70%] ${isOwn ? 'order-1' : ''}`}>
         {!isOwn && <p className="text-nex-muted mb-0.5 ml-1 text-xs">{sender?.username}</p>}
 
-        {/* Message Content Bubble */}
         <div className="relative">
           <div
             className={`rounded-2xl px-3 py-2 text-sm break-words whitespace-pre-wrap ${
@@ -101,7 +100,6 @@ export default function ChatBubble({
             )}
           </div>
 
-          {/* Quick Action Button Panel (hover to trigger) */}
           <div
             className={`bg-nex-surface border-nex-border absolute top-1/2 z-10 flex -translate-y-1/2 items-center gap-1 rounded-full border px-1.5 py-1 opacity-0 shadow-md transition-opacity group-hover/bubble:opacity-100 ${
               isOwn ? 'right-full mr-2' : 'left-full ml-2'
@@ -117,7 +115,6 @@ export default function ChatBubble({
           </div>
         </div>
 
-        {/* Emoji Reaction Selector Drawer */}
         {showEmojiPicker && (
           <div
             className={`bg-nex-surface border-nex-border animate-slide-up absolute z-20 mt-1 flex gap-1.5 rounded-full border px-2 py-1 shadow-lg ${
@@ -136,7 +133,6 @@ export default function ChatBubble({
           </div>
         )}
 
-        {/* Rendered Reactions Badges */}
         {reactions.length > 0 && (
           <div className={`mt-1 flex flex-wrap gap-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
             {Object.entries(reactionsByEmoji).map(([emoji, data]) => (

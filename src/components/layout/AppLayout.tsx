@@ -77,6 +77,7 @@ export default function AppLayout() {
     }
   }, [isDark])
 
+  // Uses the View Transitions API with CSS custom properties to animate a circular clip-path transition from the click point when toggling themes.
   const toggleTheme = (e: React.MouseEvent<HTMLButtonElement>) => {
     const doc = document as any
     if (!doc.startViewTransition) {
@@ -105,10 +106,7 @@ export default function AppLayout() {
     navigate('/', { replace: true })
   }
 
-  // ─────────────────────────────────────────────
-  // GLOBAL MEMBERSHIP LISTENER
-  // ─────────────────────────────────────────────
-  // Listen for changes to the user's OWN membership (e.g., when they get approved)
+  // Listen for realtime updates to the user's own membership status (e.g. approval) to refresh mess information.
   useEffect(() => {
     if (!profile?.id) return
 
@@ -131,13 +129,11 @@ export default function AppLayout() {
 
   return (
     <div className="bg-nex-bg flex min-h-dvh">
-      {/* ── Desktop Sidebar ────────────────── */}
       <aside
         className={`nex-glass border-nex-border/50 sticky top-0 hidden h-screen flex-col border-r transition-all duration-300 md:flex ${
           sidebarCollapsed ? 'w-[72px]' : 'w-64'
         }`}
       >
-        {/* Logo */}
         <div
           className={`border-nex-border/50 flex items-center border-b ${sidebarCollapsed ? 'flex-col gap-2 px-2 py-3' : 'gap-3 px-4 py-4'}`}
         >
@@ -157,9 +153,6 @@ export default function AppLayout() {
           </button>
         </div>
 
-        {/* Mess Selector removed from sidebar */}
-
-        {/* Navigation */}
         <nav className="flex-1 space-y-1 px-3 py-3">
           {sidebarItems.map(({ to, icon: Icon, label }) => (
             <NavLink
@@ -177,8 +170,6 @@ export default function AppLayout() {
             </NavLink>
           ))}
         </nav>
-
-        {/* User */}
         <div className="border-nex-border/50 border-t px-3 py-3">
           <div className="flex items-center gap-3">
             <div className="relative shrink-0">
@@ -217,12 +208,9 @@ export default function AppLayout() {
         </div>
       </aside>
 
-      {/* ── Main Content ───────────────────── */}
       <div className="flex min-w-0 flex-1 flex-col pb-16 md:pb-0">
-        {/* Header */}
         <header className="nex-glass border-nex-border/50 sticky top-0 z-10 border-b px-4 py-3 md:px-6">
-          <div className="flex items-center justify-between">
-            {/* Header Mess Selector (Desktop & Mobile) */}
+          <div className="flex items-center justify-between font-medium">
             <div className="relative">
               {currentMess ? (
                 <>
@@ -296,7 +284,6 @@ export default function AppLayout() {
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="flex-1 overflow-hidden p-4 md:p-6">
           <GlobalErrorBoundary>
             <Suspense
@@ -323,7 +310,6 @@ export default function AppLayout() {
         </main>
       </div>
 
-      {/* ── Mobile Bottom Nav ──────────────── */}
       <MobileBottomNav
         handleSignOut={handleSignOut}
         signingOut={signingOut}
@@ -332,8 +318,6 @@ export default function AppLayout() {
     </div>
   )
 }
-
-/* ── Mobile Bottom Navigation with "More" Menu ── */
 function MobileBottomNav({
   handleSignOut,
   signingOut,
@@ -354,7 +338,6 @@ function MobileBottomNav({
 
   return (
     <>
-      {/* Overlay */}
       {showMore && (
         <div
           className="fixed inset-0 z-20 bg-black/20 backdrop-blur-sm md:hidden"
@@ -362,7 +345,6 @@ function MobileBottomNav({
         />
       )}
 
-      {/* More Menu Popup */}
       {showMore && (
         <div className="nex-card border-nex-border animate-slide-up safe-area-bottom fixed right-2 bottom-16 left-2 z-30 border p-2 shadow-xl md:hidden">
           <NavLink
@@ -404,7 +386,6 @@ function MobileBottomNav({
         </div>
       )}
 
-      {/* Bottom Tab Bar */}
       <nav
         className="nex-glass border-nex-border/50 safe-area-bottom fixed inset-x-0 bottom-0 z-20 border-t md:hidden"
         style={{ transform: 'translate3d(0,0,0)', WebkitTransform: 'translate3d(0,0,0)' }}
@@ -424,7 +405,6 @@ function MobileBottomNav({
               <span className="text-[10px] font-medium">{label}</span>
             </NavLink>
           ))}
-          {/* More Button */}
           {hasMess && (
             <button
               onClick={() => setShowMore(!showMore)}
@@ -435,7 +415,6 @@ function MobileBottomNav({
             </button>
           )}
 
-          {/* Sign Out Button for users with no mess */}
           {!hasMess && (
             <button
               onClick={handleSignOut}

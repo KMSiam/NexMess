@@ -55,7 +55,6 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="bg-nex-bg flex min-h-screen">
-      {/* Left: Branding */}
       <div className="hidden w-1/2 flex-col items-center justify-center bg-gradient-to-br from-[#3A5643] via-[#4A6D56] to-[#5F886E] p-12 text-white lg:flex">
         <div className="max-w-md">
           <div className="mb-8 flex items-center gap-3">
@@ -71,10 +70,8 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
 
-      {/* Right: Form */}
       <div className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
-          {/* Mobile logo */}
           <div className="mb-8 flex items-center gap-3 lg:hidden">
             <div className="h-10 w-10 overflow-hidden rounded-xl">
               <img src={logoIcon} alt="NexMess" className="h-full w-full" />
@@ -91,7 +88,6 @@ export default function ForgotPasswordPage() {
 
           <h2 className="text-nex-text mb-1 text-2xl font-bold">Forgot password?</h2>
 
-          {/* Expired link banner */}
           {isExpired && (
             <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />

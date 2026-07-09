@@ -26,7 +26,6 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
   const [isPending, startTransition] = useTransition()
   const [uploading, setUploading] = useState(false)
 
-  // Verification & emergency contact states
   const [verificationDocType, setVerificationDocType] = useState<
     'nid' | 'birth_certificate' | 'other' | 'none'
   >((profile?.verification_doc_type as any) || 'none')
@@ -75,7 +74,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
     })
   }
 
-  // Handle avatar upload to Supabase storage 'avatars' bucket
+  // Upload avatar image to Supabase storage
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !profile?.id) return
@@ -107,7 +106,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
     setUploading(false)
   }
 
-  // Handle verification document upload to Supabase storage 'verifications' bucket
+  // Upload verification document to private storage bucket
   const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !profile?.id) return
@@ -148,7 +147,6 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
       <h3 className="text-nex-text mb-4 text-lg font-semibold">Profile Settings</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col items-center gap-4 sm:flex-row">
-          {/* Avatar with hover change effect */}
           <div className="group relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-2xl font-bold text-white">
             {avatarUrl ? (
               <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
@@ -196,7 +194,6 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
               </div>
             </div>
 
-            {/* Additional Contact & Verification Info */}
             <div className="border-nex-border mt-4 grid grid-cols-1 gap-4 border-t pt-4 sm:grid-cols-2">
               <div>
                 <label className="text-nex-text mb-1 block text-sm font-medium">

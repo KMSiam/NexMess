@@ -43,7 +43,6 @@ export default function MealsPage() {
     (m) => m.user_id === user?.id && m.role === 'manager' && m.status === 'approved'
   )
 
-  // Manager override modal state
   const [overrideOpen, setOverrideOpen] = useState(false)
   const [ovUserId, setOvUserId] = useState('')
   const [ovDate, setOvDate] = useState(format(new Date(), 'yyyy-MM-dd'))
@@ -84,7 +83,6 @@ export default function MealsPage() {
     fetchMeals()
   }, [fetchMeals])
 
-  // Real-time subscription for meals
   useRealtimeTable(
     currentMess?.id ? { table: 'meals', filter: `mess_id=eq.${currentMess.id}` } : [],
     fetchMeals
@@ -111,7 +109,6 @@ export default function MealsPage() {
 
     const newValue = type === 'lunch' ? !currentLunch : !currentDinner
 
-    // Optimistic update
     setMeals((prev) => {
       const idx = prev.findIndex((m) => m.user_id === user.id && m.date === date)
       const updated = {
@@ -155,7 +152,6 @@ export default function MealsPage() {
     }
   }
 
-  // Prefill the override modal whenever the manager picks a different (member, date)
   useEffect(() => {
     if (!overrideOpen || !ovUserId || !ovDate || !currentMess?.id) return
     let cancelled = false
@@ -216,7 +212,6 @@ export default function MealsPage() {
     fetchMeals()
   }
 
-  // Monthly stats
   const monthlyStats = useMemo(() => {
     const relevantMeals = meals.filter(
       (m) => m.date.startsWith(monthStr) && (viewMode === 'all' || m.user_id === user?.id)
@@ -232,13 +227,11 @@ export default function MealsPage() {
     return { total: lunchCount + dinnerCount, lunch: lunchCount, dinner: dinnerCount }
   }, [meals, user?.id, monthStr, viewMode])
 
-  // Get meal for a specific date
   const getMealForDate = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd')
     return meals.find((m) => m.user_id === user?.id && m.date === dateStr)
   }
 
-  // Get all member meals for a date (for "all" view)
   const getAllMealsForDate = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd')
     return meals.filter((m) => m.date === dateStr)
@@ -248,7 +241,6 @@ export default function MealsPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-5">
-      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Utensils className="text-nex-primary h-6 w-6" />
@@ -266,7 +258,6 @@ export default function MealsPage() {
             </button>
           )}
 
-          {/* View Toggles */}
           <div className="bg-nex-elevated rounded-btn flex shrink-0 gap-1 p-1 shadow-sm">
             <button
               onClick={() => setViewMode('personal')}
@@ -292,7 +283,6 @@ export default function MealsPage() {
         </div>
       </div>
 
-      {/* Month Navigator + Stats */}
       <div className="nex-card p-5">
         <div className="mb-4 flex items-center justify-between">
           <button
@@ -312,7 +302,6 @@ export default function MealsPage() {
           </button>
         </div>
 
-        {/* Stats Row */}
         <div className="mb-5 grid grid-cols-3 gap-3">
           <div className="bg-nex-primary-light rounded-xl p-3 text-center">
             <p className="text-nex-primary text-2xl font-bold">{monthlyStats.total}</p>
@@ -330,10 +319,8 @@ export default function MealsPage() {
           </div>
         </div>
 
-        {/* Calendar Grid */}
         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           <div className="grid min-w-[320px] grid-cols-7 gap-1">
-            {/* Day Headers */}
             {['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((d) => (
               <div
                 key={d}
@@ -343,7 +330,6 @@ export default function MealsPage() {
               </div>
             ))}
 
-            {/* Days */}
             {calendarDays.map((day) => {
               const dateStr = format(day, 'yyyy-MM-dd')
               const meal = getMealForDate(day)
@@ -459,7 +445,6 @@ export default function MealsPage() {
         </div>
       </div>
 
-      {/* Manager Override Modal */}
       {overrideOpen && isManager && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"

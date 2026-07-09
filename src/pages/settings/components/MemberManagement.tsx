@@ -64,7 +64,6 @@ export default function MemberManagement({
 
   return (
     <div className="space-y-6">
-      {/* Pending Requests (Manager) */}
       {isManager && pendingMembers.length > 0 && (
         <div className="nex-card border border-amber-500/10 p-6">
           <h3 className="text-nex-text mb-4 flex items-center gap-2 text-lg font-semibold">
@@ -115,7 +114,6 @@ export default function MemberManagement({
         </div>
       )}
 
-      {/* Members List */}
       <div className="nex-card p-6">
         <h3 className="text-nex-text mb-4 text-lg font-semibold">
           Members ({approvedMembers.length})
@@ -133,7 +131,6 @@ export default function MemberManagement({
                     : 'hover:bg-nex-hover/50 bg-transparent'
                 }`}
               >
-                {/* Member Row Header */}
                 <div
                   onClick={() => toggleExpand(member.user_id)}
                   className="flex cursor-pointer items-center justify-between p-4 select-none"
@@ -162,7 +159,6 @@ export default function MemberManagement({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* Compact Quick Indicators */}
                     <div className="mr-3 hidden items-center gap-2 sm:flex">
                       {p?.contact_no && (
                         <span
@@ -197,11 +193,9 @@ export default function MemberManagement({
                   </div>
                 </div>
 
-                {/* Expanded Details Section */}
                 {isExpanded && (
                   <div className="border-nex-border/40 bg-nex-bg/30 animate-slide-down space-y-4 border-t p-4">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      {/* Contact Info Group */}
                       <div className="space-y-2">
                         <h4 className="text-nex-muted text-[10px] font-bold tracking-wider uppercase">
                           Contact Information
@@ -229,7 +223,6 @@ export default function MemberManagement({
                         </div>
                       </div>
 
-                      {/* Verification Document Group */}
                       <div className="space-y-2">
                         <h4 className="text-nex-muted text-[10px] font-bold tracking-wider uppercase">
                           Verification Document
@@ -277,7 +270,6 @@ export default function MemberManagement({
                       </div>
                     </div>
 
-                    {/* Member Actions Row */}
                     {isManager && (
                       <div className="border-nex-border/50 flex flex-wrap items-center justify-end gap-2 border-t pt-4">
                         {p?.is_verified ? (
@@ -330,7 +322,6 @@ export default function MemberManagement({
         </div>
       </div>
 
-      {/* Lightbox Modal for Verification Document */}
       {selectedDocUrl && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 transition-opacity duration-300"
