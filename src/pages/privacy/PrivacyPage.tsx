@@ -30,18 +30,11 @@ export default function PrivacyPage() {
           <div className="border-nex-border/50 space-y-4 border-b pb-8 text-center sm:text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-blue-600 dark:text-blue-400">
               <Shield className="h-4 w-4" />
-              <span className="text-xs font-bold tracking-wider uppercase">Privacy Center</span>
+              <span className="text-xs font-bold tracking-wider uppercase">Data Protection Charter</span>
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Privacy Policy</h1>
             <p className="text-nex-muted text-sm leading-relaxed">
-              Last updated:{' '}
-              {new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-              . Please read this privacy policy carefully to understand our policies and practices
-              regarding your information and how we treat it.
+              Effective Date: July 9, 2026. This Privacy Policy governs the data collection, processing, and storage practices of NexMess ("we," "us," or "our"). We are committed to protecting the privacy, security, and integrity of your personal information in accordance with global data protection frameworks including the General Data Protection Regulation (GDPR) and the California Consumer Privacy Act (CCPA/CPRA).
             </p>
           </div>
 
@@ -53,18 +46,30 @@ export default function PrivacyPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
                   1
                 </span>
-                Introduction & Scope
+                Information We Collect & Process
               </h2>
-              <p className="text-nex-muted pl-8">
-                Welcome to NexMess (accessible at{' '}
-                <a href="https://nexmess.shop" className="text-blue-500 hover:underline">
-                  https://nexmess.shop
-                </a>
-                ). We respect your privacy and are committed to protecting the personal data you
-                share with us. This policy describes how we collect, store, use, and protect your
-                information when you use our mess management features, log in via Google OAuth, or
-                browse our site.
-              </p>
+              <div className="text-nex-muted space-y-3 pl-8">
+                <p>
+                  To provide a collaborative and secure mess management experience, we collect and process the following categories of data:
+                </p>
+                <ul className="list-disc space-y-2 pl-5">
+                  <li>
+                    <strong className="text-nex-text">Authentication and Identity Data:</strong> If you register via email or authenticate through Google OAuth, we collect your primary email address, authenticated full name, and profile picture URL.
+                  </li>
+                  <li>
+                    <strong className="text-nex-text">Verification and Compliance Documents:</strong> If you submit verification details to verify your account (e.g., National ID, Birth Certificate, or other government-issued documents), we store the document type, document identification number, and the uploaded image file.
+                  </li>
+                  <li>
+                    <strong className="text-nex-text">Mess Operational Data:</strong> This includes meal logs, bazaar schedules, daily bazaar expenses, deposit records, fixed costs, notice board announcements, and user-generated text/media chat messages.
+                  </li>
+                  <li>
+                    <strong className="text-nex-text">Push Notification Subscriptions:</strong> We store device push subscription metadata (including browser endpoints, authorization keys, and public keys) to deliver real-time system alerts.
+                  </li>
+                  <li>
+                    <strong className="text-nex-text">Technical Logs & Usage Analytics:</strong> We collect client-side crash logs, device IP addresses, browser user-agent strings, and navigation telemetry to monitor stability and prevent system abuse.
+                  </li>
+                </ul>
+              </div>
             </section>
 
             {/* Section 2 */}
@@ -73,30 +78,19 @@ export default function PrivacyPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
                   2
                 </span>
-                Information We Collect
+                Legal Bases for Processing (GDPR)
               </h2>
-              <div className="text-nex-muted space-y-3 pl-8">
-                <p>
-                  To provide our services, we collect information that falls into two main
-                  categories:
-                </p>
+              <div className="text-nex-muted space-y-2 pl-8">
+                <p>We process your personal information under the following lawful bases:</p>
                 <ul className="list-disc space-y-2 pl-5">
                   <li>
-                    <strong className="text-nex-text">Account & Authentication Data:</strong> When
-                    you register or log in using Google OAuth, we receive your email address, full
-                    name, and profile picture URL. This is required to identify you in the system
-                    and link your account to your mess.
+                    <strong className="text-nex-text">Performance of Contract:</strong> Processing is necessary to deliver the features defined in our Terms of Service, including meal rate tracking, roommate financial settlement sheets, and group workspaces.
                   </li>
                   <li>
-                    <strong className="text-nex-text">Mess & Group Activity Data:</strong> Any
-                    information you enter while participating in a mess, including meal records,
-                    daily bazaar logs, deposit records, shared expenses, routine schedules, and
-                    messages sent in the Group Chat.
+                    <strong className="text-nex-text">Consent:</strong> You explicitly consent to certain processing activities, such as receiving push notifications or submitting verification documents to mess managers. You have the right to withdraw consent at any time.
                   </li>
                   <li>
-                    <strong className="text-nex-text">Usage & Device Information:</strong> Standard
-                    server logs, IP addresses, browser agent descriptions, and basic analytics data
-                    to optimize site performance.
+                    <strong className="text-nex-text">Legitimate Interests:</strong> To optimize platform performance, monitor service stability, and enforce security policies (like RLS validations).
                   </li>
                 </ul>
               </div>
@@ -108,19 +102,25 @@ export default function PrivacyPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
                   3
                 </span>
-                How We Use Your Information
+                Data Sharing & Third-Party Service Providers
               </h2>
-              <div className="text-nex-muted space-y-2 pl-8">
-                <p>We use the collected information for the following purposes:</p>
+              <div className="text-nex-muted space-y-3 pl-8">
+                <p>
+                  NexMess does not sell, lease, or trade your personal data. We disclose your data only to the following entities:
+                </p>
                 <ul className="list-disc space-y-2 pl-5">
-                  <li>To establish your profile and securely authenticate your identity.</li>
                   <li>
-                    To coordinate daily meal configurations, calculate financial statistics (such as
-                    individual meal rates and bazaar deposits), and rotate routine duties fairly.
+                    <strong className="text-nex-text">Mess Co-members:</strong> Roommates who belong to the same mess group can view your profile details (username, avatar, contact number), meal logs, shared expenses, deposits, and chat logs.
                   </li>
-                  <li>To deliver real-time notifications and host group chat messages.</li>
-                  <li>To display relevant ads via Google AdSense (if enabled on the site).</li>
-                  <li>To maintain platform security, prevent fraud, and fix runtime exceptions.</li>
+                  <li>
+                    <strong className="text-nex-text">Database & Backend Hosting (Supabase):</strong> We use Supabase, Inc. to secure authentication, execute database operations, and host media files (like avatars and verification copies). All Supabase storage and databases are secured behind rigorous Row-Level Security (RLS) rules.
+                  </li>
+                  <li>
+                    <strong className="text-nex-text">Email Infrastructure (Resend):</strong> Feedback forms and critical system messages are sent via Resend, Inc.
+                  </li>
+                  <li>
+                    <strong className="text-nex-text">Legal Compulsion:</strong> We may disclose information if required by a valid legal subpoena, court order, or applicable national laws.
+                  </li>
                 </ul>
               </div>
             </section>
@@ -131,29 +131,18 @@ export default function PrivacyPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
                   4
                 </span>
-                Data Storage & Sharing
+                Data Retention & Account Erasure
               </h2>
               <div className="text-nex-muted space-y-3 pl-8">
                 <p>
-                  Your privacy is paramount. We do not sell or lease your personal information to
-                  third parties. We share your data only in the following contexts:
+                  We retain personal data only for as long as necessary to fulfill the mess management objectives:
                 </p>
                 <ul className="list-disc space-y-2 pl-5">
                   <li>
-                    <strong className="text-nex-text">With Mess Members:</strong> Because NexMess is
-                    a collaborative application, your roommates inside your joined mess will see
-                    your name, profile picture, meals logged, expenses entered, and messages in the
-                    chat.
+                    <strong className="text-nex-text">Active Accounts:</strong> User profiles, operational logs, and messages are stored as long as your account remains active or until your mess group is deleted.
                   </li>
                   <li>
-                    <strong className="text-nex-text">Service Providers:</strong> We use Supabase
-                    for authentication, backend database systems, and media storage. Your
-                    authentication records are stored securely in Supabase with standard Row-Level
-                    Security (RLS) configurations.
-                  </li>
-                  <li>
-                    <strong className="text-nex-text">Legal Compliance:</strong> If required by law,
-                    we may disclose your information to comply with valid legal processes.
+                    <strong className="text-nex-text">Account Deletion:</strong> If you delete your account or leave a mess, your sensitive identity data (username, email, contact number, and verification files) is scrubbed. Transaction summaries (like historical meals or deposit amounts) are retained in an anonymous format to prevent breaking other members' past financial metrics.
                   </li>
                 </ul>
               </div>
@@ -165,20 +154,11 @@ export default function PrivacyPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
                   5
                 </span>
-                Cookies & Advertising
+                Data Security Protocols
               </h2>
-              <div className="text-nex-muted space-y-2 pl-8">
-                <p>
-                  We use essential local storage tokens and session cookies to keep you signed in.
-                </p>
-                <p>
-                  Additionally, third-party vendors, including Google, may use cookies to serve ads
-                  based on your prior visits to this website or other websites. Google's use of
-                  advertising cookies enables it and its partners to serve ads to you based on your
-                  visit to this site and/or other sites on the Internet. You may opt out of
-                  personalized advertising by visiting Ads Settings in your Google Account.
-                </p>
-              </div>
+              <p className="text-nex-muted pl-8">
+                We implement strict technical and organizational measures to safeguard your data. All database access is governed by Database Row-Level Security (RLS) policies, restricting read/write permissions to authorized mess members only. Sensitive verification document files are stored in a private bucket, and access is restricted using cryptographic, time-limited signed URLs that expire automatically after one hour. All data in transit is protected using industry-standard TLS/SSL encryption.
+              </p>
             </section>
 
             {/* Section 6 */}
@@ -187,14 +167,17 @@ export default function PrivacyPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
                   6
                 </span>
-                Security of Your Data
+                Your Rights & Data Choices
               </h2>
-              <p className="text-nex-muted pl-8">
-                We implement robust security measures including cryptographic password hashing, SSL
-                encryption for all network traffic, and Database Row-Level Security (RLS) rules to
-                guarantee that unauthorized users cannot inspect, modify, or delete your group data.
-                Please remember that no transmission method over the Internet is 100% secure.
-              </p>
+              <div className="text-nex-muted space-y-2 pl-8">
+                <p>Depending on your jurisdiction (such as GDPR or CCPA), you possess the following rights:</p>
+                <ul className="list-disc space-y-2 pl-5">
+                  <li><strong className="text-nex-text">Right of Access:</strong> Request a copy of the personal data we hold about you.</li>
+                  <li><strong className="text-nex-text">Right to Rectification:</strong> Edit or correct inaccurate or incomplete details from your Profile settings.</li>
+                  <li><strong className="text-nex-text">Right to Erasure (To Be Forgotten):</strong> Request the permanent deletion of your profile and verification records.</li>
+                  <li><strong className="text-nex-text">Right to Object/Opt-out:</strong> Manage cookies and personalized ads, or opt-out of notifications at any time.</li>
+                </ul>
+              </div>
             </section>
 
             {/* Section 7 */}
@@ -203,13 +186,27 @@ export default function PrivacyPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
                   7
                 </span>
-                Your Rights & Deletion
+                Cookies & Third-Party Advertising
               </h2>
               <p className="text-nex-muted pl-8">
-                Depending on your location, you have rights to access, edit, or permanently erase
-                your personal data. If you wish to delete your account or have your associated
-                information removed from our database, you can initiate this request by reaching out
-                to our support channel directly from the floating contact button on the Home page.
+                We use secure local storage tokens to keep you authenticated across browser sessions. If we enable Google AdSense, third-party vendors (including Google) may use cookies to serve ads based on your visits to our site or other websites. You can manage or disable personalized advertising by visiting Google's Ad Settings.
+              </p>
+            </section>
+
+            {/* Section 8 */}
+            <section className="space-y-3">
+              <h2 className="text-nex-text flex items-center gap-2 text-xl font-bold">
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-xs font-bold text-blue-600">
+                  8
+                </span>
+                Contact & Administration
+              </h2>
+              <p className="text-nex-muted pl-8">
+                If you have questions regarding this Privacy Policy, or wish to submit a data erasure request, please contact our support team at{' '}
+                <a href="mailto:support@nexmess.shop" className="text-blue-500 hover:underline">
+                  support@nexmess.shop
+                </a>
+                .
               </p>
             </section>
           </div>
@@ -218,7 +215,7 @@ export default function PrivacyPage() {
 
       {/* Footer */}
       <footer className="text-nex-muted border-nex-border/50 mt-auto border-t px-6 py-8 text-center text-xs">
-        <div>&copy; {new Date().getFullYear()} NexMess Inc. All rights reserved.</div>
+        <div>&copy; {new Date().getFullYear()} NexMess. All rights reserved.</div>
       </footer>
     </div>
   )

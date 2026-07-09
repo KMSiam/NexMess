@@ -34,13 +34,7 @@ export default function TermsPage() {
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Terms of Service</h1>
             <p className="text-nex-muted text-sm leading-relaxed">
-              Last updated:{' '}
-              {new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-              . Please read these Terms of Service carefully before accessing or using NexMess.
+              Effective Date: July 9, 2026. These Terms of Service ("Terms") constitute a legally binding agreement between you ("User") and NexMess ("we," "us," or "our"). Please read these Terms carefully before accessing or using our platform.
             </p>
           </div>
 
@@ -52,15 +46,14 @@ export default function TermsPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-xs font-bold text-indigo-600">
                   1
                 </span>
-                Acceptance of Terms
+                Acceptance & Eligibility
               </h2>
               <p className="text-nex-muted pl-8">
-                By creating an account, linking your Google account, or using NexMess (accessible at{' '}
+                By registering an account, authenticating via Google OAuth, or using our services at{' '}
                 <a href="https://nexmess.shop" className="text-blue-500 hover:underline">
                   https://nexmess.shop
                 </a>
-                ), you agree to be bound by these Terms of Service. If you do not agree to all these
-                terms, you are prohibited from using the platform.
+                , you confirm that you have read, understood, and agree to be bound by these Terms. If you do not agree to these Terms, you are strictly prohibited from using the platform. You must be of legal age under your jurisdiction to enter into a binding contract to register or use this service.
               </p>
             </section>
 
@@ -70,13 +63,10 @@ export default function TermsPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-xs font-bold text-indigo-600">
                   2
                 </span>
-                Description of Service
+                Scope of Service & SaaS License
               </h2>
               <p className="text-nex-muted pl-8">
-                NexMess is a web application designed to facilitate collective kitchen and roommate
-                coordination. The services include logging daily meals, recording deposits and
-                bazaar spending, rotating duty shifts, hosting messaging workspaces, and performing
-                financial calculations (such as calculating individual balances and meal rates).
+                NexMess grants you a limited, non-exclusive, revocable, non-transferable, and personal license to access and use our web application for roommate kitchen coordination, meal tracking, expense logging, routine scheduling, and group communication. We reserve the right to modify, suspend, or discontinue any feature or aspect of the platform at any time without prior notice.
               </p>
             </section>
 
@@ -86,21 +76,17 @@ export default function TermsPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-xs font-bold text-indigo-600">
                   3
                 </span>
-                Accounts & Registration
+                Account Security & Registration
               </h2>
               <div className="text-nex-muted space-y-2 pl-8">
                 <p>
-                  To use the features, you must log in securely via Google OAuth or create an
-                  email/password account.
+                  To access platform features, you must authenticate securely. You agree to:
                 </p>
                 <ul className="list-disc space-y-1 pl-5">
-                  <li>You must provide accurate and complete registration information.</li>
-                  <li>
-                    You are responsible for keeping your credentials and OAuth sessions secure.
-                  </li>
-                  <li>
-                    You must notify us immediately of any unauthorized use or safety breaches.
-                  </li>
+                  <li>Provide accurate, current, and complete profile information.</li>
+                  <li>Maintain the confidentiality of your session keys and Google OAuth login details.</li>
+                  <li>Accept full responsibility for all activities, entries, and financial logs recorded under your account credentials.</li>
+                  <li>Proactively notify us of any security breaches or unauthorized account accesses.</li>
                 </ul>
               </div>
             </section>
@@ -111,28 +97,26 @@ export default function TermsPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-xs font-bold text-indigo-600">
                   4
                 </span>
-                Rules of Conduct & User Content
+                User Code of Conduct & Data Integrity
               </h2>
               <div className="text-nex-muted space-y-3 pl-8">
-                <p>As a user, you agree not to use the service to:</p>
+                <p>You agree to use NexMess in a cooperative, honest manner. You are strictly prohibited from:</p>
                 <ul className="list-disc space-y-2 pl-5">
                   <li>
-                    Log fraudulent meal schedules or bazaar records to artificially alter roommate
-                    accounts.
+                    Falsifying meal records, bazaar schedules, deposit statements, or fixed costs to artificially alter roommate balances.
                   </li>
                   <li>
-                    Upload, post, or transmit abusive, harassing, or unlawful material within the
-                    Group Chat.
+                    Uploading, posting, or transmitting abusive, harassing, defamatory, or unlawful materials within the Group Chat.
                   </li>
                   <li>
-                    Interfere with or bypass security protocols (such as Supabase RLS policies).
+                    Attempting to reverse-engineer, inject scripts, execute unauthorized RPC queries, or bypass security rules (such as Supabase Row-Level Security).
                   </li>
-                  <li>Spam other roommates or overload our server infrastructure.</li>
+                  <li>
+                    Automating database writes, scraping site data, or overloading our hosting infrastructure.
+                  </li>
                 </ul>
                 <p>
-                  We do not claim ownership of user-uploaded text or files. However, by posting
-                  content inside a shared mess, you grant NexMess the necessary runtime rights to
-                  host, store, and display that content for other members of that mess.
+                  We do not own user-submitted data. However, you grant NexMess a worldwide, royalty-free, non-exclusive license to host, store, process, and display your data (e.g. expenses, meals, notices) for the co-members of your joined mess group.
                 </p>
               </div>
             </section>
@@ -143,21 +127,14 @@ export default function TermsPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-xs font-bold text-indigo-600">
                   5
                 </span>
-                Disclaimers & Liability Limits
+                Financial Calculations & Settlement Disclaimers
               </h2>
               <div className="text-nex-muted space-y-3 pl-8">
                 <p>
-                  <strong className="text-nex-text">Disclaimer of Warranties:</strong> NexMess is
-                  provided on an "as is" and "as available" basis. We make no guarantees that the
-                  application will be uninterrupted, error-free, or that calculations are completely
-                  free of bugs.
+                  <strong className="text-nex-text">Calculation Utility Only:</strong> NexMess is an accounting and coordination utility designed to help roommates compute shared costs. We are NOT a payment gateway, banking entity, or money transfer agent.
                 </p>
                 <p>
-                  <strong className="text-nex-text">Limitation of Liability:</strong> NexMess, its
-                  developers, and contributors shall not be liable for any direct or indirect
-                  damages, data loss, or financial disputes arising between roommates or members of
-                  any mess. The coordination of payments and cash settlements remains solely the
-                  responsibility of the mess members.
+                  <strong className="text-nex-text">No Settlement Liability:</strong> NexMess does not process, manage, or hold any actual cash or digital payments. All roommate debts, bazaar cash handoffs, and settlement transfers must be made manually outside the platform (via cash, bank transfer, or mobile financial services). We disclaim all liability for roommate payment disputes, incorrect math due to user-input errors, or uncoordinated cash losses.
                 </p>
               </div>
             </section>
@@ -168,13 +145,16 @@ export default function TermsPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-xs font-bold text-indigo-600">
                   6
                 </span>
-                Termination
+                Disclaimers & Limitation of Liability
               </h2>
-              <p className="text-nex-muted pl-8">
-                We reserve the right to restrict access, suspend accounts, or terminate service to
-                any user or mess group found violating these terms or engaging in disruptive
-                behavior that degrades platform operation.
-              </p>
+              <div className="text-nex-muted space-y-3 pl-8">
+                <p>
+                  <strong className="text-nex-text">Disclaimer of Warranties:</strong> THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS. WE MAKE NO WARRANTIES, EXPRESS OR IMPLIED, REGARDING THE ACCURACY OF CALCULATIONS, SERVICE UPTIME, DATABASE RETRIEVAL STABILITY, OR FREEDOM FROM PROGRAMMING ERRORS.
+                </p>
+                <p className="uppercase font-semibold text-xs tracking-wider text-red-600 dark:text-red-400">
+                  IN NO EVENT SHALL NEXMESS, ITS DEVELOPERS, CONTRIBUTING MEMBERS, OR PROVIDERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF DATA, SYSTEM DOWNTIME, ROOMMATE FINANCIAL DISPUTES, OR SECURITY BREACHES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. OUR TOTAL CUMULATIVE LIABILITY SHALL BE LIMITED TO THE AMOUNT OF 500 BDT (OR $5 USD).
+                </p>
+              </div>
             </section>
 
             {/* Section 7 */}
@@ -183,12 +163,27 @@ export default function TermsPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-xs font-bold text-indigo-600">
                   7
                 </span>
-                Modifications to Terms
+                Governing Law & Jurisdiction
               </h2>
               <p className="text-nex-muted pl-8">
-                We reserve the right to revise these Terms of Service at any time. When updates are
-                published, the date at the top will be updated. Your continued use of the platform
-                constitutes agreement to the updated Terms.
+                These Terms of Service are governed by and construed in accordance with the laws of Bangladesh, without regard to its conflict of law principles. Any legal disputes or claims arising out of or related to these terms or platform usage must be resolved exclusively in the competent courts located in Dhaka, Bangladesh.
+              </p>
+            </section>
+
+            {/* Section 8 */}
+            <section className="space-y-3">
+              <h2 className="text-nex-text flex items-center gap-2 text-xl font-bold">
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-xs font-bold text-indigo-600">
+                  8
+                </span>
+                Contact Information
+              </h2>
+              <p className="text-nex-muted pl-8">
+                If you have questions, concerns, or legal inquiries regarding these Terms of Service, please contact our administration at{' '}
+                <a href="mailto:support@nexmess.shop" className="text-blue-500 hover:underline">
+                  support@nexmess.shop
+                </a>
+                .
               </p>
             </section>
           </div>
@@ -197,7 +192,7 @@ export default function TermsPage() {
 
       {/* Footer */}
       <footer className="text-nex-muted border-nex-border/50 mt-auto border-t px-6 py-8 text-center text-xs">
-        <div>&copy; {new Date().getFullYear()} NexMess Inc. All rights reserved.</div>
+        <div>&copy; {new Date().getFullYear()} NexMess. All rights reserved.</div>
       </footer>
     </div>
   )
