@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   BarChart3,
   UtensilsCrossed,
+  Clock,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
@@ -300,65 +301,73 @@ export default function AIMarketAssistant() {
                 )}
               </div>
             ) : (
-              messages.map((m) => {
-                const isMe = m.sender_id === user?.id
-                return (
-                  <div
-                    key={m.id}
-                    className={`flex items-start gap-2.5 ${isMe ? 'ml-auto max-w-[80%] flex-row-reverse' : 'mr-auto max-w-[90%]'}`}
-                  >
-                    {/* Sender Avatar / Icon */}
+              <>
+                <div className="bg-nex-surface/40 border-nex-border/40 mb-4 flex items-center justify-center gap-2 rounded-xl border p-2.5 text-center">
+                  <Clock className="text-nex-muted h-3.5 w-3.5" />
+                  <span className="text-nex-muted text-[10px] font-medium">
+                    Older messages are archived and cannot be accessed to optimize performance.
+                  </span>
+                </div>
+                {messages.map((m) => {
+                  const isMe = m.sender_id === user?.id
+                  return (
                     <div
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
-                        m.is_ai
-                          ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-sm'
-                          : 'bg-nex-elevated text-nex-text border-nex-border border'
-                      }`}
+                      key={m.id}
+                      className={`flex items-start gap-2.5 ${isMe ? 'ml-auto max-w-[80%] flex-row-reverse' : 'mr-auto max-w-[90%]'}`}
                     >
-                      {m.is_ai ? (
-                        <Bot className="h-3.5 w-3.5" />
-                      ) : m.profiles?.username ? (
-                        m.profiles.username.substring(0, 2).toUpperCase()
-                      ) : (
-                        <User className="h-3.5 w-3.5" />
-                      )}
-                    </div>
-
-                    {/* Message Bubble Container */}
-                    <div className="min-w-0 space-y-0.5">
-                      <div className="flex items-center gap-2 px-1">
-                        <span className="text-nex-text text-[10px] font-semibold">
-                          {m.is_ai ? 'NexMessAI' : m.profiles?.username || 'Member'}
-                        </span>
-                        <span className="text-nex-muted text-[9px]">
-                          {format(new Date(m.created_at), 'hh:mm a')}
-                        </span>
-                        {m.is_daily_update && (
-                          <span className="bg-nex-primary/10 text-nex-primary rounded-full px-1.5 py-0.5 text-[8px] font-semibold">
-                            Daily Report
-                          </span>
-                        )}
-                      </div>
-
+                      {/* Sender Avatar / Icon */}
                       <div
-                        className={`overflow-hidden rounded-2xl p-3.5 ${
-                          m.is_daily_update
-                            ? 'bg-nex-primary-light border-nex-primary/20 text-nex-text border shadow-sm'
-                            : m.is_ai
-                              ? 'bg-nex-surface border-nex-border text-nex-text border shadow-sm'
-                              : 'bg-nex-primary text-white shadow-sm'
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
+                          m.is_ai
+                            ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-sm'
+                            : 'bg-nex-elevated text-nex-text border-nex-border border'
                         }`}
                       >
                         {m.is_ai ? (
-                          <MarkdownRenderer text={m.text} />
+                          <Bot className="h-3.5 w-3.5" />
+                        ) : m.profiles?.username ? (
+                          m.profiles.username.substring(0, 2).toUpperCase()
                         ) : (
-                          <p className="text-xs leading-relaxed whitespace-pre-wrap">{m.text}</p>
+                          <User className="h-3.5 w-3.5" />
                         )}
                       </div>
+
+                      {/* Message Bubble Container */}
+                      <div className="min-w-0 space-y-0.5">
+                        <div className="flex items-center gap-2 px-1">
+                          <span className="text-nex-text text-[10px] font-semibold">
+                            {m.is_ai ? 'NexMessAI' : m.profiles?.username || 'Member'}
+                          </span>
+                          <span className="text-nex-muted text-[9px]">
+                            {format(new Date(m.created_at), 'hh:mm a')}
+                          </span>
+                          {m.is_daily_update && (
+                            <span className="bg-nex-primary/10 text-nex-primary rounded-full px-1.5 py-0.5 text-[8px] font-semibold">
+                              Daily Report
+                            </span>
+                          )}
+                        </div>
+
+                        <div
+                          className={`overflow-hidden rounded-2xl p-3.5 ${
+                            m.is_daily_update
+                              ? 'bg-nex-primary-light border-nex-primary/20 text-nex-text border shadow-sm'
+                              : m.is_ai
+                                ? 'bg-nex-surface border-nex-border text-nex-text border shadow-sm'
+                                : 'bg-nex-primary text-white shadow-sm'
+                          }`}
+                        >
+                          {m.is_ai ? (
+                            <MarkdownRenderer text={m.text} />
+                          ) : (
+                            <p className="text-xs leading-relaxed whitespace-pre-wrap">{m.text}</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                )
-              })
+                  )
+                })}
+              </>
             )}
 
             {/* AI Typing Indicator */}
