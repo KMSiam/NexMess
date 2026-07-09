@@ -1,10 +1,15 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft, FileText } from 'lucide-react'
-import { usePageTitle } from '../../hooks/usePageTitle'
+import { useSEO } from '../../hooks/useSEO'
 import logoIcon from '../../assets/logo-icon.svg'
 
 export default function TermsPage() {
-  usePageTitle('Terms of Service')
+  useSEO({
+    title: 'Terms of Service',
+    description: 'Review the NexMess Terms of Service governing the use of our collaborative mess management platform, SaaS license, and cost split calculations.',
+    canonical: 'https://nexmess.shop/terms-of-service',
+    robots: 'index, follow',
+  })
 
   return (
     <div className="bg-nex-bg text-nex-text flex min-h-screen flex-col overflow-x-hidden font-sans select-none">

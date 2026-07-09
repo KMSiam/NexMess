@@ -133,7 +133,7 @@ function App() {
                   <Route path="/chat" element={<ChatPage />} />
                   <Route path="/finance" element={<FinancePage />} />
                   <Route path="/market" element={<MarketPage />} />
-                  <Route path="/market-assistant" element={<AIMarketAssistant />} />
+                  <Route path="/nexmess-ai" element={<AIMarketAssistant />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/activity" element={<ActivityLogPage />} />
                 </Route>

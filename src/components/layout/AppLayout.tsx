@@ -31,7 +31,7 @@ import logoIcon from '../../assets/logo-icon.svg'
 const navItems = [
   { to: '/dashboard', icon: Home, label: 'Dashboard' },
   { to: '/meals', icon: Utensils, label: 'Meals' },
-  { to: '/market-assistant', icon: Sparkles, label: 'NexMessAI' },
+  { to: '/nexmess-ai', icon: Sparkles, label: 'NexMessAI' },
   { to: '/finance', icon: Wallet, label: 'Finance' },
   { to: '/market', icon: ShoppingBag, label: 'Market & Routine' },
   { to: '/chat', icon: MessageSquare, label: 'Chat' },
@@ -51,7 +51,7 @@ export default function AppLayout() {
     ? [
         { to: '/dashboard', icon: Home, label: 'Dashboard' },
         { to: '/meals', icon: Utensils, label: 'Meals' },
-        { to: '/market-assistant', icon: Sparkles, label: 'NexMessAI' },
+        { to: '/nexmess-ai', icon: Sparkles, label: 'NexMessAI' },
         { to: '/finance', icon: Wallet, label: 'Finance' },
         { to: '/market', icon: ShoppingBag, label: 'Market & Routine' },
         { to: '/chat', icon: MessageSquare, label: 'Chat' },

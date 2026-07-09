@@ -4,8 +4,15 @@ import { supabase } from '../../lib/supabase'
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
+import { useSEO } from '../../hooks/useSEO'
 
 export default function RegisterPage() {
+  useSEO({
+    title: 'Get Started | Create Your Mess',
+    description: 'Register for NexMess and create or join a mess. Start tracking meals, managing group expenses, and automating roommate duties today.',
+    canonical: 'https://nexmess.shop/register',
+    robots: 'index, follow',
+  })
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -81,7 +88,7 @@ export default function RegisterPage() {
             <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white/20 backdrop-blur">
               <img src={logoIcon} alt="NexMess" className="h-10 w-10" />
             </div>
-            <h1 className="text-3xl font-bold">NexMess</h1>
+            <span className="text-3xl font-bold">NexMess</span>
           </Link>
           <h2 className="mb-4 text-4xl leading-tight font-bold">
             Join your mess
@@ -103,10 +110,10 @@ export default function RegisterPage() {
             <div className="h-10 w-10 overflow-hidden rounded-xl">
               <img src={logoIcon} alt="NexMess" className="h-full w-full" />
             </div>
-            <h1 className="text-nex-text text-2xl font-bold">NexMess</h1>
+            <span className="text-nex-text text-2xl font-bold">NexMess</span>
           </Link>
 
-          <h2 className="text-nex-text mb-1 text-2xl font-bold">Create your account</h2>
+          <h1 className="text-nex-text mb-1 text-2xl font-bold">Create your account</h1>
           <p className="text-nex-muted mb-8">Get started with NexMess for free</p>
 
           <button

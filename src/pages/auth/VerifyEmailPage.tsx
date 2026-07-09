@@ -3,10 +3,16 @@ import { Link, useLocation } from 'react-router-dom'
 import { MailCheck, RefreshCw } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
+import { useSEO } from '../../hooks/useSEO'
 
 const COOLDOWN = 60
 
 export default function VerifyEmailPage() {
+  useSEO({
+    title: 'Verify Your Email',
+    description: 'Verify your email address to activate your NexMess account.',
+    robots: 'noindex, nofollow',
+  })
   const location = useLocation()
   const email = (location.state as { email?: string })?.email ?? ''
 

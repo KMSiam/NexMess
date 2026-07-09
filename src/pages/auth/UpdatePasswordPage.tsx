@@ -4,8 +4,14 @@ import { supabase } from '../../lib/supabase'
 import { Lock, Eye, EyeOff, ArrowRight, AlertTriangle } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
+import { useSEO } from '../../hooks/useSEO'
 
 export default function UpdatePasswordPage() {
+  useSEO({
+    title: 'Update Password',
+    description: 'Update your NexMess account password.',
+    robots: 'noindex, nofollow',
+  })
   const navigate = useNavigate()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -88,7 +94,7 @@ export default function UpdatePasswordPage() {
             <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white/20 backdrop-blur">
               <img src={logoIcon} alt="NexMess" className="h-10 w-10" />
             </div>
-            <h1 className="text-3xl font-bold">NexMess</h1>
+            <span className="text-3xl font-bold">NexMess</span>
           </div>
           <h2 className="mb-4 text-4xl leading-tight font-bold">Secure your account</h2>
           <p className="text-lg leading-relaxed text-[#EDF2EE]">
@@ -103,10 +109,10 @@ export default function UpdatePasswordPage() {
             <div className="h-10 w-10 overflow-hidden rounded-xl">
               <img src={logoIcon} alt="NexMess" className="h-full w-full" />
             </div>
-            <h1 className="text-nex-text text-2xl font-bold">NexMess</h1>
+            <span className="text-nex-text text-2xl font-bold">NexMess</span>
           </div>
 
-          <h2 className="text-nex-text mb-1 text-2xl font-bold">Set new password</h2>
+          <h1 className="text-nex-text mb-1 text-2xl font-bold">Set new password</h1>
           <p className="text-nex-muted mb-8">Almost done! Enter your new secure password.</p>
 
           {invalid ? (

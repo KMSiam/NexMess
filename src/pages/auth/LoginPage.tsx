@@ -5,8 +5,15 @@ import { useAuthStore } from '../../stores/authStore'
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
+import { useSEO } from '../../hooks/useSEO'
 
 export default function LoginPage() {
+  useSEO({
+    title: 'Sign In',
+    description: 'Log in to your NexMess account to track meals, manage shared expenses, check bazaar rotation, and coordinate with your roommates.',
+    canonical: 'https://nexmess.shop/login',
+    robots: 'index, follow',
+  })
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -52,7 +59,7 @@ export default function LoginPage() {
             <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white/20 backdrop-blur">
               <img src={logoIcon} alt="NexMess" className="h-10 w-10" />
             </div>
-            <h1 className="text-3xl font-bold">NexMess</h1>
+            <span className="text-3xl font-bold">NexMess</span>
           </Link>
           <h2 className="mb-4 text-4xl leading-tight font-bold">
             Manage your mess,
@@ -83,10 +90,10 @@ export default function LoginPage() {
             <div className="h-10 w-10 overflow-hidden rounded-xl">
               <img src={logoIcon} alt="NexMess" className="h-full w-full" />
             </div>
-            <h1 className="text-nex-text text-2xl font-bold">NexMess</h1>
+            <span className="text-nex-text text-2xl font-bold">NexMess</span>
           </Link>
 
-          <h2 className="text-nex-text mb-1 text-2xl font-bold">Welcome back</h2>
+          <h1 className="text-nex-text mb-1 text-2xl font-bold">Welcome back</h1>
           <p className="text-nex-muted mb-8">Sign in to continue to your dashboard</p>
 
           <button

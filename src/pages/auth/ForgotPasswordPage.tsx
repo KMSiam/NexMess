@@ -4,10 +4,16 @@ import { supabase } from '../../lib/supabase'
 import { Mail, ArrowRight, ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
+import { useSEO } from '../../hooks/useSEO'
 
 const COOLDOWN = 60
 
 export default function ForgotPasswordPage() {
+  useSEO({
+    title: 'Forgot Password',
+    description: 'Reset your NexMess account password to regain access to your mess management dashboard.',
+    robots: 'noindex, nofollow',
+  })
   const [searchParams] = useSearchParams()
   const isExpired = searchParams.get('expired') === '1'
 
@@ -61,7 +67,7 @@ export default function ForgotPasswordPage() {
             <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white/20 backdrop-blur">
               <img src={logoIcon} alt="NexMess" className="h-10 w-10" />
             </div>
-            <h1 className="text-3xl font-bold">NexMess</h1>
+            <span className="text-3xl font-bold">NexMess</span>
           </div>
           <h2 className="mb-4 text-4xl leading-tight font-bold">Reset your password</h2>
           <p className="text-lg leading-relaxed text-[#EDF2EE]">
@@ -76,7 +82,7 @@ export default function ForgotPasswordPage() {
             <div className="h-10 w-10 overflow-hidden rounded-xl">
               <img src={logoIcon} alt="NexMess" className="h-full w-full" />
             </div>
-            <h1 className="text-nex-text text-2xl font-bold">NexMess</h1>
+            <span className="text-nex-text text-2xl font-bold">NexMess</span>
           </div>
 
           <Link
@@ -86,7 +92,7 @@ export default function ForgotPasswordPage() {
             <ArrowLeft className="h-4 w-4" /> Back to login
           </Link>
 
-          <h2 className="text-nex-text mb-1 text-2xl font-bold">Forgot password?</h2>
+          <h1 className="text-nex-text mb-1 text-2xl font-bold">Forgot password?</h1>
 
           {isExpired && (
             <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">

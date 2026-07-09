@@ -1,10 +1,15 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Shield } from 'lucide-react'
-import { usePageTitle } from '../../hooks/usePageTitle'
+import { useSEO } from '../../hooks/useSEO'
 import logoIcon from '../../assets/logo-icon.svg'
 
 export default function PrivacyPage() {
-  usePageTitle('Privacy Policy')
+  useSEO({
+    title: 'Privacy Policy',
+    description: 'Read the NexMess Privacy Policy to understand how we collect, process, secure, and protect your personal information in compliance with GDPR, CCPA, and Bangladesh PDPA.',
+    canonical: 'https://nexmess.shop/privacy-policy',
+    robots: 'index, follow',
+  })
 
   return (
     <div className="bg-nex-bg text-nex-text flex min-h-screen flex-col overflow-x-hidden font-sans select-none">

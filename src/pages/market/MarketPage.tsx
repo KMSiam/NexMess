@@ -41,7 +41,7 @@ export default function MarketPage() {
 
         {/* NexMessAI Quick Access Button */}
         <button
-          onClick={() => navigate('/market-assistant')}
+          onClick={() => navigate('/nexmess-ai')}
           className="bg-nex-primary/10 text-nex-primary hover:bg-nex-primary/20 mb-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all active:scale-95"
           id="open-ai-assistant"
         >

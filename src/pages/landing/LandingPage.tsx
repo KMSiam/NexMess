@@ -10,7 +10,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
-import { usePageTitle } from '../../hooks/usePageTitle'
+import { useSEO } from '../../hooks/useSEO'
 import { useAuthStore } from '../../stores/authStore'
 import pkg from '../../../package.json'
 import { useEffect, useState } from 'react'
@@ -19,7 +19,12 @@ import SupportModal from '../../components/SupportModal'
 import { motion } from 'framer-motion'
 
 export default function LandingPage() {
-  usePageTitle('Smart Mess Management')
+  useSEO({
+    title: 'NexMess — Smart Mess Management for Shared Living',
+    description: 'NexMess is a next-generation real-time mess management system for shared living. Track daily meals, split shared expenses, schedule bazaar duties, and connect with roommates in real-time.',
+    canonical: 'https://nexmess.shop/',
+    robots: 'index, follow',
+  })
   const { user, initialized } = useAuthStore()
   const navigate = useNavigate()
   const [isSupportOpen, setIsSupportOpen] = useState(false)

@@ -5,10 +5,14 @@ Disallow: /meals
 Disallow: /chat
 Disallow: /finance
 Disallow: /market
-Disallow: /market-assistant
+Disallow: /nexmess-ai
 Disallow: /settings
 Disallow: /activity
 Disallow: /onboarding
 Disallow: /mess/
+Disallow: /auth/
+Disallow: /forgot-password
+Disallow: /update-password
+Disallow: /verify-email
 
 Sitemap: https://nexmess.shop/sitemap.xml
