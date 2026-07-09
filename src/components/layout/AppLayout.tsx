@@ -13,7 +13,7 @@ import {
   ShoppingBag,
   Settings,
   LogOut,
-  CheckCircle2,
+  Check,
   PanelLeft,
   PanelLeftClose,
   X,
@@ -180,27 +180,29 @@ export default function AppLayout() {
 
         {/* User */}
         <div className="border-nex-border/50 border-t px-3 py-3">
-          <div className={`flex items-center gap-3 ${sidebarCollapsed ? 'justify-center' : ''}`}>
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-semibold text-white">
-              {profile?.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt=""
-                  className="h-full w-full rounded-full object-cover"
-                />
-              ) : (
-                getInitials(profile?.username || 'U')
+          <div className="flex items-center gap-3">
+            <div className="relative shrink-0">
+              <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-semibold text-white">
+                {profile?.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  getInitials(profile?.username || 'U')
+                )}
+              </div>
+              {profile?.is_verified && (
+                <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-blue-500 text-white border-2 border-white dark:border-nex-bg shadow-sm" title="Verified Member">
+                  <Check className="h-1.5 w-1.5 stroke-[4]" />
+                </span>
               )}
             </div>
             {!sidebarCollapsed && (
               <div className="min-w-0 flex-1">
                 <p className="text-nex-text flex items-center gap-1.5 truncate text-sm font-medium">
                   {profile?.username || 'User'}
-                  {profile?.is_verified && (
-                    <span className="nex-verified">
-                      <CheckCircle2 className="h-3 w-3" />
-                    </span>
-                  )}
                 </p>
                 <button
                   onClick={handleSignOut}

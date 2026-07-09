@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 import {
   UserCheck,
   UserX,
-  CheckCircle2,
+  Check,
   Phone,
   ShieldAlert,
   FileText,
@@ -139,21 +139,23 @@ export default function MemberManagement({
                   className="flex cursor-pointer items-center justify-between p-4 select-none"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-semibold text-white">
-                      {p?.avatar_url ? (
-                        <img src={p.avatar_url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        getInitials(p?.username || '?')
+                    <div className="relative shrink-0">
+                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-semibold text-white">
+                        {p?.avatar_url ? (
+                          <img src={p.avatar_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          getInitials(p?.username || '?')
+                        )}
+                      </div>
+                      {p?.is_verified && (
+                        <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-white border-2 border-white dark:border-nex-bg shadow-sm" title="Verified Member">
+                          <Check className="h-2 w-2 stroke-[4]" />
+                        </span>
                       )}
                     </div>
                     <div>
                       <p className="text-nex-text flex items-center gap-1.5 text-sm font-semibold">
                         {p?.username || 'Unknown'}
-                        {p?.is_verified && (
-                          <span className="nex-verified">
-                            <CheckCircle2 className="text-nex-primary h-3.5 w-3.5" />
-                          </span>
-                        )}
                       </p>
                       <p className="text-nex-muted text-xs font-medium capitalize">{member.role}</p>
                     </div>
