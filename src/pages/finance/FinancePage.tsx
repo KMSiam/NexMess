@@ -8,6 +8,7 @@ import { buildReportPdf } from '../../lib/reportPdf'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 import ConfirmDialog from '../../components/ConfirmDialog'
+import { sendPushToUser } from '../../lib/push'
 
 import { useFinanceData } from '../../hooks/useFinanceData'
 import { usePageTitle } from '../../hooks/usePageTitle'
@@ -174,7 +175,7 @@ export default function FinancePage() {
   }
 
   const handleAddDeposit = async (userId: string, amount: number, note: string) => {
-    if (!currentMess?.id || !user?.id) return
+    if (!currentMess?.id) return
     const { error } = await supabase.from('deposits').insert({
       mess_id: currentMess.id,
       user_id: userId,
@@ -189,19 +190,44 @@ export default function FinancePage() {
     else {
       toast.success('Deposit recorded!')
       refetch()
+      try {
+        const bodyText = `Your manager recorded a pending deposit of ৳${amount}${note ? ` (${note})` : ''}.`
+        sendPushToUser(userId, `💰 Deposit Recorded`, bodyText, '/finance')
+      } catch (err) {
+        console.error('Failed to send deposit push:', err)
+      }
     }
   }
 
   const handleConfirmDeposit = async (id: string) => {
     if (!user?.id) return
+    const { data: dep } = await supabase
+      .from('deposits')
+      .select('user_id, amount')
+      .eq('id', id)
+      .single()
+
     const { error } = await supabase
       .from('deposits')
       .update({ verified: true, verified_by: user.id })
       .eq('id', id)
+
     if (error) toast.error('Failed to verify deposit')
     else {
       toast.success('Deposit verified!')
       refetch()
+      if (dep) {
+        try {
+          sendPushToUser(
+            dep.user_id,
+            `✅ Deposit Verified`,
+            `Your deposit of ৳${dep.amount} has been verified by the manager.`,
+            '/finance'
+          )
+        } catch (err) {
+          console.error('Failed to send deposit verification push:', err)
+        }
+      }
     }
   }
 
@@ -456,7 +482,6 @@ export default function FinancePage() {
           deposits={deposits}
           approvedMembers={approvedMembers}
           isManager={isManager}
-          currentUserId={user?.id || ''}
           onAddDeposit={handleAddDeposit}
           onConfirmDeposit={handleConfirmDeposit}
           onDeleteDeposit={handleDeleteDeposit}

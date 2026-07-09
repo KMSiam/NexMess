@@ -9,7 +9,6 @@ interface DepositTabProps {
   deposits: Deposit[]
   approvedMembers: MessMember[]
   isManager: boolean
-  currentUserId: string
   onAddDeposit: (userId: string, amount: number, note: string) => Promise<void>
   onConfirmDeposit: (id: string) => Promise<void>
   onDeleteDeposit: (id: string) => Promise<void>
@@ -19,7 +18,6 @@ export default function DepositTab({
   deposits,
   approvedMembers,
   isManager,
-  currentUserId,
   onAddDeposit,
   onConfirmDeposit,
   onDeleteDeposit,
@@ -173,7 +171,7 @@ export default function DepositTab({
                       <Clock className="h-3 w-3" />
                       Pending
                     </span>
-                    {dep.user_id === currentUserId && (
+                    {isManager && (
                       <button
                         onClick={() => onConfirmDeposit(dep.id)}
                         className="bg-nex-primary rounded px-2 py-0.5 text-xs font-medium text-white transition-colors hover:bg-blue-700"
