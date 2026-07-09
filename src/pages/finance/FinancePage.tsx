@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -27,8 +27,14 @@ export default function FinancePage() {
   usePageTitle('Finance')
 
   const { user, profile } = useAuthStore()
-  const { currentMess, members } = useMessStore()
+  const { currentMess, members, fetchMembers } = useMessStore()
   const [activeTab, setActiveTab] = useState<Tab>('expenses')
+
+  useEffect(() => {
+    if (currentMess?.id) {
+      fetchMembers(currentMess.id)
+    }
+  }, [currentMess?.id, fetchMembers])
 
   const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
   const approvedMembers = members.filter((m) => m.status === 'approved')
