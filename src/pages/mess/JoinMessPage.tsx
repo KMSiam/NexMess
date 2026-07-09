@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
-import { Users, ArrowRight, AlertCircle, Clock } from 'lucide-react'
+import { Users, ArrowRight, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function JoinMessPage() {
@@ -55,8 +55,12 @@ export default function JoinMessPage() {
             </div>
 
             <div className="nex-card border-nex-border/80 space-y-4 border p-5 text-center">
-              <div className="bg-nex-elevated mx-auto flex h-12 w-12 items-center justify-center rounded-full">
-                <Clock className="text-nex-muted h-6 w-6" />
+              <div className="mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-base font-bold text-white shadow-inner">
+                {pendingReq?.messes?.avatar_url ? (
+                  <img src={pendingReq.messes.avatar_url} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  pendingReq?.messes?.name?.[0] || '?'
+                )}
               </div>
               <div>
                 <h4 className="text-nex-text font-bold">

@@ -230,8 +230,12 @@ export default function AppLayout() {
                     onClick={() => setShowMessDropdown(!showMessDropdown)}
                     className="bg-nex-elevated hover:bg-nex-hover border-nex-border/50 flex items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left transition-colors"
                   >
-                    <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 text-xs font-bold text-white">
-                      {currentMess.name[0]}
+                    <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 text-xs font-bold text-white">
+                      {currentMess.avatar_url ? (
+                        <img src={currentMess.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        currentMess.name[0]
+                      )}
                     </div>
                     <div className="min-w-0 pr-1">
                       <p className="text-nex-text max-w-[140px] truncate text-sm leading-tight font-semibold sm:max-w-[200px]">
@@ -259,8 +263,12 @@ export default function AppLayout() {
                             }}
                             className="hover:bg-nex-hover text-nex-text flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs transition-colors"
                           >
-                            <div className="bg-nex-elevated text-nex-muted flex h-5.5 w-5.5 items-center justify-center rounded text-[10px] font-bold">
-                              {mess.name[0]}
+                            <div className="bg-nex-elevated text-nex-muted flex h-5.5 w-5.5 items-center justify-center overflow-hidden rounded text-[10px] font-bold">
+                              {mess.avatar_url ? (
+                                <img src={mess.avatar_url} alt="" className="h-full w-full object-cover" />
+                              ) : (
+                                mess.name[0]
+                              )}
                             </div>
                             <span className="truncate">{mess.name}</span>
                           </button>

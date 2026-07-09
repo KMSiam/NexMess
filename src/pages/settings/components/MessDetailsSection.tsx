@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Copy, CheckCircle2, Save, MapPin, Info } from 'lucide-react'
+import { Copy, CheckCircle2, Save, MapPin, Info, Camera } from 'lucide-react'
 import toast from 'react-hot-toast'
 import type { Mess } from '../../../types/database'
 import { useMessStore } from '../../../stores/messStore'
+import { supabase } from '../../../lib/supabase'
+import { getInitials } from '../../../lib/utils'
 
 interface MessDetailsSectionProps {
   currentMess: Mess | null
@@ -17,6 +19,8 @@ export default function MessDetailsSection({
   const [isEditing, setIsEditing] = useState(false)
   const [location, setLocation] = useState(currentMess?.location || '')
   const [rules, setRules] = useState(currentMess?.rules_and_info || '')
+  const [avatarUrl, setAvatarUrl] = useState(currentMess?.avatar_url || '')
+  const [uploading, setUploading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
   const updateMess = useMessStore((state) => state.updateMess)
@@ -25,8 +29,40 @@ export default function MessDetailsSection({
     if (currentMess) {
       setLocation(currentMess.location || '')
       setRules(currentMess.rules_and_info || '')
+      setAvatarUrl(currentMess.avatar_url || '')
     }
   }, [currentMess])
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !currentMess?.id) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('File must be an image')
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image must be under 2MB')
+      return
+    }
+
+    setUploading(true)
+    const ext = file.name.split('.').pop()
+    const path = `mess-${currentMess.id}/avatar-${Date.now()}.${ext}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: true })
+
+    if (uploadError) {
+      toast.error('Failed to upload avatar')
+    } else {
+      const publicUrl = supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl
+      setAvatarUrl(publicUrl)
+      toast.success('Avatar uploaded! Click save changes to apply.')
+    }
+    setUploading(false)
+  }
 
   const copyCode = () => {
     if (currentMess?.unique_code) {
@@ -41,7 +77,11 @@ export default function MessDetailsSection({
     if (!currentMess?.id) return
     setIsSaving(true)
     try {
-      await updateMess(currentMess.id, { location, rules_and_info: rules })
+      await updateMess(currentMess.id, { 
+        location, 
+        rules_and_info: rules,
+        avatar_url: avatarUrl || null
+      })
       toast.success('Mess details updated!')
       setIsEditing(false)
     } catch {
@@ -67,12 +107,35 @@ export default function MessDetailsSection({
         )}
       </div>
 
-      <div className="bg-nex-elevated flex items-center justify-between rounded-xl p-4">
-        <div>
-          <p className="text-nex-text text-sm font-medium">{currentMess.name}</p>
-          <p className="text-nex-muted mt-0.5 font-mono text-xs">{currentMess.unique_code}</p>
+      <div className="bg-nex-elevated flex flex-col gap-4 rounded-xl p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          {/* Mess Avatar */}
+          <div className="group relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-lg font-bold text-white shadow-inner">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Mess Avatar" className="h-full w-full object-cover" />
+            ) : (
+              getInitials(currentMess.name)
+            )}
+            {isEditing && isManager && (
+              <label className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                <Camera className="h-4 w-4 text-white" />
+                <span className="mt-0.5 text-[8px] text-white/90">{uploading ? '...' : 'Upload'}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                  disabled={uploading}
+                />
+              </label>
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="text-nex-text text-sm font-semibold truncate">{currentMess.name}</p>
+            <p className="text-nex-muted mt-0.5 font-mono text-xs">{currentMess.unique_code}</p>
+          </div>
         </div>
-        <button onClick={copyCode} className="nex-btn-secondary text-xs">
+        <button onClick={copyCode} className="nex-btn-secondary text-xs self-start sm:self-center">
           {copied ? (
             <CheckCircle2 className="text-nex-success h-4 w-4" />
           ) : (
@@ -139,6 +202,7 @@ export default function MessDetailsSection({
               setIsEditing(false)
               setLocation(currentMess.location || '')
               setRules(currentMess.rules_and_info || '')
+              setAvatarUrl(currentMess.avatar_url || '')
             }}
             className="nex-btn-secondary"
             disabled={isSaving}

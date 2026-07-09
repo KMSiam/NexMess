@@ -236,17 +236,26 @@ export default function DashboardPage() {
                 key={req.mess_id}
                 className="nex-card flex items-center justify-between border border-amber-500/20 bg-amber-500/5 p-4"
               >
-                <div>
-                  <h4 className="text-nex-text font-semibold">
-                    {req.messes?.name || 'Unknown Mess'}
-                  </h4>
-                  <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-amber-500">
-                    <span className="relative flex h-2 w-2">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
-                    </span>
-                    Waiting for approval
-                  </p>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white shadow-inner">
+                    {req.messes?.avatar_url ? (
+                      <img src={req.messes.avatar_url} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      req.messes?.name?.[0] || '?'
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-nex-text font-semibold">
+                      {req.messes?.name || 'Unknown Mess'}
+                    </h4>
+                    <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-amber-500">
+                      <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
+                      </span>
+                      Waiting for approval
+                    </p>
+                  </div>
                 </div>
                 <button
                   onClick={() => {

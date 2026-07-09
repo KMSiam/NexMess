@@ -22,6 +22,7 @@ export interface Mess {
   is_active: boolean
   location?: string | null
   rules_and_info?: string | null
+  avatar_url?: string | null
   created_at: string
 }
 
