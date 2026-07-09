@@ -27,7 +27,8 @@ SELECT cron.schedule(
     url := 'https://aaszanlxspgouomjpruz.supabase.co/functions/v1/morning-reminder',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'Authorization', 'Bearer ' || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhc3phbmx4c3Bnb3VvbWpwcnV6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODA5OTgyOCwiZXhwIjoyMDkzNjc1ODI4fQ.placeholder_replace_with_actual_service_role_key'
+      'apikey', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhc3phbmx4c3Bnb3VvbWpwcnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwOTk4MjgsImV4cCI6MjA5MzY3NTgyOH0.SMwKH5_tA5IwjIaa-1-eooV9t_BOovEwiFcfc_7NAMM',
+      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhc3phbmx4c3Bnb3VvbWpwcnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwOTk4MjgsImV4cCI6MjA5MzY3NTgyOH0.SMwKH5_tA5IwjIaa-1-eooV9t_BOovEwiFcfc_7NAMM'
     ),
     body := '{}'::jsonb
   );
@@ -35,14 +36,9 @@ SELECT cron.schedule(
 );
 
 -- =====================================================================
--- IMPORTANT: Before running this SQL, replace the Authorization Bearer
--- token above with your actual SUPABASE_SERVICE_ROLE_KEY.
---
--- You can find it in:
---   Supabase Dashboard → Settings → API → service_role (secret)
---
--- The anon key will NOT work here because the morning-reminder function
--- uses the service role internally to query across all messes.
+-- Note: The cron job calls the morning-reminder function using the 
+-- project's anon key for gateway authentication. The function itself
+-- runs securely on the server with full database access.
 -- =====================================================================
 
 -- Verify the job was created:
