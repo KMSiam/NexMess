@@ -58,10 +58,12 @@ export default function AIMarketAssistant() {
       .from('market_chat_messages')
       .select('*, profiles(username, avatar_url)')
       .eq('mess_id', currentMess.id)
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false })
+      .limit(20)
 
     if (data) {
-      setMessages(data as Message[])
+      const reversed = [...data].reverse()
+      setMessages(reversed as Message[])
     }
   }, [currentMess?.id])
 
