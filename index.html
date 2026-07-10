@@ -59,7 +59,13 @@
 </head>
 
 <body class="bg-nex-bg text-nex-text font-sans antialiased">
-  <div id="root"></div>
+  <div id="root">
+    <!-- SEO Fallback Content for Crawlers (Replaced when React mounts) -->
+    <div style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;">
+      <h1>NexMess — Smart Mess Management for Shared Living</h1>
+      <p>NexMess is a next-generation real-time mess management system for shared living. Easily track daily meals, split shared expenses, schedule bazaar duties, and coordinate with housemates.</p>
+    </div>
+  </div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 
