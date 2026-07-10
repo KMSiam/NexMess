@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 interface SEOProps {
   title: string
   description?: string
+  keywords?: string
   canonical?: string
   robots?: string
   ogType?: string
@@ -12,6 +13,7 @@ interface SEOProps {
 export function useSEO({
   title,
   description,
+  keywords,
   canonical,
   robots,
   ogType = 'website',
@@ -40,6 +42,15 @@ export function useSEO({
       metaDesc = getOrCreateMeta('meta[name="description"]', 'name', 'description')
       prevDesc = metaDesc.getAttribute('content')
       metaDesc.setAttribute('content', description)
+    }
+
+    // Meta Keywords
+    let metaKeywords: Element | null = null
+    let prevKeywords: string | null = null
+    if (keywords) {
+      metaKeywords = getOrCreateMeta('meta[name="keywords"]', 'name', 'keywords')
+      prevKeywords = metaKeywords.getAttribute('content')
+      metaKeywords.setAttribute('content', keywords)
     }
 
     // 3. Canonical Link
@@ -128,6 +139,11 @@ export function useSEO({
         else metaDesc.remove()
       }
 
+      if (metaKeywords) {
+        if (prevKeywords) metaKeywords.setAttribute('content', prevKeywords)
+        else metaKeywords.remove()
+      }
+
       if (linkCanonical) {
         if (prevCanonical) linkCanonical.setAttribute('href', prevCanonical)
         else linkCanonical.remove()
@@ -178,5 +194,5 @@ export function useSEO({
         else metaTwImage.remove()
       }
     }
-  }, [title, description, canonical, robots, ogType, ogImage])
+  }, [title, description, keywords, canonical, robots, ogType, ogImage])
 }
