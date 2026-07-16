@@ -411,11 +411,8 @@ No intros, no filler. Straight to the data.`,
         is_daily_update: true,
       })
     } else {
-      // For chat action: save user message first, then save AI message (sequential for correct ordering)
+      // For chat action: only save AI message (user message was inserted by client)
       if (message) {
-        await serviceSupabase.from('market_chat_messages').insert(
-          { mess_id, sender_id: user!.id, text: message, is_ai: false }
-        )
         await serviceSupabase.from('market_chat_messages').insert(
           { mess_id, text: responseText, is_ai: true }
         )

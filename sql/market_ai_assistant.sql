@@ -48,6 +48,20 @@ WITH CHECK (
   AND (sender_id = auth.uid() OR sender_id IS NULL)
 );
 
+-- Enable Realtime for market_chat_messages table
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+      AND schemaname = 'public' 
+      AND tablename = 'market_chat_messages'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.market_chat_messages;
+  END IF;
+END $$;
+
+
 
 -- 2. Bazaar Reminders Log Table
 CREATE TABLE IF NOT EXISTS public.bazaar_reminders_log (

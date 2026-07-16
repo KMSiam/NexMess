@@ -110,6 +110,15 @@ export default function AIMarketAssistant() {
       // Build local chat history to pass to Gemini (last 6 messages to keep tokens small)
       const chatHistory = messages.slice(-6).map((m) => ({ text: m.text, is_ai: m.is_ai }))
 
+      // Insert user's message to database immediately so it shows up in real-time
+      const { error: insertErr } = await supabase.from('market_chat_messages').insert({
+        mess_id: currentMess.id,
+        sender_id: user?.id || null,
+        text: textToSend.trim(),
+        is_ai: false,
+      })
+      if (insertErr) throw insertErr
+
       // Call Supabase Edge Function
       const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/market-assistant`
       const response = await fetch(functionUrl, {
