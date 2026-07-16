@@ -155,7 +155,16 @@ Please ask your Mess Manager to configure the location in **Settings > Mess Deta
     }
 
     // Fetch context data (Meals count, expenses context, schedules)
-    const targetDate = date_str || new Date().toISOString().split('T')[0]
+    // Default to BST (UTC+6) if no date_str is provided by client
+    let fallbackDateStr = date_str
+    if (!fallbackDateStr) {
+      const now = new Date()
+      const bstOffset = 6 * 60 * 60 * 1000
+      const bstDate = new Date(now.getTime() + bstOffset)
+      fallbackDateStr = bstDate.toISOString().split('T')[0]
+    }
+    const targetDate = fallbackDateStr
+
 
     // Today's Meals
     const { data: meals } = await serviceSupabase

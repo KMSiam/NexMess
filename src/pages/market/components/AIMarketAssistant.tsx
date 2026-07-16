@@ -150,6 +150,7 @@ export default function AIMarketAssistant() {
           message: userMessageText,
           action: 'chat',
           history: chatHistory,
+          date_str: format(new Date(), 'yyyy-MM-dd'),
         }),
       })
 
