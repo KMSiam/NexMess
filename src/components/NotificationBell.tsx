@@ -91,6 +91,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
       join_request: '👤',
       join_approved: '✅',
       join_rejected: '❌',
+      member_removed: '❌',
       expense_added: '💰',
       balance_due: '⚠️',
       meal_reminder: '🍽️',

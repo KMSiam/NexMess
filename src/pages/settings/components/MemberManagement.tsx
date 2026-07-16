@@ -19,6 +19,7 @@ interface MemberManagementProps {
   pendingMembers: MessMember[]
   approvedMembers: MessMember[]
   isManager: boolean
+  currentUserId?: string
   onApprove: (userId: string) => void
   onReject: (userId: string) => void
   onRemove: (userId: string) => void
@@ -31,6 +32,7 @@ export default function MemberManagement({
   pendingMembers,
   approvedMembers,
   isManager,
+  currentUserId,
   onApprove,
   onReject,
   onRemove,
@@ -304,7 +306,7 @@ export default function MemberManagement({
                           </button>
                         )}
 
-                        {member.role !== 'manager' && (
+                        {member.user_id !== currentUserId && (
                           <button
                             onClick={() => onRemove(member.user_id)}
                             className="rounded-xl bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-500 hover:text-white"

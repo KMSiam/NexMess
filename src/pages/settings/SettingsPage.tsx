@@ -164,15 +164,49 @@ export default function SettingsPage() {
   }
 
   const handleConfirmRemoveMember = async () => {
-    if (!currentMess?.id || !removeMemberId) return
-    await supabase
+    if (!currentMess?.id || !removeMemberId || !user) return
+
+    const targetMember = approvedMembers.find((m) => m.user_id === removeMemberId)
+    const isTargetManager = targetMember?.role === 'manager'
+    const managersCount = approvedMembers.filter((m) => m.role === 'manager').length
+
+    if (isTargetManager && managersCount === 1) {
+      toast.error(
+        'This member is the only manager. Make someone else manager or delete the mess to remove them.'
+      )
+      setRemoveMemberId(null)
+      return
+    }
+
+    const { error } = await supabase
       .from('mess_members')
       .update({ status: 'left', left_at: new Date().toISOString() })
       .eq('mess_id', currentMess.id)
       .eq('user_id', removeMemberId)
-    toast.success('Member removed but past data saved')
-    setRemoveMemberId(null)
-    fetchMembers(currentMess.id)
+
+    if (error) {
+      toast.error('Failed to remove member: ' + error.message)
+    } else {
+      toast.success('Member removed but past data saved')
+      const isSelf = removeMemberId === user.id
+      setRemoveMemberId(null)
+
+      if (isSelf) {
+        await fetchUserMesses(user.id)
+        navigate('/')
+      } else {
+        if (currentMess.name) {
+          await supabase.from('notifications').insert({
+            user_id: removeMemberId,
+            mess_id: currentMess.id,
+            type: 'member_removed',
+            title: 'Removed from mess',
+            body: `You have been removed from ${currentMess.name} by the manager.`,
+          })
+        }
+        fetchMembers(currentMess.id)
+      }
+    }
   }
 
   const handleConfirmPromoteMember = async () => {
@@ -364,6 +398,7 @@ export default function SettingsPage() {
             pendingMembers={pendingMembers}
             approvedMembers={approvedMembers}
             isManager={isManager}
+            currentUserId={user?.id}
             onApprove={handleApprove}
             onReject={handleReject}
             onRemove={setRemoveMemberId}
