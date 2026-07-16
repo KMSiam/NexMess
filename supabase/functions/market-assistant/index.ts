@@ -47,20 +47,32 @@ Deno.serve(async (req) => {
     // Initialize Supabase Client with caller auth JWT
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    })
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
-    // Verify user JWT and retrieve profile
-    const {
-      data: { user },
-      error: authError,
-    } = await userClient.auth.getUser()
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized user token' }), {
-        status: 401,
-        headers: { ...CORS, 'Content-Type': 'application/json' },
+    // Detect if caller is using the service role key (e.g. morning-reminder cron)
+    const token = authHeader.replace('Bearer ', '')
+    const isServiceRole = token === serviceRoleKey
+
+    let user: { id: string } | null = null
+
+    if (!isServiceRole) {
+      // Standard user auth flow
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
       })
+
+      // Verify user JWT and retrieve profile
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await userClient.auth.getUser()
+      if (authError || !authUser) {
+        return new Response(JSON.stringify({ error: 'Unauthorized user token' }), {
+          status: 401,
+          headers: { ...CORS, 'Content-Type': 'application/json' },
+        })
+      }
+      user = authUser
     }
 
     // Parse Request Body
@@ -83,28 +95,27 @@ Deno.serve(async (req) => {
     }
 
     // Create Service Role client to bypass RLS and fetch context securely
-    const serviceSupabase = createClient(
-      supabaseUrl,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    const serviceSupabase = createClient(supabaseUrl, serviceRoleKey)
 
-    // Verify the user is an approved member of this mess
-    const { data: membership, error: memberError } = await serviceSupabase
-      .from('mess_members')
-      .select('role')
-      .eq('mess_id', mess_id)
-      .eq('user_id', user.id)
-      .eq('status', 'approved')
-      .single()
+    // Verify the user is an approved member of this mess (skip for service role / daily updates)
+    if (!isServiceRole && action !== 'generate_daily_update') {
+      const { data: membership, error: memberError } = await serviceSupabase
+        .from('mess_members')
+        .select('role')
+        .eq('mess_id', mess_id)
+        .eq('user_id', user!.id)
+        .eq('status', 'approved')
+        .single()
 
-    if (memberError || !membership) {
-      return new Response(
-        JSON.stringify({ error: 'User is not an approved member of this mess' }),
-        {
-          status: 403,
-          headers: { ...CORS, 'Content-Type': 'application/json' },
-        }
-      )
+      if (memberError || !membership) {
+        return new Response(
+          JSON.stringify({ error: 'User is not an approved member of this mess' }),
+          {
+            status: 403,
+            headers: { ...CORS, 'Content-Type': 'application/json' },
+          }
+        )
+      }
     }
 
     // Fetch Mess Location & Info
@@ -301,7 +312,7 @@ No intros, no filler. Straight to the data.`,
     }
 
     // Call Gemini API with Search Grounding (try paid/grounded first)
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${geminiKey}`
 
     let responseText = ''
     let isGrounded = true
@@ -400,12 +411,14 @@ No intros, no filler. Straight to the data.`,
         is_daily_update: true,
       })
     } else {
-      // For chat action: save user message, then save AI message
+      // For chat action: save user message first, then save AI message (sequential for correct ordering)
       if (message) {
-        await serviceSupabase.from('market_chat_messages').insert([
-          { mess_id, sender_id: user.id, text: message, is_ai: false },
-          { mess_id, text: responseText, is_ai: true },
-        ])
+        await serviceSupabase.from('market_chat_messages').insert(
+          { mess_id, sender_id: user!.id, text: message, is_ai: false }
+        )
+        await serviceSupabase.from('market_chat_messages').insert(
+          { mess_id, text: responseText, is_ai: true }
+        )
       }
     }
 

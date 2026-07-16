@@ -29,7 +29,7 @@ import { Skeleton } from '../../../components/Skeleton'
 import ConfirmDialog from '../../../components/ConfirmDialog'
 
 export default function BazaarSchedule() {
-  const { user, session } = useAuthStore()
+  const { user } = useAuthStore()
   const { currentMess, members } = useMessStore()
   const [schedules, setSchedules] = useState<MarketSchedule[]>([])
   const [currentWeek, setCurrentWeek] = useState(new Date())
@@ -88,50 +88,8 @@ export default function BazaarSchedule() {
     }
   }, [currentMess?.id, weekStartStr, fetchSchedules])
 
-  // Daily Price Update and Push Reminder checks
-  useEffect(() => {
-    if (!currentMess?.id) return
-
-    const runDailyChecks = async () => {
-      const todayStr = format(new Date(), 'yyyy-MM-dd')
-      const startOfDayIso = new Date().toISOString().split('T')[0] + 'T00:00:00.000Z'
-
-      // 1. Daily AI Price Report Check
-      try {
-        const { data: existingReport } = await supabase
-          .from('market_chat_messages')
-          .select('id')
-          .eq('mess_id', currentMess.id)
-          .eq('is_daily_update', true)
-          .gte('created_at', startOfDayIso)
-          .limit(1)
-
-        if (!existingReport || existingReport.length === 0) {
-          const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/market-assistant`
-          void fetch(functionUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session?.access_token}`,
-              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-            },
-            body: JSON.stringify({
-              mess_id: currentMess.id,
-              action: 'generate_daily_update',
-              date_str: todayStr,
-            }),
-          })
-        }
-      } catch (err) {
-        console.error('Failed to run daily AI report check:', err)
-      }
-
-      // 2. Bazaar duty reminders are now handled server-side
-      //    by the `morning-reminder` edge function via pg_cron (7:00 AM BST daily)
-    }
-
-    void runDailyChecks()
-  }, [currentMess?.id, session?.access_token])
+  // Daily AI price report and bazaar reminders are now handled server-side
+  // by the `morning-reminder` edge function via pg_cron (7:00 AM BST daily)
 
   const handleAssign = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

@@ -43,6 +43,7 @@ export default function AIMarketAssistant() {
   const [inputText, setInputText] = useState('')
   const [loading, setLoading] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const hasLocation = !!currentMess?.location?.trim()
   const messLocation = currentMess?.location || ''
@@ -84,12 +85,17 @@ export default function AIMarketAssistant() {
           filter: `mess_id=eq.${currentMess.id}`,
         },
         () => {
-          fetchMessages()
+          // Debounce to avoid rapid re-fetches from sequential inserts
+          if (debounceRef.current) clearTimeout(debounceRef.current)
+          debounceRef.current = setTimeout(() => {
+            fetchMessages()
+          }, 300)
         }
       )
       .subscribe()
 
     return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
       supabase.removeChannel(channel)
     }
   }, [currentMess?.id, fetchMessages])
@@ -126,8 +132,7 @@ export default function AIMarketAssistant() {
         throw new Error(errData.error || 'Failed to get response from assistant.')
       }
 
-      // Force refresh of the message logs
-      await fetchMessages()
+      // Realtime subscription handles the message refresh via debounced fetchMessages
     } catch (error: any) {
       toast.error(error.message || 'Error communicating with AI')
       console.error(error)

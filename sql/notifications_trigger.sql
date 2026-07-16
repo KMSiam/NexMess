@@ -1,6 +1,17 @@
 -- Trigger to send Web Push notifications when a new notification is inserted in public.notifications
 -- Runs asynchronously via the pg_net extension
 
+-- Add url column if it doesn't exist (for push notification redirect)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'notifications' AND column_name = 'url'
+  ) THEN
+    ALTER TABLE public.notifications ADD COLUMN url text DEFAULT NULL;
+  END IF;
+END $$;
+
 CREATE OR REPLACE FUNCTION public.tr_send_push_notification()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -20,7 +31,7 @@ BEGIN
       'user_id', NEW.user_id,
       'title', NEW.title,
       'body', COALESCE(NEW.body, ''),
-      'url', '/dashboard'
+      'url', COALESCE(NEW.url, '/dashboard')
     )
   );
   RETURN NEW;

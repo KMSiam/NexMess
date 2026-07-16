@@ -32,7 +32,69 @@ Deno.serve(async (req) => {
 
     console.log(`[morning-reminder] Running for date: ${todayStr}`)
 
-    // Find all bazaar schedules for today across all messes
+    // ─── 1. Generate Daily AI Report for ALL active messes ───
+    // Fetch all distinct messes that have at least one approved member
+    const { data: activeMesses, error: messErr } = await supabase
+      .from('mess_members')
+      .select('mess_id')
+      .eq('status', 'approved')
+
+    if (messErr) {
+      console.error('Failed to fetch active messes:', messErr)
+    }
+
+    // Deduplicate mess IDs
+    const uniqueMessIds = [...new Set(activeMesses?.map((m) => m.mess_id) || [])]
+    let reportCount = 0
+
+    for (const messId of uniqueMessIds) {
+      try {
+        // Check if daily report already exists for this mess today
+        const startOfDayIso = todayStr + 'T00:00:00.000Z'
+        const { data: existingReport } = await supabase
+          .from('market_chat_messages')
+          .select('id')
+          .eq('mess_id', messId)
+          .eq('is_daily_update', true)
+          .gte('created_at', startOfDayIso)
+          .limit(1)
+
+        if (existingReport && existingReport.length > 0) {
+          console.log(`[morning-reminder] Daily report already exists for mess ${messId}, skipping`)
+          continue
+        }
+
+        // Call market-assistant to generate daily update (using service role key)
+        const functionUrl = `${supabaseUrl}/functions/v1/market-assistant`
+        const response = await fetch(functionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${serviceRoleKey}`,
+            apikey: serviceRoleKey,
+          },
+          body: JSON.stringify({
+            mess_id: messId,
+            action: 'generate_daily_update',
+            date_str: todayStr,
+          }),
+        })
+
+        if (response.ok) {
+          reportCount++
+          console.log(`[morning-reminder] Daily report generated for mess ${messId}`)
+        } else {
+          const errText = await response.text()
+          console.warn(`[morning-reminder] Failed to generate report for mess ${messId}:`, errText)
+        }
+      } catch (err) {
+        console.error(`[morning-reminder] Error generating report for mess ${messId}:`, err)
+      }
+    }
+
+    console.log(`[morning-reminder] Generated ${reportCount} daily reports`)
+
+    // ─── 2. Send Push Notifications to Bazaar Duty Assignees ───
     const { data: todaySchedules, error: schedErr } = await supabase
       .from('market_schedules')
       .select('id, mess_id, user_id, assigned_date, profiles(username), messes:mess_id(name)')
@@ -45,7 +107,7 @@ Deno.serve(async (req) => {
 
     if (!todaySchedules || todaySchedules.length === 0) {
       console.log('[morning-reminder] No bazaar schedules for today. Done.')
-      return new Response(JSON.stringify({ sent: 0, message: 'No schedules today' }), {
+      return new Response(JSON.stringify({ sent: 0, reports: reportCount, message: 'No schedules today' }), {
         headers: { ...CORS, 'Content-Type': 'application/json' },
       })
     }
@@ -85,13 +147,14 @@ Deno.serve(async (req) => {
         continue
       }
 
-      // Insert notification (triggers push via existing pg trigger)
+      // Insert notification with URL (triggers push via existing pg trigger)
       await supabase.from('notifications').insert({
         user_id,
         mess_id,
         type: 'market_reminder',
         title: '🛒 Bazaar Duty Today!',
         body: `Good morning ${username}! You're on bazaar duty for ${messName} today. Check NexMessAI for today's shopping list & prices.`,
+        url: 'https://www.nexmess.shop/nexmess-ai',
       })
 
       sentCount++
@@ -103,6 +166,7 @@ Deno.serve(async (req) => {
       total_schedules: todaySchedules.length,
       sent: sentCount,
       skipped: skippedCount,
+      reports: reportCount,
     }
 
     console.log('[morning-reminder] Done:', result)
@@ -118,3 +182,4 @@ Deno.serve(async (req) => {
     })
   }
 })
+

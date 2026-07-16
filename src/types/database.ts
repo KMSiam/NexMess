@@ -111,6 +111,7 @@ export interface Notification {
   type: string
   title: string
   body: string | null
+  url: string | null
   is_read: boolean
   metadata: Record<string, unknown>
   created_at: string
