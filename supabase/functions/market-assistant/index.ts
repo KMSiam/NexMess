@@ -312,7 +312,7 @@ No intros, no filler. Straight to the data.`,
     }
 
     // Call Gemini API with Search Grounding (try paid/grounded first)
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${geminiKey}`
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`
 
     let responseText = ''
     let isGrounded = true
