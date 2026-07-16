@@ -37,7 +37,7 @@ interface Message {
 
 export default function AIMarketAssistant() {
   usePageTitle('NexMessAI')
-  const { session, user } = useAuthStore()
+  const { session, user, profile } = useAuthStore()
   const { currentMess } = useMessStore()
   const [messages, setMessages] = useState<Message[]>([])
   const [inputText, setInputText] = useState('')
@@ -103,18 +103,35 @@ export default function AIMarketAssistant() {
   const handleSend = async (textToSend: string) => {
     if (!textToSend.trim() || !currentMess?.id || !session?.access_token || loading) return
 
+    const userMessageText = textToSend.trim()
     setInputText('')
+    
+    // Add user's message optimistically in the UI first (instant rendering like Messenger/WhatsApp)
+    const tempId = `temp-${Date.now()}`
+    const optimisticUserMessage: Message = {
+      id: tempId,
+      text: userMessageText,
+      is_ai: false,
+      is_daily_update: false,
+      created_at: new Date().toISOString(),
+      sender_id: user?.id || null,
+      profiles: {
+        username: profile?.username || 'Member',
+        avatar_url: profile?.avatar_url || null,
+      }
+    }
+    setMessages((prev) => [...prev, optimisticUserMessage])
     setLoading(true)
 
     try {
       // Build local chat history to pass to Gemini (last 6 messages to keep tokens small)
       const chatHistory = messages.slice(-6).map((m) => ({ text: m.text, is_ai: m.is_ai }))
 
-      // Insert user's message to database immediately so it shows up in real-time
+      // Insert user's message to database immediately
       const { error: insertErr } = await supabase.from('market_chat_messages').insert({
         mess_id: currentMess.id,
         sender_id: user?.id || null,
-        text: textToSend.trim(),
+        text: userMessageText,
         is_ai: false,
       })
       if (insertErr) throw insertErr
@@ -130,7 +147,7 @@ export default function AIMarketAssistant() {
         },
         body: JSON.stringify({
           mess_id: currentMess.id,
-          message: textToSend,
+          message: userMessageText,
           action: 'chat',
           history: chatHistory,
         }),
@@ -145,6 +162,8 @@ export default function AIMarketAssistant() {
     } catch (error: any) {
       toast.error(error.message || 'Error communicating with AI')
       console.error(error)
+      // Rollback optimistic message if insertion failed
+      setMessages((prev) => prev.filter((m) => m.id !== tempId))
     } finally {
       setLoading(false)
     }
