@@ -11,7 +11,7 @@ export default function LoginPage() {
   useSEO({
     title: 'Sign In',
     description: 'Log in to your NexMess account to track meals, manage shared expenses, check bazaar rotation, and coordinate with your roommates.',
-    canonical: 'https://nexmess.shop/login',
+    canonical: 'https://www.nexmess.shop/login',
     robots: 'index, follow',
   })
   const navigate = useNavigate()

@@ -15,4 +15,4 @@ Disallow: /forgot-password
 Disallow: /update-password
 Disallow: /verify-email
 
-Sitemap: https://nexmess.shop/sitemap.xml
+Sitemap: https://www.nexmess.shop/sitemap.xml

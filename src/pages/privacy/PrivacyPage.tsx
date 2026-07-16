@@ -7,7 +7,7 @@ export default function PrivacyPage() {
   useSEO({
     title: 'Privacy Policy',
     description: 'Read the NexMess Privacy Policy to understand how we collect, process, secure, and protect your personal information in compliance with GDPR, CCPA, and Bangladesh PDPA.',
-    canonical: 'https://nexmess.shop/privacy-policy',
+    canonical: 'https://www.nexmess.shop/privacy-policy',
     robots: 'index, follow',
   })
 

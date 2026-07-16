@@ -7,7 +7,7 @@ export default function TermsPage() {
   useSEO({
     title: 'Terms of Service',
     description: 'Review the NexMess Terms of Service governing the use of our collaborative mess management platform, SaaS license, and cost split calculations.',
-    canonical: 'https://nexmess.shop/terms-of-service',
+    canonical: 'https://www.nexmess.shop/terms-of-service',
     robots: 'index, follow',
   })
 

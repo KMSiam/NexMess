@@ -10,7 +10,7 @@ export default function RegisterPage() {
   useSEO({
     title: 'Get Started | Create Your Mess',
     description: 'Register for NexMess and create or join a mess. Start tracking meals, managing group expenses, and automating roommate duties today.',
-    canonical: 'https://nexmess.shop/register',
+    canonical: 'https://www.nexmess.shop/register',
     robots: 'index, follow',
   })
   const navigate = useNavigate()
