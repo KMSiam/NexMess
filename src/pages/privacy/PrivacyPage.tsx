@@ -6,7 +6,7 @@ import logoIcon from '../../assets/logo-icon.svg'
 export default function PrivacyPage() {
   useSEO({
     title: 'Privacy Policy',
-    description: 'Read the NexMess Privacy Policy to understand how we collect, process, secure, and protect your personal information in compliance with GDPR, CCPA, and Bangladesh PDPA.',
+    description: 'Read the NexMess Privacy Policy to understand how we collect, process, secure, and protect your personal information in compliance with GDPR and CCPA.',
     canonical: 'https://www.nexmess.shop/privacy-policy',
     robots: 'index, follow',
   })
