@@ -14,7 +14,7 @@ export default function FAQPage() {
   useSEO({
     title: 'Frequently Asked Questions (FAQ) | NexMess',
     description:
-      'Have questions about NexMess? Read our comprehensive FAQ to learn about meal rate calculations, roommate ledger distribution, automated bazaar schedules, and AI-powered grocery lists.',
+      'Have questions about NexMess? Read our FAQ to learn about meal rate calculations, roommate expense splits, automated bazaar schedules, and AI features.',
     canonical: 'https://www.nexmess.shop/faq',
     robots: 'index, follow',
   })
