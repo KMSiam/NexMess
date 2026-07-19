@@ -34,6 +34,7 @@ const ActivityLogPage = lazy(() => import('./pages/activity/ActivityLogPage'))
 const NotFoundPage = lazy(() => import('./pages/not-found/NotFoundPage'))
 const PrivacyPage = lazy(() => import('./pages/privacy/PrivacyPage'))
 const TermsPage = lazy(() => import('./pages/terms/TermsPage'))
+const FAQPage = lazy(() => import('./pages/faq/FAQPage'))
 
 function PageLoader() {
   return (
@@ -102,6 +103,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/privacy-policy" element={<PrivacyPage />} />
             <Route path="/terms-of-service" element={<TermsPage />} />
+            <Route path="/faq" element={<FAQPage />} />
 
             {/* Public / Guest routes */}
             <Route element={<GuestGuard />}>

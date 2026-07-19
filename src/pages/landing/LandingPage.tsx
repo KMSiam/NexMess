@@ -420,13 +420,19 @@ export default function LandingPage() {
         <div className="mt-2 flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-4">
           <span>&copy; {new Date().getFullYear()} NexMess Inc. All rights reserved.</span>
           <span className="text-nex-border/50 hidden sm:inline">|</span>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             <Link to="/privacy-policy" className="hover:text-nex-text transition-colors">
               Privacy Policy
             </Link>
             <Link to="/terms-of-service" className="hover:text-nex-text transition-colors">
               Terms of Service
             </Link>
+            <Link to="/faq" className="hover:text-nex-text transition-colors">
+              FAQ
+            </Link>
+            <a href="mailto:support@nexmess.shop" className="hover:text-nex-text transition-colors">
+              Contact Support
+            </a>
           </div>
         </div>
       </footer>
