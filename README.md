@@ -4,10 +4,10 @@
 
 ---
 
-### 🌐 [Click Here to View Interactive Web Showcase & Architecture Guide](./NexMess_Report.html)
+### 📖 [Read the NexMess Project Showcase Report (PDF)](./NexMess_Report/NexMess_Report.pdf)
 
 [![Live Web Application](https://img.shields.io/badge/Live_App-nexmess.shop-10B981?style=for-the-badge&logo=googlechrome&logoColor=white)](https://nexmess.shop/)
-[![Interactive HTML Showcase Report](https://img.shields.io/badge/Product_Showcase-HTML_Report-4A6D56?style=for-the-badge&logo=html5&logoColor=white)](./NexMess_Report.html)
+[![Project Showcase Report PDF](https://img.shields.io/badge/Project_Report-PDF-red?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](./NexMess_Report/NexMess_Report.pdf)
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Supabase Cloud](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
@@ -17,7 +17,7 @@
 
 ## 📸 Website Landing Page Preview
 
-![NexMess Public Landing Page Preview](website_images/01_landing.png)
+![NexMess Public Landing Page Preview](NexMess_Report/01_landing.png)
 
 ---
 
@@ -25,7 +25,7 @@
 
 NexMess operates as a modern 3-tier cloud application comprising a Client SPA / PWA layer, a Supabase Cloud BaaS layer, and a managed PostgreSQL Database layer.
 
-![NexMess 3-Tier System Architecture Diagram](website_images/system_architecture.png)
+![NexMess 3-Tier System Architecture Diagram](NexMess_Report/system_architecture.png)
 
 ---
 
@@ -61,11 +61,11 @@ NexMess operates as a modern 3-tier cloud application comprising a Client SPA / 
 
 ```
 NexMess/
-├── website_images/          # Website screenshots & architecture diagram
-│   ├── 01_landing.png
-│   ├── 02_login.png ... 14_404_page.png
+├── NexMess_Report/          # Complete Showcase Report & Media Assets
+│   ├── NexMess_Report.pdf   # Downloadable / Viewable Project Showcase PDF Report
+│   ├── NexMess_Report.html  # Interactive Web Showcase Report
+│   ├── 01_landing.png ... 14_404_page.png
 │   └── system_architecture.png
-├── NexMess_Report.html      # Comprehensive Interactive Web Showcase & Architecture Guide
 ├── src/
 │   ├── components/          # Reusable UI components & layouts
 │   ├── guards/              # Route protection guards (AuthGuard, ManagerGuard)
@@ -111,6 +111,6 @@ npm run dev
 
 ---
 
-## 📖 Complete Documentation & Showcase Report
+## 📖 Complete Project Showcase Report
 
-For a complete breakdown of every page, visual component, 3-tier architecture diagram, test scenarios, and Manager vs Member role privileges, view the **[NexMess Showcase & Architecture Report](./NexMess_Report.html)**.
+For a complete breakdown of every page, visual component, 3-tier architecture diagram, test scenarios, and Manager vs Member role privileges, download or view the **[NexMess Showcase Report PDF](./NexMess_Report/NexMess_Report.pdf)** or open the **[Interactive HTML Report](./NexMess_Report/NexMess_Report.html)**.
