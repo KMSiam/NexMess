@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexMess - Product Showcase & Architecture Guide</title>
+  <style>
+    :root {
+      --nex-primary-dark: #3a5643;
+      --nex-primary: #4a6d56;
+      --nex-primary-light: #edf2ee;
+      --nex-bg: #faf5f0;
+      --nex-surface: #ffffff;
+      --nex-text: #221e1a;
+      --nex-muted: #8c8276;
+      --nex-border: #e5ded5;
+      --nex-success: #10b981;
+      --nex-danger: #f43f5e;
+      --nex-callout-bg: #edf2ee;
+      --nex-callout-border: #4a6d56;
+      --nex-mgr-bg: #faf5f0;
+      --nex-mgr-border: #3a5643;
+    }
+    @media print {
+      body { padding: 0; background: white; }
+      .container { box-shadow: none; border: none; padding: 20px; }
+      .no-print { display: none; }
+    }
+    body {
+      font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      line-height: 1.6;
+      color: var(--nex-text);
+      background-color: var(--nex-bg);
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--nex-surface);
+      padding: 50px 65px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px -5px rgba(34, 30, 26, 0.05), 0 8px 10px -6px rgba(34, 30, 26, 0.02);
+      border: 1px solid var(--nex-border);
+    }
+    .hero-header {
+      text-align: center;
+      margin-bottom: 35px;
+      padding-bottom: 25px;
+      border-bottom: 2px solid var(--nex-border);
+    }
+    .hero-header h1 {
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--nex-primary-dark);
+      margin: 0 0 8px 0;
+      letter-spacing: -0.5px;
+    }
+    .hero-header h2 {
+      font-size: 18px;
+      color: var(--nex-primary);
+      font-weight: 700;
+      margin: 0 0 12px 0;
+    }
+    .hero-header p {
+      font-size: 15px;
+      color: var(--nex-muted);
+      max-width: 750px;
+      margin: 0 auto;
+      font-style: italic;
+    }
+    h1 {
+      font-size: 24px;
+      color: var(--nex-primary-dark);
+      border-bottom: 2px solid #e5ded5;
+      padding-bottom: 8px;
+      margin-top: 45px;
+      margin-bottom: 18px;
+    }
+    h2 {
+      font-size: 19px;
+      color: var(--nex-primary);
+      margin-top: 30px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    p {
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+    ul {
+      margin-bottom: 18px;
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 8px;
+      font-size: 14.5px;
+    }
+    .callout-box {
+      background-color: var(--nex-callout-bg);
+      border-left: 4px solid var(--nex-callout-border);
+      padding: 16px 20px;
+      border-radius: 0 10px 10px 0;
+      margin: 18px 0;
+      font-size: 14.5px;
+    }
+    .callout-box strong {
+      color: var(--nex-primary-dark);
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+    .mgr-box {
+      background-color: var(--nex-mgr-bg);
+      border-left: 4px solid var(--nex-mgr-border);
+      padding: 16px 20px;
+      border-radius: 0 10px 10px 0;
+      margin: 16px 0 22px 0;
+      font-size: 14.5px;
+    }
+    .mgr-box strong {
+      color: var(--nex-primary-dark);
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+    .diagram-img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--nex-border);
+      margin: 20px 0;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .screenshot-frame {
+      background: var(--nex-bg);
+      border: 2px dashed var(--nex-muted);
+      border-radius: 14px;
+      padding: 25px;
+      text-align: center;
+      margin: 22px 0 30px 0;
+    }
+    .screenshot-frame .icon {
+      font-size: 24px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .screenshot-frame .fig-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--nex-primary-dark);
+      margin-bottom: 4px;
+    }
+    .screenshot-frame .fig-note {
+      font-size: 13px;
+      color: var(--nex-muted);
+      font-style: italic;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border: 1px solid var(--nex-border);
+    }
+    th {
+      background-color: var(--nex-primary-dark);
+      color: #ffffff;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+    tr:nth-child(even) {
+      background-color: var(--nex-primary-light);
+    }
+    .status-passed {
+      color: var(--nex-success);
+      font-weight: 700;
+    }
+    .toc-card {
+      background: var(--nex-bg);
+      border: 1px solid var(--nex-border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 35px;
+    }
+    .toc-card h3 {
+      margin-top: 0;
+      color: var(--nex-primary-dark);
+      font-size: 18px;
+    }
+    code {
+      background: #edf2ee;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13.5px;
+      color: var(--nex-primary-dark);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero-header">
+      <h1>NEXMESS PLATFORM</h1>
+      <h2>Comprehensive Product Showcase & Architecture Guide</h2>
+      <p>An intuitive walkthrough of every page, visual component, 3-tier System Architecture Diagram, interactive workflow, and Manager vs Member administrative privileges built into the NexMess Web Application.</p>
+    </div>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="toc-card">
+      <h3>Table of Contents</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Report Chapter / Section</th>
+            <th>Topics & Key Features Covered</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Part 1: Objectives & Scope</strong></td>
+            <td>Project Overview, Real-World Business Value, Core Objectives, Implementation Scope</td>
+          </tr>
+          <tr>
+            <td><strong>Part 2: Architecture & Tech Stack</strong></td>
+            <td>3-Tier System Architecture Diagram, Visual Logic Flow, Technology Stack Matrix</td>
+          </tr>
+          <tr>
+            <td><strong>Part 3: Complete App Showcase</strong></td>
+            <td>14 Detailed Modules with explicit Manager vs Member Role Permission Breakdown</td>
+          </tr>
+          <tr>
+            <td><strong>Part 4: Safeguards & Security</strong></td>
+            <td>User Input Validation Rules, Data Safety, Row Level Security & Encryption</td>
+          </tr>
+          <tr>
+            <td><strong>Part 5: Quality Assurance & Testing</strong></td>
+            <td>10-Scenario Manual Test Matrix, Device & Browser Compatibility Matrix</td>
+          </tr>
+          <tr>
+            <td><strong>Part 6: Milestone & Timeline Tracking</strong></td>
+            <td>3-Month / 12-Week Engineering Lifecycle Matrix & Completed Deliverables</td>
+          </tr>
+          <tr>
+            <td><strong>Part 7: Retrospective & Roadmap</strong></td>
+            <td>Technical Challenges, Solved Edge Cases, Lessons Learned, Future Features</td>
+          </tr>
+          <tr>
+            <td><strong>Part 8: References & Documentation</strong></td>
+            <td>Official Documentation Links & WCAG Accessibility Compliance Guidelines</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PART 1: OBJECTIVES & SCOPE -->
+    <h1>1. Objectives & Scope</h1>
+    <h2>1.1 Project Overview & Business Value</h2>
+    <p>Managing a shared apartment, bachelor mess, or hostel dining facility is notoriously chaotic. Roommates frequently clash over unrecorded grocery costs, last-minute dining changes leading to wasted food, unequal utility bill splits, and manual math errors in paper registers or spreadsheets.</p>
+    <p><strong>NexMess</strong> (also branded as <strong>Nex Mess</strong>) is a modern, enterprise-ready web platform built to solve these exact friction points. It completely automates daily meal tracking, bazaar shopping rotation, shared utility expense splitting, and individual member balance ledgers.</p>
+    <p>By replacing manual calculations with real-time ledger synchronization and automated daily cut-off timers, NexMess delivers huge value: it cuts household food waste by up to 25%, eliminates money disputes, and saves mess managers hours of tedious monthly accounting work.</p>
+
+    <h2>1.2 Core Technical Objectives</h2>
+    <ul>
+      <li><strong>Multi-Tenant Workspaces & RBAC:</strong> Allowing groups of roommates to create or join private mess apartments (e.g. <code>NEX-XXXX</code>) with strict Manager vs Member role permissions.</li>
+      <li><strong>Dynamic Meal Rate Engine:</strong> Calculating live meal costs using the formula: <code>Meal Rate = Total Grocery / Total Meals Eaten</code>.</li>
+      <li><strong>Timezone-Aware Cut-Off Timers:</strong> Locking meal edits automatically at set deadlines (e.g. 10:00 AM for lunch, 4:00 PM for dinner) to prevent food waste.</li>
+      <li><strong>AI Market Assistant:</strong> Integrating Google Gemini 3.6 Flash AI (Latest Google Model) to provide live local market price estimates and automated grocery shopping lists.</li>
+      <li><strong>Instant PDF Audits:</strong> Generating professional, downloadable monthly financial statements with a single click.</li>
+    </ul>
+
+    <h2>1.3 Scope of Implementation</h2>
+    <p>The scope covers a complete web application ecosystem containing a public marketing website, user authentication pathways, member onboarding flows, interactive dashboards, daily meal count matrices, AI shopping tools, finance ledgers, bazaar rosters, group chat, settings panels, activity audit logs, and help centers.</p>
+
+    <!-- PART 2: ARCHITECTURE & TECH STACK -->
+    <h1>2. System Architecture & Technology Stack</h1>
+    <h2>2.1 Visual Flow & System Architecture Diagram</h2>
+    <p>NexMess operates as a modern 3-tier cloud application comprising a Client SPA / PWA layer, a Supabase Cloud Backend (BaaS) layer, and a managed PostgreSQL Database layer.</p>
+
+    <!-- System Architecture Image Embedding -->
+    <img src="website_images/system_architecture.png" alt="NexMess 3-Tier System Architecture Diagram" class="diagram-img">
+    <p style="text-align: center; font-size: 13.5px; font-weight: 700; color: var(--nex-primary-dark); margin-top: -10px; margin-bottom: 25px;">
+      Figure 1: NexMess 3-Tier System Architecture Diagram
+    </p>
+
+    <h2>2.2 Technology Stack Matrix</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Technology Layer</th>
+          <th>Framework / Standard</th>
+          <th>Role & User Benefit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Frontend Framework</strong></td>
+          <td>React 19 & TypeScript</td>
+          <td>Provides instant responsive UI updates and bug-free type-safe code execution.</td>
+        </tr>
+        <tr>
+          <td><strong>Design System</strong></td>
+          <td>Tailwind CSS v4 & Lucide Icons</td>
+          <td>Delivers sleek modern aesthetics, dark/light theme switching, and crisp iconography.</td>
+        </tr>
+        <tr>
+          <td><strong>State Management</strong></td>
+          <td>Zustand 5</td>
+          <td>Remembers user login state, mess preferences, and live updates effortlessly.</td>
+        </tr>
+        <tr>
+          <td><strong>Backend & Database</strong></td>
+          <td>Supabase Cloud PostgreSQL</td>
+          <td>Stores all mess records securely with instant real-time synchronization across devices.</td>
+        </tr>
+        <tr>
+          <td><strong>AI Infrastructure</strong></td>
+          <td>Google Gemini 3.6 Flash & Edge Functions</td>
+          <td>Powers the NexMessAI market assistant using the latest Gemini 3.6 Flash model with Google Search grounding.</td>
+        </tr>
+        <tr>
+          <td><strong>Document Engine</strong></td>
+          <td>jsPDF & AutoTable</td>
+          <td>Compiles clean, downloadable vector PDF financial reports directly inside the browser.</td>
+        </tr>
+        <tr>
+          <td><strong>Offline & PWA</strong></td>
+          <td>Vite PWA & Service Worker</td>
+          <td>Allows users to install NexMess like a mobile app and view cached schedules offline.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- PART 3: APPLICATION FEATURES & SHOWCASE -->
+    <h1>3. Application Features & Role Permission Showcase</h1>
+    <p>This section provides a visual, user-centric showcase of every page and module in NexMess, highlighting specific Manager Privileges vs Member Capabilities for every feature.</p>
+
+    <!-- MODULE 3.1 -->
+    <h2>3.1 Public Landing Page & Live Calculator (<code>/</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      The public marketing portal introduces visitors to NexMess. It highlights key features, client testimonials, transparent pricing plans (Free vs Pro), and includes an interactive live dashboard preview.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Sticky glassmorphic navbar with logo and Quick Sign In / Register buttons. High-impact hero title, live interactive mockup cards allowing visitors to click meal toggles and see live balance changes, 5 feature highlight cards, and an expandable FAQ footer.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Visitors test the interactive preview or register to launch a new mess as a Manager.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Anyone registering a new mess automatically becomes the primary Manager. Members join existing messes using access codes.
+    </div>
+    
+    <div style="text-align: center; margin: 22px 0 30px 0;">
+      <img src="website_images/01_landing.png" alt="Figure 3.1: Landing Page Interface" class="diagram-img" />
+      <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+        Figure 3.1: Landing Page Interface
+      </div>
+    </div>
+
+    <!-- MODULE 3.2 -->
+    <h2>3.2 Authentication & Security Portal (<code>/login</code>, <code>/register</code>, <code>/verify-email</code>, <code>/forgot-password</code>, <code>/update-password</code>, <code>/auth/callback</code>, <code>/onboarding</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      A complete, secure user identity suite supporting sign-up, sign-in, email verification, password recovery, OAuth PKCE callbacks, and a guided onboarding flow.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Split-screen layout on desktop with a vibrant branded left panel. Modern form inputs with password visibility toggles, clear error alerts, resend timers, and a forced onboarding screen requiring users to choose a username and optional profile picture.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Users register with email/password or Google sign-in, verify email, complete onboarding, and enter their mess workspace.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      The first user establishing a mess receives manager rights. Managers can re-verify member identities and upload verification documents.
+    </div>
+    <div style="margin: 22px 0 30px 0;">
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/02_login.png" alt="Figure 3.2a: Login Portal Interface" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.2a: Login Portal Interface
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/02_register.png" alt="Figure 3.2b: User Registration Interface" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.2b: User Registration Interface
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/02_forgot_password.png" alt="Figure 3.2c: Password Recovery Interface" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.2c: Password Recovery Interface
+        </div>
+      </div></div>
+
+    <!-- MODULE 3.3 -->
+    <h2>3.3 Mess Workspace Setup (<code>/mess/create</code>, <code>/mess/join</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      Enables users to establish a new mess apartment workspace or join an existing mess using a unique 8-character access code (e.g. <code>NEX-9821</code>). Upon logging in or creating an account, users land on the Personal Setup Dashboard where they select whether to create a new workspace or enter a mess code. Once a join request is submitted, a Pending Approval state is displayed until the Mess Manager approves access.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Clean, card-centered forms and personal onboarding dashboard. 'Create Mess' requests the mess name and generates a unique access code. 'Join Mess' presents an 8-character code input field or displays a 'Pending Request' card if waiting for manager approval.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Users log in, view their personal setup dashboard, choose to create or join a mess, and track their request until approved by the Manager.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Workspace Creator is automatically assigned Manager status (<code>role: 'manager'</code>). Joining members (<code>role: 'member'</code>) enter a 'pending' state until approved by a Manager.
+    </div>
+    <div style="margin: 22px 0 30px 0;">
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/02_onboarding.png" alt="Figure 3.3a: Post-Login Personal Setup Dashboard (Workspace Choice)" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.3a: Post-Login Personal Setup Dashboard (Workspace Choice)
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/03_create_mess.png" alt="Figure 3.3b: Create Mess Workspace Form" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.3b: Create Mess Workspace Form
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/03_join_mess.png" alt="Figure 3.3c: Join Mess Access Code Interface" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.3c: Join Mess Access Code Interface
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/03_pending_approval.png" alt="Figure 3.3d: Pending Manager Approval Dashboard Interface" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.3d: Pending Manager Approval Dashboard Interface
+        </div>
+      </div></div>
+
+    <!-- MODULE 3.4 -->
+    <h2>3.4 Dashboard Command Center (<code>/dashboard</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      The main operational hub providing mess members and managers with a real-time summary of today's meals, cook count totals, personal balance, bazaar duty alerts, notice board posts, and quick shortcut triggers.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Top personalized welcome card with manager/member role badge; notice board banner for announcements; Cook Summary card showing exact meal totals for today/tomorrow; Meal Selector card with instant toggle buttons; 4 stat metric cards (Personal Meals, Net Balance ৳, Meal Rate ৳, Total Spent ৳); recent activity feed; and emergency contact numbers.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Members check personal balance and meal status. Managers publish notices and maintain emergency contacts.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Managers have exclusive authority to post mess-wide announcements on the Notice Board (which triggers instant Web Push alerts to all housemates) and edit/delete Emergency Contacts.
+    </div>
+    
+    <div style="text-align: center; margin: 22px 0 30px 0;">
+      <img src="website_images/04_dashboard.png" alt="Figure 3.4: Dashboard Overview Interface" class="diagram-img" />
+      <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+        Figure 3.4: Dashboard Overview Interface
+      </div>
+    </div>
+
+    <!-- MODULE 3.5 -->
+    <h2>3.5 Daily Meal Tracker & Cut-Off Engine (<code>/meals</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      The core dining management page where members log daily meals (breakfast, lunch, dinner) and guest meals, while managers view the full monthly meal count matrix.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Calendar date selector across the top; meal toggle cards with color-coded status badges ('Cut-off Passed' lock badge when deadline passes); guest meal increment/decrement counters (<code>+</code>/<code>-</code>); and a full monthly grid table summarizing daily meal counts per member.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Members toggle personal meals before 10:00 AM / 4:00 PM cut-offs. Managers use override controls if housemates forget to log meals.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Standard members are locked out of editing meals after cut-off hours or on past dates. Managers possess Manager Override Authority (<code>manager_upsert_meal</code> RPC) allowing them to edit meal entries and guest counts for ANY member on ANY past or present date.
+    </div>
+    <div style="margin: 22px 0 30px 0;">
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/05_my_meals.png" alt="Figure 3.5a: Personal Daily Meals Toggle & Guest Count Interface" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.5a: Personal Daily Meals Toggle & Guest Count Interface
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/05_all_members_meals.png" alt="Figure 3.5b: Monthly Meal Count Matrix Grid (All Members View)" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.5b: Monthly Meal Count Matrix Grid (All Members View)
+        </div>
+      </div></div>
+
+    <!-- MODULE 3.6 -->
+    <h2>3.6 NexMess AI Market Assistant (<code>/nexmess-ai</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      An intelligent AI-powered grocery shopping coordinator and market analyst driven by Google Gemini 3.6 Flash AI (Latest Model) with web search grounding.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Chat interface with message bubbles, quick suggestion chips ('Daily Price Report', 'Estimate Budget for 5 Members', 'Suggest Weekly Menu'), location alert warning if mess location is unset, and markdown table rendering for structured grocery lists.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Users tap suggestion chips or type questions about local food prices and shopping lists. Powered by the latest Gemini 3.6 Flash model.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Managers configure the mess apartment's location in Settings, which unlocks location-grounded local market price estimations for the entire mess.
+    </div>
+    
+    <div style="text-align: center; margin: 22px 0 30px 0;">
+      <img src="website_images/06_nexmess_ai.png" alt="Figure 3.6: NexMessAI Assistant Interface" class="diagram-img" />
+      <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+        Figure 3.6: NexMessAI Assistant Interface
+      </div>
+    </div>
+
+    <!-- MODULE 3.7 -->
+    <h2>3.7 Finance & Expense Splitter (<code>/finance</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      A comprehensive financial accounting module managing daily bazaar expenses, member deposits, fixed monthly costs (rent, Wi-Fi, cook salary), individual net balances, automated settlement debt clearing, and PDF report downloads.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Tabbed navigation (<code>Expenses</code>, <code>Deposits</code>, <code>Fixed Costs</code>, <code>Summary</code>, <code>History</code>). Expense tab shows itemized cost logs with optional receipt photo popups; Deposit tab allows members to log payments for manager approval; Summary tab displays net member balances; Settle Up card presents debt clearing plan; and History tab offers PDF exports.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Members log deposits and view personal ledgers. Managers approve deposits, log expenses, and manage fixed utility bills.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Only Managers can edit/delete logged expenses, verify member deposit payments (<code>verified_by</code>), add/edit/mark paid recurring utility costs (rent, Wi-Fi, maid), and generate monthly archived PDF financial statements.
+    </div>
+    <div style="margin: 22px 0 30px 0;">
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/07_finance_expenses.png" alt="Figure 3.7a: Expenses Tab — Daily Grocery & Shopping Itemization" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.7a: Expenses Tab — Daily Grocery & Shopping Itemization
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/07_finance_deposits.png" alt="Figure 3.7b: Deposits Tab — Member Payments & Manager Verification Log" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.7b: Deposits Tab — Member Payments & Manager Verification Log
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/07_finance_fixed_costs.png" alt="Figure 3.7c: Fixed Costs Tab — Recurring Rent, Utility & Maid Bills" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.7c: Fixed Costs Tab — Recurring Rent, Utility & Maid Bills
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/07_finance_summary.png" alt="Figure 3.7d: Summary Tab — Net Member Balances & Settle-Up Debt Clearing Plan" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.7d: Summary Tab — Net Member Balances & Settle-Up Debt Clearing Plan
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/07_finance_history.png" alt="Figure 3.7e: History Tab — Archived Monthly Statements & PDF Downloads" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.7e: History Tab — Archived Monthly Statements & PDF Downloads
+        </div>
+      </div></div>
+
+    <!-- MODULE 3.8 -->
+    <h2>3.8 Marketplace & Bazaar Duty Roster (<code>/market</code>, <code>BazaarSchedule.tsx</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      A shared grocery shopping list combined with an automated rotating bazaar duty roster for roommates.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Interactive checklist for household shopping items (add, check off, delete, or convert item to expense); and a weekly Bazaar Schedule grid showing assigned members per day with an 'Auto-Assign Schedule' button.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Roommates add needed items to the shared checklist. Assigned market buyers check items off while shopping.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Managers have exclusive access to assign or swap bazaar duty dates, trigger the 7-day 'Auto-Assign' round-robin algorithm, and convert checked checklist items directly into logged mess expenses.
+    </div>
+    
+    <div style="text-align: center; margin: 22px 0 30px 0;">
+      <img src="website_images/08_marketplace.png" alt="Figure 3.8: Marketplace & Bazaar Schedule Interface" class="diagram-img" />
+      <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+        Figure 3.8: Marketplace & Bazaar Schedule Interface
+      </div>
+    </div>
+
+    <!-- MODULE 3.9 -->
+    <h2>3.9 Meal Routines & Weekly Preferences (<code>MealRoutine.tsx</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      A default meal preference manager letting members configure repeating weekly meal templates.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Day-by-day weekly planner (Saturday to Friday) with lunch/dinner switches and preset ingredient chips (<code>Chicken</code>, <code>Fish</code>, <code>Egg</code>, <code>Vegetables</code>, <code>Dal</code>) mapped automatically to food emojis.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Members view the daily routine menu. Managers edit and update the weekly eating plan.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      While members view the weekly menu routine, only Managers have edit permissions to configure weekly meal templates, set daily dish items, and update ingredient presets.
+    </div>
+    
+    <div style="text-align: center; margin: 22px 0 30px 0;">
+      <img src="website_images/09_meal_routines.png" alt="Figure 3.9: Meal Routines Interface" class="diagram-img" />
+      <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+        Figure 3.9: Meal Routines Interface
+      </div>
+    </div>
+
+    <!-- MODULE 3.10 -->
+    <h2>3.10 Roommate Group Chat & Notice Board (<code>/chat</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      A real-time in-app chat room for housemates to communicate, share food pictures, pin notices, and react with emojis.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Message stream with user avatars, timestamp badges, image attachment previews, pinned announcement header, emoji reaction picker (👍, ❤️, 😂, 😮), and infinite scroll message loading.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Roommates send messages, upload receipt photos, and react to messages over WebSockets.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Managers have administrative moderation rights to pin critical messages as notice board announcements at the top of the chat room and delete inappropriate messages.
+    </div>
+    
+    <div style="text-align: center; margin: 22px 0 30px 0;">
+      <img src="website_images/10_chat.png" alt="Figure 3.10: Roommate Group Chat Interface" class="diagram-img" />
+      <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+        Figure 3.10: Roommate Group Chat Interface
+      </div>
+    </div>
+
+    <!-- MODULE 3.11 -->
+    <h2>3.11 User & Mess Settings (<code>/settings</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      A central settings portal for updating profile details, verification documents, mess configuration, cut-off hours, web push notifications, and member role approvals.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Tabbed settings panel (<code>Profile</code>, <code>Members</code>, <code>Mess Details</code>, <code>Notifications</code>, <code>Danger Zone</code>). Profile tab handles avatar uploads; Members tab allows managers to approve/reject pending join requests or promote members; Mess Details tab allows updating mess location and cut-off hours.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Members update personal profile info. Managers approve new roommates, adjust cut-off times, and manage roles.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Managers control the Member Approvals tab (accept/reject pending join requests, promote members to Manager, demote managers), verify NID/ID documents via <code>manager_verify_member</code> RPC, adjust meal cut-off hours, and hold Mess Deletion rights in the Danger Zone.
+    </div>
+    <div style="margin: 22px 0 30px 0;">
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/11_settings_profile.png" alt="Figure 3.11a: Profile Tab — Personal Profile & Avatar Configuration" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.11a: Profile Tab — Personal Profile & Avatar Configuration
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/11_settings_members.png" alt="Figure 3.11b: Members Tab — Manager Member Approvals & Role Promotions" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.11b: Members Tab — Manager Member Approvals & Role Promotions
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/11_settings_mess_info.png" alt="Figure 3.11c: Mess Details Tab — Apartment Location & Cut-Off Hour Configuration" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.11c: Mess Details Tab — Apartment Location & Cut-Off Hour Configuration
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/11_settings_notifications.png" alt="Figure 3.11d: Notifications Tab — Web Push Alerts & Reminders" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.11d: Notifications Tab — Web Push Alerts & Reminders
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/11_settings_danger_zone.png" alt="Figure 3.11e: Danger Zone Tab — Workspace Administrative Deletion Rights" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.11e: Danger Zone Tab — Workspace Administrative Deletion Rights
+        </div>
+      </div></div>
+
+    <!-- MODULE 3.12 -->
+    <h2>3.12 Financial & System Audit Log (<code>/activity</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      An immutable timeline recording all recent financial and operational actions taken across the mess workspace.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Vertical timeline with color-coded category badges (Amber for Expenses, Emerald for Deposits, Blue for Notices, Purple for Member Joins).</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Members and Managers review past actions to verify financial entries and member status changes.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Both Managers and Members have full read access to the audit trail, ensuring 100% financial transparency and preventing unauthorized administrative tampering.
+    </div>
+    
+    <div style="text-align: center; margin: 22px 0 30px 0;">
+      <img src="website_images/12_activity_log.png" alt="Figure 3.12: Activity Audit Log Interface" class="diagram-img" />
+      <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+        Figure 3.12: Activity Audit Log Interface
+      </div>
+    </div>
+
+    <!-- MODULE 3.13 -->
+    <h2>3.13 Help, Support & FAQ Center (<code>/faq</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      An interactive help desk answering common questions about meal rate calculations, bill splits, cut-off rules, and support contact options.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Expandable accordion list with smooth open/close animations, search/topic headers, email support contact card (<code>support@nexmess.shop</code>), and quick links to privacy and terms.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Users tap any question to expand explanations or send feedback directly to support.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Provides detailed administrative guidance explaining how Managers configure cut-off times, verify member deposits, and archive monthly financial ledgers.
+    </div>
+    
+    <div style="text-align: center; margin: 22px 0 30px 0;">
+      <img src="website_images/13_faq.png" alt="Figure 3.13: FAQ & Support Center Interface" class="diagram-img" />
+      <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+        Figure 3.13: FAQ & Support Center Interface
+      </div>
+    </div>
+
+    <!-- MODULE 3.14 -->
+    <h2>3.14 Legal, Terms & System Pages (<code>/privacy-policy</code>, <code>/terms-of-service</code>, <code>/404</code>)</h2>
+    <div class="callout-box">
+      <strong>✨ What This Page Is & Why It Exists</strong>
+      Privacy policy, terms of service compliance documentation, and custom 404 page fallback.
+    </div>
+    <p><strong>🎨 Visual Layout & On-Screen Elements:</strong> Clean, readable legal document layout with structured headings, privacy guarantees, data ownership policies, and a stylish 404 'Lost in the Mess' error card.</p>
+    <p><strong>⚡ How Users Interact With It:</strong> Users read data protection terms or navigate back to the dashboard if typing an invalid URL.</p>
+    <div class="mgr-box">
+      <strong>👑 Manager vs. Member Privileges</strong>
+      Details legal responsibilities for Mess Managers handling collective household accounting.
+    </div>
+    <div style="margin: 22px 0 30px 0;">
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/14_privacy_policy.png" alt="Figure 3.14a: Privacy Policy Compliance Document" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.14a: Privacy Policy Compliance Document
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/14_terms_of_service.png" alt="Figure 3.14b: Terms of Service Compliance Document" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.14b: Terms of Service Compliance Document
+        </div>
+      </div>
+      <div style="text-align: center; margin-bottom: 25px;">
+        <img src="website_images/14_404_page.png" alt="Figure 3.14c: Custom 404 Error Page Fallback Interface" class="diagram-img" />
+        <div style="font-size: 14px; font-weight: 700; color: var(--nex-primary-dark); margin-top: 6px;">
+          Figure 3.14c: Custom 404 Error Page Fallback Interface
+        </div>
+      </div></div>
+
+    <!-- PART 4: SAFEGUARDS & SECURITY -->
+    <h1>4. Safeguards & Security Protocol</h1>
+    <h2>4.1 Client-Side Input Controls & Validation</h2>
+    <p>To prevent accidental clicks, invalid expense numbers, or corrupted logs, NexMess enforces clean frontend rules:</p>
+    <ul>
+      <li><strong>Mandatory Form Fields:</strong> Users cannot submit empty expense descriptions, blank usernames, or invalid mess codes.</li>
+      <li><strong>Positive Number Rules:</strong> Expense and deposit inputs enforce positive numbers (<code>min=0</code>), blocking negative numbers or invalid currency symbols.</li>
+      <li><strong>Automatic Cut-Off Locking:</strong> Meal toggle buttons lock automatically once deadline hours pass, preventing retroactive meal edits.</li>
+      <li><strong>Strict Email & Password Rules:</strong> Email fields check valid <code>@</code> formats, while password registration requires strong 8+ character inputs.</li>
+    </ul>
+
+    <h2>4.2 Data Protection & Transport Safety</h2>
+    <ul>
+      <li><strong>Row Level Security (RLS):</strong> PostgreSQL database policies isolate mess data completely. Users can only view records from their own mess apartment.</li>
+      <li><strong>HTTPS & WSS Encryption:</strong> All internet traffic, WebSockets, and image uploads use secure TLS encryption.</li>
+      <li><strong>XSS & Injection Protection:</strong> Inputs are sanitized automatically, preventing malicious scripts or injection attacks.</li>
+    </ul>
+
+    <!-- PART 5: QUALITY ASSURANCE & TESTING -->
+    <h1>5. Quality Assurance & Testing</h1>
+    <h2>5.1 Manual Test Scenario Matrix</h2>
+    <p>The application was tested against 10 real-world operational scenarios to ensure 100% stability:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>ID & Feature</th>
+          <th>User Action / Test Input</th>
+          <th>Expected System Behavior</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. User Auth</strong></td>
+          <td>Enter valid email/password on /login.</td>
+          <td>Logs user in, updates state, redirects to dashboard.</td>
+          <td class="status-passed">Passed</td>
+        </tr>
+        <tr>
+          <td><strong>2. Join Mess</strong></td>
+          <td>Enter valid NEX-XXXX code on /mess/join.</td>
+          <td>Validates code, creates pending request, notifies manager.</td>
+          <td class="status-passed">Passed</td>
+        </tr>
+        <tr>
+          <td><strong>3. Cut-Off Lock</strong></td>
+          <td>Try toggling lunch meal after 10:00 AM.</td>
+          <td>Disables toggle button and displays 'Cut-off passed' badge.</td>
+          <td class="status-passed">Passed</td>
+        </tr>
+        <tr>
+          <td><strong>4. Meal Rate Math</strong></td>
+          <td>Log ৳5,000 grocery expense with 100 meals.</td>
+          <td>Recalculates exact meal rate (৳50.00) across ledgers instantly.</td>
+          <td class="status-passed">Passed</td>
+        </tr>
+        <tr>
+          <td><strong>5. Utility Split</strong></td>
+          <td>Add ৳10,000 house rent fixed expense.</td>
+          <td>Splits cost equally among all active mess members in summary.</td>
+          <td class="status-passed">Passed</td>
+        </tr>
+        <tr>
+          <td><strong>6. PDF Export</strong></td>
+          <td>Click 'Export Monthly PDF' in Finance.</td>
+          <td>Generates clean vector PDF statement and downloads file.</td>
+          <td class="status-passed">Passed</td>
+        </tr>
+        <tr>
+          <td><strong>7. AI Assistant</strong></td>
+          <td>Ask Gemini 'Suggest grocery list for 5 members'.</td>
+          <td>Returns calculated food items with estimated local pricing using Gemini 3.6 Flash.</td>
+          <td class="status-passed">Passed</td>
+        </tr>
+        <tr>
+          <td><strong>8. Group Chat</strong></td>
+          <td>Send text or image in /chat room.</td>
+          <td>Broadcasts message instantly over WebSocket to all housemates.</td>
+          <td class="status-passed">Passed</td>
+        </tr>
+        <tr>
+          <td><strong>9. Theme Toggle</strong></td>
+          <td>Click dark/light icon in header.</td>
+          <td>Switches theme colors instantly and remembers choice.</td>
+          <td class="status-passed">Passed</td>
+        </tr>
+        <tr>
+          <td><strong>10. PWA Offline</strong></td>
+          <td>Disconnect internet after loading app.</td>
+          <td>Renders cached static pages and shows offline indicator toast.</td>
+          <td class="status-passed">Passed</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>5.2 Browser & Device Compatibility Matrix</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Browser & Environment</th>
+          <th>Device Category</th>
+          <th>Visual & Functional Audit Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Google Chrome (Desktop)</strong></td>
+          <td>PC / Mac</td>
+          <td>Smooth 60fps animations; full PWA install support; zero layout breaks.</td>
+        </tr>
+        <tr>
+          <td><strong>Mozilla Firefox (Desktop)</strong></td>
+          <td>Laptop</td>
+          <td>Clean font rendering; real-time WebSocket channels reconnect reliably.</td>
+        </tr>
+        <tr>
+          <td><strong>Apple Safari (iOS/iPad)</strong></td>
+          <td>iPhone / iPad</td>
+          <td>Dynamic safe-area heights respected; touch swipe controls responsive.</td>
+        </tr>
+        <tr>
+          <td><strong>Microsoft Edge (Desktop)</strong></td>
+          <td>Tablet / PC</td>
+          <td>CSS Grid containers scale smoothly across wide desktop displays.</td>
+        </tr>
+        <tr>
+          <td><strong>Chrome Mobile (Android)</strong></td>
+          <td>Smartphone</td>
+          <td>Navigation drawer operates smoothly; cached PWA assets load offline.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- PART 6: MILESTONE & TIMELINE TRACKING -->
+    <h1>6. Milestone & Timeline Tracking</h1>
+    <p>The engineering lifecycle of the NexMess platform spanned almost 3 months (~12 weeks / 84 days) of intensive development, design iterations, database security modeling, and testing:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Engineering Sprint / Phase</th>
+          <th>Core Key Deliverables Completed</th>
+          <th>Duration (3 Months Total)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Phase 1: Architecture, Security & DB Design</strong></td>
+          <td>PostgreSQL database schema setup, multi-tenant RLS security rules, user persona mapping, and requirements definition.</td>
+          <td>Weeks 1 - 2 (2 Weeks)</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 2: UI Design System & Component Library</strong></td>
+          <td>Tailwind CSS v4 custom design tokens, Sage Green theme, glassmorphic layout components, and light/dark theme engine.</td>
+          <td>Weeks 3 - 4 (2 Weeks)</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 3: Authentication, Workspace & RBAC</strong></td>
+          <td>Supabase Auth pathways (email/password, OAuth PKCE), email verification flow, mess workspace creation (<code>NEX-XXXX</code>), and Manager approval controls.</td>
+          <td>Weeks 5 - 6 (2 Weeks)</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 4: Core Operations — Meals & Finance Engine</strong></td>
+          <td>Dynamic meal rate calculation engine, 10 AM/4 PM cut-off lock timers, monthly meal count matrix, individual ledgers, utility bill splits, and browser PDF statement generator.</td>
+          <td>Weeks 7 - 9 (3 Weeks)</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 5: Gemini 3.6 Flash AI & Real-Time Chat Room</strong></td>
+          <td>Google Gemini 3.6 Flash AI Market Assistant integration with web search grounding, bazaar duty rotation roster, meal routines planner, and WebSocket chat room.</td>
+          <td>Weeks 10 - 11 (2 Weeks)</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 6: QA, Compatibility Testing & Production PWA</strong></td>
+          <td>10-scenario manual testing execution, mobile/desktop cross-browser audit, PWA service worker caching setup, and live deployment at nexmess.shop.</td>
+          <td>Week 12 (1 Week)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- PART 7: RETROSPECTIVE & ROADMAP -->
+    <h1>7. Retrospective & Future Roadmap</h1>
+    <h2>7.1 Technical Challenges Solved</h2>
+    <ul>
+      <li><strong>Timezone Cut-Off Sync:</strong> Solves misconfigured phone clocks by enforcing standard Dhaka (UTC+6) time helpers for cut-off calculations.</li>
+      <li><strong>Mid-Month Member Leaves:</strong> Preserves historical meal records while automatically recalculating remaining active member balance shares.</li>
+      <li><strong>AI Quota Graceful Fallback:</strong> Ensures the market assistant seamlessly switches to internal price estimates if search quota limits are reached.</li>
+    </ul>
+
+    <h2>7.2 Key Lessons Learned</h2>
+    <ul>
+      <li><strong>Database Security First:</strong> Using Supabase Row Level Security simplifies frontend code while guaranteeing 100% data privacy.</li>
+      <li><strong>Fast Reactive UI:</strong> Zustand state management keeps page updates fast without unneeded screen re-renders.</li>
+    </ul>
+
+    <h2>7.3 Future Roadmap Enhancements</h2>
+    <ul>
+      <li><strong>Automated WhatsApp Alerts:</strong> Sending daily meal cut-off reminders directly to roommate WhatsApp groups.</li>
+      <li><strong>AI Receipt OCR Scanner:</strong> Allowing managers to snap photo receipts of market items for instant automatic expense insertion.</li>
+      <li><strong>Bengali Language Support (i18n):</strong> Adding full Bengali language translation options.</li>
+    </ul>
+
+    <!-- PART 8: REFERENCES & DOCUMENTATION -->
+    <h1>8. References & Documentation</h1>
+    <ol>
+      <li>React 19 Official Documentation: <a href="https://react.dev/" target="_blank">https://react.dev/</a></li>
+      <li>Supabase Security & Database Guides: <a href="https://supabase.com/docs" target="_blank">https://supabase.com/docs</a></li>
+      <li>Tailwind CSS v4 Layout Guidelines: <a href="https://tailwindcss.com/" target="_blank">https://tailwindcss.com/</a></li>
+      <li>Google Gemini AI API Documentation: <a href="https://ai.google.dev/" target="_blank">https://ai.google.dev/</a></li>
+      <li>jsPDF Documentation: <a href="https://github.com/parallax/jsPDF" target="_blank">https://github.com/parallax/jsPDF</a></li>
+    </ol>
+  </div>
+</body>
+</html>
