@@ -1,4 +1,4 @@
-// Supabase Edge Function — AI Market Assistant with Gemini Search Grounding
+// Supabase Edge Function — AI Market Assistant with Gemini 2.5 Flash Search Grounding (Latest Free Tier Model)
 // Deploy: supabase functions deploy market-assistant
 // Secrets required:
 //   GEMINI_API_KEY (Google AI Studio Gemini API key)
