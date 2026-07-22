@@ -1,4 +1,4 @@
-// Supabase Edge Function — AI Market Assistant with Gemini 2.5 Flash Search Grounding (Latest Free Tier Model)
+// Supabase Edge Function — AI Market Assistant with Gemini 3.6 Flash Search Grounding (Latest Model)
 // Deploy: supabase functions deploy market-assistant
 // Secrets required:
 //   GEMINI_API_KEY (Google AI Studio Gemini API key)
@@ -321,7 +321,7 @@ No intros, no filler. Straight to the data.`,
     }
 
     // Call Gemini API with Search Grounding (try paid/grounded first)
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiKey}`
 
     let responseText = ''
     let isGrounded = true
