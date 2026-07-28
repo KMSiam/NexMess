@@ -204,8 +204,8 @@ Please ask your Mess Manager to configure the location in **Settings > Mess Deta
 
     // Fetch today's meal routine (cooking menu)
     const [yr, mo, dy] = targetDate.split('-').map(Number)
-    const localDate = new Date(yr, mo - 1, dy)
-    const jsDay = localDate.getDay()
+    const utcDate = new Date(Date.UTC(yr, mo - 1, dy))
+    const jsDay = utcDate.getUTCDay()
     const mappedDow = (jsDay + 1) % 7 // JS: 0=Sun -> our mapping: 0=Sat, 1=Sun, 2=Mon...
 
     const { data: routine } = await serviceSupabase

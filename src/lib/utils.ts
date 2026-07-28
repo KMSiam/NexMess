@@ -106,6 +106,16 @@ export function dhakaTomorrow(): string {
   return addDaysDhaka(dhakaToday(), 1)
 }
 
+/**
+ * Returns day_of_week index (0=Saturday, 1=Sunday, 2=Monday, 3=Tuesday, 4=Wednesday, 5=Thursday, 6=Friday)
+ * for a date string formatted as "YYYY-MM-DD" (defaults to dhakaToday()).
+ */
+export function getMealRoutineDow(dateStr: string = dhakaToday()): number {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  const d = new Date(Date.UTC(year, month - 1, day))
+  return (d.getUTCDay() + 1) % 7
+}
+
 export function isSafeUrl(url: string): boolean {
   try {
     const parsed = new URL(url)

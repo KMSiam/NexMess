@@ -5,7 +5,7 @@ import { supabase } from '../../../lib/supabase'
 import { CalendarClock, Pencil, Save, X } from 'lucide-react'
 import EmptyState from '../../../components/EmptyState'
 import { Skeleton } from '../../../components/Skeleton'
-import { getFoodEmoji } from '../../../lib/utils'
+import { getFoodEmoji, getMealRoutineDow, dhakaToday } from '../../../lib/utils'
 import toast from 'react-hot-toast'
 
 const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
@@ -43,7 +43,7 @@ export default function MealRoutine() {
   } | null>(null)
 
   const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
-  const todayDow = (new Date().getDay() + 1) % 7 // JS: 0=Sun → our mapping: 0=Sat
+  const todayDow = getMealRoutineDow(dhakaToday())
 
   const fetchRoutines = useCallback(async () => {
     if (!currentMess?.id) return

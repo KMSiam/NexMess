@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
-import { dhakaToday, dhakaTomorrow } from '../lib/utils'
+import { dhakaToday, dhakaTomorrow, getMealRoutineDow } from '../lib/utils'
 import { useRealtimeTable } from './useRealtimeTable'
 
 export interface DashboardMeals {
@@ -172,10 +172,8 @@ export function useDashboardData(
         .single(),
       // 9. Meal Routine
       (() => {
-        const _dhakaBase = new Date(dhakaToday() + 'T00:00:00+06:00')
-        const todayDow = (_dhakaBase.getUTCDay() + 1) % 7
-        const _dhakaTomorrow = new Date(_dhakaBase.getTime() + 24 * 60 * 60 * 1000)
-        const tomorrowDow = (_dhakaTomorrow.getUTCDay() + 1) % 7
+        const todayDow = getMealRoutineDow(today)
+        const tomorrowDow = getMealRoutineDow(tomorrow)
         return supabase
           .from('meal_routines')
           .select('day_of_week, lunch, dinner')
@@ -275,10 +273,8 @@ export function useDashboardData(
 
     // Meal Routine
     if (routineRes.data) {
-      const _dhakaBase = new Date(dhakaToday() + 'T00:00:00+06:00')
-      const todayDow = (_dhakaBase.getUTCDay() + 1) % 7
-      const _dhakaTomorrow = new Date(_dhakaBase.getTime() + 24 * 60 * 60 * 1000)
-      const tomorrowDow = (_dhakaTomorrow.getUTCDay() + 1) % 7
+      const todayDow = getMealRoutineDow(today)
+      const tomorrowDow = getMealRoutineDow(tomorrow)
       const todayR = routineRes.data.find(
         (r: Record<string, unknown>) => r.day_of_week === todayDow
       )
