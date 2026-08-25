@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldAlert } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 import { useSEO } from '../../hooks/useSEO'
+import { registerSchema, validateForm } from '../../lib/validation/schemas'
+import { checkRateLimit, recordRateLimitAttempt } from '../../lib/rateLimiter'
+import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function RegisterPage() {
   useSEO({
@@ -21,46 +24,61 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [agreeTerms, setAgreeTerms] = useState(false)
+  const [cooldownSec, setCooldownSec] = useState<number>(0)
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!agreeTerms) {
-      toast.error('You must agree to the Terms of Service and Privacy Policy')
+    // 1. Strict Schema Validation
+    const validation = validateForm(registerSchema, {
+      email,
+      password,
+      confirmPassword,
+      agreeTerms,
+    })
+
+    if (!validation.success) {
+      toast.error(validation.error)
       return
     }
 
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match')
-      return
-    }
-    if (password.length < 8) {
-      toast.error('Password must be at least 8 characters')
-      return
-    }
-    if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-      toast.error('Password must include at least one letter and one number')
+    // 2. Client-Side Rate Limiter Check (Exponential Backoff)
+    const rateLimitKey = `register:${email.toLowerCase().trim()}`
+    const rlStatus = checkRateLimit(rateLimitKey)
+    if (!rlStatus.allowed) {
+      setCooldownSec(rlStatus.retryAfterSec)
+      toast.error(rlStatus.message || 'Too many attempts. Please wait.')
       return
     }
 
     setLoading(true)
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard` },
-    })
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: validation.data.email,
+        password: validation.data.password,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard` },
+      })
 
-    if (error) {
-      toast.error(error.message)
-    } else if (data?.user?.identities && data.user.identities.length === 0) {
-      // Supabase returns an empty identities array if the email already exists
-      // and "Prevent Email Enumeration" is turned on.
-      toast.error('This email is already registered. Please sign in.')
-    } else {
-      toast.success('Check your email for a verification link!')
-      navigate('/verify-email', { state: { email } })
+      if (error) {
+        recordRateLimitAttempt(rateLimitKey, false)
+        toast.error(sanitizeAppError(error))
+        const newRl = checkRateLimit(rateLimitKey)
+        if (!newRl.allowed) setCooldownSec(newRl.retryAfterSec)
+      } else if (data?.user?.identities && data.user.identities.length === 0) {
+        recordRateLimitAttempt(rateLimitKey, false)
+        toast.error('This email is already registered. Please sign in.')
+      } else {
+        recordRateLimitAttempt(rateLimitKey, true)
+        setCooldownSec(0)
+        toast.success('Check your email for a verification link!')
+        navigate('/verify-email', { state: { email } })
+      }
+    } catch (err: unknown) {
+      recordRateLimitAttempt(rateLimitKey, false)
+      toast.error(sanitizeAppError(err))
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const handleGoogleSignup = async () => {
@@ -69,15 +87,19 @@ export default function RegisterPage() {
       return
     }
     setGoogleLoading(true)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/dashboard` },
-    })
-    if (error) {
-      toast.error(error.message)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/dashboard` },
+      })
+      if (error) {
+        toast.error(sanitizeAppError(error))
+        setGoogleLoading(false)
+      }
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err))
       setGoogleLoading(false)
     }
-    // Note: on success, browser redirects — no need to reset state
   }
 
   return (
@@ -116,9 +138,16 @@ export default function RegisterPage() {
           <h1 className="text-nex-text mb-1 text-2xl font-bold">Create your account</h1>
           <p className="text-nex-muted mb-8">Get started with NexMess for free</p>
 
+          {cooldownSec > 0 && (
+            <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-400">
+              <ShieldAlert className="h-5 w-5 shrink-0" />
+              <span>Too many registration attempts. Please wait {cooldownSec}s before retrying.</span>
+            </div>
+          )}
+
           <button
             onClick={handleGoogleSignup}
-            disabled={googleLoading}
+            disabled={googleLoading || cooldownSec > 0}
             className="rounded-btn border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover mb-6 flex w-full items-center justify-center gap-3 border px-4 py-3 text-sm font-medium transition-colors disabled:opacity-60"
             id="google-register-btn"
           >
@@ -250,7 +279,7 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || cooldownSec > 0}
               className="nex-btn-primary w-full py-3 disabled:opacity-50"
               id="register-submit"
             >

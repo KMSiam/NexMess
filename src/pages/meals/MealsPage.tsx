@@ -22,6 +22,7 @@ import toast from 'react-hot-toast'
 import { isMealCutoffPassed, mealCutoffLabel } from '../../lib/utils'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { useRealtimeTable } from '../../hooks/useRealtimeTable'
+import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function MealsPage() {
   usePageTitle('Meals')
@@ -147,7 +148,7 @@ export default function MealsPage() {
     )
 
     if (error) {
-      toast.error(error.message || 'Failed to update meal')
+      toast.error(sanitizeAppError(error, 'Failed to update meal'))
       fetchMeals() // Revert
     }
   }
@@ -192,6 +193,10 @@ export default function MealsPage() {
       toast.error('Guest counts cannot be negative')
       return
     }
+    if (ovGuestLunch > 20 || ovGuestDinner > 20) {
+      toast.error('Guest count cannot exceed 20 meals per person')
+      return
+    }
     setOvSaving(true)
     const { error } = await supabase.rpc('manager_upsert_meal', {
       p_user_id: ovUserId,
@@ -204,7 +209,7 @@ export default function MealsPage() {
     })
     setOvSaving(false)
     if (error) {
-      toast.error(error.message || 'Override failed')
+      toast.error(sanitizeAppError(error, 'Override failed'))
       return
     }
     toast.success('Meal updated')

@@ -2,6 +2,8 @@ import { useState, useRef } from 'react'
 import { Image, Loader2 } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
 import toast from 'react-hot-toast'
+import { validateUploadedFile, generateSafeFileName } from '../../../lib/fileValidator'
+import { sanitizeAppError } from '../../../lib/errorHandler'
 
 interface ImageUploaderProps {
   messId: string
@@ -16,19 +18,21 @@ export default function ImageUploader({ messId, onUploadComplete }: ImageUploade
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('You can only upload images here.')
-      return
-    }
+    // 1. Binary Magic Number & Safe File Validation
+    const validation = await validateUploadedFile(file, {
+      category: 'image',
+      maxSizeInBytes: 5 * 1024 * 1024,
+    })
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB.')
+    if (!validation.valid) {
+      toast.error(validation.error || 'Invalid image')
+      if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
 
     setUploading(true)
-    const ext = file.name.split('.').pop()
-    const fileName = `${messId}/chat-${Date.now()}.${ext}`
+    const safeName = generateSafeFileName('chat', validation.sanitizedExt || 'jpg')
+    const fileName = `${messId}/${safeName}`
 
     try {
       const { error: uploadError } = await supabase.storage
@@ -44,10 +48,10 @@ export default function ImageUploader({ messId, onUploadComplete }: ImageUploade
       if (data?.publicUrl) {
         onUploadComplete(data.publicUrl)
       } else {
-        toast.error('Failed to get download URL.')
+        toast.error('Failed to get image link.')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to upload image.')
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Failed to upload image.'))
     } finally {
       setUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -58,7 +62,7 @@ export default function ImageUploader({ messId, onUploadComplete }: ImageUploade
     <div className="relative">
       <input
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         onChange={handleFileChange}
         className="hidden"
         ref={fileInputRef}

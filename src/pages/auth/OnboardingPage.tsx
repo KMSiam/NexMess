@@ -5,6 +5,9 @@ import { supabase } from '../../lib/supabase'
 import { Camera, ArrowRight } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
+import { onboardingSchema, validateForm } from '../../lib/validation/schemas'
+import { validateUploadedFile, generateSafeFileName } from '../../lib/fileValidator'
+import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function OnboardingPage() {
   const navigate = useNavigate()
@@ -15,26 +18,32 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error('Image must be less than 2MB')
-        return
-      }
-      setAvatarFile(file)
-      setAvatarPreview(URL.createObjectURL(file))
+    if (!file) return
+
+    const validation = await validateUploadedFile(file, {
+      category: 'image',
+      maxSizeInBytes: 2 * 1024 * 1024,
+    })
+
+    if (!validation.valid) {
+      toast.error(validation.error || 'Invalid image file')
+      if (fileRef.current) fileRef.current.value = ''
+      return
     }
+
+    setAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!username.trim()) {
-      toast.error('Please enter a username')
-      return
-    }
-    if (username.trim().length < 3) {
-      toast.error('Username must be at least 3 characters')
+
+    // 1. Strict Schema Validation
+    const validation = validateForm(onboardingSchema, { username })
+    if (!validation.success) {
+      toast.error(validation.error)
       return
     }
 
@@ -44,8 +53,20 @@ export default function OnboardingPage() {
 
       // Upload avatar to public storage under the user's folder
       if (avatarFile && user) {
-        const ext = avatarFile.name.split('.').pop()
-        const path = `${user.id}/avatar.${ext}`
+        const fileValidation = await validateUploadedFile(avatarFile, {
+          category: 'image',
+          maxSizeInBytes: 2 * 1024 * 1024,
+        })
+
+        if (!fileValidation.valid) {
+          toast.error(fileValidation.error || 'Invalid avatar file')
+          setLoading(false)
+          return
+        }
+
+        const safeFileName = generateSafeFileName('avatar', fileValidation.sanitizedExt || 'jpg')
+        const path = `${user.id}/${safeFileName}`
+
         const { error: uploadError } = await supabase.storage
           .from('avatars')
           .upload(path, avatarFile, { upsert: true })
@@ -55,20 +76,23 @@ export default function OnboardingPage() {
             data: { publicUrl },
           } = supabase.storage.from('avatars').getPublicUrl(path)
           avatar_url = publicUrl
+        } else {
+          toast.error(sanitizeAppError(uploadError, 'Failed to upload avatar'))
         }
       }
 
       await updateProfile({
-        username: username.trim(),
+        username: validation.data.username,
         ...(avatar_url && { avatar_url }),
       })
 
       toast.success("Profile set up! Let's go 🚀")
       navigate('/dashboard')
-    } catch {
-      toast.error('Something went wrong. Try again.')
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Something went wrong while setting up profile.'))
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
@@ -113,7 +137,7 @@ export default function OnboardingPage() {
             <input
               ref={fileRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               onChange={handleAvatarChange}
               className="hidden"
             />

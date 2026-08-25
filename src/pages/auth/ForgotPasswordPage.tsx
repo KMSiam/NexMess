@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { Mail, ArrowRight, ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react'
+import { Mail, ArrowRight, ArrowLeft, RefreshCw, AlertTriangle, ShieldAlert } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 import { useSEO } from '../../hooks/useSEO'
+import { forgotPasswordSchema, validateForm } from '../../lib/validation/schemas'
+import { checkRateLimit, recordRateLimitAttempt } from '../../lib/rateLimiter'
+import { sanitizeAppError } from '../../lib/errorHandler'
 
 const COOLDOWN = 60
 
@@ -21,6 +24,7 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [cooldown, setCooldown] = useState(0)
+  const [rateLimitCooldown, setRateLimitCooldown] = useState(0)
 
   useEffect(() => {
     if (cooldown <= 0) return
@@ -29,16 +33,50 @@ export default function ForgotPasswordPage() {
   }, [cooldown])
 
   const sendReset = async (emailToSend: string) => {
-    setLoading(true)
-    const { error } = await supabase.auth.resetPasswordForEmail(emailToSend, {
-      redirectTo: `${window.location.origin}/update-password`,
-    })
-    setLoading(false)
-    if (error) {
-      toast.error(error.message)
+    // 1. Validation
+    const validation = validateForm(forgotPasswordSchema, { email: emailToSend })
+    if (!validation.success) {
+      toast.error(validation.error)
       return false
     }
-    return true
+
+    // 2. Rate Limiting Check
+    const rateLimitKey = `forgot_password:${emailToSend.toLowerCase().trim()}`
+    const rlStatus = checkRateLimit(rateLimitKey, {
+      maxAttemptsBeforeDelay: 2,
+      initialDelayMs: 5000,
+      multiplier: 2,
+      maxDelayMs: 60000,
+    })
+
+    if (!rlStatus.allowed) {
+      setRateLimitCooldown(rlStatus.retryAfterSec)
+      toast.error(rlStatus.message || 'Too many reset attempts. Please wait.')
+      return false
+    }
+
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(validation.data.email, {
+        redirectTo: `${window.location.origin}/update-password`,
+      })
+      setLoading(false)
+      if (error) {
+        recordRateLimitAttempt(rateLimitKey, false)
+        toast.error(sanitizeAppError(error))
+        const newRl = checkRateLimit(rateLimitKey)
+        if (!newRl.allowed) setRateLimitCooldown(newRl.retryAfterSec)
+        return false
+      }
+      recordRateLimitAttempt(rateLimitKey, true)
+      setRateLimitCooldown(0)
+      return true
+    } catch (err: unknown) {
+      setLoading(false)
+      recordRateLimitAttempt(rateLimitKey, false)
+      toast.error(sanitizeAppError(err))
+      return false
+    }
   }
 
   const handleReset = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -94,6 +132,13 @@ export default function ForgotPasswordPage() {
 
           <h1 className="text-nex-text mb-1 text-2xl font-bold">Forgot password?</h1>
 
+          {rateLimitCooldown > 0 && (
+            <div className="mb-4 flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-400">
+              <ShieldAlert className="h-5 w-5 shrink-0" />
+              <span>Please wait {rateLimitCooldown}s before requesting another reset email.</span>
+            </div>
+          )}
+
           {isExpired && (
             <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
@@ -121,7 +166,7 @@ export default function ForgotPasswordPage() {
                 <p className="text-nex-muted mb-3 text-sm">Didn't receive it?</p>
                 <button
                   onClick={handleResend}
-                  disabled={loading || cooldown > 0}
+                  disabled={loading || cooldown > 0 || rateLimitCooldown > 0}
                   className="nex-btn-secondary w-full justify-center gap-2 disabled:opacity-50"
                   id="resend-reset-btn"
                 >
@@ -168,7 +213,7 @@ export default function ForgotPasswordPage() {
 
                 <button
                   type="submit"
-                  disabled={loading || !email}
+                  disabled={loading || !email || rateLimitCooldown > 0}
                   className="nex-btn-primary w-full py-3 disabled:opacity-50"
                   id="forgot-password-submit"
                 >

@@ -2,10 +2,13 @@ import { useState, useTransition } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../stores/authStore'
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldAlert } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 import { useSEO } from '../../hooks/useSEO'
+import { loginSchema, validateForm } from '../../lib/validation/schemas'
+import { checkRateLimit, recordRateLimitAttempt } from '../../lib/rateLimiter'
+import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function LoginPage() {
   useSEO({
@@ -20,33 +23,71 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [googlePending, startGoogleTransition] = useTransition()
+  const [cooldownSec, setCooldownSec] = useState<number>(0)
 
   const handleEmailLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    startTransition(async () => {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-      if (error) {
-        toast.error(error.message)
-      } else {
-        if (data?.session) {
-          useAuthStore.getState().setSession(data.session)
-          await useAuthStore.getState().fetchProfile()
+    // 1. Strict Schema Validation
+    const validation = validateForm(loginSchema, { email, password })
+    if (!validation.success) {
+      toast.error(validation.error)
+      return
+    }
+
+    // 2. Client-Side Rate Limiter Check (Exponential Backoff)
+    const rateLimitKey = `login:${email.toLowerCase().trim()}`
+    const rlStatus = checkRateLimit(rateLimitKey)
+    if (!rlStatus.allowed) {
+      setCooldownSec(rlStatus.retryAfterSec)
+      toast.error(rlStatus.message || 'Too many failed attempts. Please wait.')
+      return
+    }
+
+    startTransition(async () => {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: validation.data.email,
+          password: validation.data.password,
+        })
+
+        if (error) {
+          recordRateLimitAttempt(rateLimitKey, false)
+          const sanitizedMsg = sanitizeAppError(error)
+          toast.error(sanitizedMsg)
+          const newRl = checkRateLimit(rateLimitKey)
+          if (!newRl.allowed) {
+            setCooldownSec(newRl.retryAfterSec)
+          }
+        } else {
+          recordRateLimitAttempt(rateLimitKey, true)
+          setCooldownSec(0)
+          if (data?.session) {
+            useAuthStore.getState().setSession(data.session)
+            await useAuthStore.getState().fetchProfile()
+          }
+          toast.success('Welcome back!')
+          navigate('/dashboard')
         }
-        toast.success('Welcome back!')
-        navigate('/dashboard')
+      } catch (err: unknown) {
+        recordRateLimitAttempt(rateLimitKey, false)
+        toast.error(sanitizeAppError(err))
       }
     })
   }
 
   const handleGoogleLogin = () => {
     startGoogleTransition(async () => {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: `${window.location.origin}/dashboard` },
-      })
-      if (error) {
-        toast.error(error.message)
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: `${window.location.origin}/dashboard` },
+        })
+        if (error) {
+          toast.error(sanitizeAppError(error))
+        }
+      } catch (err: unknown) {
+        toast.error(sanitizeAppError(err))
       }
     })
   }
@@ -96,9 +137,16 @@ export default function LoginPage() {
           <h1 className="text-nex-text mb-1 text-2xl font-bold">Welcome back</h1>
           <p className="text-nex-muted mb-8">Sign in to continue to your dashboard</p>
 
+          {cooldownSec > 0 && (
+            <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-400">
+              <ShieldAlert className="h-5 w-5 shrink-0" />
+              <span>Too many consecutive attempts. Please wait {cooldownSec}s before retrying.</span>
+            </div>
+          )}
+
           <button
             onClick={handleGoogleLogin}
-            disabled={googlePending}
+            disabled={googlePending || cooldownSec > 0}
             className="rounded-btn border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover mb-6 flex w-full items-center justify-center gap-3 border px-4 py-3 text-sm font-medium transition-colors disabled:opacity-60"
             id="google-login-btn"
           >
@@ -185,17 +233,17 @@ export default function LoginPage() {
 
             <button
               type="submit"
-            disabled={isPending}
-            className="nex-btn-primary w-full py-3 disabled:opacity-50"
-            id="login-submit"
-          >
-            {isPending ? (
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            ) : (
-              <>
-                Sign In <ArrowRight className="h-4 w-4" />
-              </>
-            )}
+              disabled={isPending || cooldownSec > 0}
+              className="nex-btn-primary w-full py-3 disabled:opacity-50"
+              id="login-submit"
+            >
+              {isPending ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                <>
+                  Sign In <ArrowRight className="h-4 w-4" />
+                </>
+              )}
             </button>
           </form>
 

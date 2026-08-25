@@ -5,6 +5,9 @@ import type { Mess } from '../../../types/database'
 import { useMessStore } from '../../../stores/messStore'
 import { supabase } from '../../../lib/supabase'
 import { getInitials } from '../../../lib/utils'
+import { updateMessDetailsSchema, validateForm } from '../../../lib/validation/schemas'
+import { validateUploadedFile, generateSafeFileName } from '../../../lib/fileValidator'
+import { sanitizeAppError } from '../../../lib/errorHandler'
 
 interface MessDetailsSectionProps {
   currentMess: Mess | null
@@ -37,31 +40,37 @@ export default function MessDetailsSection({
     const file = e.target.files?.[0]
     if (!file || !currentMess?.id) return
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('File must be an image')
-      return
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error('Image must be under 2MB')
+    const validation = await validateUploadedFile(file, {
+      category: 'image',
+      maxSizeInBytes: 2 * 1024 * 1024,
+    })
+
+    if (!validation.valid) {
+      toast.error(validation.error || 'Invalid image file')
       return
     }
 
     setUploading(true)
-    const ext = file.name.split('.').pop()
-    const path = `mess-${currentMess.id}/avatar-${Date.now()}.${ext}`
+    const safeFileName = generateSafeFileName('mess-avatar', validation.sanitizedExt || 'jpg')
+    const path = `mess-${currentMess.id}/${safeFileName}`
 
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(path, file, { upsert: true })
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true })
 
-    if (uploadError) {
-      toast.error('Failed to upload avatar')
-    } else {
-      const publicUrl = supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl
-      setAvatarUrl(publicUrl)
-      toast.success('Avatar uploaded! Click save changes to apply.')
+      if (uploadError) {
+        toast.error(sanitizeAppError(uploadError, 'Failed to upload avatar'))
+      } else {
+        const publicUrl = supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl
+        setAvatarUrl(publicUrl)
+        toast.success('Avatar uploaded! Click save changes to apply.')
+      }
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Failed to upload avatar'))
+    } finally {
+      setUploading(false)
     }
-    setUploading(false)
   }
 
   const copyCode = () => {
@@ -75,17 +84,30 @@ export default function MessDetailsSection({
 
   const handleSave = async () => {
     if (!currentMess?.id) return
+
+    // 1. Strict Schema Validation
+    const validation = validateForm(updateMessDetailsSchema, {
+      name: currentMess.name,
+      location: location || null,
+      notes: rules || null,
+    })
+
+    if (!validation.success) {
+      toast.error(validation.error)
+      return
+    }
+
     setIsSaving(true)
     try {
       await updateMess(currentMess.id, { 
-        location, 
-        rules_and_info: rules,
+        location: validation.data.location || '', 
+        rules_and_info: validation.data.notes || '',
         avatar_url: avatarUrl || null
       })
       toast.success('Mess details updated!')
       setIsEditing(false)
-    } catch {
-      toast.error('Failed to update details')
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Failed to update details'))
     } finally {
       setIsSaving(false)
     }
@@ -121,7 +143,7 @@ export default function MessDetailsSection({
                 <span className="mt-0.5 text-[8px] text-white/90">{uploading ? '...' : 'Upload'}</span>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp"
                   onChange={handleAvatarUpload}
                   className="hidden"
                   disabled={uploading}

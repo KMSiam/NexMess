@@ -21,6 +21,7 @@ import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { usePageTitle } from '../../../hooks/usePageTitle'
 import MarkdownRenderer from '../../../components/MarkdownRenderer'
+import { sanitizeAppError } from '../../../lib/errorHandler'
 
 interface Message {
   id: string
@@ -107,7 +108,7 @@ export default function AIMarketAssistant() {
     setInputText('')
     
     // Add user's message optimistically in the UI first (instant rendering like Messenger/WhatsApp)
-    const tempId = `temp-${Date.now()}`
+    const tempId = `temp-${crypto.randomUUID()}`
     const optimisticUserMessage: Message = {
       id: tempId,
       text: userMessageText,
@@ -161,7 +162,7 @@ export default function AIMarketAssistant() {
 
       // Realtime subscription handles the message refresh via debounced fetchMessages
     } catch (error: any) {
-      toast.error(error.message || 'Error communicating with AI')
+      toast.error(sanitizeAppError(error, 'Error communicating with AI assistant.'))
       console.error(error)
       // Rollback optimistic message if insertion failed
       setMessages((prev) => prev.filter((m) => m.id !== tempId))

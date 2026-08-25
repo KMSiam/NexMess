@@ -4,6 +4,8 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { ArrowRight, Home } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { createMessSchema, validateForm } from '../../lib/validation/schemas'
+import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function CreateMessPage() {
   const navigate = useNavigate()
@@ -14,17 +16,33 @@ export default function CreateMessPage() {
 
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!name.trim() || !user) return
+    if (!user) return
+
+    // 1. Strict Schema Validation
+    const validation = validateForm(createMessSchema, {
+      name,
+      location: 'Default Location',
+    })
+
+    if (!validation.success) {
+      toast.error(validation.error)
+      return
+    }
 
     setLoading(true)
-    const mess = await createMess(name.trim(), user.id)
-    if (mess) {
-      toast.success(`"${mess.name}" created! Code: ${mess.unique_code}`)
-      navigate('/dashboard')
-    } else {
-      toast.error('Failed to create mess')
+    try {
+      const mess = await createMess(validation.data.name, user.id)
+      if (mess) {
+        toast.success(`"${mess.name}" created! Code: ${mess.unique_code}`)
+        navigate('/dashboard')
+      } else {
+        toast.error('Failed to create mess')
+      }
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Failed to create mess'))
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
@@ -46,6 +64,7 @@ export default function CreateMessPage() {
               className="nex-input"
               placeholder="e.g., Sunrise Mess"
               required
+              maxLength={60}
               id="mess-name-input"
             />
           </div>
@@ -59,7 +78,6 @@ export default function CreateMessPage() {
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               <>
-                {' '}
                 Create & Continue <ArrowRight className="h-4 w-4" />
               </>
             )}

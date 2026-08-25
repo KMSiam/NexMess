@@ -4,6 +4,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { Users, ArrowRight, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function JoinMessPage() {
   const navigate = useNavigate()
@@ -14,17 +15,29 @@ export default function JoinMessPage() {
 
   const handleJoin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!code.trim() || !user) return
+    const cleanCode = code.trim().toUpperCase()
+
+    if (!cleanCode || !user) return
+
+    if (cleanCode.length < 4 || cleanCode.length > 12) {
+      toast.error('Please enter a valid mess code')
+      return
+    }
 
     setLoading(true)
-    const result = await joinMess(code.trim(), user.id)
-    if (result.success) {
-      toast.success('Join request sent! Waiting for manager approval.')
-      navigate('/dashboard')
-    } else {
-      toast.error(result.error || 'Failed to join')
+    try {
+      const result = await joinMess(cleanCode, user.id)
+      if (result.success) {
+        toast.success('Join request sent! Waiting for manager approval.')
+        navigate('/dashboard')
+      } else {
+        toast.error(sanitizeAppError(result.error, 'Failed to join mess'))
+      }
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Failed to submit join request'))
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const hasPending = pendingRequests && pendingRequests.length > 0
@@ -71,10 +84,14 @@ export default function JoinMessPage() {
                 </p>
               </div>
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (user?.id && pendingReq) {
-                    cancelJoinRequest(pendingReq.mess_id, user.id)
-                    toast.success('Request canceled')
+                    try {
+                      await cancelJoinRequest(pendingReq.mess_id, user.id)
+                      toast.success('Request canceled')
+                    } catch (err: unknown) {
+                      toast.error(sanitizeAppError(err, 'Failed to cancel request'))
+                    }
                   }
                 }}
                 className="nex-btn-danger w-full bg-red-500/10 py-2.5 text-red-500 hover:bg-red-500 hover:text-white"
@@ -98,7 +115,7 @@ export default function JoinMessPage() {
                   className="nex-input text-center font-mono text-lg tracking-widest"
                   placeholder="NEX-XXXX"
                   required
-                  maxLength={8}
+                  maxLength={12}
                   id="join-code-input"
                 />
               </div>

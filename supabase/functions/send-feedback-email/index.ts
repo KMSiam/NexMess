@@ -10,6 +10,28 @@ const CORS = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// ─── In-Memory Rate Limiting ───
+const FEEDBACK_WINDOW_MS = 10 * 60 * 1000 // 10 minutes
+const MAX_FEEDBACKS_PER_WINDOW = 5 // max 5 submissions per 10m
+const feedbackRateMap = new Map<string, { count: number; windowStart: number }>()
+
+function checkFeedbackRateLimit(userId: string): boolean {
+  const now = Date.now()
+  const record = feedbackRateMap.get(userId)
+
+  if (!record || now - record.windowStart > FEEDBACK_WINDOW_MS) {
+    feedbackRateMap.set(userId, { count: 1, windowStart: now })
+    return true
+  }
+
+  if (record.count >= MAX_FEEDBACKS_PER_WINDOW) {
+    return false
+  }
+
+  record.count += 1
+  return true
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
 
@@ -40,26 +62,67 @@ Deno.serve(async (req) => {
       })
     }
 
-    const resendApiKey = Deno.env.get('RESEND_API_KEY')
-    if (!resendApiKey) {
-      throw new Error('Missing RESEND_API_KEY secret')
+    // Rate Limiting Check
+    if (!checkFeedbackRateLimit(user.id)) {
+      return new Response(
+        JSON.stringify({ error: 'Too many feedback requests. Please wait a few minutes before submitting again.' }),
+        {
+          status: 429,
+          headers: { ...CORS, 'Content-Type': 'application/json' },
+        }
+      )
     }
 
-    const payload = await req.json()
+    const resendApiKey = Deno.env.get('RESEND_API_KEY')
+    if (!resendApiKey) {
+      console.error('[send-feedback-email] Missing RESEND_API_KEY secret')
+      return new Response(JSON.stringify({ error: 'Email service is temporarily unavailable.' }), {
+        status: 503,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+      })
+    }
 
-    // Check if it's a webhook payload
-    const record = payload.type === 'INSERT' ? payload.record : payload
-
-    if (!record || !record.message) {
-      return new Response(JSON.stringify({ error: 'Invalid payload, missing message' }), {
+    let payload: any
+    try {
+      payload = await req.json()
+    } catch {
+      return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
         status: 400,
         headers: CORS,
       })
     }
 
-    const name = record.name || 'Anonymous'
-    const email = record.email || 'No email provided'
-    const message = record.message
+    // Check if it's a webhook payload
+    const record = payload.type === 'INSERT' ? payload.record : payload
+
+    if (!record || !record.message || typeof record.message !== 'string') {
+      return new Response(JSON.stringify({ error: 'A valid message is required' }), {
+        status: 400,
+        headers: CORS,
+      })
+    }
+
+    if (record.message.length < 5 || record.message.length > 3000) {
+      return new Response(JSON.stringify({ error: 'Message must be between 5 and 3000 characters' }), {
+        status: 400,
+        headers: CORS,
+      })
+    }
+
+    // Sanitize string inputs to prevent HTML injection in emails
+    const sanitizeHtml = (str: string) =>
+      str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+
+    const rawName = record.name || 'Anonymous'
+    const rawEmail = record.email || 'No email provided'
+    const name = sanitizeHtml(String(rawName).slice(0, 100))
+    const email = sanitizeHtml(String(rawEmail).slice(0, 150))
+    const message = sanitizeHtml(String(record.message).slice(0, 3000))
 
     const htmlBody = `
       <div style="font-family:Inter,system-ui,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;">
@@ -107,8 +170,8 @@ Deno.serve(async (req) => {
 
     if (!res.ok) {
       const errRes = await res.text()
-      console.error('Resend API Error:', errRes)
-      throw new Error(`Failed to send email: ${errRes}`)
+      console.error('[send-feedback-email] Resend API Error:', errRes)
+      throw new Error('Failed to deliver email through external provider')
     }
 
     const data = await res.json()
@@ -118,8 +181,8 @@ Deno.serve(async (req) => {
       status: 200,
     })
   } catch (err: any) {
-    console.error('Edge Function Error:', err)
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error('[send-feedback-email] Error:', err)
+    return new Response(JSON.stringify({ error: 'Failed to send feedback. Please try again later.' }), {
       status: 500,
       headers: { ...CORS, 'Content-Type': 'application/json' },
     })

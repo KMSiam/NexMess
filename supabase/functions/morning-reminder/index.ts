@@ -175,8 +175,8 @@ Deno.serve(async (req) => {
       headers: { ...CORS, 'Content-Type': 'application/json' },
     })
   } catch (err: any) {
-    console.error('[morning-reminder] Error:', err)
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error('[morning-reminder] Internal Error:', err)
+    return new Response(JSON.stringify({ error: 'Failed to complete morning reminder run.' }), {
       status: 500,
       headers: { ...CORS, 'Content-Type': 'application/json' },
     })

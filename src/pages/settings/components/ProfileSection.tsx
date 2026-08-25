@@ -4,6 +4,9 @@ import { supabase } from '../../../lib/supabase'
 import { Camera } from 'lucide-react'
 import toast from 'react-hot-toast'
 import type { Profile } from '../../../types/database'
+import { profileUpdateSchema, validateForm } from '../../../lib/validation/schemas'
+import { validateUploadedFile, generateSafeFileName } from '../../../lib/fileValidator'
+import { sanitizeAppError } from '../../../lib/errorHandler'
 
 interface ProfileSectionProps {
   profile: Profile | null
@@ -61,80 +64,111 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    // 1. Strict Schema Validation
+    const validation = validateForm(profileUpdateSchema, {
+      username,
+      contactNo: contactNo || null,
+      emergencyContactNo: emergencyContactNo || null,
+      verificationDocType: verificationDocType === 'none' ? null : verificationDocType,
+      verificationDocNo: verificationDocType === 'none' ? null : verificationDocNo || null,
+    })
+
+    if (!validation.success) {
+      toast.error(validation.error)
+      return
+    }
+
     startTransition(async () => {
-      await onUpdate(
-        username.trim(),
-        contactNo.trim(),
-        avatarUrl || null,
-        verificationDocType === 'none' ? null : verificationDocType,
-        verificationDocType === 'none' ? null : verificationDocNo.trim(),
-        verificationDocType === 'none' ? null : verificationDocUrl || null,
-        emergencyContactNo.trim() || null
-      )
+      try {
+        await onUpdate(
+          validation.data.username,
+          validation.data.contactNo || '',
+          avatarUrl || null,
+          (validation.data.verificationDocType as any) || null,
+          validation.data.verificationDocNo || null,
+          verificationDocType === 'none' ? null : verificationDocUrl || null,
+          validation.data.emergencyContactNo || null
+        )
+      } catch (err: unknown) {
+        toast.error(sanitizeAppError(err, 'Failed to update profile'))
+      }
     })
   }
 
-  // Upload avatar image to Supabase storage
+  // Upload avatar image to Supabase storage with binary magic bytes validation
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !profile?.id) return
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('File must be an image')
-      return
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error('Image must be under 2MB')
+    const validation = await validateUploadedFile(file, {
+      category: 'image',
+      maxSizeInBytes: 2 * 1024 * 1024,
+    })
+
+    if (!validation.valid) {
+      toast.error(validation.error || 'Invalid image')
       return
     }
 
     setUploading(true)
-    const ext = file.name.split('.').pop()
-    const path = `${profile.id}/avatar-${Date.now()}.${ext}`
+    const safeFileName = generateSafeFileName('avatar', validation.sanitizedExt || 'jpg')
+    const path = `${profile.id}/${safeFileName}`
 
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(path, file, { upsert: true })
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true })
 
-    if (uploadError) {
-      toast.error('Failed to upload image')
-    } else {
-      const publicUrl = supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl
-      setAvatarUrl(publicUrl)
-      toast.success('Avatar uploaded! Click save to apply changes.')
+      if (uploadError) {
+        toast.error(sanitizeAppError(uploadError, 'Failed to upload image'))
+      } else {
+        const publicUrl = supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl
+        setAvatarUrl(publicUrl)
+        toast.success('Avatar uploaded! Click save to apply changes.')
+      }
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Failed to upload image'))
+    } finally {
+      setUploading(false)
     }
-    setUploading(false)
   }
 
-  // Upload verification document to private storage bucket
+  // Upload verification document with magic number verification
   const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !profile?.id) return
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('File must be an image')
-      return
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error('Image must be under 2MB')
+    const validation = await validateUploadedFile(file, {
+      category: 'document',
+      maxSizeInBytes: 2 * 1024 * 1024,
+    })
+
+    if (!validation.valid) {
+      toast.error(validation.error || 'Invalid document file')
       return
     }
 
     setUploadingDoc(true)
-    const ext = file.name.split('.').pop()
-    const path = `${profile.id}/verification-${Date.now()}.${ext}`
+    const safeFileName = generateSafeFileName('verification', validation.sanitizedExt || 'jpg')
+    const path = `${profile.id}/${safeFileName}`
 
-    const { error: uploadError } = await supabase.storage
-      .from('verifications')
-      .upload(path, file, { upsert: true })
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('verifications')
+        .upload(path, file, { upsert: true })
 
-    if (uploadError) {
-      toast.error('Failed to upload document')
-    } else {
-      setVerificationDocUrl(path)
-      toast.success('Document uploaded! Click save to apply changes.')
+      if (uploadError) {
+        toast.error(sanitizeAppError(uploadError, 'Failed to upload document'))
+      } else {
+        setVerificationDocUrl(path)
+        toast.success('Document uploaded! Click save to apply changes.')
+      }
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Failed to upload document'))
+    } finally {
+      setUploadingDoc(false)
     }
-    setUploadingDoc(false)
   }
 
   const handleRemoveDoc = () => {
@@ -158,7 +192,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
               <span className="mt-1 text-[10px] text-white/90">{uploading ? '...' : 'Upload'}</span>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 onChange={handleAvatarUpload}
                 className="hidden"
                 disabled={uploading}
@@ -272,7 +306,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
                           <span>{uploadingDoc ? 'Uploading...' : 'Choose Photo (Max 2MB)'}</span>
                           <input
                             type="file"
-                            accept="image/*"
+                            accept="image/jpeg,image/png,image/webp,application/pdf"
                             onChange={handleDocUpload}
                             className="hidden"
                             disabled={uploadingDoc}

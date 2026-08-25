@@ -9,6 +9,9 @@ import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { sendPushToUser } from '../../lib/push'
+import { expenseSchema, depositSchema, validateForm } from '../../lib/validation/schemas'
+import { validateUploadedFile, generateSafeFileName } from '../../lib/fileValidator'
+import { sanitizeAppError } from '../../lib/errorHandler'
 
 import { useFinanceData } from '../../hooks/useFinanceData'
 import { usePageTitle } from '../../hooks/usePageTitle'
@@ -103,112 +106,176 @@ export default function FinancePage() {
   })()
 
   const handleAddExpense = async (
-    amount: number,
-    category: string,
-    desc: string,
+    rawAmount: number,
+    rawCategory: string,
+    rawDesc: string,
     file: File | null
   ) => {
     if (!currentMess?.id || !user?.id) return
 
-    let receiptUrl = null
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        toast.error('Receipt must be an image')
-        return
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('Receipt must be under 5MB')
-        return
-      }
-      const ext = file.name.split('.').pop()
-      const fileName = `${currentMess.id}/${Date.now()}.${ext}`
-      const { error: uploadError } = await supabase.storage.from('receipts').upload(fileName, file)
-      if (uploadError) {
-        toast.error('Failed to upload receipt')
-        return
-      }
-      receiptUrl = supabase.storage.from('receipts').getPublicUrl(fileName).data.publicUrl
-    }
-
-    const { error } = await supabase.from('expenses').insert({
-      mess_id: currentMess.id,
-      amount,
-      description: desc.trim().slice(0, 500),
-      category,
-      expense_type: category === 'bazaar' ? 'bazaar' : 'other',
-      created_by: user.id,
-      date: format(new Date(), 'yyyy-MM-dd'),
-      receipt_url: receiptUrl,
+    // 1. Strict Schema Validation
+    const validation = validateForm(expenseSchema, {
+      amount: Number(rawAmount),
+      category: rawCategory,
+      description: rawDesc ? rawDesc.trim() : null,
     })
 
-    if (error) toast.error('Failed to add expense')
-    else {
-      toast.success('Expense added!')
-      refetch()
+    if (!validation.success) {
+      toast.error(validation.error)
+      return
+    }
+
+    let receiptUrl = null
+    if (file) {
+      const fileValidation = await validateUploadedFile(file, {
+        category: 'image',
+        maxSizeInBytes: 5 * 1024 * 1024,
+      })
+
+      if (!fileValidation.valid) {
+        toast.error(fileValidation.error || 'Invalid receipt image')
+        return
+      }
+
+      const safeName = generateSafeFileName('receipt', fileValidation.sanitizedExt || 'jpg')
+      const fileName = `${currentMess.id}/${safeName}`
+
+      try {
+        const { error: uploadError } = await supabase.storage.from('receipts').upload(fileName, file)
+        if (uploadError) {
+          toast.error(sanitizeAppError(uploadError, 'Failed to upload receipt'))
+          return
+        }
+        receiptUrl = supabase.storage.from('receipts').getPublicUrl(fileName).data.publicUrl
+      } catch (uploadErr) {
+        toast.error(sanitizeAppError(uploadErr, 'Failed to upload receipt'))
+        return
+      }
+    }
+
+    try {
+      const { error } = await supabase.from('expenses').insert({
+        mess_id: currentMess.id,
+        amount: validation.data.amount,
+        description: validation.data.description || null,
+        category: validation.data.category,
+        expense_type: validation.data.category === 'bazaar' ? 'bazaar' : 'other',
+        created_by: user.id,
+        date: format(new Date(), 'yyyy-MM-dd'),
+        receipt_url: receiptUrl,
+      })
+
+      if (error) {
+        toast.error(sanitizeAppError(error, 'Failed to add expense'))
+      } else {
+        toast.success('Expense added!')
+        refetch()
+      }
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Failed to add expense'))
     }
   }
 
   const handleUpdateExpense = async (
     id: string,
-    amount: number,
-    category: string,
-    desc: string
+    rawAmount: number,
+    rawCategory: string,
+    rawDesc: string
   ) => {
-    const { error } = await supabase
-      .from('expenses')
-      .update({
-        amount,
-        category,
-        description: desc.trim().slice(0, 500),
-        expense_type: category === 'bazaar' ? 'bazaar' : 'other',
-      })
-      .eq('id', id)
+    // 1. Strict Schema Validation
+    const validation = validateForm(expenseSchema, {
+      amount: Number(rawAmount),
+      category: rawCategory,
+      description: rawDesc ? rawDesc.trim() : null,
+    })
 
-    if (error) toast.error('Failed to update expense')
-    else {
-      toast.success('Expense updated!')
-      refetch()
+    if (!validation.success) {
+      toast.error(validation.error)
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('expenses')
+        .update({
+          amount: validation.data.amount,
+          category: validation.data.category,
+          description: validation.data.description || null,
+          expense_type: validation.data.category === 'bazaar' ? 'bazaar' : 'other',
+        })
+        .eq('id', id)
+
+      if (error) {
+        toast.error(sanitizeAppError(error, 'Failed to update expense'))
+      } else {
+        toast.success('Expense updated!')
+        refetch()
+      }
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Failed to update expense'))
     }
   }
 
   const handleDeleteExpense = async (id: string) => {
-    const { error } = await supabase.from('expenses').delete().eq('id', id)
-    if (error) toast.error('Failed to delete expense')
-    else {
-      toast.success('Expense deleted!')
-      refetch()
+    try {
+      const { error } = await supabase.from('expenses').delete().eq('id', id)
+      if (error) {
+        toast.error(sanitizeAppError(error, 'Failed to delete expense'))
+      } else {
+        toast.success('Expense deleted!')
+        refetch()
+      }
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Failed to delete expense'))
     }
   }
 
-  const handleAddDeposit = async (userId: string, amount: number, note: string) => {
+  const handleAddDeposit = async (userId: string, rawAmount: number, rawNote: string) => {
     if (!currentMess?.id) return
-    const { error } = await supabase.from('deposits').insert({
-      mess_id: currentMess.id,
-      user_id: userId,
-      amount,
-      note: note.trim().slice(0, 500),
-      date: format(new Date(), 'yyyy-MM-dd'),
-      verified: false,
-      verified_by: null,
+
+    // 1. Strict Schema Validation
+    const validation = validateForm(depositSchema, {
+      amount: Number(rawAmount),
+      description: rawNote ? rawNote.trim() : null,
     })
 
-    if (error) toast.error('Failed to add deposit')
-    else {
-      toast.success('Deposit recorded!')
-      refetch()
-      await supabase.from('notifications').insert({
-        user_id: userId,
+    if (!validation.success) {
+      toast.error(validation.error)
+      return
+    }
+
+    try {
+      const { error } = await supabase.from('deposits').insert({
         mess_id: currentMess.id,
-        type: 'deposit_recorded',
-        title: '💰 Deposit Recorded',
-        body: `Your manager recorded a pending deposit of ৳${amount}${note ? ` (${note})` : ''}.`,
+        user_id: userId,
+        amount: validation.data.amount,
+        note: validation.data.description || null,
+        date: format(new Date(), 'yyyy-MM-dd'),
+        verified: false,
+        verified_by: null,
       })
-      try {
-        const bodyText = `Your manager recorded a pending deposit of ৳${amount}${note ? ` (${note})` : ''}.`
-        sendPushToUser(userId, `💰 Deposit Recorded`, bodyText, '/finance')
-      } catch (err) {
-        console.error('Failed to send deposit push:', err)
+
+      if (error) {
+        toast.error(sanitizeAppError(error, 'Failed to add deposit'))
+      } else {
+        toast.success('Deposit recorded!')
+        refetch()
+        await supabase.from('notifications').insert({
+          user_id: userId,
+          mess_id: currentMess.id,
+          type: 'deposit_recorded',
+          title: '💰 Deposit Recorded',
+          body: `Your manager recorded a pending deposit of ৳${validation.data.amount}${validation.data.description ? ` (${validation.data.description})` : ''}.`,
+        })
+        try {
+          const bodyText = `Your manager recorded a pending deposit of ৳${validation.data.amount}${validation.data.description ? ` (${validation.data.description})` : ''}.`
+          sendPushToUser(userId, `💰 Deposit Recorded`, bodyText, '/finance')
+        } catch (err) {
+          console.error('Failed to send deposit push:', err)
+        }
       }
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, 'Failed to add deposit'))
     }
   }
 

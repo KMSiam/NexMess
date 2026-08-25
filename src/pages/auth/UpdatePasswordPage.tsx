@@ -5,6 +5,8 @@ import { Lock, Eye, EyeOff, ArrowRight, AlertTriangle } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 import { useSEO } from '../../hooks/useSEO'
+import { updatePasswordSchema, validateForm } from '../../lib/validation/schemas'
+import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function UpdatePasswordPage() {
   useSEO({
@@ -47,7 +49,6 @@ export default function UpdatePasswordPage() {
         setReady(true)
         setInvalid(false)
       }
-      // Note: We do not automatically redirect here, as the user must submit the form first.
     })
 
     return () => {
@@ -59,30 +60,29 @@ export default function UpdatePasswordPage() {
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match')
-      return
-    }
-    if (password.length < 8) {
-      toast.error('Password must be at least 8 characters')
-      return
-    }
-    if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-      toast.error('Password must include at least one letter and one number')
+    // 1. Strict Schema Validation
+    const validation = validateForm(updatePasswordSchema, { password, confirmPassword })
+    if (!validation.success) {
+      toast.error(validation.error)
       return
     }
 
     setLoading(true)
-    const { error } = await supabase.auth.updateUser({
-      password: password,
-    })
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: validation.data.password,
+      })
 
-    if (error) {
-      toast.error(error.message)
+      if (error) {
+        toast.error(sanitizeAppError(error))
+        setLoading(false)
+      } else {
+        toast.success('Password updated! Redirecting...')
+        setTimeout(() => navigate('/dashboard', { replace: true }), 1000)
+      }
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err))
       setLoading(false)
-    } else {
-      toast.success('Password updated! Redirecting...')
-      setTimeout(() => navigate('/dashboard', { replace: true }), 1000)
     }
   }
 

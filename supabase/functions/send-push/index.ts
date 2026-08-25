@@ -21,9 +21,11 @@ Deno.serve(async (req) => {
     const privateKey = Deno.env.get('VAPID_PRIVATE_KEY')
 
     if (!subject || !publicKey || !privateKey) {
-      throw new Error(
-        `Missing VAPID secrets: VAPID_SUBJECT=${!!subject}, VAPID_PUBLIC_KEY=${!!publicKey}, VAPID_PRIVATE_KEY=${!!privateKey}`
-      )
+      console.error('[send-push] Missing VAPID secrets')
+      return new Response(JSON.stringify({ error: 'Push notification service unavailable' }), {
+        status: 503,
+        headers: CORS,
+      })
     }
 
     webPush.setVapidDetails(subject, publicKey, privateKey)
@@ -32,9 +34,11 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
     if (!supabaseUrl || !serviceRoleKey) {
-      throw new Error(
-        'Missing Supabase environment variables: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY'
-      )
+      console.error('[send-push] Missing Supabase environment variables')
+      return new Response(JSON.stringify({ error: 'Internal configuration error' }), {
+        status: 500,
+        headers: CORS,
+      })
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey)
@@ -43,16 +47,24 @@ Deno.serve(async (req) => {
     try {
       body = await req.json()
     } catch {
-      return new Response(JSON.stringify({ error: 'invalid JSON' }), { status: 400, headers: CORS })
-    }
-
-    const { user_id, title, body: msgBody, url } = body
-    if (!user_id || !title) {
-      return new Response(JSON.stringify({ error: 'user_id and title are required' }), {
+      return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
         status: 400,
         headers: CORS,
       })
     }
+
+    const { user_id, title, body: msgBody, url } = body
+    if (!user_id || typeof user_id !== 'string' || !title || typeof title !== 'string') {
+      return new Response(JSON.stringify({ error: 'Valid user_id and title are required' }), {
+        status: 400,
+        headers: CORS,
+      })
+    }
+
+    // Sanitize length
+    const cleanTitle = title.slice(0, 120)
+    const cleanBody = (msgBody || '').slice(0, 500)
+    const cleanUrl = url && url.startsWith('/') ? url.slice(0, 200) : '/dashboard'
 
     const { data: subs, error } = await supabase
       .from('push_subscriptions')
@@ -60,7 +72,11 @@ Deno.serve(async (req) => {
       .eq('user_id', user_id)
 
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: CORS })
+      console.error('[send-push] Database error fetching subscriptions:', error)
+      return new Response(JSON.stringify({ error: 'Failed to retrieve recipient subscriptions' }), {
+        status: 500,
+        headers: CORS,
+      })
     }
 
     if (!subs?.length) {
@@ -69,7 +85,7 @@ Deno.serve(async (req) => {
       })
     }
 
-    const payload = JSON.stringify({ title, body: msgBody ?? '', url: url ?? '/dashboard' })
+    const payload = JSON.stringify({ title: cleanTitle, body: cleanBody, url: cleanUrl })
 
     const results = await Promise.allSettled(
       subs.map((sub) =>
@@ -92,15 +108,14 @@ Deno.serve(async (req) => {
       await supabase.from('push_subscriptions').delete().in('endpoint', expiredEndpoints)
     }
 
-    const errors = results
-      .filter((r) => r.status === 'rejected')
-      .map((r) => (r as PromiseRejectedResult).reason?.message || 'Unknown push error')
-
     const sent = results.filter((r) => r.status === 'fulfilled').length
 
-    return new Response(JSON.stringify({ sent, errors, total: subs.length }), { headers: CORS })
+    return new Response(JSON.stringify({ sent, total: subs.length }), { headers: CORS })
   } catch (err: any) {
-    console.error('Edge Function Error:', err)
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: CORS })
+    console.error('[send-push] Error:', err)
+    return new Response(JSON.stringify({ error: 'Failed to send notification' }), {
+      status: 500,
+      headers: CORS,
+    })
   }
 })

@@ -109,7 +109,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     useMessStore.getState().reset()
     try {
       useMessStore.persist.clearStorage()
-    } catch {
+    } catch (e) {
+      console.warn('Could not clear mess store persistent storage:', e)
     }
 
     // Sign out locally to avoid offline network failures

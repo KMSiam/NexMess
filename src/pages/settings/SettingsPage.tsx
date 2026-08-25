@@ -9,6 +9,7 @@ import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import SupportModal from '../../components/SupportModal'
 import pkg from '../../../package.json'
+import { sanitizeAppError } from '../../lib/errorHandler'
 
 import { usePageTitle } from '../../hooks/usePageTitle'
 import ProfileSection from './components/ProfileSection'
@@ -137,7 +138,7 @@ export default function SettingsPage() {
     })
 
     if (error) {
-      toast.error(error.message || 'Failed to update verification status')
+      toast.error(sanitizeAppError(error, 'Failed to update verification status'))
     } else {
       toast.success(isVerified ? 'Profile verified!' : 'Profile unverified')
       fetchMembers(currentMess.id)
@@ -185,7 +186,7 @@ export default function SettingsPage() {
       .eq('user_id', removeMemberId)
 
     if (error) {
-      toast.error('Failed to remove member: ' + error.message)
+      toast.error(sanitizeAppError(error, 'Failed to remove member'))
     } else {
       toast.success('Member removed but past data saved')
       const isSelf = removeMemberId === user.id
@@ -272,7 +273,7 @@ export default function SettingsPage() {
       .eq('user_id', user.id)
 
     if (error) {
-      toast.error('Failed to leave mess: ' + error.message)
+      toast.error(sanitizeAppError(error, 'Failed to leave mess'))
     } else {
       toast.success('You have left the mess.')
       setConfirmLeaveOpen(false)
@@ -286,7 +287,7 @@ export default function SettingsPage() {
 
     const { error } = await supabase.from('messes').delete().eq('id', currentMess.id)
     if (error) {
-      toast.error('Failed to delete mess')
+      toast.error(sanitizeAppError(error, 'Failed to delete mess'))
     } else {
       toast.success('Mess permanently deleted.')
       setConfirmDeleteOpen(false)
@@ -304,7 +305,7 @@ export default function SettingsPage() {
       .eq('id', user.id)
 
     if (error) {
-      toast.error('Failed to deactivate account: ' + error.message)
+      toast.error(sanitizeAppError(error, 'Failed to deactivate account'))
     } else {
       toast.success('Account deactivated. Signing out...')
       setConfirmDeleteAccountOpen(false)

@@ -3,6 +3,8 @@ import { X, Send, MessageCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
+import { feedbackSchema, validateForm } from '../lib/validation/schemas'
+import { sanitizeAppError } from '../lib/errorHandler'
 
 interface SupportModalProps {
   isOpen: boolean
@@ -27,8 +29,16 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!message.trim()) {
-      toast.error('Message is required')
+
+    // 1. Strict Schema Validation
+    const validation = validateForm(feedbackSchema, {
+      name: name.trim() || null,
+      email: email.trim() || undefined,
+      message: message.trim(),
+    })
+
+    if (!validation.success) {
+      toast.error(validation.error)
       return
     }
 
@@ -36,13 +46,23 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
 
     try {
       // Insert into user_feedback (without .select() because RLS prevents reading)
-      const { error } = await supabase.from('user_feedback').insert([{ name, email, message }])
+      const { error } = await supabase.from('user_feedback').insert([
+        {
+          name: validation.data.name || null,
+          email: validation.data.email || null,
+          message: validation.data.message,
+        },
+      ])
 
       if (error) throw error
 
       // Call the edge function directly to ensure email is sent
       await supabase.functions.invoke('send-feedback-email', {
-        body: { name, email, message },
+        body: {
+          name: validation.data.name || 'Anonymous',
+          email: validation.data.email || 'No email provided',
+          message: validation.data.message,
+        },
       })
 
       toast.success('Your message has been sent successfully!')
@@ -50,9 +70,8 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
       setEmail('')
       setMessage('')
       onClose()
-    } catch (error: any) {
-      console.error('Feedback error:', error)
-      toast.error('Failed to send message. Please try again.')
+    } catch (error: unknown) {
+      toast.error(sanitizeAppError(error, 'Failed to send message. Please try again.'))
     } finally {
       setIsSubmitting(false)
     }
@@ -102,6 +121,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Doe"
+                  maxLength={100}
                   className="bg-nex-bg border-nex-border text-nex-text focus:ring-nex-primary/50 w-full rounded-xl border px-3 py-2 text-sm transition-all focus:ring-2 focus:outline-none"
                   disabled={isSubmitting}
                 />
@@ -115,6 +135,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="john@example.com"
+                  maxLength={255}
                   className="bg-nex-bg border-nex-border text-nex-text focus:ring-nex-primary/50 w-full rounded-xl border px-3 py-2 text-sm transition-all focus:ring-2 focus:outline-none"
                   disabled={isSubmitting}
                 />
@@ -128,6 +149,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="How can we help?"
                   required
+                  maxLength={2000}
                   rows={4}
                   className="bg-nex-bg border-nex-border text-nex-text focus:ring-nex-primary/50 w-full resize-none rounded-xl border px-3 py-2 text-sm transition-all focus:ring-2 focus:outline-none"
                   disabled={isSubmitting}

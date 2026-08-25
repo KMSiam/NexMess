@@ -24,6 +24,28 @@ interface RequestBody {
   history?: ChatHistoryItem[]
 }
 
+// ─── In-Memory Sliding Window Rate Limiter ───
+const RATE_LIMIT_WINDOW_MS = 3 * 60 * 1000 // 3 minutes
+const MAX_REQUESTS_PER_WINDOW = 20 // 20 requests per window
+const rateLimitMap = new Map<string, { count: number; windowStart: number }>()
+
+function checkEdgeRateLimit(identifier: string): boolean {
+  const now = Date.now()
+  const record = rateLimitMap.get(identifier)
+
+  if (!record || now - record.windowStart > RATE_LIMIT_WINDOW_MS) {
+    rateLimitMap.set(identifier, { count: 1, windowStart: now })
+    return true
+  }
+
+  if (record.count >= MAX_REQUESTS_PER_WINDOW) {
+    return false
+  }
+
+  record.count += 1
+  return true
+}
+
 Deno.serve(async (req) => {
   // CORS Preflight
   if (req.method === 'OPTIONS') {
@@ -33,7 +55,11 @@ Deno.serve(async (req) => {
   try {
     const geminiKey = Deno.env.get('GEMINI_API_KEY')
     if (!geminiKey) {
-      throw new Error('Missing GEMINI_API_KEY environment variable/secret.')
+      console.error('[market-assistant] Missing GEMINI_API_KEY secret')
+      return new Response(JSON.stringify({ error: 'AI service is temporarily unavailable.' }), {
+        status: 503,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+      })
     }
 
     const authHeader = req.headers.get('Authorization')
@@ -73,22 +99,47 @@ Deno.serve(async (req) => {
         })
       }
       user = authUser
+
+      // Apply Rate Limiting per user
+      if (!checkEdgeRateLimit(user.id)) {
+        return new Response(
+          JSON.stringify({ error: 'Too many requests. Please wait a moment before sending more messages.' }),
+          {
+            status: 429,
+            headers: { ...CORS, 'Content-Type': 'application/json' },
+          }
+        )
+      }
     }
 
-    // Parse Request Body
+    // Parse & Validate Request Body
     let body: RequestBody
     try {
       body = await req.json()
     } catch {
-      return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+      return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
         status: 400,
         headers: { ...CORS, 'Content-Type': 'application/json' },
       })
     }
 
     const { mess_id, message, action = 'chat', date_str, history = [] } = body
-    if (!mess_id) {
-      return new Response(JSON.stringify({ error: 'mess_id is required' }), {
+    if (!mess_id || typeof mess_id !== 'string' || mess_id.length > 64) {
+      return new Response(JSON.stringify({ error: 'A valid mess_id is required' }), {
+        status: 400,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (action !== 'chat' && action !== 'generate_daily_update') {
+      return new Response(JSON.stringify({ error: 'Invalid action parameter' }), {
+        status: 400,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (message && (typeof message !== 'string' || message.length > 4000)) {
+      return new Response(JSON.stringify({ error: 'Message cannot exceed 4000 characters' }), {
         status: 400,
         headers: { ...CORS, 'Content-Type': 'application/json' },
       })
@@ -433,10 +484,13 @@ No intros, no filler. Straight to the data.`,
       headers: { ...CORS, 'Content-Type': 'application/json' },
     })
   } catch (err: any) {
-    console.error('Market Assistant Error:', err)
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { ...CORS, 'Content-Type': 'application/json' },
-    })
+    console.error('[market-assistant] Internal Error:', err)
+    return new Response(
+      JSON.stringify({ error: 'Failed to process market assistant request. Please try again later.' }),
+      {
+        status: 500,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+      }
+    )
   }
 })
