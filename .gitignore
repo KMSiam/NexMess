@@ -32,7 +32,6 @@ PROGRESS_REPORT.txt
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-!.vscode/mcp.json
 .idea
 .DS_Store
 *.suo
@@ -40,6 +39,9 @@ PROGRESS_REPORT.txt
 *.njsproj
 *.sln
 *.sw?
+
+# Supabase CLI local temporary files
+supabase/.temp/
 supabase/.temp
 
 .vercel

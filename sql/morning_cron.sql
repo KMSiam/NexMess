@@ -7,6 +7,7 @@
 --   1. pg_cron extension enabled (Supabase Dashboard → Database → Extensions)
 --   2. pg_net extension enabled (already used for push notifications)
 --   3. `morning-reminder` edge function deployed
+--   4. Replace <YOUR-PROJECT-ID> and <YOUR_SUPABASE_ANON_KEY> below with your project credentials
 -- =====================================================================
 
 -- Enable pg_cron if not already enabled
@@ -24,11 +25,11 @@ SELECT cron.schedule(
   '0 1 * * *',                     -- cron expression: minute=0, hour=1(UTC), every day
   $$
   SELECT net.http_post(
-    url := 'https://aaszanlxspgouomjpruz.supabase.co/functions/v1/morning-reminder',
+    url := 'https://<YOUR-PROJECT-ID>.supabase.co/functions/v1/morning-reminder',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'apikey', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhc3phbmx4c3Bnb3VvbWpwcnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwOTk4MjgsImV4cCI6MjA5MzY3NTgyOH0.SMwKH5_tA5IwjIaa-1-eooV9t_BOovEwiFcfc_7NAMM',
-      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhc3phbmx4c3Bnb3VvbWpwcnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwOTk4MjgsImV4cCI6MjA5MzY3NTgyOH0.SMwKH5_tA5IwjIaa-1-eooV9t_BOovEwiFcfc_7NAMM'
+      'apikey', '<YOUR_SUPABASE_ANON_KEY>',
+      'Authorization', 'Bearer <YOUR_SUPABASE_ANON_KEY>'
     ),
     body := '{}'::jsonb
   );
@@ -36,9 +37,11 @@ SELECT cron.schedule(
 );
 
 -- =====================================================================
--- Note: The cron job calls the morning-reminder function using the 
--- project's anon key for gateway authentication. The function itself
--- runs securely on the server with full database access.
+-- Note: Replace <YOUR-PROJECT-ID> and <YOUR_SUPABASE_ANON_KEY> with your
+-- actual project credentials before executing this query. The cron job
+-- calls the morning-reminder function using the anon key for gateway
+-- authentication. The function itself runs securely on the server with
+-- full database access.
 -- =====================================================================
 
 -- Verify the job was created:
