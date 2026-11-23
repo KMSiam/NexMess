@@ -13,6 +13,8 @@
 [![Supabase Cloud](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Gemini 3.6 Flash](https://img.shields.io/badge/Gemini_AI-3.6_Flash-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-CSS_v4-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Vitest](https://img.shields.io/badge/Vitest-Unit_Tests-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![CI Pipeline](https://github.com/KMSiam/NexMess/actions/workflows/ci.yml/badge.svg)](https://github.com/KMSiam/NexMess/actions/workflows/ci.yml)
 
 ---
 
@@ -330,6 +332,10 @@ npm run preview
 | :--- | :--- | :--- |
 | `npm run dev` | `vite` | Starts local hot-reloading dev server at `http://localhost:5173` |
 | `npm run build` | `tsc -b && vite build` | Type-checks codebase and builds minified production bundle in `dist/` |
+| `npm test` | `vitest run` | Runs all 22 unit tests for finance, cutoff, validation & analytics |
+| `npm run test:watch` | `vitest` | Runs Vitest in interactive watch mode for live test-driven development |
+| `npm run test:coverage`| `vitest run --coverage` | Generates detailed code test coverage reports |
+| `npm run test:e2e` | `playwright test` | Runs Playwright browser end-to-end smoke & navigation test suite |
 | `npm run preview` | `vite preview` | Locally serves and previews the production build from `dist/` |
 | `npm run lint` | `eslint .` | Runs ESLint 10 to check code quality and catch syntax issues |
 | `npm run type-check`| `tsc --noEmit` | Validates all TypeScript types across the codebase |

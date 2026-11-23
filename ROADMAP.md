@@ -14,8 +14,8 @@
 | **System Architecture** | **A-** | Robust | 3-tier architecture with Supabase PostgreSQL, RLS multi-tenancy, Edge Functions. |
 | **Feature Completeness** | **A** | Full MVP | Meal tracking, cut-off locks, 5-tab finance suite, chat, AI market assistant. |
 | **Observability & Security** | **A** | Implemented (Phase 1) | Sentry crash reporting, PostHog telemetry, and Edge Function rate limits. |
-| **Reliability & Testing** | **B-** | Manual Testing | Needs automated unit (Vitest) & E2E (Playwright) suites. |
-| **Commercialization** | **C+** | In Progress | Needs payment gateway, subscription paywalls, and billing logic. |
+| **Reliability & Testing** | **A** | Implemented (Phase 3) | 22 unit tests passing (Vitest), Playwright E2E suite, GitHub Actions CI. |
+| **Commercialization** | **C+** | In Progress (Phase 2) | Payment gateway integration, subscription paywalls, and billing logic. |
 
 ---
 
@@ -25,13 +25,13 @@
 ┌────────────────────────────────────────────────────────┐
 │ Phase 1: Observability, Telemetry & Security [COMPLETED│
 ├────────────────────────────────────────────────────────┤
-│ Phase 2: Payment Gateways & Subscription Gating        │
-├────────────────────────────────────────────────────────┤
-│ Phase 3: Automated Testing & CI/CD Pipelines           │
+│ Phase 3: Automated Testing & CI/CD Pipelines [COMPLETED│
 ├────────────────────────────────────────────────────────┤
 │ Phase 4: Localization & Market Expansion (Bengali/Eng) │
 ├────────────────────────────────────────────────────────┤
 │ Phase 5: Mobile App Store Release (Google Play TWA)    │
+├────────────────────────────────────────────────────────┤
+│ Phase 2: Payment Gateways & Subscription Gating        │
 ├────────────────────────────────────────────────────────┤
 │ Phase 6: Launch, Beta Cohort & Growth Marketing        │
 └────────────────────────────────────────────────────────┘
@@ -54,7 +54,43 @@
 
 ---
 
-## 💳 Phase 2: Payment Gateways & Monetization (Weeks 3–5)
+## 🧪 Phase 3: Automated Testing & CI/CD Pipelines (Weeks 6–7) — ✅ COMPLETED
+
+- [x] **Unit Tests (Vitest & Testing Library)**:
+  - Installed Vitest & JSDOM test harness (`vitest.config.ts`, `src/test/setup.ts`).
+  - Tested core meal rate calculation engine (`Meal Rate = Total Grocery / Total Meals`, zero-meal divide guard) in `src/lib/__tests__/finance.test.ts`.
+  - Tested centralized Mess Treasury debt settlement algorithm in `src/lib/__tests__/finance.test.ts`.
+  - Tested timezone cut-off locks (Asia/Dhaka UTC+6) in `src/lib/__tests__/cutoff.test.ts`.
+  - Tested binary magic byte and file upload security in `src/lib/__tests__/fileValidator.test.ts`.
+  - Tested analytics telemetry safety and event tracking in `src/lib/__tests__/analytics.test.ts`.
+- [x] **End-to-End (E2E) Tests (Playwright)**:
+  - Configured `playwright.config.ts` and automated navigation/smoke test suite in `e2e/smoke.spec.ts`.
+- [x] **GitHub Actions CI Pipeline**:
+  - Implemented `.github/workflows/ci.yml` running lint, TypeScript type-check, Vitest unit tests, and production build on every push and pull request.
+
+---
+
+## 🌐 Phase 4: Localization & Mobile Experience (Weeks 8–9)
+
+- [ ] **Multi-Language Support (i18n)**:
+  - Integrate `i18next` / `react-i18next`.
+  - Provide complete English & Bengali (`বাংলা`) language switching.
+  - Bengali is crucial for cooks, bazaar shoppers, and local hostel managers.
+- [ ] **SMS / WhatsApp Cut-Off Notifications**:
+  - Integrate Twilio or local SMS gateway (e.g., BulkSMSBD) for daily meal cut-off alerts (e.g. *"Reminder: Lunch meal closes in 30 minutes"*).
+
+---
+
+## 📱 Phase 5: Google Play Store Release (Week 10)
+
+- [ ] **Trusted Web Activity (TWA)**:
+  - Package the existing Vite PWA into an Android `.apk` / `.aab` using **Bubblewrap** or **Capacitor**.
+  - Publish to **Google Play Store** under the NexMess developer account.
+  - Direct app install links on the landing page increase organic mobile signups significantly.
+
+---
+
+## 💳 Phase 2: Payment Gateways & Monetization (Scheduled)
 
 ### 1. Revenue Model & Tiers
 - **Free Tier (Free Forever)**:
@@ -89,39 +125,6 @@
 
 ---
 
-## 🧪 Phase 3: Automated Testing & CI/CD Pipelines (Weeks 6–7)
-
-- [ ] **Unit Tests (Vitest)**:
-  - Test the core meal rate calculation engine (`Meal Rate = Total Grocery / Total Meals`).
-  - Test debt settlement greedy algorithm (verify balance sums equal zero).
-  - Test cut-off timezone locking functions.
-- [ ] **End-to-End (E2E) Tests (Playwright)**:
-  - Automated test flow: Register → Onboard → Create Mess → Log Meals → Split Expense → PDF Export.
-- [ ] **GitHub Actions CI Pipeline**:
-  - Run `npm run type-check`, `npm run lint`, and `npm test` automatically on every Pull Request.
-
----
-
-## 🌐 Phase 4: Localization & Mobile Experience (Weeks 8–9)
-
-- [ ] **Multi-Language Support (i18n)**:
-  - Integrate `i18next` / `react-i18next`.
-  - Provide complete English & Bengali (`বাংলা`) language switching.
-  - Bengali is crucial for cooks, bazaar shoppers, and local hostel managers.
-- [ ] **SMS / WhatsApp Cut-Off Notifications**:
-  - Integrate Twilio or local SMS gateway (e.g., BulkSMSBD) for daily meal cut-off alerts (e.g. *"Reminder: Lunch meal closes in 30 minutes"*).
-
----
-
-## 📱 Phase 5: Google Play Store Release (Week 10)
-
-- [ ] **Trusted Web Activity (TWA)**:
-  - Package the existing Vite PWA into an Android `.apk` / `.aab` using **Bubblewrap** or **Capacitor**.
-  - Publish to **Google Play Store** under the NexMess developer account.
-  - Direct app install links on the landing page increase organic mobile signups significantly.
-
----
-
 ## 🚀 Phase 6: Growth & Launch Strategy (Weeks 11–12)
 
 - [ ] **University & College Dorm Beta Testing**:
@@ -138,5 +141,5 @@
 | Status | Next Immediate Action |
 | :--- | :--- |
 | **Phase 1** | ✅ Complete: Sentry, PostHog, Edge rate-limiters & Cloudflare instructions installed. |
-| **Phase 2 (Next)** | Decide on primary payment provider (bKash / SSLCommerz / Stripe) & add `subscription_tier` to database. |
-| **Phase 3** | Setup Vitest unit test suite for calculation engines. |
+| **Phase 3** | ✅ Complete: 22 Vitest unit tests, Playwright config, and GitHub Actions CI pipeline active. |
+| **Next Target** | **Phase 4 (Localization i18n English/Bengali)** OR **Phase 5 (PWA Android Google Play App)**. |
