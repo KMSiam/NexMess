@@ -1,4 +1,5 @@
 import { useState, useEffect, useTransition } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getInitials } from '../../../lib/utils'
 import { supabase } from '../../../lib/supabase'
 import { Camera } from 'lucide-react'
@@ -23,6 +24,7 @@ interface ProfileSectionProps {
 }
 
 export default function ProfileSection({ profile, email, onUpdate }: ProfileSectionProps) {
+  const { t } = useTranslation()
   const [username, setUsername] = useState(profile?.username || '')
   const [contactNo, setContactNo] = useState(profile?.contact_no || '')
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
@@ -178,7 +180,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
 
   return (
     <div className="nex-card p-6">
-      <h3 className="text-nex-text mb-4 text-lg font-semibold">Profile Settings</h3>
+      <h3 className="text-nex-text mb-4 text-lg font-semibold">{t('settings.profileSection.title')}</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <div className="group relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-2xl font-bold text-white">
@@ -189,7 +191,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
             )}
             <label className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
               <Camera className="h-5 w-5 text-white" />
-              <span className="mt-1 text-[10px] text-white/90">{uploading ? '...' : 'Upload'}</span>
+              <span className="mt-1 text-[10px] text-white/90">{uploading ? '...' : t('common.upload')}</span>
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
@@ -201,11 +203,11 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
           </div>
           <div className="w-full flex-1 space-y-3">
             <div>
-              <p className="text-nex-muted mb-1 font-mono text-xs">Email: {email}</p>
+              <p className="text-nex-muted mb-1 font-mono text-xs">{t('settings.profileSection.email')}: {email}</p>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-nex-text mb-1 block text-sm font-medium">Username</label>
+                <label className="text-nex-text mb-1 block text-sm font-medium">{t('settings.profileSection.username')}</label>
                 <input
                   type="text"
                   value={username}
@@ -216,7 +218,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
               </div>
               <div>
                 <label className="text-nex-text mb-1 block text-sm font-medium">
-                  Contact Number
+                  {t('settings.profileSection.phone')}
                 </label>
                 <input
                   type="tel"
@@ -231,7 +233,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
             <div className="border-nex-border mt-4 grid grid-cols-1 gap-4 border-t pt-4 sm:grid-cols-2">
               <div>
                 <label className="text-nex-text mb-1 block text-sm font-medium">
-                  Emergency Contact Number
+                  {t('settings.profileSection.emergencyNo')}
                 </label>
                 <input
                   type="tel"
@@ -244,17 +246,17 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
 
               <div>
                 <label className="text-nex-text mb-1 block text-sm font-medium">
-                  Verification Document Type
+                  {t('settings.profileSection.docType')}
                 </label>
                 <select
                   value={verificationDocType}
                   onChange={(e) => setVerificationDocType(e.target.value as any)}
                   className="nex-input bg-nex-elevated text-sm"
                 >
-                  <option value="none">None / Unspecified</option>
-                  <option value="nid">National ID (NID)</option>
-                  <option value="birth_certificate">Birth Certificate</option>
-                  <option value="other">Other Document</option>
+                  <option value="none">{t('settings.profileSection.noneDoc')}</option>
+                  <option value="nid">{t('settings.profileSection.nid')}</option>
+                  <option value="birth_certificate">{t('settings.profileSection.birthCert')}</option>
+                  <option value="other">{t('settings.profileSection.otherDoc')}</option>
                 </select>
               </div>
 
@@ -263,10 +265,10 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
                   <div>
                     <label className="text-nex-text mb-1 block text-sm font-medium">
                       {verificationDocType === 'nid'
-                        ? 'NID Number'
+                        ? t('settings.profileSection.nid')
                         : verificationDocType === 'birth_certificate'
-                          ? 'Birth Certificate Number'
-                          : 'Document Number'}
+                          ? t('settings.profileSection.birthCert')
+                          : t('settings.profileSection.docNo')}
                     </label>
                     <input
                       type="text"
@@ -280,7 +282,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
 
                   <div>
                     <label className="text-nex-text mb-1 block text-sm font-medium">
-                      Upload Document Copy (Photo)
+                      {t('settings.profileSection.uploadDoc')}
                     </label>
                     <div className="flex items-center gap-3">
                       {verificationDocUrl ? (
@@ -298,12 +300,12 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
                             onClick={handleRemoveDoc}
                             className="text-nex-danger text-xs font-semibold hover:text-red-500"
                           >
-                            Remove
+                            {t('common.delete')}
                           </button>
                         </div>
                       ) : (
                         <label className="border-nex-border hover:bg-nex-hover text-nex-muted flex w-full cursor-pointer items-center justify-center rounded-lg border border-dashed px-4 py-2 text-xs font-medium transition-colors">
-                          <span>{uploadingDoc ? 'Uploading...' : 'Choose Photo (Max 2MB)'}</span>
+                          <span>{uploadingDoc ? '...' : t('settings.profileSection.uploadDoc')}</span>
                           <input
                             type="file"
                             accept="image/jpeg,image/png,image/webp,application/pdf"
@@ -326,7 +328,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
             disabled={isPending || uploading || uploadingDoc}
             className="nex-btn-primary disabled:opacity-50"
           >
-            {isPending ? 'Saving...' : 'Save Changes'}
+            {isPending ? t('common.saving') : t('settings.profileSection.updateProfile')}
           </button>
         </div>
       </form>

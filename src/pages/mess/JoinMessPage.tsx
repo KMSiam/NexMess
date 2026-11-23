@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { Users, ArrowRight, AlertCircle } from 'lucide-react'
@@ -7,6 +8,7 @@ import toast from 'react-hot-toast'
 import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function JoinMessPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const { joinMess, pendingRequests, cancelJoinRequest } = useMessStore()
@@ -49,7 +51,7 @@ export default function JoinMessPage() {
         <div className="rounded-card bg-nex-primary-light mx-auto mb-6 flex h-14 w-14 items-center justify-center">
           <Users className="text-nex-primary h-7 w-7" />
         </div>
-        <h1 className="text-nex-text mb-1 text-center text-2xl font-bold">Join a Mess</h1>
+        <h1 className="text-nex-text mb-1 text-center text-2xl font-bold">{t('mess.join.title')}</h1>
 
         {hasPending ? (
           <div className="mt-8 space-y-5">
@@ -57,12 +59,11 @@ export default function JoinMessPage() {
               <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
               <div>
                 <h3 className="mb-1 text-sm font-bold text-amber-600 dark:text-amber-400">
-                  Pending Request Exists
+                  {t('mess.join.pendingTitle')}
                 </h3>
                 <p className="text-nex-muted text-xs leading-relaxed">
-                  You already have a pending request to join{' '}
-                  <strong>{pendingReq?.messes?.name || 'another mess'}</strong>. You must cancel it
-                  before you can join a different mess.
+                  {t('mess.join.pendingDesc')}{' '}
+                  <strong>({pendingReq?.messes?.name || 'Mess'})</strong>.
                 </p>
               </div>
             </div>
@@ -80,7 +81,7 @@ export default function JoinMessPage() {
                   {pendingReq?.messes?.name || 'Unknown Mess'}
                 </h4>
                 <p className="mt-1 text-xs font-medium text-amber-500">
-                  Waiting for manager approval...
+                  {t('mess.join.waitingApproval')}
                 </p>
               </div>
               <button
@@ -96,24 +97,24 @@ export default function JoinMessPage() {
                 }}
                 className="nex-btn-danger w-full bg-red-500/10 py-2.5 text-red-500 hover:bg-red-500 hover:text-white"
               >
-                Cancel Request
+                {t('mess.join.cancelRequest')}
               </button>
             </div>
           </div>
         ) : (
           <>
             <p className="text-nex-muted mb-8 text-center">
-              Enter the mess code shared by your manager
+              {t('mess.join.subtitle')}
             </p>
             <form onSubmit={handleJoin} className="space-y-4">
               <div>
-                <label className="text-nex-text mb-1.5 block text-sm font-medium">Mess Code</label>
+                <label className="text-nex-text mb-1.5 block text-sm font-medium">{t('mess.join.codeLabel')}</label>
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                   className="nex-input text-center font-mono text-lg tracking-widest"
-                  placeholder="NEX-XXXX"
+                  placeholder={t('mess.join.codePlaceholder')}
                   required
                   maxLength={12}
                   id="join-code-input"
@@ -129,7 +130,7 @@ export default function JoinMessPage() {
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 ) : (
                   <>
-                    Request to Join <ArrowRight className="h-4 w-4" />
+                    {t('mess.join.submit')} <ArrowRight className="h-4 w-4" />
                   </>
                 )}
               </button>

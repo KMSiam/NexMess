@@ -4,8 +4,7 @@ import LanguageSwitcher from '../../../components/LanguageSwitcher'
 import { useThemeStore } from '../../../stores/themeStore'
 
 export default function PreferencesSection() {
-  const { t, i18n } = useTranslation()
-  const isBangla = (i18n.language || 'en').startsWith('bn')
+  const { t } = useTranslation()
   const { isDark, setTheme } = useThemeStore()
 
   return (
@@ -34,15 +33,13 @@ export default function PreferencesSection() {
         <div className="mt-5 rounded-xl border border-nex-border/70 bg-nex-elevated/60 p-4">
           <div className="flex items-center gap-2 text-xs font-semibold text-nex-muted uppercase tracking-wider mb-2">
             <Type className="h-4 w-4 text-nex-primary" />
-            <span>{isBangla ? 'ফন্ট প্রিভিউ (হিন্দ শিলিগুড়ি)' : 'Font Preview (Hind Siliguri / Inter)'}</span>
+            <span>{t('common.fontPreview')}</span>
           </div>
           <p className="text-sm font-medium text-nex-text leading-relaxed font-bangla">
-            {isBangla
-              ? '“মেসের সকল হিসাব-নিকাশ, বাজার খরচ এবং দৈনিক মিলের আধুনিক স্মার্ট সমাধান।”'
-              : '“Complete transparency for daily meals, shared bazaar costs, and smart mess accounting.”'}
+            {t('common.fontPreviewQuote')}
           </p>
           <p className="text-[11px] text-nex-muted mt-2 font-mono">
-            Optimized for Retina displays, PWA offline caching, and cross-platform fidelity.
+            {t('common.fontPreviewSub')}
           </p>
         </div>
       </div>
@@ -79,7 +76,7 @@ export default function PreferencesSection() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-nex-text">{t('common.light')}</p>
-                <p className="text-xs text-nex-muted">Warm Ivory theme</p>
+                <p className="text-xs text-nex-muted">{t('common.lightDesc')}</p>
               </div>
             </div>
             {!isDark && (
@@ -104,7 +101,7 @@ export default function PreferencesSection() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-nex-text">{t('common.dark')}</p>
-                <p className="text-xs text-nex-muted">Midnight Obsidian theme</p>
+                <p className="text-xs text-nex-muted">{t('common.darkDesc')}</p>
               </div>
             </div>
             {isDark && (

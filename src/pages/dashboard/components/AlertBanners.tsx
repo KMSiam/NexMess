@@ -1,4 +1,5 @@
 import { Clock, AlertTriangle, Wallet, ShoppingBag, CheckCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { formatCurrency, mealCutoffApproaching, mealCutoffLabel } from '../../../lib/utils'
 import type { DashboardMeals, DashboardStats } from '../../../hooks/useDashboardData'
 
@@ -19,6 +20,7 @@ export default function AlertBanners({
   isManager = false,
   onQuickMealToggle,
 }: AlertBannersProps) {
+  const { t } = useTranslation()
   // Cut-off reminder: only for *today* and only when the meal isn't already on
   const lunchLeft = !mealsData.today.lunch ? mealCutoffApproaching('lunch') : null
   const dinnerLeft = !mealsData.today.dinner ? mealCutoffApproaching('dinner') : null
@@ -43,10 +45,12 @@ export default function AlertBanners({
             <Clock className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
             <div className="min-w-0">
               <p className="text-nex-text text-xs font-semibold">
-                {b.type === 'lunch' ? 'Lunch' : 'Dinner'} Cut-off approaching ({b.minutes}m)
+                {b.type === 'lunch'
+                  ? t('alerts.lunchApproaching', { minutes: b.minutes })
+                  : t('alerts.dinnerApproaching', { minutes: b.minutes })}
               </p>
               <p className="text-nex-muted max-w-[200px] truncate text-[10px] sm:max-w-xs">
-                Locks at {mealCutoffLabel(b.type)}.
+                {t('alerts.locksAt', { time: mealCutoffLabel(b.type) })}
               </p>
             </div>
           </div>
@@ -54,7 +58,7 @@ export default function AlertBanners({
             onClick={() => onQuickMealToggle('today', b.type)}
             className="shrink-0 rounded-md bg-amber-500/10 px-2 py-1 text-[10px] font-bold tracking-wider text-amber-600 uppercase hover:bg-amber-500/20 dark:text-amber-400"
           >
-            Mark On
+            {t('alerts.markOn')}
           </button>
         </div>
       ),
@@ -71,9 +75,9 @@ export default function AlertBanners({
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
           <div>
             <p className="text-nex-text text-xs font-semibold">
-              Low Balance ({formatCurrency(stats.balance)})
+              {t('alerts.lowBalance', { amount: formatCurrency(stats.balance) })}
             </p>
-            <p className="text-nex-muted text-[10px]">Please deposit funds soon.</p>
+            <p className="text-nex-muted text-[10px]">{t('alerts.depositSoon')}</p>
           </div>
         </div>
       ),
@@ -89,8 +93,10 @@ export default function AlertBanners({
         <div className="flex items-start gap-2.5">
           <Wallet className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" />
           <div>
-            <p className="text-nex-text text-xs font-semibold">{unpaidFixed} Unpaid Mess Bills</p>
-            <p className="text-nex-muted text-[10px]">Fixed costs pending payment.</p>
+            <p className="text-nex-text text-xs font-semibold">
+              {t('alerts.unpaidBills', { count: unpaidFixed })}
+            </p>
+            <p className="text-nex-muted text-[10px]">{t('alerts.fixedCostsPending')}</p>
           </div>
         </div>
       ),
@@ -106,8 +112,8 @@ export default function AlertBanners({
         <div className="flex items-start gap-2.5">
           <ShoppingBag className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
           <div>
-            <p className="text-nex-text text-xs font-semibold">🛒 You're the Bazaar Man today!</p>
-            <p className="text-nex-muted text-[10px]">Remember to log expenses.</p>
+            <p className="text-nex-text text-xs font-semibold">{t('alerts.bazaarDuty')}</p>
+            <p className="text-nex-muted text-[10px]">{t('alerts.rememberLog')}</p>
           </div>
         </div>
       ),
@@ -119,13 +125,15 @@ export default function AlertBanners({
       <div>
         <div className="mb-3 flex shrink-0 items-center gap-2">
           <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500" />
-          <h4 className="text-nex-text text-xs font-bold tracking-wider uppercase">Mess Alerts</h4>
+          <h4 className="text-nex-text text-xs font-bold tracking-wider uppercase">
+            {t('alerts.title')}
+          </h4>
         </div>
 
         {alertsList.length === 0 ? (
           <div className="flex shrink-0 flex-col items-center justify-center py-4 text-center">
             <CheckCircle className="mb-1 h-7 w-7 text-emerald-500" />
-            <p className="text-nex-muted text-xs font-medium">All systems normal. No alerts.</p>
+            <p className="text-nex-muted text-xs font-medium">{t('alerts.allNormal')}</p>
           </div>
         ) : (
           <div className="divide-nex-border mt-2 space-y-3 divide-y">

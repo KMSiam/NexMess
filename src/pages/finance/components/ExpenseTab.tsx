@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus, ImageIcon, Receipt, Edit2, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
+import { useTranslation } from 'react-i18next'
 import { formatCurrency } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
 import ConfirmDialog from '../../../components/ConfirmDialog'
@@ -21,6 +22,7 @@ export default function ExpenseTab({
   onUpdateExpense,
   onDeleteExpense,
 }: ExpenseTabProps) {
+  const { t } = useTranslation()
   const [showAddExpense, setShowAddExpense] = useState(false)
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null)
 
@@ -85,7 +87,10 @@ export default function ExpenseTab({
         }}
         className="nex-btn-primary text-sm"
       >
-        <Plus className="h-4 w-4" /> {editingExpenseId ? 'Edit Expense' : 'Add Expense'}
+        <Plus className="h-4 w-4" />{' '}
+        {editingExpenseId
+          ? t('finance.expenseModal.editTitle')
+          : t('finance.expenseModal.addTitle')}
       </button>
 
       {showAddExpense && (
@@ -93,7 +98,9 @@ export default function ExpenseTab({
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-nex-text mb-1 block text-sm font-medium">Amount (৳)</label>
+                <label className="text-nex-text mb-1 block text-sm font-medium">
+                  {t('finance.expenseModal.amountLabel')}
+                </label>
                 <input
                   type="number"
                   value={expAmount}
@@ -106,38 +113,42 @@ export default function ExpenseTab({
                 />
               </div>
               <div>
-                <label className="text-nex-text mb-1 block text-sm font-medium">Category</label>
+                <label className="text-nex-text mb-1 block text-sm font-medium">
+                  {t('finance.expenseModal.categoryLabel')}
+                </label>
                 <select
                   value={expCategory}
                   onChange={(e) => setExpCategory(e.target.value)}
                   className="nex-input"
                 >
-                  <option value="bazaar">🛒 Bazaar</option>
-                  <option value="utilities">💡 Utilities</option>
-                  <option value="rent">🏠 Rent</option>
-                  <option value="other">📋 Other</option>
+                  <option value="bazaar">🛒 {t('finance.categories.bazaar')}</option>
+                  <option value="utilities">💡 {t('finance.categories.utilities')}</option>
+                  <option value="rent">🏠 {t('finance.categories.rent')}</option>
+                  <option value="other">📋 {t('finance.categories.other')}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label className="text-nex-text mb-1 block text-sm font-medium">Description</label>
+              <label className="text-nex-text mb-1 block text-sm font-medium">
+                {t('finance.expenseModal.descLabel')}
+              </label>
               <input
                 type="text"
                 value={expDesc}
                 onChange={(e) => setExpDesc(e.target.value)}
                 className="nex-input"
-                placeholder="e.g., Fish, vegetables"
+                placeholder={t('finance.expenseModal.descPlaceholder')}
               />
             </div>
             {!editingExpenseId && (
               <div>
                 <label className="text-nex-text mb-1 block text-sm font-medium">
-                  Receipt (optional)
+                  {t('finance.expenseModal.receiptLabel')}
                 </label>
                 <label className="border-nex-border hover:bg-nex-hover flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-2 transition-colors">
                   <ImageIcon className="text-nex-muted h-4 w-4" />
                   <span className="text-nex-muted text-sm">
-                    {expFile ? expFile.name : 'Upload receipt photo'}
+                    {expFile ? expFile.name : t('finance.expenseModal.uploadReceipt')}
                   </span>
                   <input
                     type="file"
@@ -154,10 +165,10 @@ export default function ExpenseTab({
                 disabled={loading}
                 className="nex-btn-primary disabled:opacity-50"
               >
-                {editingExpenseId ? 'Update' : 'Save'}
+                {t('common.save')}
               </button>
               <button type="button" onClick={handleCancel} className="nex-btn-secondary">
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </form>
@@ -168,8 +179,8 @@ export default function ExpenseTab({
         {expenses.length === 0 ? (
           <EmptyState
             icon={Receipt}
-            title="No expenses recorded"
-            description="All mess bazaar and utility logs for this month will show here."
+            title={t('finance.expenseModal.empty')}
+            description={t('finance.expenseModal.emptyDesc')}
           />
         ) : (
           expenses.map((exp) => (
@@ -197,7 +208,7 @@ export default function ExpenseTab({
                 </div>
                 <div>
                   <p className="text-nex-text flex items-center gap-2 text-sm font-medium">
-                    {exp.description || exp.category}
+                    {exp.description || t(`finance.categories.${exp.category}`, { defaultValue: exp.category })}
                     {exp.receipt_url && (
                       <a
                         href={exp.receipt_url}
@@ -224,14 +235,14 @@ export default function ExpenseTab({
                     <button
                       onClick={() => startEdit(exp)}
                       className="rounded-btn text-nex-muted hover:text-nex-primary hover:bg-nex-hover p-1 transition-colors"
-                      title="Edit Expense"
+                      title={t('common.edit')}
                     >
                       <Edit2 className="h-3.5 w-3.5" />
                     </button>
                     <button
                       onClick={() => setDeleteExpenseId(exp.id)}
                       className="rounded-btn text-nex-muted hover:text-nex-danger hover:bg-nex-hover p-1 transition-colors"
-                      title="Delete Expense"
+                      title={t('common.delete')}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -245,9 +256,10 @@ export default function ExpenseTab({
 
       <ConfirmDialog
         open={deleteExpenseId !== null}
-        title="Delete Expense"
-        message="Are you sure you want to delete this expense? The calculations will be re-run automatically."
-        confirmText="Delete"
+        title={t('common.delete')}
+        message={t('finance.expenseModal.deleteConfirm')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         variant="danger"
         onConfirm={confirmDelete}
         onCancel={() => setDeleteExpenseId(null)}

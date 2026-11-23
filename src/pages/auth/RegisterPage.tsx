@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldAlert } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
@@ -10,6 +11,7 @@ import { checkRateLimit, recordRateLimitAttempt } from '../../lib/rateLimiter'
 import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function RegisterPage() {
+  const { t } = useTranslation()
   useSEO({
     title: 'Get Started | Create Your Mess',
     description: 'Register for NexMess and create or join a mess. Start tracking meals, managing group expenses, and automating roommate duties today.',
@@ -113,12 +115,10 @@ export default function RegisterPage() {
             <span className="text-3xl font-bold">NexMess</span>
           </Link>
           <h2 className="mb-4 text-4xl leading-tight font-bold">
-            Join your mess
-            <br />
-            in seconds.
+            {t('auth.register.heroTitle')}
           </h2>
           <p className="text-lg leading-relaxed text-[#EDF2EE]">
-            Create an account, set up your profile, and start managing your mess life effortlessly.
+            {t('auth.register.heroDesc')}
           </p>
         </div>
       </div>
@@ -135,8 +135,8 @@ export default function RegisterPage() {
             <span className="text-nex-text text-2xl font-bold">NexMess</span>
           </Link>
 
-          <h1 className="text-nex-text mb-1 text-2xl font-bold">Create your account</h1>
-          <p className="text-nex-muted mb-8">Get started with NexMess for free</p>
+          <h1 className="text-nex-text mb-1 text-2xl font-bold">{t('auth.register.title')}</h1>
+          <p className="text-nex-muted mb-8">{t('auth.register.subtitle')}</p>
 
           {cooldownSec > 0 && (
             <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-400">
@@ -173,20 +173,22 @@ export default function RegisterPage() {
                 />
               </svg>
             )}
-            {googleLoading ? 'Redirecting...' : 'Continue with Google'}
+            {googleLoading ? t('auth.register.redirecting') : t('auth.register.google')}
           </button>
 
           <div className="mb-6 flex items-center gap-3">
             <div className="bg-nex-border h-px flex-1" />
             <span className="text-nex-muted text-xs tracking-wider uppercase">
-              or register with email
+              {t('auth.register.orEmail')}
             </span>
             <div className="bg-nex-border h-px flex-1" />
           </div>
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label className="text-nex-text mb-1.5 block text-sm font-medium">Email</label>
+              <label className="text-nex-text mb-1.5 block text-sm font-medium">
+                {t('auth.register.email')}
+              </label>
               <div className="relative">
                 <Mail className="text-nex-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                 <input
@@ -202,7 +204,9 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="text-nex-text mb-1.5 block text-sm font-medium">Password</label>
+              <label className="text-nex-text mb-1.5 block text-sm font-medium">
+                {t('auth.register.password')}
+              </label>
               <div className="relative">
                 <Lock className="text-nex-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                 <input
@@ -210,7 +214,7 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="nex-input pr-10 pl-10"
-                  placeholder="Min. 8 chars, letters + numbers"
+                  placeholder={t('auth.register.passwordPlaceholder')}
                   required
                   id="register-password"
                 />
@@ -226,7 +230,7 @@ export default function RegisterPage() {
 
             <div>
               <label className="text-nex-text mb-1.5 block text-sm font-medium">
-                Confirm Password
+                {t('auth.register.confirmPassword')}
               </label>
               <div className="relative">
                 <Lock className="text-nex-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
@@ -255,23 +259,23 @@ export default function RegisterPage() {
                 htmlFor="agree-terms"
                 className="text-nex-muted cursor-pointer text-xs leading-normal select-none"
               >
-                I agree to the{' '}
+                {t('auth.register.agreeTerms')}{' '}
                 <Link
                   to="/terms-of-service"
                   className="text-nex-primary font-semibold hover:underline"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Terms of Service
+                  {t('auth.register.terms')}
                 </Link>{' '}
-                and{' '}
+                {t('auth.register.and')}{' '}
                 <Link
                   to="/privacy-policy"
                   className="text-nex-primary font-semibold hover:underline"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Privacy Policy
+                  {t('auth.register.privacy')}
                 </Link>
                 .
               </label>
@@ -287,16 +291,16 @@ export default function RegisterPage() {
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 <>
-                  Create Account <ArrowRight className="h-4 w-4" />
+                  {t('auth.register.submit')} <ArrowRight className="h-4 w-4" />
                 </>
               )}
             </button>
           </form>
 
           <p className="text-nex-muted mt-6 text-center text-sm">
-            Already have an account?{' '}
+            {t('auth.register.haveAccount')}{' '}
             <Link to="/login" className="text-nex-primary font-medium hover:underline">
-              Sign in
+              {t('auth.register.signIn')}
             </Link>
           </p>
         </div>

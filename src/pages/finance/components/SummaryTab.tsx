@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { getInitials, formatCurrency } from '../../../lib/utils'
 import type { MessMember } from '../../../types/database'
 
@@ -8,17 +9,19 @@ interface SummaryTabProps {
 }
 
 export default function SummaryTab({ financeMembers, balances, totalFixed }: SummaryTabProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="nex-card divide-nex-border divide-y overflow-x-auto">
       {/* Desktop Table Header */}
       <div className="bg-nex-elevated hidden min-w-[480px] px-5 py-3 sm:block">
         <div className="text-nex-muted grid grid-cols-7 gap-2 text-xs font-semibold tracking-wider uppercase">
-          <span className="col-span-2">Member</span>
-          <span className="text-right">Meals</span>
-          <span className="text-right">Meal Cost</span>
-          <span className="text-right">Other Cost</span>
-          <span className="text-right">Deposited</span>
-          <span className="text-right">Balance</span>
+          <span className="col-span-2">{t('finance.summaryTable.member')}</span>
+          <span className="text-right">{t('finance.summaryTable.meals')}</span>
+          <span className="text-right">{t('finance.summaryTable.mealCost')}</span>
+          <span className="text-right">{t('finance.summaryTable.otherCost')}</span>
+          <span className="text-right">{t('finance.summaryTable.deposited')}</span>
+          <span className="text-right">{t('finance.summaryTable.balance')}</span>
         </div>
       </div>
 
@@ -44,10 +47,10 @@ export default function SummaryTab({ financeMembers, balances, totalFixed }: Sum
                   {getInitials(p?.username || '?')}
                 </div>
                 <span className="text-nex-text truncate text-sm font-medium">
-                  {p?.username || 'Member'}
+                  {p?.username || t('common.member')}
                   {member.status === 'left' && (
                     <span className="ml-2 rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-red-500 uppercase">
-                      Left
+                      {t('finance.summaryTable.leftBadge')}
                     </span>
                   )}
                 </span>
@@ -72,14 +75,16 @@ export default function SummaryTab({ financeMembers, balances, totalFixed }: Sum
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-nex-text flex items-center gap-2 truncate text-sm font-medium">
-                    {p?.username || 'Member'}
+                    {p?.username || t('common.member')}
                     {member.status === 'left' && (
                       <span className="rounded bg-red-500/10 px-1.5 py-0.5 text-xs font-bold tracking-wider text-red-500 uppercase">
-                        Left
+                        {t('finance.summaryTable.leftBadge')}
                       </span>
                     )}
                   </p>
-                  <p className="text-nex-muted text-xs">{b.personal_meals || 0} meals</p>
+                  <p className="text-nex-muted text-xs">
+                    {b.personal_meals || 0} {t('finance.summaryTable.meals')}
+                  </p>
                 </div>
                 <p
                   className={`text-sm font-bold ${realBalance >= 0 ? 'text-nex-success' : 'text-nex-danger'}`}
@@ -89,17 +94,17 @@ export default function SummaryTab({ financeMembers, balances, totalFixed }: Sum
               </div>
               <div className="ml-12 grid grid-cols-2 gap-2">
                 <div className="text-nex-muted text-xs">
-                  Meal Cost:{' '}
+                  {t('finance.summaryTable.mealCost')}:{' '}
                   <span className="text-nex-text font-medium">{formatCurrency(mealCost)}</span>
                 </div>
                 <div className="text-nex-muted text-xs">
-                  Other Cost:{' '}
+                  {t('finance.summaryTable.otherCost')}:{' '}
                   <span className="text-nex-text font-medium">
                     {formatCurrency(perPersonFixedCost)}
                   </span>
                 </div>
                 <div className="text-nex-muted col-span-2 text-xs">
-                  Deposited:{' '}
+                  {t('finance.summaryTable.deposited')}:{' '}
                   <span className="text-nex-success font-medium">{formatCurrency(deposited)}</span>
                 </div>
               </div>

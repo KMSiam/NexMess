@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { Mail, ArrowRight, ArrowLeft, RefreshCw, AlertTriangle, ShieldAlert } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
@@ -12,6 +13,7 @@ import { sanitizeAppError } from '../../lib/errorHandler'
 const COOLDOWN = 60
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation()
   useSEO({
     title: 'Forgot Password',
     description: 'Reset your NexMess account password to regain access to your mess management dashboard.',
@@ -107,9 +109,9 @@ export default function ForgotPasswordPage() {
             </div>
             <span className="text-3xl font-bold">NexMess</span>
           </div>
-          <h2 className="mb-4 text-4xl leading-tight font-bold">Reset your password</h2>
+          <h2 className="mb-4 text-4xl leading-tight font-bold">{t('auth.forgotPassword.heroTitle')}</h2>
           <p className="text-lg leading-relaxed text-[#EDF2EE]">
-            Don't worry, we'll help you get back into your account safely.
+            {t('auth.forgotPassword.heroDesc')}
           </p>
         </div>
       </div>
@@ -127,10 +129,10 @@ export default function ForgotPasswordPage() {
             to="/login"
             className="text-nex-muted hover:text-nex-primary mb-6 inline-flex items-center gap-2 text-sm transition-colors"
           >
-            <ArrowLeft className="h-4 w-4" /> Back to login
+            <ArrowLeft className="h-4 w-4" /> {t('auth.forgotPassword.backToLogin')}
           </Link>
 
-          <h1 className="text-nex-text mb-1 text-2xl font-bold">Forgot password?</h1>
+          <h1 className="text-nex-text mb-1 text-2xl font-bold">{t('auth.forgotPassword.title')}</h1>
 
           {rateLimitCooldown > 0 && (
             <div className="mb-4 flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-400">
@@ -144,10 +146,10 @@ export default function ForgotPasswordPage() {
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
               <div>
                 <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
-                  Your reset link has expired.
+                  {t('auth.forgotPassword.expiredTitle')}
                 </p>
                 <p className="mt-0.5 text-xs text-amber-700 dark:text-amber-400">
-                  Links are only valid for 1 hour. Enter your email below to get a new one.
+                  {t('auth.forgotPassword.expiredDesc')}
                 </p>
               </div>
             </div>
@@ -157,13 +159,12 @@ export default function ForgotPasswordPage() {
             <div className="mt-4 space-y-4">
               <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
                 <p className="text-sm text-green-800 dark:text-green-300">
-                  ✅ If an account exists for <b>{email}</b>, we've sent a password reset link.
-                  Please check your inbox and spam folder.
+                  ✅ {t('auth.forgotPassword.sentDesc')} ({email})
                 </p>
               </div>
 
               <div className="nex-card bg-nex-elevated p-4">
-                <p className="text-nex-muted mb-3 text-sm">Didn't receive it?</p>
+                <p className="text-nex-muted mb-3 text-sm">{t('auth.forgotPassword.didNotReceive')}</p>
                 <button
                   onClick={handleResend}
                   disabled={loading || cooldown > 0 || rateLimitCooldown > 0}
@@ -175,7 +176,9 @@ export default function ForgotPasswordPage() {
                   ) : (
                     <RefreshCw className="h-4 w-4" />
                   )}
-                  {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend reset email'}
+                  {cooldown > 0
+                    ? t('auth.forgotPassword.resendIn', { sec: cooldown })
+                    : t('auth.forgotPassword.resend')}
                 </button>
               </div>
 
@@ -183,19 +186,19 @@ export default function ForgotPasswordPage() {
                 onClick={() => { setSent(false); setEmail('') }}
                 className="text-nex-muted hover:text-nex-primary w-full text-center text-sm transition-colors"
               >
-                Use a different email
+                {t('auth.forgotPassword.differentEmail')}
               </button>
             </div>
           ) : (
             <>
               <p className="text-nex-muted mb-8">
-                Enter your email and we'll send you a reset link.
+                {t('auth.forgotPassword.subtitle')}
               </p>
 
               <form onSubmit={handleReset} className="space-y-4">
                 <div>
                   <label className="text-nex-text mb-1.5 block text-sm font-medium">
-                    Email address
+                    {t('auth.forgotPassword.email')}
                   </label>
                   <div className="relative">
                     <Mail className="text-nex-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
@@ -221,7 +224,7 @@ export default function ForgotPasswordPage() {
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   ) : (
                     <>
-                      Send Reset Link <ArrowRight className="h-4 w-4" />
+                      {t('auth.forgotPassword.submit')} <ArrowRight className="h-4 w-4" />
                     </>
                   )}
                 </button>

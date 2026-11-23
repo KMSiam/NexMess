@@ -37,6 +37,16 @@ export const useThemeStore = create<ThemeState>((set, get) => {
   // Ensure DOM is in sync on initialization
   applyThemeToDOM(initial)
 
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'nexmess-theme') {
+        const dark = e.newValue === 'dark'
+        applyThemeToDOM(dark)
+        set({ isDark: dark })
+      }
+    })
+  }
+
   return {
     isDark: initial,
     setTheme: (dark: boolean) => {

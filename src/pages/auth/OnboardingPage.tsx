@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { supabase } from '../../lib/supabase'
 import { Camera, ArrowRight } from 'lucide-react'
@@ -10,6 +11,7 @@ import { validateUploadedFile, generateSafeFileName } from '../../lib/fileValida
 import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function OnboardingPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, updateProfile } = useAuthStore()
   const [username, setUsername] = useState('')
@@ -105,8 +107,8 @@ export default function OnboardingPage() {
           <span className="text-nex-primary text-sm font-semibold">NexMess</span>
         </div>
 
-        <h1 className="text-nex-text mb-1 text-2xl font-bold">Set up your profile</h1>
-        <p className="text-nex-muted mb-8">Choose a username and avatar to get started</p>
+        <h1 className="text-nex-text mb-1 text-2xl font-bold">{t('auth.onboarding.title')}</h1>
+        <p className="text-nex-muted mb-8">{t('auth.onboarding.subtitle')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex justify-center">
@@ -125,7 +127,7 @@ export default function OnboardingPage() {
               ) : (
                 <div className="flex flex-col items-center gap-1">
                   <Camera className="text-nex-muted group-hover:text-nex-primary h-6 w-6 transition-colors" />
-                  <span className="text-nex-muted text-[10px]">Upload</span>
+                  <span className="text-nex-muted text-[10px]">{t('auth.onboarding.upload')}</span>
                 </div>
               )}
               {avatarPreview && (
@@ -144,17 +146,16 @@ export default function OnboardingPage() {
           </div>
 
           <div>
-            <label className="text-nex-text mb-1.5 block text-sm font-medium">Username</label>
+            <label className="text-nex-text mb-1.5 block text-sm font-medium">{t('auth.onboarding.username')}</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="nex-input"
-              placeholder="e.g., kamal_ahmed"
+              placeholder={t('auth.onboarding.usernamePlaceholder')}
               required
               id="onboarding-username"
             />
-            <p className="text-nex-muted mt-1 text-xs">This will be visible to your mess members</p>
           </div>
 
           <button
@@ -167,7 +168,7 @@ export default function OnboardingPage() {
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               <>
-                Continue to Dashboard <ArrowRight className="h-4 w-4" />
+                {t('auth.onboarding.submit')} <ArrowRight className="h-4 w-4" />
               </>
             )}
           </button>

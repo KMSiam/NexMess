@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertTriangle, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface ConfirmDialogProps {
   open: boolean
@@ -35,14 +36,17 @@ export default function ConfirmDialog({
   open,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   variant = 'danger',
   confirmInput,
   confirmInputLabel,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const { t } = useTranslation()
+  const displayConfirmText = confirmText || t('common.confirm')
+  const displayCancelText = cancelText || t('common.cancel')
   const [inputValue, setInputValue] = useState('')
   const styles = variantStyles[variant]
   const needsInput = Boolean(confirmInput)
@@ -123,14 +127,14 @@ export default function ConfirmDialog({
               {/* Actions */}
               <div className="mt-5 flex justify-end gap-2">
                 <button onClick={handleCancel} className="nex-btn-secondary">
-                  {cancelText}
+                  {displayCancelText}
                 </button>
                 <button
                   onClick={handleConfirm}
                   disabled={!inputMatches}
                   className={`${styles.btn} disabled:opacity-50`}
                 >
-                  {confirmText}
+                  {displayConfirmText}
                 </button>
               </div>
             </div>

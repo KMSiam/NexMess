@@ -33,9 +33,9 @@ export default function BazaarScheduleCard({ schedule }: BazaarScheduleCardProps
                   className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${isToday(new Date(ub.date)) ? 'bg-nex-success-light text-nex-success' : 'bg-nex-elevated text-nex-muted'}`}
                 >
                   {isToday(new Date(ub.date))
-                    ? 'Tdy'
+                    ? t('common.today')
                     : isTomorrow(new Date(ub.date))
-                      ? 'Tmr'
+                      ? t('common.tomorrow')
                       : format(new Date(ub.date), 'dd')}
                 </div>
                 <p className="text-nex-text text-sm font-medium">{ub.username}</p>

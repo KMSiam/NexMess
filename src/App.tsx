@@ -88,13 +88,12 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
     }
   }, [navigate])
 
-  // Initialize theme globally (for public landing, login, and private pages)
+  // Initialize theme store on root app mount
   useEffect(() => {
     const saved = localStorage.getItem('nexmess-theme')
-    const isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
-    if (isDark) {
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark')
-    } else {
+    } else if (saved === 'light') {
       document.documentElement.classList.remove('dark')
     }
   }, [])

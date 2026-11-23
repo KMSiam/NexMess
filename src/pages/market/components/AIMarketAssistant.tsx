@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../../stores/authStore'
 import { useMessStore } from '../../../stores/messStore'
 import { supabase } from '../../../lib/supabase'
@@ -37,6 +38,8 @@ interface Message {
 }
 
 export default function AIMarketAssistant() {
+  const { i18n } = useTranslation()
+  const isBangla = (i18n.language || 'en').startsWith('bn')
   usePageTitle('NexMessAI')
   const { session, user, profile } = useAuthStore()
   const { currentMess } = useMessStore()
@@ -179,26 +182,34 @@ export default function AIMarketAssistant() {
   const suggestions = [
     {
       icon: BarChart3,
-      label: 'Daily price report',
-      text: 'Please generate a new daily price report for this area',
+      label: isBangla ? 'দৈনিক বাজার দর' : 'Daily price report',
+      text: isBangla
+        ? 'এই এলাকার জন্য আজকের নিত্যপ্রয়োজনীয় পণ্যের বাজার দর রিপোর্ট তৈরি করুন'
+        : 'Please generate a new daily price report for this area',
       color: 'text-blue-500',
     },
     {
       icon: TrendingDown,
-      label: 'Best deals today?',
-      text: 'Where can I find the cheapest place to buy eggs and chicken in this area today?',
+      label: isBangla ? 'আজকের সেরা ডিল?' : 'Best deals today?',
+      text: isBangla
+        ? 'আজকে এই এলাকার কোন বাজারে ডিম ও ব্রয়লার মুরগির দাম সবচেয়ে কম?'
+        : 'Where can I find the cheapest place to buy eggs and chicken in this area today?',
       color: 'text-emerald-500',
     },
     {
       icon: ShoppingCart,
-      label: 'Shopping list',
-      text: "Create a detailed grocery shopping list for today's meals with quantities and estimated cost.",
+      label: isBangla ? 'বাজারের ফর্দ' : 'Shopping list',
+      text: isBangla
+        ? 'আজকের মিলের জন্য প্রয়োজনীয় উপাদান, পরিমাণ ও আনুমানিক খরচ সহ বাজারের ফর্দ বানিয়ে দিন।'
+        : "Create a detailed grocery shopping list for today's meals with quantities and estimated cost.",
       color: 'text-amber-500',
     },
     {
       icon: UtensilsCrossed,
-      label: 'Budget check',
-      text: 'Review our monthly spending so far and suggest how we can optimize our bazaar budget.',
+      label: isBangla ? 'বাজেট পর্যালোচনা' : 'Budget check',
+      text: isBangla
+        ? 'চলতি মাসে আমাদের মেসের বাজার খরচ বিশ্লেষণ করুন এবং খরচ কমানোর পরামর্শ দিন।'
+        : 'Review our monthly spending so far and suggest how we can optimize our bazaar budget.',
       color: 'text-purple-500',
     },
   ]
@@ -214,7 +225,9 @@ export default function AIMarketAssistant() {
           </div>
           <div>
             <h1 className="text-nex-text text-xl font-bold sm:text-2xl">NexMessAI</h1>
-            <p className="text-nex-muted text-[10px]">Smart bazaar assistant powered by Gemini</p>
+            <p className="text-nex-muted text-[10px]">
+              {isBangla ? 'স্মার্ট বাজার সহকারী (Gemini AI)' : 'Smart bazaar assistant powered by Gemini'}
+            </p>
           </div>
         </div>
       </div>
@@ -225,35 +238,42 @@ export default function AIMarketAssistant() {
           <div className="nex-card space-y-4 p-5">
             <h3 className="text-nex-text flex items-center gap-2 text-sm font-semibold tracking-wider uppercase">
               <Sparkles className="text-nex-primary h-4 w-4 animate-pulse" />
-              Assistant Info
+              {isBangla ? 'সহকারীর তথ্য' : 'Assistant Info'}
             </h3>
             <p className="text-nex-muted text-xs leading-relaxed">
-              Your personal bazaar coordinator powered by Google Gemini. Gets live grocery prices,
-              estimates quantities, and tracks your budget.
+              {isBangla
+                ? 'গুগল জেমিনাই চালিত ব্যক্তিগত বাজার সহকারী। লাইভ বাজার দর, পণ্যের পরিমাণ ও খরচের বাজেট ট্র্যাক করুন।'
+                : 'Your personal bazaar coordinator powered by Google Gemini. Gets live grocery prices, estimates quantities, and tracks your budget.'}
             </p>
 
             <div className="bg-nex-elevated space-y-2 rounded-xl p-4">
               <div className="text-nex-text flex items-center gap-2 text-xs font-semibold">
                 <MapPin className="text-nex-primary h-4 w-4" />
-                Location
+                {isBangla ? 'মেসের অবস্থান' : 'Location'}
               </div>
               {hasLocation ? (
                 <p className="text-nex-success font-mono text-xs font-medium">{messLocation}</p>
               ) : (
                 <div className="text-nex-danger flex items-start gap-1.5 text-[11px]">
                   <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  <span>No location set. Set it in Settings → Mess Details.</span>
+                  <span>
+                    {isBangla
+                      ? 'লোকেশন সেট করা নেই। সেটিংস → মেসের বিবরণী থেকে সেট করুন।'
+                      : 'No location set. Set it in Settings → Mess Details.'}
+                  </span>
                 </div>
               )}
             </div>
 
             <div className="text-nex-muted border-nex-border space-y-1.5 border-t pt-3 text-xs">
-              <span className="text-nex-text mb-1 block font-semibold">What it can do:</span>
-              <p>✅ Live grocery prices & deals</p>
-              <p>✅ Shopping lists with quantities</p>
-              <p>✅ Budget analysis & savings tips</p>
+              <span className="text-nex-text mb-1 block font-semibold">
+                {isBangla ? 'যা যা করতে পারে:' : 'What it can do:'}
+              </span>
+              <p>✅ {isBangla ? 'তাজা বাজার দর ও সাশ্রয়ী তথ্য' : 'Live grocery prices & deals'}</p>
+              <p>✅ {isBangla ? 'পরিমাণসহ বাজারের তালিকা' : 'Shopping lists with quantities'}</p>
+              <p>✅ {isBangla ? 'বাজেট বিশ্লেষণ ও পরামর্শ' : 'Budget analysis & savings tips'}</p>
               <p className="text-nex-muted/60 mt-2 text-[10px]">
-                ⚠️ Read-only — can't edit expenses or schedules
+                ⚠️ {isBangla ? 'শুধুমাত্র তথ্য প্রদর্শন — খরচ বা রুটিন এডিট করতে পারে না' : "Read-only — can't edit expenses or schedules"}
               </p>
             </div>
           </div>
@@ -262,7 +282,7 @@ export default function AIMarketAssistant() {
           {hasLocation && (
             <div className="nex-card hidden space-y-2 p-4 lg:block">
               <span className="text-nex-muted mb-1 block text-[11px] font-semibold tracking-wider uppercase">
-                Quick Actions
+                {isBangla ? 'কুইক অ্যাকশন' : 'Quick Actions'}
               </span>
               <div className="flex flex-col gap-2">
                 {suggestions.map((s, i) => (
@@ -310,12 +330,22 @@ export default function AIMarketAssistant() {
                   <Bot className="text-nex-primary h-8 w-8" />
                 </div>
                 <p className="text-nex-text text-sm font-semibold">
-                  {hasLocation ? "Hey! I'm NexMessAI 👋" : 'Location Required'}
+                  {hasLocation
+                    ? isBangla
+                      ? 'হ্যালো! আমি নেক্সমেসএআই (NexMessAI) 👋'
+                      : "Hey! I'm NexMessAI 👋"
+                    : isBangla
+                      ? 'মেসের লোকেশন প্রয়োজন'
+                      : 'Location Required'}
                 </p>
                 <p className="text-nex-muted mt-1.5 max-w-sm text-xs leading-relaxed">
                   {hasLocation
-                    ? "Ask me about today's grocery prices, create a shopping list, or check your budget. I'll search for live prices in your area!"
-                    : 'Set your mess location in Settings → Mess Details so I can find local grocery prices for you.'}
+                    ? isBangla
+                      ? 'আজকের বাজার দর, ফর্দ তৈরি অথবা মেস খরচের বাজেট যাচাই করতে যে কোনো প্রশ্ন করুন। আপনার এলাকার লাইভ দাম খোঁজা হবে!'
+                      : "Ask me about today's grocery prices, create a shopping list, or check your budget. I'll search for live prices in your area!"
+                    : isBangla
+                      ? 'আপনার এলাকার বাজার দর দেখতে সেটিংস → মেসের বিবরণী থেকে মেসের এলাকা নির্ধারণ করুন।'
+                      : 'Set your mess location in Settings → Mess Details so I can find local grocery prices for you.'}
                 </p>
 
                 {/* Quick action grid in empty state */}
@@ -457,7 +487,9 @@ export default function AIMarketAssistant() {
             {!hasLocation ? (
               <div className="bg-nex-danger/10 border-nex-danger/20 text-nex-danger flex items-center justify-center gap-2 rounded-xl border p-3 text-xs font-medium">
                 <AlertCircle className="h-4 w-4 shrink-0" />
-                Set a location in Settings → Mess Details to enable the AI assistant.
+                {isBangla
+                  ? 'এআই সহকারী ব্যবহার করতে সেটিংস → মেসের বিবরণী থেকে মেসের অবস্থান লিখুন।'
+                  : 'Set a location in Settings → Mess Details to enable the AI assistant.'}
               </div>
             ) : (
               <form
@@ -471,7 +503,11 @@ export default function AIMarketAssistant() {
                   type="text"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Ask about prices, shopping lists, or budget..."
+                  placeholder={
+                    isBangla
+                      ? 'বাজার দর, ফর্দ তৈরি বা মেস বাজেট সম্পর্কে জিজ্ঞাসা করুন...'
+                      : 'Ask about prices, shopping lists, or budget...'
+                  }
                   className="nex-input flex-1 px-4 py-3 text-sm"
                   disabled={loading}
                   id="ai-chat-input"

@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { formatCurrency } from '../../../lib/utils'
 
 interface Settlement {
@@ -12,15 +13,17 @@ interface SettleUpSheetProps {
 }
 
 export default function SettleUpSheet({ settlements }: SettleUpSheetProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="nex-card p-5">
       <div className="mb-3 flex items-center gap-2">
         <ArrowRight className="text-nex-success h-4 w-4" />
-        <h3 className="text-nex-text text-sm font-semibold">Settle Up</h3>
-        <span className="text-nex-muted text-xs">— minimum payments to close the month</span>
+        <h3 className="text-nex-text text-sm font-semibold">{t('finance.tabs.settleUp')}</h3>
+        <span className="text-nex-muted text-xs">— {t('finance.settlement.title')}</span>
       </div>
       {settlements.length === 0 ? (
-        <p className="text-nex-muted text-sm">Everyone is squared up. No transfers needed.</p>
+        <p className="text-nex-muted text-sm">{t('finance.settlement.allSettled')}</p>
       ) : (
         <ul className="divide-nex-border divide-y">
           {settlements.map((t, idx) => (

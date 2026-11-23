@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../../stores/authStore'
 import { useMessStore } from '../../../stores/messStore'
 import { supabase } from '../../../lib/supabase'
@@ -29,6 +30,7 @@ import { Skeleton } from '../../../components/Skeleton'
 import ConfirmDialog from '../../../components/ConfirmDialog'
 
 export default function BazaarSchedule() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const { currentMess, members } = useMessStore()
   const [schedules, setSchedules] = useState<MarketSchedule[]>([])
@@ -177,7 +179,7 @@ export default function BazaarSchedule() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <ShoppingBag className="text-nex-primary h-6 w-6" />
-          <h2 className="text-nex-text text-xl font-bold">Bazaar Schedule</h2>
+          <h2 className="text-nex-text text-xl font-bold">{t('market.schedule.title')}</h2>
         </div>
         {isManager && (
           <div className="flex gap-2">
@@ -187,14 +189,14 @@ export default function BazaarSchedule() {
               className="nex-btn-secondary flex-1 justify-center text-xs sm:flex-none"
               id="auto-assign-btn"
             >
-              <ArrowRightLeft className="h-4 w-4" /> Auto Assign
+              <ArrowRightLeft className="h-4 w-4" /> {t('market.schedule.autoAssign')}
             </button>
             <button
               onClick={() => setShowAdd(!showAdd)}
               className="nex-btn-primary flex-1 justify-center text-xs sm:flex-none"
               id="add-schedule-btn"
             >
-              <Plus className="h-4 w-4" /> Assign
+              <Plus className="h-4 w-4" /> {t('market.schedule.assign')}
             </button>
           </div>
         )}
@@ -203,7 +205,7 @@ export default function BazaarSchedule() {
       {/* Add Form */}
       {showAdd && isManager && (
         <div className="nex-card animate-slide-up p-5">
-          <h3 className="text-nex-text mb-4 text-lg font-semibold">Assign Bazaar Duty</h3>
+          <h3 className="text-nex-text mb-4 text-lg font-semibold">{t('market.schedule.assignTitle')}</h3>
           <form onSubmit={handleAssign} className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row">
               <select
@@ -213,23 +215,23 @@ export default function BazaarSchedule() {
                 required
                 id="schedule-member"
               >
-                <option value="">Select member</option>
+                <option value="">{t('market.schedule.selectMember')}</option>
                 {approvedMembers.map((m) => {
                   const p = m.profiles as any
                   return (
                     <option key={m.user_id} value={m.user_id}>
-                      {p?.username || 'Member'}
+                      {p?.username || t('common.member')}
                     </option>
                   )
                 })}
               </select>
               <button type="button" onClick={clearDates} className="nex-btn-secondary text-xs">
-                Clear Dates
+                {t('market.schedule.clearDates')}
               </button>
             </div>
 
             <div>
-              <p className="text-nex-text mb-2 text-sm font-medium">Select dates:</p>
+              <p className="text-nex-text mb-2 text-sm font-medium">{t('market.schedule.selectDates')}</p>
               <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
                 {eachDayOfInterval({ start: new Date(), end: endOfMonth(new Date()) }).map(
                   (dayDate) => {
@@ -263,7 +265,7 @@ export default function BazaarSchedule() {
 
             {selectedDates.length > 0 && (
               <p className="text-nex-muted text-xs">
-                {selectedDates.length} date(s) selected:{' '}
+                {selectedDates.length} {t('market.schedule.datesSelected')}:{' '}
                 {selectedDates.map((d) => format(new Date(d), 'MMM d')).join(', ')}
               </p>
             )}
@@ -273,7 +275,9 @@ export default function BazaarSchedule() {
               disabled={loading || selectedDates.length === 0}
               className="nex-btn-primary w-full disabled:opacity-50"
             >
-              {loading ? 'Assigning...' : `Assign to ${selectedDates.length} Date(s)`}
+              {loading
+                ? t('market.schedule.assigning')
+                : t('market.schedule.assignToCount', { count: selectedDates.length })}
             </button>
           </form>
         </div>
@@ -379,7 +383,7 @@ export default function BazaarSchedule() {
                     ) : (
                       <div className="py-2">
                         <Calendar className="text-nex-muted/40 mx-auto h-5 w-5" />
-                        <p className="text-nex-muted/40 mt-1 text-xs">Unassigned</p>
+                        <p className="text-nex-muted/40 mt-1 text-xs">{t('market.schedule.unassigned')}</p>
                       </div>
                     )}
                   </div>
@@ -455,7 +459,7 @@ export default function BazaarSchedule() {
                                 <p className="text-nex-text truncate text-sm font-medium">
                                   {assignee?.username}
                                 </p>
-                                <p className="text-nex-muted text-xs">Bazaar Duty</p>
+                                <p className="text-nex-muted text-xs">{t('market.schedule.duty')}</p>
                               </div>
                               {isManager && (
                                 <button
@@ -472,7 +476,7 @@ export default function BazaarSchedule() {
                     ) : (
                       <div className="text-nex-muted/40 flex flex-1 items-center gap-2 py-1">
                         <Calendar className="h-4 w-4" />
-                        <p className="text-xs">Unassigned</p>
+                        <p className="text-xs">{t('market.schedule.unassigned')}</p>
                       </div>
                     )}
                   </div>
@@ -484,7 +488,7 @@ export default function BazaarSchedule() {
       {/* Duty Count This Week */}
       <div className="nex-card p-5">
         <h3 className="text-nex-text mb-3 text-sm font-semibold tracking-wider uppercase">
-          Duty Count This Week
+          {t('market.schedule.dutyCount')}
         </h3>
         <div className="space-y-2">
           {approvedMembers.map((member) => {
@@ -499,9 +503,9 @@ export default function BazaarSchedule() {
                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-xs font-semibold text-white">
                     {getInitials(p?.username || '?')}
                   </div>
-                  <span className="text-nex-text text-sm">{p?.username || 'Member'}</span>
+                  <span className="text-nex-text text-sm">{p?.username || t('common.member')}</span>
                 </div>
-                <span className="nex-badge-primary text-xs">{count} days</span>
+                <span className="nex-badge-primary text-xs">{count} {t('market.schedule.days')}</span>
               </div>
             )
           })}
@@ -510,9 +514,9 @@ export default function BazaarSchedule() {
 
       <ConfirmDialog
         open={deleteScheduleId !== null}
-        title="Remove Bazaar Assignment"
-        message="Are you sure you want to remove this bazaar schedule assignment?"
-        confirmText="Remove"
+        title={t('market.schedule.deleteTitle')}
+        message={t('market.schedule.deleteMsg')}
+        confirmText={t('market.schedule.remove')}
         variant="danger"
         onConfirm={confirmDelete}
         onCancel={() => setDeleteScheduleId(null)}

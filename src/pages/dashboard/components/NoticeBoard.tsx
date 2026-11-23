@@ -64,7 +64,7 @@ export default function NoticeBoard({
               value={noticeText}
               onChange={(e) => setNoticeText(e.target.value)}
               className="nex-input w-full px-3 py-2 text-sm"
-              placeholder="Type your notice here..."
+              placeholder={t('dashboard.noticePlaceholder')}
               maxLength={200}
               required
               autoFocus
@@ -75,14 +75,14 @@ export default function NoticeBoard({
                 disabled={loading || !noticeText.trim()}
                 className="nex-btn-primary flex items-center gap-1 px-3 py-1.5 text-xs disabled:opacity-50"
               >
-                <Send className="h-3.5 w-3.5" /> Save
+                <Send className="h-3.5 w-3.5" /> {t('common.save')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowInput(false)}
                 className="nex-btn-secondary px-3 py-1.5 text-xs"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               {notice && (
                 <button
@@ -93,7 +93,7 @@ export default function NoticeBoard({
                   }}
                   className="nex-btn-secondary ml-auto border-red-500/20 px-3 py-1.5 text-xs !text-red-500 hover:!bg-red-500/10"
                 >
-                  Remove Notice
+                  {t('common.delete')}
                 </button>
               )}
             </div>
@@ -105,7 +105,7 @@ export default function NoticeBoard({
         ) : (
           <div className="flex shrink-0 flex-col items-center justify-center py-4 text-center">
             <Megaphone className="mb-1 h-7 w-7 text-slate-400 dark:text-slate-600" />
-            <p className="text-nex-muted text-xs font-medium">No active notice pinned.</p>
+            <p className="text-nex-muted text-xs font-medium">{t('dashboard.noNotices')}</p>
           </div>
         )}
       </div>

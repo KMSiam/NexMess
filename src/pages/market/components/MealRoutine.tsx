@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../../stores/authStore'
 import { useMessStore } from '../../../stores/messStore'
 import { supabase } from '../../../lib/supabase'
@@ -8,7 +9,8 @@ import { Skeleton } from '../../../components/Skeleton'
 import { getFoodEmoji, getMealRoutineDow, dhakaToday } from '../../../lib/utils'
 import toast from 'react-hot-toast'
 
-const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+const DAYS_EN = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+const DAYS_BN = ['শনিবার', 'রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার']
 
 const PRESET_ITEMS = [
   { label: 'Chicken', emoji: '🍗' },
@@ -30,6 +32,9 @@ interface RoutineRow {
 }
 
 export default function MealRoutine() {
+  const { t, i18n } = useTranslation()
+  const isBangla = (i18n.language || 'en').startsWith('bn')
+  const DAYS = isBangla ? DAYS_BN : DAYS_EN
   const { user } = useAuthStore()
   const { currentMess, members } = useMessStore()
   const [routines, setRoutines] = useState<RoutineRow[]>([])
@@ -146,7 +151,7 @@ export default function MealRoutine() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <CalendarClock className="text-nex-primary h-6 w-6" />
-          <h2 className="text-nex-text text-xl font-bold">Meal Routine</h2>
+          <h2 className="text-nex-text text-xl font-bold">{t('market.routine.title')}</h2>
         </div>
         {isManager && (
           <div className="flex gap-2">
@@ -157,13 +162,13 @@ export default function MealRoutine() {
                   disabled={loading}
                   className="nex-btn-primary flex-1 justify-center text-xs disabled:opacity-50 sm:flex-none"
                 >
-                  <Save className="h-4 w-4" /> Save Routine
+                  <Save className="h-4 w-4" /> {t('market.routine.save')}
                 </button>
                 <button
                   onClick={cancelEditing}
                   className="nex-btn-secondary flex-1 justify-center text-xs sm:flex-none"
                 >
-                  <X className="h-4 w-4" /> Cancel
+                  <X className="h-4 w-4" /> {t('common.cancel')}
                 </button>
               </>
             ) : (
@@ -171,7 +176,7 @@ export default function MealRoutine() {
                 onClick={startEditing}
                 className="nex-btn-primary flex-1 justify-center text-xs sm:flex-none"
               >
-                <Pencil className="h-4 w-4" /> Edit Routine
+                <Pencil className="h-4 w-4" /> {t('market.routine.editTitle')}
               </button>
             )}
           </div>
@@ -251,7 +256,7 @@ export default function MealRoutine() {
               {(['lunch', 'dinner'] as const).map((type) => (
                 <tr key={type} className="border-nex-border border-b last:border-0">
                   <td className="text-nex-muted px-4 py-4 text-xs font-semibold uppercase">
-                    {type === 'lunch' ? '☀️ Lunch' : '🌙 Dinner'}
+                    {type === 'lunch' ? `☀️ ${t('dashboard.lunch')}` : `🌙 ${t('dashboard.dinner')}`}
                   </td>
                   {displayData.map((r) => {
                     const value = r[type]
@@ -308,7 +313,7 @@ export default function MealRoutine() {
                     {DAYS[r.day_of_week]}
                     {isToday && (
                       <span className="bg-nex-primary ml-2 rounded-full px-2 py-0.5 text-xs font-medium text-white">
-                        Today
+                        {t('common.today')}
                       </span>
                     )}
                   </p>
@@ -326,7 +331,7 @@ export default function MealRoutine() {
                         <p
                           className={`mb-1.5 text-xs font-semibold tracking-wider uppercase ${type === 'lunch' ? 'text-amber-600' : 'text-indigo-600'}`}
                         >
-                          {type === 'lunch' ? '☀️ Lunch' : '🌙 Dinner'}
+                          {type === 'lunch' ? `☀️ ${t('dashboard.lunch')}` : `🌙 ${t('dashboard.dinner')}`}
                         </p>
                         {editing ? (
                           <input
@@ -342,7 +347,7 @@ export default function MealRoutine() {
                             {getFoodEmoji(value)} {value}
                           </p>
                         ) : (
-                          <p className="text-nex-muted/50 text-xs">Not set</p>
+                          <p className="text-nex-muted/50 text-xs">{t('market.routine.notSet')}</p>
                         )}
                       </div>
                     )

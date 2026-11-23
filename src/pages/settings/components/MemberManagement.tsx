@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getInitials } from '../../../lib/utils'
 import { supabase } from '../../../lib/supabase'
 import toast from 'react-hot-toast'
@@ -40,6 +41,8 @@ export default function MemberManagement({
   onDemoteManager,
   onToggleVerify,
 }: MemberManagementProps) {
+  const { t, i18n } = useTranslation()
+  const isBangla = (i18n.language || 'en').startsWith('bn')
   const [selectedDocUrl, setSelectedDocUrl] = useState<string | null>(null)
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null)
 
@@ -69,7 +72,7 @@ export default function MemberManagement({
       {isManager && pendingMembers.length > 0 && (
         <div className="nex-card border border-amber-500/10 p-6">
           <h3 className="text-nex-text mb-4 flex items-center gap-2 text-lg font-semibold">
-            Pending Requests
+            {t('settings.memberSection.pendingTitle')}
             <span className="nex-badge nex-badge-danger animate-pulse">
               {pendingMembers.length}
             </span>
@@ -88,7 +91,7 @@ export default function MemberManagement({
                     </div>
                     <div>
                       <p className="text-nex-text text-sm font-semibold">
-                        {p?.username || 'Unknown'}
+                        {p?.username || t('common.member')}
                       </p>
                       {p?.contact_no && (
                         <p className="text-nex-muted mt-0.5 font-mono text-xs">{p.contact_no}</p>
@@ -100,13 +103,13 @@ export default function MemberManagement({
                       onClick={() => onApprove(member.user_id)}
                       className="nex-btn-primary flex items-center gap-1.5 px-4 py-2 text-xs shadow-sm"
                     >
-                      <UserCheck className="h-3.5 w-3.5" /> Approve
+                      <UserCheck className="h-3.5 w-3.5" /> {t('settings.memberSection.approve')}
                     </button>
                     <button
                       onClick={() => onReject(member.user_id)}
                       className="nex-btn-danger flex items-center gap-1.5 border-none bg-red-500/10 px-4 py-2 text-xs text-red-500 shadow-none hover:bg-red-500 hover:text-white"
                     >
-                      <UserX className="h-3.5 w-3.5" /> Reject
+                      <UserX className="h-3.5 w-3.5" /> {t('settings.memberSection.reject')}
                     </button>
                   </div>
                 </div>
@@ -118,7 +121,7 @@ export default function MemberManagement({
 
       <div className="nex-card p-6">
         <h3 className="text-nex-text mb-4 text-lg font-semibold">
-          Members ({approvedMembers.length})
+          {t('settings.memberSection.activeTitle')} ({approvedMembers.length})
         </h3>
         <div className="space-y-3">
           {approvedMembers.map((member) => {
@@ -279,14 +282,14 @@ export default function MemberManagement({
                             onClick={() => onToggleVerify(member.user_id, false)}
                             className="rounded-xl bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-500 hover:text-white"
                           >
-                            Unverify Profile
+                            {isBangla ? 'আনভেরিফাই করুন' : 'Unverify Profile'}
                           </button>
                         ) : (
                           <button
                             onClick={() => onToggleVerify(member.user_id, true)}
                             className="rounded-xl bg-emerald-500/10 px-3.5 py-2 text-xs font-semibold text-emerald-500 transition-all duration-200 hover:bg-emerald-500 hover:text-white"
                           >
-                            Verify Profile
+                            {isBangla ? 'ভেরিফাই করুন' : 'Verify Profile'}
                           </button>
                         )}
 
@@ -295,14 +298,14 @@ export default function MemberManagement({
                             onClick={() => onMakeManager(member.user_id)}
                             className="text-nex-primary bg-nex-primary-light rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 hover:bg-blue-500/10 hover:text-blue-700"
                           >
-                            Promote to Manager
+                            {t('settings.memberSection.makeManager')}
                           </button>
                         ) : (
                           <button
                             onClick={() => onDemoteManager(member.user_id)}
                             className="rounded-xl bg-amber-500/10 px-3.5 py-2 text-xs font-semibold text-amber-500 transition-all duration-200 hover:bg-amber-500/20 hover:text-amber-400"
                           >
-                            Demote to Member
+                            {t('settings.memberSection.demoteManager')}
                           </button>
                         )}
 
@@ -311,7 +314,7 @@ export default function MemberManagement({
                             onClick={() => onRemove(member.user_id)}
                             className="rounded-xl bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-500 hover:text-white"
                           >
-                            Remove Member
+                            {t('settings.memberSection.removeMember')}
                           </button>
                         )}
                       </div>

@@ -56,7 +56,7 @@ export default function EmergencyContacts({
         >
           <input
             type="text"
-            placeholder="Name (e.g., Manager, House Owner)"
+            placeholder={t('dashboard.contactName')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -64,20 +64,20 @@ export default function EmergencyContacts({
           />
           <input
             type="tel"
-            placeholder="Phone Number"
+            placeholder={t('dashboard.contactPhone')}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             required
             className="nex-input flex-1 py-1.5 text-sm"
           />
           <button type="submit" className="nex-btn-primary px-4 py-1.5 text-sm whitespace-nowrap">
-            Save
+            {t('common.save')}
           </button>
         </form>
       )}
 
       {contacts.length === 0 ? (
-        <p className="text-nex-muted text-xs">No emergency contacts added yet.</p>
+        <p className="text-nex-muted text-xs">{t('dashboard.noEmergencyContacts')}</p>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
           {contacts.map((ec) => (

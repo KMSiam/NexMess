@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMessStore } from '../../../stores/messStore'
 import { useAuthStore } from '../../../stores/authStore'
 import { supabase } from '../../../lib/supabase'
@@ -75,6 +76,7 @@ interface ReportSummary {
 }
 
 export default function HistoryTab() {
+  const { t } = useTranslation()
   const { currentMess, members } = useMessStore()
   const { user, profile } = useAuthStore()
   const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager' && m.status === 'approved')
@@ -207,7 +209,7 @@ export default function HistoryTab() {
         <div className="nex-card flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
           <div className="flex-1">
             <label className="text-nex-text mb-1 block text-sm font-medium">
-              Generate report for a month
+              {t('finance.history.monthSelect')}
             </label>
             <div className="relative">
               <Calendar className="text-nex-muted pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
@@ -225,7 +227,7 @@ export default function HistoryTab() {
             disabled={busy || !genMonth}
             className="nex-btn-primary flex items-center gap-2 disabled:opacity-50"
           >
-            <Plus className="h-4 w-4" /> {busy ? 'Generating...' : 'Generate'}
+            <Plus className="h-4 w-4" /> {busy ? t('common.loading') : t('common.add')}
           </button>
         </div>
       )}
@@ -241,10 +243,10 @@ export default function HistoryTab() {
         <div className="nex-card p-8 text-center">
           <History className="text-nex-muted mx-auto mb-2 h-8 w-8" />
           <p className="text-nex-muted text-sm">
-            No archived reports yet. Pick a month above and click <b>Generate</b>.
+            {t('finance.history.empty')}
           </p>
           <p className="text-nex-muted mt-1 text-xs">
-            Reports are also compiled automatically at the start of each month.
+            {t('finance.history.emptyDesc')}
           </p>
         </div>
       ) : (

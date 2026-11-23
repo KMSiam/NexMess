@@ -1,5 +1,6 @@
 import { useState, useTransition } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../stores/authStore'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldAlert } from 'lucide-react'
@@ -11,6 +12,8 @@ import { checkRateLimit, recordRateLimitAttempt } from '../../lib/rateLimiter'
 import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function LoginPage() {
+  const { i18n } = useTranslation()
+  const isBangla = (i18n.language || 'en').startsWith('bn')
   useSEO({
     title: 'Sign In',
     description: 'Log in to your NexMess account to track meals, manage shared expenses, check bazaar rotation, and coordinate with your roommates.',
@@ -134,8 +137,12 @@ export default function LoginPage() {
             <span className="text-nex-text text-2xl font-bold">NexMess</span>
           </Link>
 
-          <h1 className="text-nex-text mb-1 text-2xl font-bold">Welcome back</h1>
-          <p className="text-nex-muted mb-8">Sign in to continue to your dashboard</p>
+          <h1 className="text-nex-text mb-1 text-2xl font-bold">
+            {isBangla ? 'স্বাগতম' : 'Welcome back'}
+          </h1>
+          <p className="text-nex-muted mb-8">
+            {isBangla ? 'আপনার অ্যাকাউন্টে প্রবেশ করতে লগইন করুন' : 'Sign in to continue to your dashboard'}
+          </p>
 
           {cooldownSec > 0 && (
             <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-400">
@@ -172,20 +179,28 @@ export default function LoginPage() {
                 />
               </svg>
             )}
-            {googlePending ? 'Redirecting...' : 'Continue with Google'}
+            {googlePending
+              ? isBangla
+                ? 'লগইন হচ্ছে...'
+                : 'Redirecting...'
+              : isBangla
+                ? 'গুগল দিয়ে প্রবেশ করুন'
+                : 'Continue with Google'}
           </button>
 
           <div className="mb-6 flex items-center gap-3">
             <div className="bg-nex-border h-px flex-1" />
             <span className="text-nex-muted text-xs tracking-wider uppercase">
-              or sign in with email
+              {isBangla ? 'অথবা ইমেইল দিয়ে প্রবেশ করুন' : 'or sign in with email'}
             </span>
             <div className="bg-nex-border h-px flex-1" />
           </div>
 
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div>
-              <label className="text-nex-text mb-1.5 block text-sm font-medium">Email</label>
+              <label className="text-nex-text mb-1.5 block text-sm font-medium">
+                {isBangla ? 'ইমেইল অ্যাড্রেস' : 'Email'}
+              </label>
               <div className="relative">
                 <Mail className="text-nex-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                 <input
@@ -202,12 +217,14 @@ export default function LoginPage() {
 
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="text-nex-text block text-sm font-medium">Password</label>
+                <label className="text-nex-text block text-sm font-medium">
+                  {isBangla ? 'পাসওয়ার্ড' : 'Password'}
+                </label>
                 <Link
                   to="/forgot-password"
                   className="text-nex-primary hover:text-nex-primary-dark text-xs font-medium transition-colors"
                 >
-                  Forgot password?
+                  {isBangla ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot password?'}
                 </Link>
               </div>
               <div className="relative">
@@ -241,16 +258,16 @@ export default function LoginPage() {
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 <>
-                  Sign In <ArrowRight className="h-4 w-4" />
+                  {isBangla ? 'লগইন করুন' : 'Sign In'} <ArrowRight className="h-4 w-4" />
                 </>
               )}
             </button>
           </form>
 
           <p className="text-nex-muted mt-6 text-center text-sm">
-            Don't have an account?{' '}
+            {isBangla ? 'কোনো অ্যাকাউন্ট নেই?' : "Don't have an account?"}{' '}
             <Link to="/register" className="text-nex-primary font-medium hover:underline">
-              Create one
+              {isBangla ? 'নতুন অ্যাকাউন্ট খুলুন' : 'Create one'}
             </Link>
           </p>
         </div>

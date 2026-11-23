@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { format } from 'date-fns'
@@ -20,7 +21,8 @@ interface LogItem {
 }
 
 export default function ActivityLogPage() {
-  usePageTitle('Activity Log')
+  const { t } = useTranslation()
+  usePageTitle(t('activity.title'))
   const { currentMess } = useMessStore()
   const [logs, setLogs] = useState<LogItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -63,8 +65,8 @@ export default function ActivityLogPage() {
       compiledLogs.push({
         id: `exp-${e.id}`,
         type: 'expense',
-        title: 'Expense Logged',
-        description: `${e.profiles?.username || 'Member'} added ${e.category} expense: "${e.description || e.category}"`,
+        title: t('activity.expense'),
+        description: `${e.profiles?.username || t('common.member')} added ${e.category} expense: "${e.description || e.category}"`,
         amount: Number(e.amount),
         created_at: e.created_at,
         user: e.profiles?.username,
@@ -76,8 +78,8 @@ export default function ActivityLogPage() {
       compiledLogs.push({
         id: `dep-${d.id}`,
         type: 'deposit',
-        title: 'Deposit Recorded',
-        description: `${d.profiles?.username || 'Member'} deposited funds: "${d.note || 'Regular Deposit'}"`,
+        title: t('activity.deposit'),
+        description: `${d.profiles?.username || t('common.member')} deposited funds: "${d.note || 'Regular Deposit'}"`,
         amount: Number(d.amount),
         created_at: d.created_at,
         user: d.profiles?.username,
@@ -89,8 +91,8 @@ export default function ActivityLogPage() {
       compiledLogs.push({
         id: `not-${n.id}`,
         type: 'notice',
-        title: 'Notice Board Update',
-        description: `${n.profiles?.username || 'Manager'} posted a notice: "${n.message}"`,
+        title: t('activity.notice'),
+        description: `${n.profiles?.username || t('common.manager')} posted a notice: "${n.message}"`,
         created_at: n.created_at,
         user: n.profiles?.username,
       })
@@ -102,8 +104,8 @@ export default function ActivityLogPage() {
         compiledLogs.push({
           id: `mem-${m.joined_at}`,
           type: 'member',
-          title: 'Member Approved',
-          description: `${m.profiles?.username || 'User'} joined the mess as ${m.role}.`,
+          title: t('activity.member'),
+          description: `${m.profiles?.username || t('common.member')} joined the mess as ${m.role}.`,
           created_at: m.joined_at,
           user: m.profiles?.username,
         })
@@ -113,7 +115,7 @@ export default function ActivityLogPage() {
     compiledLogs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     setLogs(compiledLogs.slice(0, 50)) // Display top 50 logs
     setLoading(false)
-  }, [currentMess?.id])
+  }, [currentMess?.id, t])
 
   useEffect(() => {
     fetchActivityLogs()
@@ -142,7 +144,7 @@ export default function ActivityLogPage() {
         </Link>
         <div className="flex items-center gap-2">
           <Activity className="text-nex-primary h-6 w-6" />
-          <h1 className="text-nex-text text-2xl font-bold">Full Activity Log</h1>
+          <h1 className="text-nex-text text-2xl font-bold">{t('activity.title')}</h1>
         </div>
       </div>
 
@@ -160,7 +162,7 @@ export default function ActivityLogPage() {
             ))}
           </div>
         ) : logs.length === 0 ? (
-          <p className="text-nex-muted py-8 text-center text-sm">No activity recorded yet.</p>
+          <p className="text-nex-muted py-8 text-center text-sm">{t('dashboard.noActivity')}</p>
         ) : (
           <div className="before:bg-nex-border relative space-y-6 before:absolute before:top-2 before:bottom-2 before:left-[17px] before:w-0.5">
             {logs.map((log) => {
@@ -182,7 +184,7 @@ export default function ActivityLogPage() {
                     <p className="text-nex-muted mt-1 text-xs leading-relaxed">{log.description}</p>
                     {log.amount && (
                       <p className="text-nex-text mt-1 text-xs font-semibold">
-                        Amount:{' '}
+                        {t('common.amount')}:{' '}
                         <span
                           className={log.type === 'deposit' ? 'text-nex-success' : 'text-nex-text'}
                         >

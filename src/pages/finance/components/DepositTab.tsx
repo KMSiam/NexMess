@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus, PiggyBank, CheckCircle2, Trash2, Clock } from 'lucide-react'
 import { format } from 'date-fns'
+import { useTranslation } from 'react-i18next'
 import { formatCurrency } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
 import type { Deposit, MessMember } from '../../../types/database'
@@ -24,6 +25,7 @@ export default function DepositTab({
   onConfirmDeposit,
   onDeleteDeposit,
 }: DepositTabProps) {
+  const { t } = useTranslation()
   const [showAddDeposit, setShowAddDeposit] = useState(false)
   const [depUserId, setDepUserId] = useState('')
   const [depAmount, setDepAmount] = useState('')
@@ -50,7 +52,7 @@ export default function DepositTab({
           onClick={() => setShowAddDeposit(!showAddDeposit)}
           className="nex-btn-primary text-sm"
         >
-          <Plus className="h-4 w-4" /> Record Deposit
+          <Plus className="h-4 w-4" /> {t('finance.depositModal.recordTitle')}
         </button>
       )}
 
@@ -59,26 +61,30 @@ export default function DepositTab({
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-nex-text mb-1 block text-sm font-medium">Member</label>
+                <label className="text-nex-text mb-1 block text-sm font-medium">
+                  {t('finance.depositModal.memberLabel')}
+                </label>
                 <select
                   value={depUserId}
                   onChange={(e) => setDepUserId(e.target.value)}
                   className="nex-input"
                   required
                 >
-                  <option value="">Select member</option>
+                  <option value="">{t('finance.depositModal.selectMember')}</option>
                   {approvedMembers.map((m) => {
                     const p = m.profiles as any
                     return (
                       <option key={m.user_id} value={m.user_id}>
-                        {p?.username || 'Member'}
+                        {p?.username || t('common.member')}
                       </option>
                     )
                   })}
                 </select>
               </div>
               <div>
-                <label className="text-nex-text mb-1 block text-sm font-medium">Amount (৳)</label>
+                <label className="text-nex-text mb-1 block text-sm font-medium">
+                  {t('finance.depositModal.amountLabel')}
+                </label>
                 <input
                   type="number"
                   value={depAmount}
@@ -92,13 +98,15 @@ export default function DepositTab({
               </div>
             </div>
             <div>
-              <label className="text-nex-text mb-1 block text-sm font-medium">Note</label>
+              <label className="text-nex-text mb-1 block text-sm font-medium">
+                {t('finance.depositModal.noteLabel')}
+              </label>
               <input
                 type="text"
                 value={depNote}
                 onChange={(e) => setDepNote(e.target.value)}
                 className="nex-input"
-                placeholder="e.g., May deposit"
+                placeholder={t('finance.depositModal.notePlaceholder')}
               />
             </div>
             <div className="flex gap-2">
@@ -107,14 +115,14 @@ export default function DepositTab({
                 disabled={loading}
                 className="nex-btn-primary disabled:opacity-50"
               >
-                Save
+                {t('common.save')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowAddDeposit(false)}
                 className="nex-btn-secondary"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </form>
@@ -125,8 +133,8 @@ export default function DepositTab({
         {deposits.length === 0 ? (
           <EmptyState
             icon={PiggyBank}
-            title="No deposits recorded"
-            description="Deposits collected from mess members this month will show here."
+            title={t('finance.depositModal.empty')}
+            description={t('finance.depositModal.emptyDesc')}
           />
         ) : (
           deposits.map((dep) => (
@@ -156,7 +164,7 @@ export default function DepositTab({
                     <button
                       onClick={() => onDeleteDeposit(dep.id)}
                       className="p-1 text-red-500 transition-colors hover:text-red-700"
-                      title="Delete deposit"
+                      title={t('common.delete')}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -165,20 +173,20 @@ export default function DepositTab({
                 {dep.verified ? (
                   <span className="text-nex-success flex items-center gap-0.5 text-xs">
                     <CheckCircle2 className="h-3 w-3" />
-                    Verified
+                    {t('finance.depositModal.verified')}
                   </span>
                 ) : (
                   <div className="flex items-center gap-2">
                     <span className="flex items-center gap-0.5 text-xs text-amber-500">
                       <Clock className="h-3 w-3" />
-                      Pending
+                      {t('finance.depositModal.pending')}
                     </span>
                     {dep.user_id === currentUserId && (
                       <button
                         onClick={() => onConfirmDeposit(dep.id)}
                         className="bg-nex-primary rounded px-2 py-0.5 text-xs font-medium text-white transition-colors hover:bg-blue-700"
                       >
-                        Confirm
+                        {t('finance.depositModal.confirmDeposit')}
                       </button>
                     )}
                   </div>

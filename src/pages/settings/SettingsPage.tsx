@@ -322,7 +322,7 @@ export default function SettingsPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center gap-3">
         <Settings className="text-nex-primary h-6 w-6" />
-        <h1 className="text-nex-text text-2xl font-bold">Settings</h1>
+        <h1 className="text-nex-text text-2xl font-bold">{t('settings.title')}</h1>
       </div>
 
       <div className="bg-nex-elevated border-nex-border/80 scrollbar-none flex w-full max-w-full gap-1.5 overflow-x-auto rounded-xl border p-1 whitespace-nowrap">
@@ -456,9 +456,10 @@ export default function SettingsPage() {
 
       <ConfirmDialog
         open={confirmLeaveOpen}
-        title="Leave Mess"
-        message="Are you sure you want to leave this mess? You will lose access immediately, but your past data will be kept for calculations."
-        confirmText="Leave Mess"
+        title={t('settings.dangerSection.leaveTitle')}
+        message={t('settings.dangerSection.leaveDesc')}
+        confirmText={t('settings.dangerSection.leaveTitle')}
+        cancelText={t('common.cancel')}
         variant="warning"
         onConfirm={handleConfirmLeaveMess}
         onCancel={() => setConfirmLeaveOpen(false)}
@@ -466,9 +467,10 @@ export default function SettingsPage() {
 
       <ConfirmDialog
         open={confirmDeleteAccountOpen}
-        title="Delete Account"
-        message="DANGER: Are you sure you want to delete your account? Your account will be deactivated immediately. You will have 30 days to log back in to restore your account, otherwise all your personal profile info will be permanently deleted."
-        confirmText="Deactivate Account"
+        title={t('settings.dangerSection.deleteAccountTitle')}
+        message={t('settings.dangerSection.deleteAccountDesc')}
+        confirmText={t('settings.dangerSection.deleteAccountTitle')}
+        cancelText={t('common.cancel')}
         confirmInput={profile?.username || ''}
         confirmInputLabel={`Type your username "${profile?.username || ''}" to confirm`}
         variant="danger"
@@ -478,9 +480,10 @@ export default function SettingsPage() {
 
       <ConfirmDialog
         open={confirmDeleteOpen}
-        title="Delete Mess Permanently"
-        message={`DANGER: Are you sure you want to delete "${currentMess?.name}" permanently? This will erase all history, meals, chat, and deposits for all members. This cannot be undone.`}
-        confirmText="Permanently Delete"
+        title={t('settings.dangerSection.deleteMessTitle')}
+        message={t('settings.dangerSection.deleteMessDesc')}
+        confirmText={t('settings.dangerSection.deleteMessTitle')}
+        cancelText={t('common.cancel')}
         confirmInput={currentMess?.name}
         confirmInputLabel={`Type the mess name "${currentMess?.name}" to confirm`}
         variant="danger"
@@ -490,9 +493,10 @@ export default function SettingsPage() {
 
       <ConfirmDialog
         open={removeMemberId !== null}
-        title="Remove Member"
-        message="Are you sure you want to remove this member? Their past data will be preserved for calculations."
-        confirmText="Remove"
+        title={t('settings.memberSection.removeMember')}
+        message={t('settings.memberSection.confirmRemove')}
+        confirmText={t('settings.memberSection.removeMember')}
+        cancelText={t('common.cancel')}
         variant="danger"
         onConfirm={handleConfirmRemoveMember}
         onCancel={() => setRemoveMemberId(null)}
@@ -500,9 +504,10 @@ export default function SettingsPage() {
 
       <ConfirmDialog
         open={promoteMemberId !== null}
-        title="Promote Member"
+        title={t('settings.memberSection.makeManager')}
         message="Promote this member to manager? They will have full manager controls, including history logs and settings access."
-        confirmText="Promote"
+        confirmText={t('common.confirm')}
+        cancelText={t('common.cancel')}
         variant="info"
         onConfirm={handleConfirmPromoteMember}
         onCancel={() => setPromoteMemberId(null)}
@@ -510,13 +515,14 @@ export default function SettingsPage() {
 
       <ConfirmDialog
         open={demoteMemberId !== null}
-        title="Demote Manager"
+        title={t('settings.memberSection.demoteManager')}
         message={
           demoteMemberId === user?.id
             ? 'Are you sure you want to demote yourself? You will lose manager access immediately.'
             : 'Demote this manager back to a regular member?'
         }
-        confirmText="Demote"
+        confirmText={t('common.confirm')}
+        cancelText={t('common.cancel')}
         variant="warning"
         onConfirm={handleConfirmDemoteMember}
         onCancel={() => setDemoteMemberId(null)}

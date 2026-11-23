@@ -251,17 +251,17 @@ export default function MealsPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Utensils className="text-nex-primary h-6 w-6" />
-          <h1 className="text-nex-text text-2xl font-bold">Meal Calendar</h1>
+          <h1 className="text-nex-text text-2xl font-bold">{t('meals.title')}</h1>
         </div>
         <div className="scrollbar-none mt-4 flex w-full flex-row items-center justify-start gap-2 overflow-x-auto pb-1 sm:mt-0 sm:w-auto sm:justify-end sm:pb-0">
           {isManager && (
             <button
               onClick={() => openOverride()}
               className="rounded-btn border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover flex shrink-0 items-center justify-center gap-1.5 border px-3 py-1.5 text-xs font-medium shadow-sm transition-colors"
-              title="Override a member's meal (bypasses cut-off)"
+              title={t('meals.overrideDesc')}
             >
               <ShieldCheck className="text-nex-primary h-3.5 w-3.5" />
-              Override
+              {t('meals.override')}
             </button>
           )}
 
@@ -477,7 +477,7 @@ export default function MealsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="text-nex-primary h-5 w-5" />
-                <h3 className="text-nex-text text-lg font-semibold">Manager Override</h3>
+                <h3 className="text-nex-text text-lg font-semibold">{t('meals.override')}</h3>
               </div>
               <button
                 type="button"
@@ -488,11 +488,11 @@ export default function MealsPage() {
               </button>
             </div>
             <p className="text-nex-muted text-xs">
-              Edit a member's meal even after the cut-off has passed. Use sparingly.
+              {t('meals.overrideDesc')}
             </p>
 
             <div>
-              <label className="text-nex-text mb-1 block text-xs font-medium">Member</label>
+              <label className="text-nex-text mb-1 block text-xs font-medium">{t('common.member')}</label>
               <select
                 value={ovUserId}
                 onChange={(e) => setOvUserId(e.target.value)}
@@ -500,7 +500,7 @@ export default function MealsPage() {
                 required
               >
                 <option value="" disabled>
-                  Select a member
+                  {t('finance.depositModal.selectMember')}
                 </option>
                 {members
                   .filter((m) => m.status === 'approved')
@@ -514,7 +514,7 @@ export default function MealsPage() {
             </div>
 
             <div>
-              <label className="text-nex-text mb-1 block text-xs font-medium">Date</label>
+              <label className="text-nex-text mb-1 block text-xs font-medium">{t('common.date')}</label>
               <input
                 type="date"
                 value={ovDate}
@@ -532,7 +532,7 @@ export default function MealsPage() {
                   onChange={(e) => setOvLunch(e.target.checked)}
                 />
                 <Sun className="h-4 w-4 text-amber-500" />
-                <span className="text-nex-text text-sm">Lunch</span>
+                <span className="text-nex-text text-sm">{t('dashboard.lunch')}</span>
               </label>
               <label className="rounded-btn border-nex-border bg-nex-surface flex cursor-pointer items-center gap-2 border p-3">
                 <input
@@ -541,10 +541,12 @@ export default function MealsPage() {
                   onChange={(e) => setOvDinner(e.target.checked)}
                 />
                 <Moon className="h-4 w-4 text-indigo-400" />
-                <span className="text-nex-text text-sm">Dinner</span>
+                <span className="text-nex-text text-sm">{t('dashboard.dinner')}</span>
               </label>
               <div>
-                <label className="text-nex-muted mb-1 block text-xs font-medium">Guest Lunch</label>
+                <label className="text-nex-muted mb-1 block text-xs font-medium">
+                  {t('dashboard.guests')} ({t('dashboard.lunch')})
+                </label>
                 <input
                   type="number"
                   min={0}
@@ -556,7 +558,7 @@ export default function MealsPage() {
               </div>
               <div>
                 <label className="text-nex-muted mb-1 block text-xs font-medium">
-                  Guest Dinner
+                  {t('dashboard.guests')} ({t('dashboard.dinner')})
                 </label>
                 <input
                   type="number"
@@ -575,14 +577,14 @@ export default function MealsPage() {
                 onClick={() => setOverrideOpen(false)}
                 className="rounded-btn border-nex-border bg-nex-surface text-nex-text hover:bg-nex-hover flex-1 border px-4 py-2 text-sm font-medium"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={ovSaving || !ovUserId}
                 className="nex-btn-primary flex-1 text-sm disabled:opacity-50"
               >
-                {ovSaving ? 'Saving…' : 'Save Override'}
+                {ovSaving ? t('common.saving') : t('common.save')}
               </button>
             </div>
           </form>

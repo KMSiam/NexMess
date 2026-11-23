@@ -107,28 +107,28 @@ export default function LandingPage() {
             </span>
           </div>
           <h1 className="text-nex-text text-4xl leading-tight font-extrabold tracking-tight sm:text-5xl sm:leading-none lg:text-6xl">
-            Smart Mess Management for{' '}
+            {isBangla ? 'মেস ও ব্যাচেলর জীবনের ' : 'Smart Mess Management for '}
             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Shared Living
+              {isBangla ? 'স্মার্ট ডিজিটাল সমাধান' : 'Shared Living'}
             </span>
           </h1>
           <p className="text-nex-muted text-base leading-relaxed sm:text-lg">
-            Track daily meals, split shared expenses, schedule bazaar duties, and connect with your
-            roommates in real-time. Beautifully designed, fully offline-ready, and mobile-friendly
-            mess management app.
+            {isBangla
+              ? 'দৈনিক মিল হিসাব, বাজার খরচ বণ্টন, মেম্বারদের জমার খাতা এবং রুমমেটদের সাথে মেস পরিচালনা করার আধুনিক ও নির্ভরযোগ্য প্ল্যাটফর্ম। পরিচ্ছন্ন বাংলা ও অফলাইন সুবিধা সহ।'
+              : 'Track daily meals, split shared expenses, schedule bazaar duties, and connect with your roommates in real-time. Beautifully designed, fully offline-ready, and mobile-friendly mess management app.'}
           </p>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
             <Link
               to="/register"
               className="nex-btn-primary flex w-full items-center justify-center gap-2 px-6 py-3 font-semibold sm:w-auto"
             >
-              Create a Mess <ArrowRight className="h-4 w-4" />
+              {isBangla ? 'নতুন মেস খুলুন' : 'Create a Mess'} <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               to="/login"
               className="nex-btn-secondary flex w-full items-center justify-center px-6 py-3 font-semibold sm:w-auto"
             >
-              Join Existing Mess
+              {isBangla ? 'মেসে যোগ দিন' : 'Join Existing Mess'}
             </Link>
           </div>
         </div>
@@ -153,7 +153,9 @@ export default function LandingPage() {
             {/* Real Stats Grid Preview */}
             <div className="grid grid-cols-2 gap-3 mb-4 sm:grid-cols-4">
               <div className="rounded-xl border border-nex-border bg-nex-surface p-3 text-center shadow-sm">
-                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">My Meals</p>
+                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">
+                  {isBangla ? 'আমার মিল' : 'My Meals'}
+                </p>
                 <motion.p
                   key={totalMeals}
                   initial={{ scale: 1.1 }}
@@ -164,7 +166,9 @@ export default function LandingPage() {
                 </motion.p>
               </div>
               <div className="rounded-xl border border-nex-border bg-nex-surface p-3 text-center shadow-sm">
-                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">Balance</p>
+                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">
+                  {isBangla ? 'ব্যালেন্স' : 'Balance'}
+                </p>
                 <motion.p
                   key={balance}
                   initial={{ scale: 1.1 }}
@@ -175,11 +179,15 @@ export default function LandingPage() {
                 </motion.p>
               </div>
               <div className="rounded-xl border border-nex-border bg-nex-surface p-3 text-center shadow-sm">
-                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">Meal Rate</p>
+                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">
+                  {isBangla ? 'মিল রেট' : 'Meal Rate'}
+                </p>
                 <p className="text-nex-text mt-0.5 text-sm font-bold">৳ {mealRate}</p>
               </div>
               <div className="rounded-xl border border-nex-border bg-nex-surface p-3 text-center shadow-sm">
-                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">Mess Spent</p>
+                <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">
+                  {isBangla ? 'মেসের খরচ' : 'Mess Spent'}
+                </p>
                 <p className="text-amber-600 mt-0.5 text-sm font-bold">৳ {messTotalSpent}</p>
               </div>
             </div>
@@ -187,13 +195,15 @@ export default function LandingPage() {
             {/* Meal Selector Preview */}
             <div className="rounded-xl border border-nex-border bg-nex-bg/50 p-4">
               <div className="mb-3.5 flex items-center justify-between">
-                <h4 className="text-nex-text text-xs font-semibold uppercase tracking-wider">My Meals</h4>
+                <h4 className="text-nex-text text-xs font-semibold uppercase tracking-wider">
+                  {isBangla ? 'আমার মিল' : 'My Meals'}
+                </h4>
                 <div className="bg-nex-border/50 rounded-md flex p-0.5">
                   <span className="bg-white text-nex-text rounded px-2 py-0.5 text-[10px] font-semibold shadow-xs">
-                    Today
+                    {isBangla ? 'আজ' : 'Today'}
                   </span>
                   <span className="text-nex-muted rounded px-2 py-0.5 text-[10px] font-medium opacity-60">
-                    Tomorrow
+                    {isBangla ? 'আগামীকাল' : 'Tomorrow'}
                   </span>
                 </div>
               </div>
@@ -210,12 +220,14 @@ export default function LandingPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-lg">☀️</span>
                       <div>
-                        <p className="text-nex-text text-[11px] font-semibold">Lunch</p>
+                        <p className="text-nex-text text-[11px] font-semibold">
+                          {isBangla ? 'দুপুর' : 'Lunch'}
+                        </p>
                         <p
                           className={`text-[9px] font-medium ${lunchActive ? 'text-emerald-600 font-bold' : 'text-nex-muted'
                             }`}
                         >
-                          {lunchActive ? 'Eating' : 'Skipping'}
+                          {isBangla ? (lunchActive ? 'খাচ্ছি' : 'বন্ধ') : (lunchActive ? 'Eating' : 'Skipping')}
                         </p>
                       </div>
                     </div>
@@ -232,7 +244,9 @@ export default function LandingPage() {
                     </button>
                   </div>
                   <div className="flex items-center justify-between border-t border-slate-100/50 pt-2.5">
-                    <p className="text-[10px] font-medium text-slate-500">Guests</p>
+                    <p className="text-[10px] font-medium text-slate-500">
+                      {isBangla ? 'মেহমান' : 'Guests'}
+                    </p>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => updateLunchGuests(-1)}
@@ -263,12 +277,14 @@ export default function LandingPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-lg">🌙</span>
                       <div>
-                        <p className="text-nex-text text-[11px] font-semibold">Dinner</p>
+                        <p className="text-nex-text text-[11px] font-semibold">
+                          {isBangla ? 'রাত' : 'Dinner'}
+                        </p>
                         <p
                           className={`text-[9px] font-medium ${dinnerActive ? 'text-emerald-600 font-bold' : 'text-nex-muted'
                             }`}
                         >
-                          {dinnerActive ? 'Eating' : 'Skipping'}
+                          {isBangla ? (dinnerActive ? 'খাচ্ছি' : 'বন্ধ') : (dinnerActive ? 'Eating' : 'Skipping')}
                         </p>
                       </div>
                     </div>
@@ -285,7 +301,9 @@ export default function LandingPage() {
                     </button>
                   </div>
                   <div className="flex items-center justify-between border-t border-slate-100/50 pt-2.5">
-                    <p className="text-[10px] font-medium text-slate-500">Guests</p>
+                    <p className="text-[10px] font-medium text-slate-500">
+                      {isBangla ? 'মেহমান' : 'Guests'}
+                    </p>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => updateDinnerGuests(-1)}
@@ -310,7 +328,7 @@ export default function LandingPage() {
             {/* Simulated Live Activity Log */}
             <div className="mt-4 rounded-xl border border-nex-border p-4 bg-nex-bg/20">
               <h4 className="text-nex-text text-[10px] font-bold uppercase tracking-wider mb-2">
-                Recent Activity
+                {isBangla ? 'সাম্প্রতিক কার্যক্রম' : 'Recent Activity'}
               </h4>
               <div className="flex flex-col gap-2 min-h-[90px]">
                 {activities.map((act) => (
@@ -339,11 +357,12 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl space-y-12 px-6 sm:px-12">
           <div className="mx-auto max-w-xl space-y-3 text-center">
             <h2 className="text-nex-text text-3xl font-extrabold tracking-tight">
-              Features Built for messy groups
+              {isBangla ? 'মেস পরিচালনার শক্তিশালী সুবিধাসমূহ' : 'Features Built for messy groups'}
             </h2>
             <p className="text-nex-muted text-sm">
-              Coordinate and automate all house chores, kitchen budgeting, and roommates
-              communications.
+              {isBangla
+                ? 'বাজার খরচ বণ্টন, মিল কাউন্ট, রুটিন এবং মেম্বারদের সাথে স্বচ্ছ যোগাযোগ এক জায়গায়।'
+                : 'Coordinate and automate all house chores, kitchen budgeting, and roommates communications.'}
             </p>
           </div>
 
@@ -352,10 +371,13 @@ export default function LandingPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
                 <Calendar className="h-5 w-5" />
               </div>
-              <h3 className="text-nex-text font-bold">Meal Calendar</h3>
+              <h3 className="text-nex-text font-bold">
+                {isBangla ? 'মিল খাতা ও ক্যালেন্ডার' : 'Meal Calendar'}
+              </h3>
               <p className="text-nex-muted flex-1 text-xs leading-relaxed">
-                Toggle daily Lunch/Dinner counts in a monthly grid layout. Features strict cut-off
-                timers to lock menu planning.
+                {isBangla
+                  ? 'মাসিক ক্যালেন্ডারে দুপুর ও রাতের মিল চালু বা বন্ধ করুন। নির্ধারিত কাট-অফ টাইমে স্বয়ংক্রিয় লক।'
+                  : 'Toggle daily Lunch/Dinner counts in a monthly grid layout. Features strict cut-off timers to lock menu planning.'}
               </p>
             </div>
 
@@ -363,10 +385,13 @@ export default function LandingPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
                 <Wallet className="h-5 w-5" />
               </div>
-              <h3 className="text-nex-text font-bold">Finance Tracker</h3>
+              <h3 className="text-nex-text font-bold">
+                {isBangla ? 'মেসের হিসাব-নিকাশ' : 'Finance Tracker'}
+              </h3>
               <p className="text-nex-muted flex-1 text-xs leading-relaxed">
-                Log deposits and bazaar expenses. Auto-calculates individual meal rates, utility
-                splits, and settlement transfers.
+                {isBangla
+                  ? 'বাজার খরচ ও মেম্বারদের জমা রেকর্ড। স্বয়ংক্রিয় মিল রেট ক্যালকুলেশন ও সহজ লেনদেন নিষ্পত্তি।'
+                  : 'Log deposits and bazaar expenses. Auto-calculates individual meal rates, utility splits, and settlement transfers.'}
               </p>
             </div>
 
@@ -374,10 +399,13 @@ export default function LandingPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
                 <ShoppingBag className="h-5 w-5" />
               </div>
-              <h3 className="text-nex-text font-bold">Bazaar Scheduler</h3>
+              <h3 className="text-nex-text font-bold">
+                {isBangla ? 'বাজারের শিডিউল' : 'Bazaar Scheduler'}
+              </h3>
               <p className="text-nex-muted flex-1 text-xs leading-relaxed">
-                Schedule market duties. Auto-rotates duty assignments across roommates on a weekly
-                schedule.
+                {isBangla
+                  ? 'সাপ্তাহিক বাজার করার দায়িত্ব বণ্টন। মেম্বারদের মধ্যে স্বয়ংক্রিয় রোটেশন ও রিমাইন্ডার।'
+                  : 'Schedule market duties. Auto-rotates duty assignments across roommates on a weekly schedule.'}
               </p>
             </div>
 
@@ -385,10 +413,13 @@ export default function LandingPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600">
                 <MessageSquare className="h-5 w-5" />
               </div>
-              <h3 className="text-nex-text font-bold">Group Chat</h3>
+              <h3 className="text-nex-text font-bold">
+                {isBangla ? 'মেস গ্রুপ চ্যাট' : 'Group Chat'}
+              </h3>
               <p className="text-nex-muted flex-1 text-xs leading-relaxed">
-                Integrated messaging workspace with inline image sharing, reactions, and automated
-                status logs.
+                {isBangla
+                  ? 'মেসের সবার সাথে যোগাযোগ, ভাউচার/মেমোর ছবি শেয়ার, রিঅ্যাকশন এবং নোটিশ ঘোষণা।'
+                  : 'Integrated messaging workspace with inline image sharing, reactions, and automated status logs.'}
               </p>
             </div>
 
@@ -396,9 +427,13 @@ export default function LandingPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600">
                 <Sparkles className="h-5 w-5 animate-pulse" />
               </div>
-              <h3 className="text-nex-text font-bold">NexMessAI</h3>
+              <h3 className="text-nex-text font-bold">
+                {isBangla ? 'নেক্সমেস এআই' : 'NexMessAI'}
+              </h3>
               <p className="text-nex-muted flex-1 text-xs leading-relaxed">
-                Integrated smart AI assistant for automated grocery lists, location-aware market deals, smart pricing forecasts, and diet feedback.
+                {isBangla
+                  ? 'দৈনিক বাজার দর যাচাই, রান্নার রেসিপি পরিকল্পনা এবং বাজেট অপ্টিমাইজেশনের স্মার্ট এআই সহকারী।'
+                  : 'Integrated smart AI assistant for automated grocery lists, location-aware market deals, smart pricing forecasts, and diet feedback.'}
               </p>
             </div>
           </div>

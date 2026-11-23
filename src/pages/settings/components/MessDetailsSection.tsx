@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Copy, CheckCircle2, Save, MapPin, Info, Camera } from 'lucide-react'
 import toast from 'react-hot-toast'
 import type { Mess } from '../../../types/database'
@@ -18,6 +19,7 @@ export default function MessDetailsSection({
   currentMess,
   isManager = false,
 }: MessDetailsSectionProps) {
+  const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [location, setLocation] = useState(currentMess?.location || '')
@@ -118,13 +120,13 @@ export default function MessDetailsSection({
   return (
     <div className="nex-card space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-nex-text text-lg font-semibold">Mess Details</h3>
+        <h3 className="text-nex-text text-lg font-semibold">{t('settings.messSection.title')}</h3>
         {isManager && !isEditing && (
           <button
             onClick={() => setIsEditing(true)}
             className="text-nex-primary text-sm font-medium transition-all hover:underline"
           >
-            Edit Details
+            {t('common.edit')}
           </button>
         )}
       </div>
@@ -140,7 +142,7 @@ export default function MessDetailsSection({
             {isEditing && isManager && (
               <label className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                 <Camera className="h-4 w-4 text-white" />
-                <span className="mt-0.5 text-[8px] text-white/90">{uploading ? '...' : 'Upload'}</span>
+                <span className="mt-0.5 text-[8px] text-white/90">{uploading ? '...' : t('common.upload')}</span>
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
@@ -162,7 +164,7 @@ export default function MessDetailsSection({
           ) : (
             <Copy className="h-4 w-4" />
           )}
-          {copied ? 'Copied' : 'Copy Code'}
+          {copied ? t('common.copied') : t('settings.messSection.copy')}
         </button>
       </div>
 
@@ -170,7 +172,7 @@ export default function MessDetailsSection({
         <div>
           <label className="text-nex-text mb-1.5 flex items-center gap-2 text-sm font-medium">
             <MapPin className="text-nex-muted h-4 w-4" />
-            Location
+            {t('settings.messSection.address')}
           </label>
           {isEditing ? (
             <input
@@ -185,7 +187,7 @@ export default function MessDetailsSection({
               {location ? (
                 <span className="text-nex-text">{location}</span>
               ) : (
-                'No location provided yet.'
+                '—'
               )}
             </div>
           )}
@@ -194,7 +196,7 @@ export default function MessDetailsSection({
         <div>
           <label className="text-nex-text mb-1.5 flex items-center gap-2 text-sm font-medium">
             <Info className="text-nex-muted h-4 w-4" />
-            Rules & Information
+            {t('settings.messSection.rules')}
           </label>
           {isEditing ? (
             <textarea
@@ -209,7 +211,7 @@ export default function MessDetailsSection({
               {rules ? (
                 <span className="text-nex-text">{rules}</span>
               ) : (
-                'No rules or info provided yet.'
+                '—'
               )}
             </div>
           )}
@@ -228,7 +230,7 @@ export default function MessDetailsSection({
             className="nex-btn-secondary"
             disabled={isSaving}
           >
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             onClick={handleSave}
@@ -240,7 +242,7 @@ export default function MessDetailsSection({
             ) : (
               <Save className="h-4 w-4" />
             )}
-            Save Changes
+            {t('settings.messSection.save')}
           </button>
         </div>
       )}

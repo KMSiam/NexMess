@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, Send, MessageCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../lib/supabase'
@@ -12,6 +13,7 @@ interface SupportModalProps {
 }
 
 export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
@@ -101,7 +103,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
                 <div className="bg-nex-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
                   <MessageCircle className="text-nex-primary h-4 w-4" />
                 </div>
-                <h3 className="text-nex-text text-sm font-bold">Support & Contact</h3>
+                <h3 className="text-nex-text text-sm font-bold">{t('support.title')}</h3>
               </div>
               <button
                 onClick={onClose}
@@ -114,13 +116,13 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
             <form onSubmit={handleSubmit} className="space-y-4 p-4">
               <div>
                 <label className="text-nex-muted mb-1 ml-1 block text-xs font-semibold">
-                  Name (Optional)
+                  {t('support.nameLabel')}
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
+                  placeholder={t('support.namePlaceholder')}
                   maxLength={100}
                   className="bg-nex-bg border-nex-border text-nex-text focus:ring-nex-primary/50 w-full rounded-xl border px-3 py-2 text-sm transition-all focus:ring-2 focus:outline-none"
                   disabled={isSubmitting}
@@ -128,13 +130,13 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
               </div>
               <div>
                 <label className="text-nex-muted mb-1 ml-1 block text-xs font-semibold">
-                  Email (Optional)
+                  {t('support.emailLabel')}
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="john@example.com"
+                  placeholder={t('support.emailPlaceholder')}
                   maxLength={255}
                   className="bg-nex-bg border-nex-border text-nex-text focus:ring-nex-primary/50 w-full rounded-xl border px-3 py-2 text-sm transition-all focus:ring-2 focus:outline-none"
                   disabled={isSubmitting}
@@ -142,12 +144,12 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
               </div>
               <div>
                 <label className="text-nex-muted mb-1 ml-1 block text-xs font-semibold">
-                  Message
+                  {t('support.msgLabel')}
                 </label>
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="How can we help?"
+                  placeholder={t('support.msgPlaceholder')}
                   required
                   maxLength={2000}
                   rows={4}
@@ -164,7 +166,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 ) : (
                   <>
-                    <Send className="h-4 w-4" /> Send Message
+                    <Send className="h-4 w-4" /> {t('support.send')}
                   </>
                 )}
               </button>

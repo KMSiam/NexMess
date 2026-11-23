@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Bell, BellOff, AlertTriangle, HelpCircle, ShieldAlert } from 'lucide-react'
 
 interface PushNotificationSectionProps {
@@ -12,6 +13,7 @@ export default function PushNotificationSection({
   pushLoading,
   onToggle,
 }: PushNotificationSectionProps) {
+  const { t } = useTranslation()
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('default')
   const [isIOS, setIsIOS] = useState(false)
   const [isStandalone, setIsStandalone] = useState(true)
@@ -37,17 +39,17 @@ export default function PushNotificationSection({
   }, [pushEnabled])
 
   // Determine the status text and color
-  let statusText = 'Disabled'
+  let statusText = t('settings.pushSection.disabled')
   let statusColor = 'text-nex-muted bg-nex-muted/10 border-nex-muted/20'
 
   if (permission === 'unsupported') {
-    statusText = 'Unsupported Device'
+    statusText = t('settings.pushSection.unsupported')
     statusColor = 'text-red-500 bg-red-500/10 border-red-500/20'
   } else if (permission === 'denied') {
-    statusText = 'Blocked by Browser'
+    statusText = t('settings.pushSection.blocked')
     statusColor = 'text-red-500 bg-red-500/10 border-red-500/20'
   } else if (pushEnabled) {
-    statusText = 'Active'
+    statusText = t('settings.pushSection.active')
     statusColor = 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20'
   }
 
@@ -59,7 +61,7 @@ export default function PushNotificationSection({
       <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <div className="mb-1.5 flex items-center gap-2">
-            <h3 className="text-nex-text text-lg font-semibold">Push Notifications</h3>
+            <h3 className="text-nex-text text-lg font-semibold">{t('settings.pushSection.title')}</h3>
             <span
               className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusColor}`}
             >
@@ -67,7 +69,7 @@ export default function PushNotificationSection({
             </span>
           </div>
           <p className="text-nex-muted text-xs">
-            Stay updated with real-time alerts for meals, bazaar duties, expenses, and mess notices.
+            {t('settings.pushSection.desc')}
           </p>
         </div>
 
@@ -103,12 +105,9 @@ export default function PushNotificationSection({
           <div className="flex gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-amber-500">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
             <div>
-              <p className="text-xs font-semibold">iOS Setup Required</p>
+              <p className="text-xs font-semibold">{t('settings.pushSection.iosTitle')}</p>
               <p className="text-nex-muted mt-1 text-[11px] leading-relaxed">
-                Apple requires web apps to be installed as a PWA to use notifications. Tap the{' '}
-                <span className="font-semibold text-amber-500">Share</span> button in Safari, select
-                <span className="font-semibold text-amber-500">"Add to Home Screen"</span>, and open
-                NexMess from your home screen to enable push alerts.
+                {t('settings.pushSection.iosDesc')}
               </p>
             </div>
           </div>
@@ -119,11 +118,9 @@ export default function PushNotificationSection({
           <div className="flex gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-red-500">
             <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
             <div>
-              <p className="text-xs font-semibold">Permissions Blocked</p>
+              <p className="text-xs font-semibold">{t('settings.pushSection.blockedTitle')}</p>
               <p className="text-nex-muted mt-1 text-[11px] leading-relaxed">
-                Notifications have been blocked in your browser settings. To receive alerts, click
-                the site settings icon (lock/sliders) in your browser address bar and change
-                notifications to <span className="font-semibold text-red-500">Allow</span>.
+                {t('settings.pushSection.blockedDesc')}
               </p>
             </div>
           </div>
@@ -133,8 +130,7 @@ export default function PushNotificationSection({
         <div className="text-nex-muted flex items-center gap-1.5 px-1 text-[10px]">
           <HelpCircle className="h-3.5 w-3.5" />
           <span>
-            Web push is device-specific. You need to enable it on each device you want to receive
-            alerts.
+            {t('settings.pushSection.deviceNote')}
           </span>
         </div>
       </div>

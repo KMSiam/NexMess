@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../stores/authStore'
 import { supabase } from '../lib/supabase'
 import { Notification } from '../types/database'
@@ -10,6 +11,7 @@ interface NotificationBellProps {
 }
 
 export default function NotificationBell({ className }: NotificationBellProps) {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [showPanel, setShowPanel] = useState(false)
@@ -121,14 +123,14 @@ export default function NotificationBell({ className }: NotificationBellProps) {
         <div className="nex-card animate-slide-up absolute top-12 right-0 z-50 flex max-h-[70vh] w-80 flex-col overflow-hidden shadow-lg sm:w-96">
           {/* Header */}
           <div className="border-nex-border flex items-center justify-between border-b px-4 py-3">
-            <h3 className="text-nex-text text-sm font-semibold">Notifications</h3>
+            <h3 className="text-nex-text text-sm font-semibold">{t('notifications.title')}</h3>
             <div className="flex gap-2">
               {unreadCount > 0 && (
                 <button
                   onClick={markAllRead}
                   className="text-nex-primary flex items-center gap-1 text-xs hover:underline"
                 >
-                  <CheckCheck className="h-3 w-3" /> Mark all read
+                  <CheckCheck className="h-3 w-3" /> {t('notifications.markAll')}
                 </button>
               )}
               <button
@@ -145,7 +147,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
             {notifications.length === 0 ? (
               <div className="p-8 text-center">
                 <Bell className="text-nex-muted/30 mx-auto mb-2 h-8 w-8" />
-                <p className="text-nex-muted text-sm">No notifications yet</p>
+                <p className="text-nex-muted text-sm">{t('notifications.empty')}</p>
               </div>
             ) : (
               notifications.map((n) => (

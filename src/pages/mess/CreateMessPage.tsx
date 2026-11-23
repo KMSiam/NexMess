@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { ArrowRight, Home } from 'lucide-react'
@@ -8,6 +9,7 @@ import { createMessSchema, validateForm } from '../../lib/validation/schemas'
 import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function CreateMessPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const { createMess } = useMessStore()
@@ -51,18 +53,18 @@ export default function CreateMessPage() {
         <div className="rounded-card bg-nex-primary-light mx-auto mb-6 flex h-14 w-14 items-center justify-center">
           <Home className="text-nex-primary h-7 w-7" />
         </div>
-        <h1 className="text-nex-text mb-1 text-center text-2xl font-bold">Create a Mess</h1>
-        <p className="text-nex-muted mb-8 text-center">Start managing your shared living space</p>
+        <h1 className="text-nex-text mb-1 text-center text-2xl font-bold">{t('mess.create.title')}</h1>
+        <p className="text-nex-muted mb-8 text-center">{t('mess.create.subtitle')}</p>
 
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="text-nex-text mb-1.5 block text-sm font-medium">Mess Name</label>
+            <label className="text-nex-text mb-1.5 block text-sm font-medium">{t('mess.create.nameLabel')}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="nex-input"
-              placeholder="e.g., Sunrise Mess"
+              placeholder={t('mess.create.namePlaceholder')}
               required
               maxLength={60}
               id="mess-name-input"
@@ -78,7 +80,7 @@ export default function CreateMessPage() {
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               <>
-                Create & Continue <ArrowRight className="h-4 w-4" />
+                {t('mess.create.submit')} <ArrowRight className="h-4 w-4" />
               </>
             )}
           </button>

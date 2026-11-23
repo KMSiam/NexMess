@@ -270,7 +270,7 @@ export default function DashboardPage() {
                   }}
                   className="rounded-xl bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-500 hover:text-white"
                 >
-                  Cancel Request
+                  {t('common.cancel')}
                 </button>
               </div>
             ))}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { Lock, Eye, EyeOff, ArrowRight, AlertTriangle } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
@@ -9,6 +10,7 @@ import { updatePasswordSchema, validateForm } from '../../lib/validation/schemas
 import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function UpdatePasswordPage() {
+  const { t } = useTranslation()
   useSEO({
     title: 'Update Password',
     description: 'Update your NexMess account password.',
@@ -96,9 +98,9 @@ export default function UpdatePasswordPage() {
             </div>
             <span className="text-3xl font-bold">NexMess</span>
           </div>
-          <h2 className="mb-4 text-4xl leading-tight font-bold">Secure your account</h2>
+          <h2 className="mb-4 text-4xl leading-tight font-bold">{t('auth.updatePassword.heroTitle')}</h2>
           <p className="text-lg leading-relaxed text-[#EDF2EE]">
-            Please enter your new password below.
+            {t('auth.updatePassword.heroDesc')}
           </p>
         </div>
       </div>
@@ -112,8 +114,8 @@ export default function UpdatePasswordPage() {
             <span className="text-nex-text text-2xl font-bold">NexMess</span>
           </div>
 
-          <h1 className="text-nex-text mb-1 text-2xl font-bold">Set new password</h1>
-          <p className="text-nex-muted mb-8">Almost done! Enter your new secure password.</p>
+          <h1 className="text-nex-text mb-1 text-2xl font-bold">{t('auth.updatePassword.title')}</h1>
+          <p className="text-nex-muted mb-8">{t('auth.updatePassword.subtitle')}</p>
 
           {invalid ? (
             <div className="mt-4 space-y-4">
@@ -121,10 +123,10 @@ export default function UpdatePasswordPage() {
                 <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
                 <div>
                   <p className="text-sm font-medium text-red-800 dark:text-red-300">
-                    This reset link is invalid or has expired.
+                    {t('auth.updatePassword.expiredTitle')}
                   </p>
                   <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-                    Password reset links expire after 1 hour. Please request a new one.
+                    {t('auth.updatePassword.expiredDesc')}
                   </p>
                 </div>
               </div>
@@ -132,19 +134,19 @@ export default function UpdatePasswordPage() {
                 to="/forgot-password"
                 className="nex-btn-primary flex w-full items-center justify-center gap-2 py-3"
               >
-                Request New Reset Link <ArrowRight className="h-4 w-4" />
+                {t('auth.updatePassword.requestNew')} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           ) : !ready ? (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="border-nex-primary h-8 w-8 animate-spin rounded-full border-3 border-t-transparent" />
-              <p className="text-nex-muted text-sm">Verifying your reset link...</p>
+              <p className="text-nex-muted text-sm">{t('auth.updatePassword.verifying')}</p>
             </div>
           ) : (
             <form onSubmit={handleUpdate} className="space-y-4">
               <div>
                 <label className="text-nex-text mb-1.5 block text-sm font-medium">
-                  New Password
+                  {t('auth.updatePassword.newPassword')}
                 </label>
                 <div className="relative">
                   <Lock className="text-nex-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
@@ -168,7 +170,7 @@ export default function UpdatePasswordPage() {
 
               <div>
                 <label className="text-nex-text mb-1.5 block text-sm font-medium">
-                  Confirm New Password
+                  {t('auth.updatePassword.confirmPassword')}
                 </label>
                 <div className="relative">
                   <Lock className="text-nex-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
@@ -192,7 +194,7 @@ export default function UpdatePasswordPage() {
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 ) : (
                   <>
-                    Update Password <ArrowRight className="h-4 w-4" />
+                    {t('auth.updatePassword.submit')} <ArrowRight className="h-4 w-4" />
                   </>
                 )}
               </button>
