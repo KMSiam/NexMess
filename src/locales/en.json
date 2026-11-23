@@ -1,0 +1,182 @@
+{
+  "common": {
+    "appName": "NexMess",
+    "tagline": "Smart Mess Management",
+    "dashboard": "Dashboard",
+    "meals": "Meals",
+    "nexmessAi": "NexMessAI",
+    "finance": "Finance",
+    "market": "Market & Routine",
+    "chat": "Chat",
+    "settings": "Settings",
+    "more": "More",
+    "signOut": "Sign Out",
+    "signingOut": "Signing out...",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "loading": "Loading...",
+    "language": "Language",
+    "english": "English",
+    "bengali": "বাংলা",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "verified": "Verified Member",
+    "all": "All",
+    "search": "Search...",
+    "noData": "No data found",
+    "taka": "৳"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "meals": "Meals",
+    "nexmessAi": "NexMessAI",
+    "finance": "Finance",
+    "market": "Market & Routine",
+    "chat": "Chat",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "currentMess": "Current Mess",
+    "uniqueCode": "Unique Code",
+    "todayMeals": "Today's Meals",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "guests": "Guests",
+    "guestMeals": "Guest meals",
+    "mealSelector": "Quick Meal Toggle",
+    "autoLockNotice": "Meals lock automatically at daily cut-off time",
+    "lunchCutoff": "Lunch locks at 10:00 AM",
+    "dinnerCutoff": "Dinner locks at 4:00 PM",
+    "locked": "Locked",
+    "open": "Open",
+    "stats": {
+      "totalMeals": "Total Meals",
+      "mealRate": "Meal Rate",
+      "myBalance": "My Balance",
+      "messBalance": "Mess Treasury",
+      "myDeposit": "My Deposit",
+      "myCost": "My Cost",
+      "activeMembers": "Active Members"
+    },
+    "cookSummary": "Cook's Summary",
+    "cookSummaryDesc": "Total meal count for preparation today",
+    "bazaarSchedule": "Bazaar Schedule",
+    "noShopperToday": "No one assigned today",
+    "noticeBoard": "Notice Board",
+    "noNotices": "No notices right now",
+    "recentActivity": "Recent Activity",
+    "noActivity": "No recent activities",
+    "emergencyContacts": "Emergency Contacts",
+    "noEmergencyContacts": "No emergency contacts listed"
+  },
+  "meals": {
+    "title": "Daily Meal Tracking",
+    "subtitle": "Track and manage your lunch and dinner meal count",
+    "lunchStatus": "Lunch Status",
+    "dinnerStatus": "Dinner Status",
+    "on": "ON",
+    "off": "OFF",
+    "addGuest": "Add Guest",
+    "removeGuest": "Remove Guest",
+    "cutoffCountdown": "Cut-off in",
+    "cutoffPassed": "Cut-off time has passed for this meal",
+    "monthlyLog": "Monthly Meal Log",
+    "member": "Member",
+    "total": "Total",
+    "legendActive": "Meal Active (1)",
+    "legendInactive": "Meal Off (0)",
+    "legendGuest": "Guest Included (+N)"
+  },
+  "finance": {
+    "title": "Mess Financial Suite",
+    "subtitle": "Complete transparency for shared mess deposits, expenses & settlements",
+    "tabs": {
+      "summary": "Summary",
+      "deposits": "Deposits",
+      "expenses": "Bazaar Expenses",
+      "fixedCosts": "Fixed Costs",
+      "history": "History",
+      "settleUp": "Settle Up"
+    },
+    "cards": {
+      "totalBazaar": "Total Bazaar Spent",
+      "totalFixed": "Total Fixed Costs",
+      "totalDeposit": "Total Deposits Collected",
+      "treasuryCash": "Cash in Treasury",
+      "mealRate": "Current Meal Rate",
+      "netBalance": "Net Balance",
+      "due": "Due (To Pay)",
+      "advance": "Advance (To Receive)"
+    },
+    "actions": {
+      "addDeposit": "Add Deposit",
+      "addExpense": "Add Bazaar Expense",
+      "addFixedCost": "Add Fixed Cost",
+      "downloadPdf": "Download Report (PDF)",
+      "settleAll": "Clear All Settlements"
+    },
+    "settlement": {
+      "title": "Smart Debt Settlement",
+      "description": "Greedy clearing algorithm calculates minimum peer-to-peer transactions required to balance the mess.",
+      "owes": "owes",
+      "to": "to",
+      "allSettled": "All accounts are balanced! No pending debts."
+    }
+  },
+  "market": {
+    "title": "Market & Kitchen Routine",
+    "subtitle": "Bazaar schedule, weekly cooking menu, and AI market assistance",
+    "tabs": {
+      "schedule": "Bazaar Duty",
+      "routine": "Weekly Menu",
+      "ai": "NexMess AI"
+    },
+    "assignBazaar": "Assign Bazaar Shopper",
+    "date": "Date",
+    "assignedTo": "Assigned Member",
+    "notes": "Items / Budget Notes"
+  },
+  "chat": {
+    "title": "Mess Communication",
+    "general": "General Chat",
+    "notices": "Official Notices",
+    "typeMessage": "Type a message...",
+    "send": "Send"
+  },
+  "settings": {
+    "title": "Settings",
+    "tabs": {
+      "profile": "Profile",
+      "members": "Members",
+      "mess": "Mess Info",
+      "notifications": "Notifications",
+      "preferences": "Language & Theme",
+      "danger": "Danger Zone"
+    },
+    "language": {
+      "title": "Language & Typography",
+      "description": "Choose your preferred display language. Bengali uses customized, legible Hind Siliguri typography.",
+      "select": "Select Language",
+      "enName": "English (US)",
+      "bnName": "বাংলা (Bengali - Hind Siliguri)"
+    },
+    "theme": {
+      "title": "Interface Theme",
+      "description": "Switch between dark and light themes.",
+      "toggle": "Toggle Theme"
+    },
+    "dangerZone": {
+      "title": "Danger Zone",
+      "leaveMess": "Leave Mess",
+      "deleteMess": "Delete Mess",
+      "deleteAccount": "Delete Account"
+    }
+  }
+}

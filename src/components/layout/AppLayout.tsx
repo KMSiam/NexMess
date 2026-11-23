@@ -2,6 +2,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { flushSync } from 'react-dom'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -24,21 +25,13 @@ import {
   Sparkles,
 } from 'lucide-react'
 import NotificationBell from '../NotificationBell'
+import LanguageSwitcher from '../LanguageSwitcher'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
 import { getInitials } from '../../lib/utils'
 import logoIcon from '../../assets/logo-icon.svg'
 
-const navItems = [
-  { to: '/dashboard', icon: Home, label: 'Dashboard' },
-  { to: '/meals', icon: Utensils, label: 'Meals' },
-  { to: '/nexmess-ai', icon: Sparkles, label: 'NexMessAI' },
-  { to: '/finance', icon: Wallet, label: 'Finance' },
-  { to: '/market', icon: ShoppingBag, label: 'Market & Routine' },
-  { to: '/chat', icon: MessageSquare, label: 'Chat' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
-]
-
 export default function AppLayout() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { profile, signOut } = useAuthStore()
@@ -49,17 +42,17 @@ export default function AppLayout() {
 
   const sidebarItems = currentMess
     ? [
-        { to: '/dashboard', icon: Home, label: 'Dashboard' },
-        { to: '/meals', icon: Utensils, label: 'Meals' },
-        { to: '/nexmess-ai', icon: Sparkles, label: 'NexMessAI' },
-        { to: '/finance', icon: Wallet, label: 'Finance' },
-        { to: '/market', icon: ShoppingBag, label: 'Market & Routine' },
-        { to: '/chat', icon: MessageSquare, label: 'Chat' },
-        { to: '/settings', icon: Settings, label: 'Settings' },
+        { to: '/dashboard', icon: Home, label: t('nav.dashboard') },
+        { to: '/meals', icon: Utensils, label: t('nav.meals') },
+        { to: '/nexmess-ai', icon: Sparkles, label: t('nav.nexmessAi') },
+        { to: '/finance', icon: Wallet, label: t('nav.finance') },
+        { to: '/market', icon: ShoppingBag, label: t('nav.market') },
+        { to: '/chat', icon: MessageSquare, label: t('nav.chat') },
+        { to: '/settings', icon: Settings, label: t('nav.settings') },
       ]
     : [
-        { to: '/dashboard', icon: Home, label: 'Dashboard' },
-        { to: '/settings', icon: Settings, label: 'Settings' },
+        { to: '/dashboard', icon: Home, label: t('nav.dashboard') },
+        { to: '/settings', icon: Settings, label: t('nav.settings') },
       ]
 
   const [isDark, setIsDark] = useState(() => {
@@ -200,7 +193,7 @@ export default function AppLayout() {
                   disabled={signingOut}
                   className="text-nex-muted hover:text-nex-danger flex items-center gap-1 text-xs transition-colors disabled:opacity-50"
                 >
-                  <LogOut className="h-3 w-3" /> {signingOut ? 'Signing out...' : 'Sign out'}
+                  <LogOut className="h-3 w-3" /> {signingOut ? t('common.signingOut') : t('common.signOut')}
                 </button>
               </div>
             )}
@@ -271,7 +264,8 @@ export default function AppLayout() {
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <LanguageSwitcher />
               <button
                 onClick={toggleTheme}
                 className="rounded-btn hover:bg-nex-hover text-nex-muted p-2 transition-colors"
@@ -327,13 +321,24 @@ function MobileBottomNav({
   signingOut: boolean
   hasMess: boolean
 }) {
+  const { t } = useTranslation()
   const [showMore, setShowMore] = useState(false)
 
+  const mobileNavItems = [
+    { to: '/dashboard', icon: Home, label: t('nav.dashboard') },
+    { to: '/meals', icon: Utensils, label: t('nav.meals') },
+    { to: '/nexmess-ai', icon: Sparkles, label: t('nav.nexmessAi') },
+    { to: '/finance', icon: Wallet, label: t('nav.finance') },
+    { to: '/market', icon: ShoppingBag, label: t('nav.market') },
+    { to: '/chat', icon: MessageSquare, label: t('nav.chat') },
+    { to: '/settings', icon: Settings, label: t('nav.settings') },
+  ]
+
   const mainTabs = hasMess
-    ? navItems.slice(0, 4) // Dashboard, Meals, Chat, Finance
+    ? mobileNavItems.slice(0, 4) // Dashboard, Meals, AI, Finance
     : [
-        { to: '/dashboard', icon: Home, label: 'Dashboard' },
-        { to: '/settings', icon: Settings, label: 'Settings' },
+        { to: '/dashboard', icon: Home, label: t('nav.dashboard') },
+        { to: '/settings', icon: Settings, label: t('nav.settings') },
       ]
 
   return (
@@ -354,7 +359,7 @@ function MobileBottomNav({
               `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
             }
           >
-            <ShoppingBag className="h-5 w-5" /> Market & Routine
+            <ShoppingBag className="h-5 w-5" /> {t('nav.market')}
           </NavLink>
           <NavLink
             to="/chat"
@@ -363,7 +368,7 @@ function MobileBottomNav({
               `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
             }
           >
-            <MessageSquare className="h-5 w-5" /> Chat
+            <MessageSquare className="h-5 w-5" /> {t('nav.chat')}
           </NavLink>
 
           <NavLink
@@ -373,7 +378,7 @@ function MobileBottomNav({
               `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
             }
           >
-            <Settings className="h-5 w-5" /> Settings
+            <Settings className="h-5 w-5" /> {t('nav.settings')}
           </NavLink>
           <div className="border-nex-border my-1 border-t" />
           <button
@@ -381,7 +386,7 @@ function MobileBottomNav({
             disabled={signingOut}
             className="hover:bg-nex-danger-light flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-red-600 transition-colors disabled:opacity-50"
           >
-            <LogOut className="h-5 w-5" /> {signingOut ? 'Signing out...' : 'Sign Out'}
+            <LogOut className="h-5 w-5" /> {signingOut ? t('common.signingOut') : t('common.signOut')}
           </button>
         </div>
       )}
@@ -411,7 +416,7 @@ function MobileBottomNav({
               className={`flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors ${showMore ? 'text-nex-primary' : 'text-nex-muted'}`}
             >
               {showMore ? <X className="h-5 w-5" /> : <MoreHorizontal className="h-5 w-5" />}
-              <span className="text-[10px] font-medium">More</span>
+              <span className="text-[10px] font-medium">{t('common.more')}</span>
             </button>
           )}
 
@@ -423,7 +428,7 @@ function MobileBottomNav({
             >
               <LogOut className="h-5 w-5" />
               <span className="text-[10px] font-medium">
-                {signingOut ? 'Signing out...' : 'Sign Out'}
+                {signingOut ? t('common.signingOut') : t('common.signOut')}
               </span>
             </button>
           )}

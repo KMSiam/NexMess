@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   Calendar,
   Wallet,
@@ -16,9 +17,12 @@ import pkg from '../../../package.json'
 import { useEffect, useState } from 'react'
 import { MessageCircle } from 'lucide-react'
 import SupportModal from '../../components/SupportModal'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
 import { motion } from 'framer-motion'
 
 export default function LandingPage() {
+  const { i18n } = useTranslation()
+  const isBangla = (i18n.language || 'en').startsWith('bn')
   useSEO({
     title: 'NexMess — Smart Mess Management for Shared Living',
     description: 'NexMess is a next-generation real-time mess manager. Track daily meals, split shared expenses, schedule bazaar duties, and coordinate with roommates.',
@@ -81,12 +85,13 @@ export default function LandingPage() {
           <img src={logoIcon} alt="NexMess" className="h-8 w-8 rounded-lg" />
           <span className="text-nex-text text-lg font-bold tracking-tight">NexMess</span>
         </div>
-        <div className="flex items-center gap-3">
-          <Link to="/login" className="nex-btn-secondary px-4 py-2 text-xs font-semibold">
-            Sign In
+        <div className="flex items-center gap-2 sm:gap-3">
+          <LanguageSwitcher variant="pill" />
+          <Link to="/login" className="nex-btn-secondary px-3.5 py-2 text-xs font-semibold">
+            {isBangla ? 'লগইন' : 'Sign In'}
           </Link>
-          <Link to="/register" className="nex-btn-primary px-4 py-2 text-xs font-semibold">
-            Get Started
+          <Link to="/register" className="nex-btn-primary px-3.5 py-2 text-xs font-semibold">
+            {isBangla ? 'শুরু করুন' : 'Get Started'}
           </Link>
         </div>
       </header>

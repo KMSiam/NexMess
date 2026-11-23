@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { useNavigate } from 'react-router-dom'
-import { Settings, User, Users, Home, Bell, AlertTriangle, MessageCircle } from 'lucide-react'
+import { Settings, User, Users, Home, Bell, AlertTriangle, MessageCircle, Languages } from 'lucide-react'
 import { isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
@@ -16,10 +17,12 @@ import ProfileSection from './components/ProfileSection'
 import PushNotificationSection from './components/PushNotificationSection'
 import MessDetailsSection from './components/MessDetailsSection'
 import MemberManagement from './components/MemberManagement'
+import PreferencesSection from './components/PreferencesSection'
 import DangerZone from './components/DangerZone'
 
 export default function SettingsPage() {
-  usePageTitle('Settings')
+  const { t } = useTranslation()
+  usePageTitle(t('settings.title'))
   const navigate = useNavigate()
   const { profile, user, updateProfile } = useAuthStore()
   const { currentMess, members, fetchMembers, fetchUserMesses } = useMessStore()
@@ -28,7 +31,7 @@ export default function SettingsPage() {
   const [pushLoading, setPushLoading] = useState(false)
 
   const [activeTab, setActiveTab] = useState<
-    'profile' | 'members' | 'mess' | 'notifications' | 'danger'
+    'profile' | 'members' | 'mess' | 'notifications' | 'preferences' | 'danger'
   >('profile')
   const [isSupportOpen, setIsSupportOpen] = useState(false)
 
@@ -332,7 +335,7 @@ export default function SettingsPage() {
           }`}
         >
           <User className="h-4 w-4" />
-          <span>Profile</span>
+          <span>{t('settings.tabs.profile')}</span>
         </button>
 
         <button
@@ -344,7 +347,7 @@ export default function SettingsPage() {
           }`}
         >
           <Users className="h-4 w-4" />
-          <span>Members</span>
+          <span>{t('settings.tabs.members')}</span>
           {pendingMembers.length > 0 && (
             <span className="bg-nex-danger ring-nex-bg absolute -top-1 -right-1 flex h-4.5 w-4.5 animate-pulse items-center justify-center rounded-full text-[9px] font-bold text-white ring-2">
               {pendingMembers.length}
@@ -361,7 +364,7 @@ export default function SettingsPage() {
           }`}
         >
           <Home className="h-4 w-4" />
-          <span>Mess Info</span>
+          <span>{t('settings.tabs.mess')}</span>
         </button>
 
         <button
@@ -373,7 +376,19 @@ export default function SettingsPage() {
           }`}
         >
           <Bell className="h-4 w-4" />
-          <span>Notifications</span>
+          <span>{t('settings.tabs.notifications')}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('preferences')}
+          className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+            activeTab === 'preferences'
+              ? 'bg-nex-primary text-white shadow-md'
+              : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
+          }`}
+        >
+          <Languages className="h-4 w-4" />
+          <span>{t('settings.tabs.preferences')}</span>
         </button>
 
         <button
@@ -385,7 +400,7 @@ export default function SettingsPage() {
           }`}
         >
           <AlertTriangle className="h-4 w-4" />
-          <span>Danger Zone</span>
+          <span>{t('settings.tabs.danger')}</span>
         </button>
       </div>
 
@@ -420,6 +435,8 @@ export default function SettingsPage() {
             onToggle={handlePushToggle}
           />
         )}
+
+        {activeTab === 'preferences' && <PreferencesSection />}
 
         {activeTab === 'danger' && (
           <DangerZone

@@ -1,0 +1,52 @@
+import { describe, it, expect, beforeEach } from 'vitest'
+import i18n, { changeLanguage, toBengaliDigits } from '../i18n'
+import en from '../../locales/en.json'
+import bn from '../../locales/bn.json'
+
+describe('i18n Localization Engine', () => {
+  beforeEach(async () => {
+    await changeLanguage('en')
+    localStorage.clear()
+  })
+
+  it('has identical top-level and nested key schemas for English and Bengali', () => {
+    const enKeys = Object.keys(en).sort()
+    const bnKeys = Object.keys(bn).sort()
+    expect(bnKeys).toEqual(enKeys)
+
+    // Check common keys
+    expect(Object.keys(bn.common).sort()).toEqual(Object.keys(en.common).sort())
+    // Check nav keys
+    expect(Object.keys(bn.nav).sort()).toEqual(Object.keys(en.nav).sort())
+    // Check finance keys
+    expect(Object.keys(bn.finance.tabs).sort()).toEqual(Object.keys(en.finance.tabs).sort())
+    expect(Object.keys(bn.finance.cards).sort()).toEqual(Object.keys(en.finance.cards).sort())
+  })
+
+  it('correctly provides Bengali translations for key mess terminology', () => {
+    expect(bn.common.appName).toBe('নেক্সমেস')
+    expect(bn.nav.meals).toBe('মিল হিসাব')
+    expect(bn.dashboard.stats.mealRate).toBe('মিল রেট')
+    expect(bn.dashboard.stats.messBalance).toBe('মেসের তহবিল')
+    expect(bn.finance.tabs.settleUp).toBe('লেনদেন নিষ্পত্তি')
+  })
+
+  it('switches language and persists to localStorage and document.documentElement', async () => {
+    await changeLanguage('bn')
+    expect(i18n.language).toBe('bn')
+    expect(document.documentElement.lang).toBe('bn')
+    expect(localStorage.getItem('nexmess-lang')).toBe('bn')
+
+    await changeLanguage('en')
+    expect(i18n.language).toBe('en')
+    expect(document.documentElement.lang).toBe('en')
+    expect(localStorage.getItem('nexmess-lang')).toBe('en')
+  })
+
+  it('converts Arabic/English digits to Bengali numerals with toBengaliDigits', () => {
+    expect(toBengaliDigits(0)).toBe('০')
+    expect(toBengaliDigits(1234567890)).toBe('১২৩৪৫৬৭৮৯০')
+    expect(toBengaliDigits('৳ 1,450.50')).toBe('৳ ১,৪৫০.৫০')
+    expect(toBengaliDigits('Room 302')).toBe('Room ৩০২')
+  })
+})

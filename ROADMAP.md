@@ -14,7 +14,8 @@
 | **System Architecture** | **A-** | Robust | 3-tier architecture with Supabase PostgreSQL, RLS multi-tenancy, Edge Functions. |
 | **Feature Completeness** | **A** | Full MVP | Meal tracking, cut-off locks, 5-tab finance suite, chat, AI market assistant. |
 | **Observability & Security** | **A** | Implemented (Phase 1) | Sentry crash reporting, PostHog telemetry, and Edge Function rate limits. |
-| **Reliability & Testing** | **A** | Implemented (Phase 3) | 22 unit tests passing (Vitest), Playwright E2E suite, GitHub Actions CI. |
+| **Reliability & Testing** | **A** | Implemented (Phase 3) | 26 unit tests passing (Vitest), Playwright E2E suite, GitHub Actions CI. |
+| **Localization & Fonts** | **A** | Implemented (Phase 4) | Dual English & Bengali (বাংলা) support with refined Hind Siliguri typography. |
 | **Commercialization** | **C+** | In Progress (Phase 2) | Payment gateway integration, subscription paywalls, and billing logic. |
 
 ---
@@ -27,7 +28,7 @@
 ├────────────────────────────────────────────────────────┤
 │ Phase 3: Automated Testing & CI/CD Pipelines [COMPLETED│
 ├────────────────────────────────────────────────────────┤
-│ Phase 4: Localization & Market Expansion (Bengali/Eng) │
+│ Phase 4: Localization & Market Expansion     [COMPLETED│
 ├────────────────────────────────────────────────────────┤
 │ Phase 5: Mobile App Store Release (Google Play TWA)    │
 ├────────────────────────────────────────────────────────┤
@@ -70,14 +71,21 @@
 
 ---
 
-## 🌐 Phase 4: Localization & Mobile Experience (Weeks 8–9)
+## 🌐 Phase 4: Localization & Mobile Experience (Weeks 8–9) — ✅ COMPLETED
 
-- [ ] **Multi-Language Support (i18n)**:
-  - Integrate `i18next` / `react-i18next`.
-  - Provide complete English & Bengali (`বাংলা`) language switching.
-  - Bengali is crucial for cooks, bazaar shoppers, and local hostel managers.
-- [ ] **SMS / WhatsApp Cut-Off Notifications**:
-  - Integrate Twilio or local SMS gateway (e.g., BulkSMSBD) for daily meal cut-off alerts (e.g. *"Reminder: Lunch meal closes in 30 minutes"*).
+- [x] **Multi-Language Support (i18n)**:
+  - Integrated `i18next`, `react-i18next`, and `i18next-browser-languagedetector`.
+  - Built full English and Bengali (`বাংলা`) localization dictionaries in `src/locales/en.json` and `src/locales/bn.json`.
+  - Added dynamic document `lang` attribute synchronizer and `localStorage` persistence.
+- [x] **Premium Bengali Typography (Hind Siliguri)**:
+  - Embedded `@fontsource/hind-siliguri` (Weights: 300, 400, 500, 600, 700) for 100% offline PWA caching on all mobile devices.
+  - Linked Google Fonts CDN (`Hind Siliguri` + `Noto Sans Bengali`) with preconnect for zero layout shifts.
+  - Custom font-family switching (`font-bangla`) with tailored letter-spacing and line heights for Bengali ascenders/descenders.
+- [x] **Interactive Language Switcher**:
+  - Implemented `src/components/LanguageSwitcher.tsx` with compact header dropdown, pill toggle for landing page, and card selectors for Settings.
+  - Added dedicated **Preferences** tab in `SettingsPage.tsx` with live Bengali font preview.
+- [x] **Automated i18n Test Suite**:
+  - Created `src/lib/__tests__/i18n.test.ts` verifying translation key parity, language switching, and Bengali digit formatting.
 
 ---
 
