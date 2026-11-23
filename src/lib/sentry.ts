@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/react'
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN as string | undefined
 
 /**
- * Initializes Sentry for client-side crash monitoring and error telemetry.
+ * Initializes Sentry for client-side crash monitoring, performance tracing, and session replay.
  * Operates gracefully as a no-op if VITE_SENTRY_DSN is not configured.
  */
 export function initSentry() {
@@ -18,8 +18,18 @@ export function initSentry() {
     dsn: SENTRY_DSN,
     environment: import.meta.env.MODE || 'production',
     release: 'nexmess@1.26.4',
-    // Set tracesSampleRate to 0.2 (20% of requests) in production to avoid quota exhaustion
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.replayIntegration({
+        maskAllText: false,
+        blockAllMedia: false,
+      }),
+    ],
+    // Tracing sampling rate
     tracesSampleRate: import.meta.env.PROD ? 0.2 : 1.0,
+    // Replay sampling: 10% of sessions, 100% of sessions with an error
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
     // Sanitize any personally identifiable data before transmission
     beforeSend(event) {
       if (event.request?.headers) {
