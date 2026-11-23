@@ -14,9 +14,9 @@
 | **System Architecture** | **A-** | Robust | 3-tier architecture with Supabase PostgreSQL, RLS multi-tenancy, Edge Functions. |
 | **Feature Completeness** | **A** | Full MVP | Meal tracking, cut-off locks, 5-tab finance suite, chat, AI market assistant. |
 | **Observability & Security** | **A** | Implemented (Phase 1) | Sentry crash reporting, PostHog telemetry, and Edge Function rate limits. |
-| **Reliability & Testing** | **A** | Implemented (Phase 3) | 26 unit tests passing (Vitest), Playwright E2E suite, GitHub Actions CI. |
-| **Localization & Fonts** | **A** | Implemented (Phase 4) | Dual English & Bengali (বাংলা) support with refined Hind Siliguri typography. |
-| **Commercialization** | **C+** | In Progress (Phase 2) | Payment gateway integration, subscription paywalls, and billing logic. |
+| **Reliability & Testing** | **A** | Implemented (Phase 3) | 29 unit tests passing (Vitest), Playwright E2E suite, GitHub Actions CI. |
+| **Localization & Fonts** | **A+** | Implemented (Phase 4) | Full app-wide authentic Bengali localization, Hind Siliguri typography, reactive theme synchronization. |
+| **Commercialization** | **C+** | Next Milestones (Phase 5 & 2) | Google Play Store TWA Release & Regional Payment Gateways (bKash/Nagad). |
 
 ---
 
@@ -71,21 +71,34 @@
 
 ---
 
-## 🌐 Phase 4: Localization & Mobile Experience (Weeks 8–9) — ✅ COMPLETED
+## 🌐 Phase 4: Localization & Theme Sync Engine (Weeks 8–9) — ✅ COMPLETED
 
-- [x] **Multi-Language Support (i18n)**:
+- [x] **Comprehensive Multi-Language Support (i18n)**:
   - Integrated `i18next`, `react-i18next`, and `i18next-browser-languagedetector`.
-  - Built full English and Bengali (`বাংলা`) localization dictionaries in `src/locales/en.json` and `src/locales/bn.json`.
+  - Built comprehensive English and Bengali (`বাংলা`) localization dictionaries in `src/locales/en.json` and `src/locales/bn.json`.
+  - 100% component localization coverage across all views:
+    - **Authentication**: `RegisterPage.tsx`, `LoginPage.tsx`, `ForgotPasswordPage.tsx`, `UpdatePasswordPage.tsx`, `VerifyEmailPage.tsx`, `OnboardingPage.tsx`.
+    - **Mess Setup**: `CreateMessPage.tsx`, `JoinMessPage.tsx`.
+    - **Dashboard**: `WelcomeCard.tsx`, `StatsGrid.tsx`, `MealSelector.tsx`, `AlertBanners.tsx`, `BazaarScheduleCard.tsx`, `CookSummary.tsx`, `NoticeBoard.tsx`, `EmergencyContacts.tsx`, `RecentActivity.tsx`.
+    - **Meals**: `MealsPage.tsx` (daily overrides, guest counters, lock status, meal timeline).
+    - **Finance**: `ExpenseTab.tsx`, `DepositTab.tsx`, `FixedCostTab.tsx`, `SummaryTab.tsx`, `HistoryTab.tsx`, `SettleUpSheet.tsx`.
+    - **Market & AI**: `MarketPage.tsx`, `BazaarSchedule.tsx`, `MealRoutine.tsx`, `AIMarketAssistant.tsx`.
+    - **Settings**: `PreferencesSection.tsx`, `ProfileSection.tsx`, `MemberManagement.tsx`, `MessDetailsSection.tsx`, `PushNotificationSection.tsx`, `DangerZone.tsx`.
+    - **Public & Modals**: `LandingPage.tsx`, `NotFoundPage.tsx`, `ActivityLogPage.tsx`, `NotificationBell.tsx`, `ConfirmDialog.tsx`, `SupportModal.tsx`.
+  - Authentic Bangladeshi mess terminology: *খালা/বাবুর্চির বিল*, *বাজারের দায়িত্ব*, *ফিক্সড খরচ*, *মিল চালু/বন্ধ*, *তহবিল*, *মিল রেট*, *ব্যালেন্স শিট*, *আজকের খাবার*.
+  - Bengali digit conversion utility (`toBengaliDigits`).
   - Added dynamic document `lang` attribute synchronizer and `localStorage` persistence.
 - [x] **Premium Bengali Typography (Hind Siliguri)**:
   - Embedded `@fontsource/hind-siliguri` (Weights: 300, 400, 500, 600, 700) for 100% offline PWA caching on all mobile devices.
   - Linked Google Fonts CDN (`Hind Siliguri` + `Noto Sans Bengali`) with preconnect for zero layout shifts.
   - Custom font-family switching (`font-bangla`) with tailored letter-spacing and line heights for Bengali ascenders/descenders.
-- [x] **Interactive Language Switcher**:
-  - Implemented `src/components/LanguageSwitcher.tsx` with compact header dropdown, pill toggle for landing page, and card selectors for Settings.
-  - Added dedicated **Preferences** tab in `SettingsPage.tsx` with live Bengali font preview.
-- [x] **Automated i18n Test Suite**:
+- [x] **Reactive Theme Synchronization**:
+  - Unified theme state management across tabs using `window.addEventListener('storage')`.
+  - Fixed light/dark indicator badge selection ring and active state highlighting in `PreferencesSection.tsx`.
+  - Synchronized theme switching between navigation bar toggle and settings preferences.
+- [x] **Automated i18n & Theme Test Suite**:
   - Created `src/lib/__tests__/i18n.test.ts` verifying translation key parity, language switching, and Bengali digit formatting.
+  - Created `src/lib/__tests__/theme.test.ts` verifying theme persistence, system preferences, and state synchronization.
 
 ---
 
@@ -149,5 +162,6 @@
 | Status | Next Immediate Action |
 | :--- | :--- |
 | **Phase 1** | ✅ Complete: Sentry, PostHog, Edge rate-limiters & Cloudflare instructions installed. |
-| **Phase 3** | ✅ Complete: 22 Vitest unit tests, Playwright config, and GitHub Actions CI pipeline active. |
-| **Next Target** | **Phase 4 (Localization i18n English/Bengali)** OR **Phase 5 (PWA Android Google Play App)**. |
+| **Phase 3** | ✅ Complete: 29 Vitest unit tests, Playwright config, and GitHub Actions CI pipeline active. |
+| **Phase 4** | ✅ Complete: App-wide authentic Bengali localization, Hind Siliguri typography, and reactive theme synchronization. |
+| **Next Target** | **Phase 5 (Google Play Store TWA Packaging)** followed by **Phase 2 (Payment Gateways & Subscriptions)**. |
