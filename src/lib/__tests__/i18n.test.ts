@@ -27,7 +27,7 @@ describe('i18n Localization Engine', () => {
     expect(bn.common.appName).toBe('নেক্সমেস')
     expect(bn.nav.meals).toBe('মিল হিসাব')
     expect(bn.dashboard.stats.mealRate).toBe('মিল রেট')
-    expect(bn.dashboard.stats.messBalance).toBe('মেসের তহবিল')
+    expect(bn.dashboard.stats.messBalance).toBe('মেস তহবিল')
     expect(bn.finance.tabs.settleUp).toBe('লেনদেন নিষ্পত্তি')
   })
 

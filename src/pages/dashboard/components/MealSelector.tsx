@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { UtensilsCrossed } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
   isMealCutoffPassed,
   mealCutoffLabel,
@@ -24,6 +25,7 @@ export default function MealSelector({
   onToggleMeal,
   onUpdateGuest,
 }: MealSelectorProps) {
+  const { t } = useTranslation()
   const [mealTab, setMealTab] = useState<'today' | 'tomorrow'>('today')
   const today = dhakaToday()
   const tomorrow = dhakaTomorrow()
@@ -33,12 +35,14 @@ export default function MealSelector({
     <div className="nex-card h-full p-5">
       <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2">
-          <h4 className="text-nex-text text-sm font-semibold tracking-wider uppercase">My Meals</h4>
+          <h4 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
+            {t('dashboard.myMealsTitle')}
+          </h4>
           {routines[mealTab].lunch || routines[mealTab].dinner ? (
             <div className="flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1">
               <UtensilsCrossed className="h-3 w-3 text-amber-500" />
               <span className="text-xs font-medium text-amber-500">
-                {mealTab === 'today' ? 'Today' : 'Tomorrow'}:{' '}
+                {mealTab === 'today' ? t('common.today') : t('common.tomorrow')}:{' '}
                 {routines[mealTab].lunch
                   ? `${getFoodEmoji(routines[mealTab].lunch)} ${routines[mealTab].lunch} (L)`
                   : ''}
@@ -55,13 +59,13 @@ export default function MealSelector({
             onClick={() => setMealTab('today')}
             className={`rounded px-3 py-1 text-xs font-medium transition-colors ${mealTab === 'today' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'}`}
           >
-            Today
+            {t('common.today')}
           </button>
           <button
             onClick={() => setMealTab('tomorrow')}
             className={`rounded px-3 py-1 text-xs font-medium transition-colors ${mealTab === 'tomorrow' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'}`}
           >
-            Tomorrow
+            {t('common.tomorrow')}
           </button>
         </div>
       </div>
@@ -71,14 +75,14 @@ export default function MealSelector({
             type: 'lunch' as const,
             emoji: '☀️',
             on: currentMData.lunch,
-            label: 'Lunch',
+            label: t('dashboard.lunch'),
             guests: currentMData.gl,
           },
           {
             type: 'dinner' as const,
             emoji: '🌙',
             on: currentMData.dinner,
-            label: 'Dinner',
+            label: t('dashboard.dinner'),
             guests: currentMData.gd,
           },
         ].map(({ type, emoji, on, label, guests }) => {
@@ -98,7 +102,11 @@ export default function MealSelector({
                     <p
                       className={`text-xs font-medium ${locked ? 'text-nex-muted' : on ? 'font-semibold text-emerald-600 dark:text-emerald-400' : 'text-nex-muted'}`}
                     >
-                      {locked ? `Locked · ${mealCutoffLabel(type)}` : on ? 'Eating' : 'Skipping'}
+                      {locked
+                        ? `${t('dashboard.locked')} · ${mealCutoffLabel(type)}`
+                        : on
+                          ? t('common.eating')
+                          : t('common.skipping')}
                     </p>
                   </div>
                 </div>
@@ -114,7 +122,7 @@ export default function MealSelector({
                 </button>
               </div>
               <div className="flex items-center justify-between border-t border-emerald-100/50 pt-3">
-                <p className="text-xs font-medium text-slate-500">Guests</p>
+                <p className="text-xs font-medium text-slate-500">{t('dashboard.guests')}</p>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => onUpdateGuest(mealTab, type, -1)}

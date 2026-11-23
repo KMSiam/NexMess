@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { Calendar, UserCheck, Shield } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { getGreeting } from '../../../lib/utils'
 import { useAuthStore } from '../../../stores/authStore'
 
@@ -10,6 +11,7 @@ interface WelcomeCardProps {
 
 export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
   const { profile } = useAuthStore()
+  const { t } = useTranslation()
 
   return (
     <div className="nex-card flex flex-col justify-between gap-4 p-6 sm:flex-row sm:items-center">
@@ -29,7 +31,7 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
 
         <div>
           <h3 className="text-nex-text flex items-center gap-2 text-xl font-bold tracking-tight">
-            {getGreeting()}, {username || 'Roommate'} 👋
+            {getGreeting()}, {username || t('common.member')} 👋
           </h3>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="text-nex-muted flex items-center gap-1 text-xs">
@@ -46,11 +48,11 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
             >
               {isManager ? (
                 <>
-                  <Shield className="h-2.5 w-2.5" /> Manager
+                  <Shield className="h-2.5 w-2.5" /> {t('common.manager')}
                 </>
               ) : (
                 <>
-                  <UserCheck className="h-2.5 w-2.5" /> Member
+                  <UserCheck className="h-2.5 w-2.5" /> {t('common.member')}
                 </>
               )}
             </span>

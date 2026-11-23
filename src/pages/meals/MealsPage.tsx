@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback, useReducer } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -25,7 +26,8 @@ import { useRealtimeTable } from '../../hooks/useRealtimeTable'
 import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function MealsPage() {
-  usePageTitle('Meals')
+  const { t } = useTranslation()
+  usePageTitle(t('nav.meals'))
   const { user } = useAuthStore()
   const { currentMess, members } = useMessStore()
 
@@ -272,7 +274,7 @@ export default function MealsPage() {
                   : 'text-nex-muted hover:text-nex-text'
               }`}
             >
-              My Meals
+              {t('meals.myMeals')}
             </button>
             <button
               onClick={() => setViewMode('all')}
@@ -282,7 +284,7 @@ export default function MealsPage() {
                   : 'text-nex-muted hover:text-nex-text'
               }`}
             >
-              All Members
+              {t('meals.allMembers')}
             </button>
           </div>
         </div>
@@ -311,22 +313,34 @@ export default function MealsPage() {
           <div className="bg-nex-primary-light rounded-xl p-3 text-center">
             <p className="text-nex-primary text-2xl font-bold">{monthlyStats.total}</p>
             <p className="text-xs font-medium tracking-wider text-blue-600 uppercase">
-              Total Meals
+              {t('meals.totalMeals')}
             </p>
           </div>
           <div className="rounded-xl bg-amber-500/10 p-3 text-center">
             <p className="text-2xl font-bold text-amber-600">{monthlyStats.lunch}</p>
-            <p className="text-xs font-medium tracking-wider text-amber-600 uppercase">Lunch</p>
+            <p className="text-xs font-medium tracking-wider text-amber-600 uppercase">
+              {t('meals.lunch')}
+            </p>
           </div>
           <div className="rounded-xl bg-indigo-500/10 p-3 text-center">
             <p className="text-2xl font-bold text-indigo-600">{monthlyStats.dinner}</p>
-            <p className="text-xs font-medium tracking-wider text-indigo-600 uppercase">Dinner</p>
+            <p className="text-xs font-medium tracking-wider text-indigo-600 uppercase">
+              {t('meals.dinner')}
+            </p>
           </div>
         </div>
 
         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           <div className="grid min-w-[320px] grid-cols-7 gap-1">
-            {['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((d) => (
+            {[
+              t('days.sat'),
+              t('days.sun'),
+              t('days.mon'),
+              t('days.tue'),
+              t('days.wed'),
+              t('days.thu'),
+              t('days.fri'),
+            ].map((d) => (
               <div
                 key={d}
                 className="text-nex-muted py-2 text-center text-xs font-semibold tracking-wider uppercase"

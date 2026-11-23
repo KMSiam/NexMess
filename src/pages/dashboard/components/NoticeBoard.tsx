@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Megaphone, Send, Pin, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { DashboardNotice } from '../../../hooks/useDashboardData'
 
 interface NoticeBoardProps {
@@ -17,6 +18,7 @@ export default function NoticeBoard({
   onSaveNotice,
   onDismissNotice,
 }: Omit<NoticeBoardProps, 'showForm' | 'onCloseForm'>) {
+  const { t } = useTranslation()
   const [showInput, setShowInput] = useState(false)
   const [noticeText, setNoticeText] = useState(notice?.message || '')
   const [loading, setLoading] = useState(false)
@@ -38,7 +40,7 @@ export default function NoticeBoard({
           <div className="flex items-center gap-2">
             <Pin className="h-4 w-4 shrink-0 rotate-45 text-indigo-500" />
             <h4 className="text-nex-text text-xs font-bold tracking-wider uppercase">
-              Notice Board
+              {t('dashboard.noticeBoard')}
             </h4>
           </div>
           {isManager && !showInput && (
@@ -49,7 +51,7 @@ export default function NoticeBoard({
               }}
               className="flex items-center gap-1 text-[10px] font-bold tracking-wider text-indigo-600 uppercase hover:underline dark:text-indigo-400"
             >
-              <Plus className="h-3 w-3" /> {notice ? 'Edit' : 'Post'}
+              <Plus className="h-3 w-3" /> {notice ? t('dashboard.editNotice') : t('dashboard.postNotice')}
             </button>
           )}
         </div>

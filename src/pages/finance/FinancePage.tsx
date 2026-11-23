@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -27,7 +28,8 @@ import HistoryTab from './components/HistoryTab'
 type Tab = 'expenses' | 'deposits' | 'fixed' | 'summary' | 'history'
 
 export default function FinancePage() {
-  usePageTitle('Finance')
+  const { t } = useTranslation()
+  usePageTitle(t('nav.finance'))
 
   const { user, profile } = useAuthStore()
   const { currentMess, members, fetchMembers } = useMessStore()
@@ -495,11 +497,11 @@ export default function FinancePage() {
   }
 
   const tabs: { key: Tab; label: string; icon: any }[] = [
-    { key: 'expenses', label: 'Expenses', icon: Receipt },
-    { key: 'deposits', label: 'Deposits', icon: PiggyBank },
-    { key: 'fixed', label: 'Fixed Costs', icon: DollarSign },
-    { key: 'summary', label: 'Summary', icon: TrendingUp },
-    { key: 'history', label: 'History', icon: History },
+    { key: 'expenses', label: t('finance.tabs.expenses'), icon: Receipt },
+    { key: 'deposits', label: t('finance.tabs.deposits'), icon: PiggyBank },
+    { key: 'fixed', label: t('finance.tabs.fixed'), icon: DollarSign },
+    { key: 'summary', label: t('finance.tabs.summary'), icon: TrendingUp },
+    { key: 'history', label: t('finance.tabs.history'), icon: History },
   ]
 
   if (!currentMess) return null
@@ -536,7 +538,7 @@ export default function FinancePage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Wallet className="text-nex-primary h-6 w-6" />
-          <h1 className="text-nex-text text-2xl font-bold">Finance</h1>
+          <h1 className="text-nex-text text-2xl font-bold">{t('nav.finance')}</h1>
         </div>
         <div className="flex flex-wrap gap-2">
           {activeTab === 'summary' && isManager && (
@@ -544,7 +546,7 @@ export default function FinancePage() {
               onClick={handleDownloadPDF}
               className="nex-btn-primary flex items-center gap-1.5 px-3 py-2 text-xs"
             >
-              <Download className="h-4 w-4" /> Download PDF Report
+              <Download className="h-4 w-4" /> {t('finance.actions.downloadPdf')}
             </button>
           )}
         </div>

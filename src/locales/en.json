@@ -30,7 +30,15 @@
     "all": "All",
     "search": "Search...",
     "noData": "No data found",
-    "taka": "৳"
+    "taka": "৳",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "yesterday": "Yesterday",
+    "manager": "Manager",
+    "member": "Member",
+    "eating": "Eating",
+    "skipping": "Skipping",
+    "viewAll": "View All"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -41,10 +49,20 @@
     "chat": "Chat",
     "settings": "Settings"
   },
+  "days": {
+    "sat": "Sat",
+    "sun": "Sun",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri"
+  },
   "dashboard": {
     "welcome": "Welcome back",
     "currentMess": "Current Mess",
     "uniqueCode": "Unique Code",
+    "myMealsTitle": "My Meals",
     "todayMeals": "Today's Meals",
     "lunch": "Lunch",
     "dinner": "Dinner",
@@ -57,28 +75,48 @@
     "locked": "Locked",
     "open": "Open",
     "stats": {
+      "myMeals": "My Meals",
+      "balance": "Balance",
       "totalMeals": "Total Meals",
       "mealRate": "Meal Rate",
       "myBalance": "My Balance",
       "messBalance": "Mess Treasury",
+      "messSpent": "Mess Spent",
       "myDeposit": "My Deposit",
       "myCost": "My Cost",
       "activeMembers": "Active Members"
     },
-    "cookSummary": "Cook's Summary",
+    "cookSummary": "Cook's Summary (Entire Mess)",
     "cookSummaryDesc": "Total meal count for preparation today",
-    "bazaarSchedule": "Bazaar Schedule",
-    "noShopperToday": "No one assigned today",
+    "bazaarSchedule": "Upcoming Bazaar",
+    "noShopperToday": "No schedule set",
+    "noShopperDesc": "Market schedule will appear here.",
     "noticeBoard": "Notice Board",
     "noNotices": "No notices right now",
     "recentActivity": "Recent Activity",
-    "noActivity": "No recent activities",
+    "noActivity": "No recent activity",
+    "noActivityDesc": "Expenses and deposits will appear here.",
     "emergencyContacts": "Emergency Contacts",
-    "noEmergencyContacts": "No emergency contacts listed"
+    "noEmergencyContacts": "No emergency contacts listed",
+    "postNotice": "Post",
+    "editNotice": "Edit",
+    "noMess": {
+      "title": "No mess joined yet",
+      "description": "Create a new mess or join an existing one with an invite code.",
+      "create": "Create Mess",
+      "join": "Join Mess",
+      "pendingRequests": "Pending Requests",
+      "waitingApproval": "Waiting for approval"
+    }
   },
   "meals": {
     "title": "Daily Meal Tracking",
     "subtitle": "Track and manage your lunch and dinner meal count",
+    "myMeals": "My Meals",
+    "allMembers": "All Members",
+    "totalMeals": "Total Meals",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
     "lunchStatus": "Lunch Status",
     "dinnerStatus": "Dinner Status",
     "on": "ON",
@@ -95,21 +133,22 @@
     "legendGuest": "Guest Included (+N)"
   },
   "finance": {
-    "title": "Mess Financial Suite",
+    "title": "Finance",
     "subtitle": "Complete transparency for shared mess deposits, expenses & settlements",
     "tabs": {
-      "summary": "Summary",
+      "expenses": "Expenses",
       "deposits": "Deposits",
-      "expenses": "Bazaar Expenses",
-      "fixedCosts": "Fixed Costs",
+      "fixed": "Fixed Costs",
+      "summary": "Summary",
       "history": "History",
       "settleUp": "Settle Up"
     },
     "cards": {
-      "totalBazaar": "Total Bazaar Spent",
-      "totalFixed": "Total Fixed Costs",
-      "totalDeposit": "Total Deposits Collected",
-      "treasuryCash": "Cash in Treasury",
+      "totalBazaar": "Total Bazaar",
+      "totalFixed": "Fixed Costs",
+      "totalDeposit": "Total Deposits",
+      "treasuryCash": "Mess Balance",
+      "formula": "(Deposits - Bazaar - Paid Fixed)",
       "mealRate": "Current Meal Rate",
       "netBalance": "Net Balance",
       "due": "Due (To Pay)",
@@ -119,7 +158,7 @@
       "addDeposit": "Add Deposit",
       "addExpense": "Add Bazaar Expense",
       "addFixedCost": "Add Fixed Cost",
-      "downloadPdf": "Download Report (PDF)",
+      "downloadPdf": "Download PDF Report",
       "settleAll": "Clear All Settlements"
     },
     "settlement": {
@@ -131,12 +170,12 @@
     }
   },
   "market": {
-    "title": "Market & Kitchen Routine",
+    "title": "Market & Routine",
     "subtitle": "Bazaar schedule, weekly cooking menu, and AI market assistance",
     "tabs": {
-      "schedule": "Bazaar Duty",
-      "routine": "Weekly Menu",
-      "ai": "NexMess AI"
+      "schedule": "Bazaar Schedule",
+      "routine": "Meal Routine",
+      "ai": "NexMessAI"
     },
     "assignBazaar": "Assign Bazaar Shopper",
     "date": "Date",
@@ -144,9 +183,11 @@
     "notes": "Items / Budget Notes"
   },
   "chat": {
-    "title": "Mess Communication",
+    "title": "Group Chat",
     "general": "General Chat",
     "notices": "Official Notices",
+    "noMessages": "No messages yet",
+    "noMessagesDesc": "Start the conversation with your mess members!",
     "typeMessage": "Type a message...",
     "send": "Send"
   },

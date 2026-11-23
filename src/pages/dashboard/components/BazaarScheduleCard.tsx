@@ -1,5 +1,6 @@
 import { CalendarDays } from 'lucide-react'
 import { format, isToday, isTomorrow } from 'date-fns'
+import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../components/EmptyState'
 
 interface BazaarScheduleCardProps {
@@ -7,20 +8,22 @@ interface BazaarScheduleCardProps {
 }
 
 export default function BazaarScheduleCard({ schedule }: BazaarScheduleCardProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="nex-card p-5">
       <div className="mb-4 flex items-center gap-2">
         <CalendarDays className="text-nex-primary h-4 w-4" />
         <h4 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
-          Upcoming Bazaar
+          {t('dashboard.bazaarSchedule')}
         </h4>
       </div>
       <div className="divide-nex-border space-y-3 divide-y">
         {schedule.length === 0 ? (
           <EmptyState
             icon={CalendarDays}
-            title="No schedule set"
-            description="Market schedule will appear here."
+            title={t('dashboard.noShopperToday')}
+            description={t('dashboard.noShopperDesc')}
           />
         ) : (
           schedule.map((ub, idx) => (

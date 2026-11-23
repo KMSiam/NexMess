@@ -1,24 +1,12 @@
 import { useTranslation } from 'react-i18next'
-import { Languages, Sun, Moon, Type } from 'lucide-react'
+import { Languages, Sun, Moon, Type, Check } from 'lucide-react'
 import LanguageSwitcher from '../../../components/LanguageSwitcher'
+import { useThemeStore } from '../../../stores/themeStore'
 
 export default function PreferencesSection() {
   const { t, i18n } = useTranslation()
   const isBangla = (i18n.language || 'en').startsWith('bn')
-
-  const isDark = document.documentElement.classList.contains('dark')
-
-  const toggleTheme = (targetTheme: 'dark' | 'light') => {
-    if (targetTheme === 'dark') {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('nexmess-theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('nexmess-theme', 'light')
-    }
-    // Force re-render of local state
-    window.dispatchEvent(new Event('storage'))
-  }
+  const { isDark, setTheme } = useThemeStore()
 
   return (
     <div className="space-y-6">
@@ -78,38 +66,52 @@ export default function PreferencesSection() {
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <button
             type="button"
-            onClick={() => toggleTheme('light')}
-            className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-all ${
+            onClick={() => setTheme(false)}
+            className={`flex items-center justify-between rounded-2xl border p-4 text-left transition-all ${
               !isDark
-                ? 'border-nex-primary bg-nex-primary/5 shadow-sm ring-1 ring-nex-primary'
-                : 'border-nex-border hover:bg-nex-hover'
+                ? 'border-nex-primary bg-nex-primary/5 dark:bg-nex-primary/10 shadow-sm ring-1 ring-nex-primary'
+                : 'border-nex-border bg-nex-surface hover:border-nex-primary/40 hover:bg-nex-hover/40'
             }`}
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
-              <Sun className="h-5 w-5" />
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950/40 text-amber-600">
+                <Sun className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-nex-text">{t('common.light')}</p>
+                <p className="text-xs text-nex-muted">Warm Ivory theme</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-nex-text">{t('common.light')}</p>
-              <p className="text-xs text-nex-muted">Warm Ivory theme</p>
-            </div>
+            {!isDark && (
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-nex-primary text-white">
+                <Check className="h-3 w-3 stroke-[3]" />
+              </span>
+            )}
           </button>
 
           <button
             type="button"
-            onClick={() => toggleTheme('dark')}
-            className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-all ${
+            onClick={() => setTheme(true)}
+            className={`flex items-center justify-between rounded-2xl border p-4 text-left transition-all ${
               isDark
-                ? 'border-nex-primary bg-nex-primary/10 shadow-sm ring-1 ring-nex-primary'
-                : 'border-nex-border hover:bg-nex-hover'
+                ? 'border-nex-primary bg-nex-primary/5 dark:bg-nex-primary/10 shadow-sm ring-1 ring-nex-primary'
+                : 'border-nex-border bg-nex-surface hover:border-nex-primary/40 hover:bg-nex-hover/40'
             }`}
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800 text-zinc-300">
-              <Moon className="h-5 w-5" />
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800 text-zinc-300">
+                <Moon className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-nex-text">{t('common.dark')}</p>
+                <p className="text-xs text-nex-muted">Midnight Obsidian theme</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-nex-text">{t('common.dark')}</p>
-              <p className="text-xs text-nex-muted">Midnight Obsidian theme</p>
-            </div>
+            {isDark && (
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-nex-primary text-white">
+                <Check className="h-3 w-3 stroke-[3]" />
+              </span>
+            )}
           </button>
         </div>
       </div>

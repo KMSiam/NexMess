@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -26,7 +27,8 @@ import BazaarScheduleCard from './components/BazaarScheduleCard'
 import EmergencyContacts from './components/EmergencyContacts'
 
 export default function DashboardPage() {
-  usePageTitle('Dashboard')
+  const { t } = useTranslation()
+  usePageTitle(t('nav.dashboard'))
 
   const { profile } = useAuthStore()
   const { currentMess, members, pendingRequests, cancelJoinRequest } = useMessStore()
@@ -212,16 +214,18 @@ export default function DashboardPage() {
           <div className="bg-nex-primary-light mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full">
             <Users className="text-nex-primary h-8 w-8" />
           </div>
-          <h2 className="text-nex-text mb-2 text-2xl font-bold">No mess joined yet</h2>
+          <h2 className="text-nex-text mb-2 text-2xl font-bold">
+            {t('dashboard.noMess.title')}
+          </h2>
           <p className="text-nex-muted mb-6">
-            Create a new mess or join an existing one with a code.
+            {t('dashboard.noMess.description')}
           </p>
           <div className="flex justify-center gap-3">
             <Link to="/mess/create" className="nex-btn-primary">
-              <Plus className="h-4 w-4" /> Create Mess
+              <Plus className="h-4 w-4" /> {t('dashboard.noMess.create')}
             </Link>
             <Link to="/mess/join" className="nex-btn-secondary">
-              Join Mess
+              {t('dashboard.noMess.join')}
             </Link>
           </div>
         </div>
@@ -229,7 +233,7 @@ export default function DashboardPage() {
         {pendingRequests && pendingRequests.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-nex-muted text-center text-xs font-bold tracking-wider uppercase">
-              Pending Requests
+              {t('dashboard.noMess.pendingRequests')}
             </h3>
             {pendingRequests.map((req) => (
               <div
@@ -253,7 +257,7 @@ export default function DashboardPage() {
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
                         <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
                       </span>
-                      Waiting for approval
+                      {t('dashboard.noMess.waitingApproval')}
                     </p>
                   </div>
                 </div>

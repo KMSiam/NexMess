@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { ShoppingBag, CalendarClock, Sparkles } from 'lucide-react'
 import BazaarSchedule from './components/BazaarSchedule'
@@ -6,7 +7,8 @@ import MealRoutine from './components/MealRoutine'
 import { useNavigate } from 'react-router-dom'
 
 export default function MarketPage() {
-  usePageTitle('Market & Routine')
+  const { t } = useTranslation()
+  usePageTitle(t('market.title'))
   const [activeTab, setActiveTab] = useState<'bazaar' | 'routine'>('bazaar')
   const navigate = useNavigate()
 
@@ -24,7 +26,7 @@ export default function MarketPage() {
             }`}
           >
             <ShoppingBag className="h-4.5 w-4.5" />
-            <span>Bazaar Schedule</span>
+            <span>{t('market.tabs.schedule')}</span>
           </button>
           <button
             onClick={() => setActiveTab('routine')}
@@ -35,7 +37,7 @@ export default function MarketPage() {
             }`}
           >
             <CalendarClock className="h-4.5 w-4.5" />
-            <span>Meal Routine</span>
+            <span>{t('market.tabs.routine')}</span>
           </button>
         </div>
 
@@ -46,7 +48,7 @@ export default function MarketPage() {
           id="open-ai-assistant"
         >
           <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-          <span className="hidden sm:inline">NexMessAI</span>
+          <span className="hidden sm:inline">{t('market.tabs.ai')}</span>
           <span className="sm:hidden">AI</span>
         </button>
       </div>

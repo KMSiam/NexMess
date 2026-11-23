@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ShieldAlert, PhoneCall, Plus, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { EmergencyContact as EC } from '../../../hooks/useDashboardData'
 
 interface EmergencyContactsProps {
@@ -15,6 +16,7 @@ export default function EmergencyContacts({
   onAdd,
   onDelete,
 }: EmergencyContactsProps) {
+  const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -34,7 +36,7 @@ export default function EmergencyContacts({
         <div className="flex items-center gap-2">
           <ShieldAlert className="h-5 w-5 text-red-500" />
           <h4 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
-            Emergency Contacts
+            {t('dashboard.emergencyContacts')}
           </h4>
         </div>
         {isManager && (
@@ -42,7 +44,7 @@ export default function EmergencyContacts({
             onClick={() => setShowForm(!showForm)}
             className="nex-btn-secondary px-2 py-1 text-xs"
           >
-            <Plus className="h-3.5 w-3.5" /> Add
+            <Plus className="h-3.5 w-3.5" /> {t('common.add')}
           </button>
         )}
       </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
@@ -20,7 +21,8 @@ interface Reaction {
 const PAGE_SIZE = 30
 
 export default function ChatPage() {
-  usePageTitle('Chat')
+  const { t } = useTranslation()
+  usePageTitle(t('chat.title'))
 
   const { profile } = useAuthStore()
   const { currentMess, members } = useMessStore()
@@ -273,7 +275,7 @@ export default function ChatPage() {
       <div className="mb-3 flex shrink-0 items-center justify-between">
         <div className="flex items-center gap-3">
           <MessageSquare className="text-nex-primary h-5 w-5 sm:h-6 sm:w-6" />
-          <h1 className="text-nex-text text-xl font-bold sm:text-2xl">Group Chat</h1>
+          <h1 className="text-nex-text text-xl font-bold sm:text-2xl">{t('chat.title')}</h1>
         </div>
       </div>
 
@@ -291,9 +293,9 @@ export default function ChatPage() {
         {messages.length === 0 && !loadingOlder && (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
             <MessageSquare className="text-nex-muted/20 mb-2 h-12 w-12 animate-bounce" />
-            <p className="text-nex-text text-sm font-medium">No messages yet</p>
+            <p className="text-nex-text text-sm font-medium">{t('chat.noMessages')}</p>
             <p className="text-nex-muted mt-1 max-w-xs text-xs">
-              Start the conversation with your mess members!
+              {t('chat.noMessagesDesc')}
             </p>
           </div>
         )}
@@ -327,7 +329,7 @@ export default function ChatPage() {
           onChange={(e) => setNewMessage(e.target.value)}
           maxLength={2000}
           className="nex-input flex-1 text-base"
-          placeholder="Type a message..."
+          placeholder={t('chat.typeMessage')}
           id="chat-input"
           autoComplete="off"
         />

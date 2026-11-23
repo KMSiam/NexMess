@@ -1,10 +1,10 @@
 import { useState, useEffect, Suspense } from 'react'
-import { flushSync } from 'react-dom'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
+import { useThemeStore } from '../../stores/themeStore'
 import { supabase } from '../../lib/supabase'
 import {
   Home,
@@ -55,41 +55,7 @@ export default function AppLayout() {
         { to: '/settings', icon: Settings, label: t('nav.settings') },
       ]
 
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('nexmess-theme')
-    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
-  })
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('nexmess-theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('nexmess-theme', 'light')
-    }
-  }, [isDark])
-
-  // Uses the View Transitions API with CSS custom properties to animate a circular clip-path transition from the click point when toggling themes.
-  const toggleTheme = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const doc = document as any
-    if (!doc.startViewTransition) {
-      setIsDark(!isDark)
-      return
-    }
-
-    const x = e.clientX
-    const y = e.clientY
-
-    document.documentElement.style.setProperty('--x', `${x}px`)
-    document.documentElement.style.setProperty('--y', `${y}px`)
-
-    doc.startViewTransition(() => {
-      flushSync(() => {
-        setIsDark((prev) => !prev)
-      })
-    })
-  }
+  const { isDark, toggleTheme } = useThemeStore()
 
   const handleSignOut = async () => {
     if (signingOut) return
