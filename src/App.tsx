@@ -1,8 +1,10 @@
 import { useEffect, lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { useAuthStore } from './stores/authStore'
 import { useMessStore } from './stores/messStore'
+import { trackPageView, identifyUser, resetUser } from './lib/analytics'
+import { setUserContext, clearUserContext } from './lib/sentry'
 
 // Guards
 import { AuthGuard, GuestGuard, OnboardingGuard } from './guards/AuthGuard'
@@ -48,6 +50,23 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   const { initialize, user } = useAuthStore()
   const { fetchUserMesses } = useMessStore()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Track virtual pageviews on route navigation
+  useEffect(() => {
+    trackPageView(location.pathname + location.search)
+  }, [location])
+
+  // Synchronize authenticated user identity with telemetry & crash reporting
+  useEffect(() => {
+    if (user) {
+      identifyUser(user.id, { email: user.email })
+      setUserContext(user.id, user.email)
+    } else {
+      resetUser()
+      clearUserContext()
+    }
+  }, [user])
 
   // Handle Supabase error redirects (e.g. expired OTP link)
   // Supabase sends errors back to the Site URL as #error=...&error_code=...&error_description=...

@@ -50,6 +50,7 @@ NexMess is designed as a cloud-native 3-tier application:
 - 🔑 **Multi-Tenant Workspaces & RBAC** — Create or join private mess apartments via 8-character codes (`NEX-XXXX`) with strict Manager vs Member role-based access control.
 - 📲 **Installable PWA & Web Push Notifications** — Progressive Web App with offline schedule caching and automated background Web Push alerts.
 - 🛡️ **Row Level Security (RLS) & Audit Log** — Full PostgreSQL database isolation ensuring member data privacy alongside an immutable activity audit log timeline.
+- 📊 **Production Observability & Telemetry (Phase 1)** — Real-time crash monitoring and error boundaries powered by **Sentry**, combined with privacy-friendly product analytics and conversion funnels powered by **PostHog**.
 
 ---
 
@@ -65,6 +66,7 @@ NexMess is designed as a cloud-native 3-tier application:
 | **Document Engine** | **jsPDF & AutoTable** | Client-side vector PDF statement compilation and instant downloads |
 | **PWA & Offline** | **Vite PWA Plugin & Workbox** | Installable home-screen web app with offline timetable caching |
 | **Routing & Motion** | **React Router DOM 7 & Framer Motion** | Smooth page transitions, animated modals, and nested sub-routes |
+| **Observability** | **Sentry 11 & PostHog** | Automated client crash reporting, error boundaries, and funnel analytics |
 
 ---
 
@@ -178,6 +180,11 @@ npm install
 
    # Web Push Configuration (Optional)
    VITE_VAPID_PUBLIC_KEY=your-vapid-public-key
+
+   # Observability & Telemetry (Optional - Phase 1)
+   VITE_SENTRY_DSN=your-sentry-dsn
+   VITE_POSTHOG_KEY=your-posthog-key
+   VITE_POSTHOG_HOST=https://us.i.posthog.com
    ```
 3. Replace the placeholder values with your actual project credentials (explained in Step 4 below).
 
@@ -271,7 +278,27 @@ supabase functions deploy morning-reminder
 
 ---
 
-### Step 7: Run the Local Development Server
+### Step 7: Observability & Cloudflare DDoS Shield (Phase 1)
+
+#### 1. Sentry Crash Reporting (Optional)
+1. Create a free account at [sentry.io](https://sentry.io/).
+2. Create a **React** project and copy your **DSN**.
+3. Set `VITE_SENTRY_DSN` in your `.env`. If left empty, Sentry gracefully defaults to local console logging in development.
+
+#### 2. PostHog Product Analytics (Optional)
+1. Create a free account at [posthog.com](https://posthog.com/).
+2. Copy your **Project API Key** and set `VITE_POSTHOG_KEY` and `VITE_POSTHOG_HOST` in `.env`.
+3. PostHog automatically tracks route navigation pageviews and conversion funnels (`mess_created`, `meal_toggled`, `expense_added`, etc.).
+
+#### 3. Cloudflare DNS & Security Proxy
+1. Add your custom domain (e.g. `nexmess.shop`) to Cloudflare (Free Tier).
+2. Point your registrar nameservers to Cloudflare.
+3. In Cloudflare Dashboard -> **SSL/TLS**, set encryption mode to **Full (Strict)**.
+4. Enable **Bot Fight Mode** and **Always Use HTTPS** to shield the API from scrapers and DDoS traffic.
+
+---
+
+### Step 8: Run the Local Development Server
 
 Start the Vite development server:
 
@@ -283,7 +310,7 @@ Open your browser and navigate to **[http://localhost:5173](http://localhost:517
 
 ---
 
-### Step 8: Build for Production & Preview
+### Step 9: Build for Production & Preview
 
 To build an optimized production bundle:
 

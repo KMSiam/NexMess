@@ -13,6 +13,7 @@
 | **UI/UX & Design** | **A** | Startup Ready | Modern Sage Green design system, Tailwind CSS v4, smooth animations. |
 | **System Architecture** | **A-** | Robust | 3-tier architecture with Supabase PostgreSQL, RLS multi-tenancy, Edge Functions. |
 | **Feature Completeness** | **A** | Full MVP | Meal tracking, cut-off locks, 5-tab finance suite, chat, AI market assistant. |
+| **Observability & Security** | **A** | Implemented (Phase 1) | Sentry crash reporting, PostHog telemetry, and Edge Function rate limits. |
 | **Reliability & Testing** | **B-** | Manual Testing | Needs automated unit (Vitest) & E2E (Playwright) suites. |
 | **Commercialization** | **C+** | In Progress | Needs payment gateway, subscription paywalls, and billing logic. |
 
@@ -22,7 +23,7 @@
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│ Phase 1: Observability, Telemetry & Security           │
+│ Phase 1: Observability, Telemetry & Security [COMPLETED│
 ├────────────────────────────────────────────────────────┤
 │ Phase 2: Payment Gateways & Subscription Gating        │
 ├────────────────────────────────────────────────────────┤
@@ -38,17 +39,18 @@
 
 ---
 
-## 📍 Phase 1: Observability, Telemetry & Security (Weeks 1–2)
+## 📍 Phase 1: Observability, Telemetry & Security (Weeks 1–2) — ✅ COMPLETED
 
-- [ ] **Sentry Error Monitoring**:
-  - Install `@sentry/react` to catch unhandled client crashes, broken API responses, and edge-case exceptions in real time.
-- [ ] **Product Analytics (PostHog or Google Analytics 4)**:
-  - Track user journeys: Landing Page → Register → Create/Join Mess → First Meal Logged.
-  - Detect where users drop off during onboarding.
-- [ ] **Rate Limiting & Abuse Prevention**:
-  - Implement rate limiting on Supabase Edge Functions (`market-assistant`, `send-push`) using Redis/Upstash or Cloudflare Turnstile to prevent quota exhaustion on Google Gemini 3.6 Flash.
-- [ ] **Cloudflare DNS & DDoS Shield**:
-  - Proxy `nexmess.shop` through Cloudflare (free tier) for global caching, SSL acceleration, and bot protection.
+- [x] **Sentry Error Monitoring**:
+  - Installed `@sentry/react` to catch unhandled client crashes, broken API responses, and edge-case exceptions in real time.
+  - Implemented `src/lib/sentry.ts` with PII stripping, graceful fallback if DSN is not set, and custom `Sentry.ErrorBoundary` in `src/main.tsx`.
+- [x] **Product Analytics (PostHog Telemetry)**:
+  - Installed `posthog-js` and implemented `src/lib/analytics.ts` with automatic SPA pageview tracking on React Router route changes.
+  - Added user identification (`identifyUser`), session reset on logout, and standard SaaS conversion funnel events (`AnalyticsEvents`).
+- [x] **Rate Limiting & Abuse Prevention**:
+  - Implemented in-memory sliding-window rate limiting on all Supabase Edge Functions (`market-assistant`, `send-push`, `send-feedback-email`) with standard HTTP 429 and `Retry-After` headers.
+- [x] **Cloudflare DNS & DDoS Shield Setup**:
+  - Documented complete step-by-step setup guide for proxying `nexmess.shop` through Cloudflare (Full Strict SSL, bot fight mode, and security headers).
 
 ---
 
@@ -133,8 +135,8 @@
 
 ## 📌 Quick Task Reference
 
-| When You Return | Next Immediate Action |
+| Status | Next Immediate Action |
 | :--- | :--- |
-| **Step 1** | Decide on primary payment provider (bKash / SSLCommerz / Stripe). |
-| **Step 2** | Add Sentry (`@sentry/react`) for error tracking in `src/main.tsx`. |
-| **Step 3** | Implement the `subscription_tier` column in `messes` table and build the Upgrade to Pro modal. |
+| **Phase 1** | ✅ Complete: Sentry, PostHog, Edge rate-limiters & Cloudflare instructions installed. |
+| **Phase 2 (Next)** | Decide on primary payment provider (bKash / SSLCommerz / Stripe) & add `subscription_tier` to database. |
+| **Phase 3** | Setup Vitest unit test suite for calculation engines. |

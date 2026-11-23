@@ -12,6 +12,28 @@ const CORS = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// ─── In-Memory Sliding Window Rate Limiter ───
+const PUSH_WINDOW_MS = 3 * 60 * 1000 // 3 minutes
+const MAX_PUSH_PER_WINDOW = 30 // max 30 pushes per user per 3m
+const pushRateMap = new Map<string, { count: number; windowStart: number }>()
+
+function checkPushRateLimit(userId: string): boolean {
+  const now = Date.now()
+  const record = pushRateMap.get(userId)
+
+  if (!record || now - record.windowStart > PUSH_WINDOW_MS) {
+    pushRateMap.set(userId, { count: 1, windowStart: now })
+    return true
+  }
+
+  if (record.count >= MAX_PUSH_PER_WINDOW) {
+    return false
+  }
+
+  record.count += 1
+  return true
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
 
@@ -59,6 +81,17 @@ Deno.serve(async (req) => {
         status: 400,
         headers: CORS,
       })
+    }
+
+    // Rate Limiting Check
+    if (!checkPushRateLimit(user_id)) {
+      return new Response(
+        JSON.stringify({ error: 'Push notification rate limit exceeded. Please wait a few minutes.' }),
+        {
+          status: 429,
+          headers: { ...CORS, 'Content-Type': 'application/json', 'Retry-After': '180' },
+        }
+      )
     }
 
     // Sanitize length

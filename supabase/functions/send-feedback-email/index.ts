@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
         JSON.stringify({ error: 'Too many feedback requests. Please wait a few minutes before submitting again.' }),
         {
           status: 429,
-          headers: { ...CORS, 'Content-Type': 'application/json' },
+          headers: { ...CORS, 'Content-Type': 'application/json', 'Retry-After': '600' },
         }
       )
     }
