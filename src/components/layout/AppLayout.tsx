@@ -26,6 +26,7 @@ import {
 import NotificationBell from '../NotificationBell'
 import GlobalErrorBoundary from '../GlobalErrorBoundary'
 import { getInitials } from '../../lib/utils'
+import { AnalyticsEvents, trackEvent } from '../../lib/analytics'
 import logoIcon from '../../assets/logo-icon.svg'
 
 const navItems = [
@@ -101,6 +102,7 @@ export default function AppLayout() {
   const handleSignOut = async () => {
     if (signingOut) return
     setSigningOut(true)
+    trackEvent(AnalyticsEvents.AUTH_LOGOUT)
     resetMess()
     await signOut()
     navigate('/', { replace: true })
@@ -175,17 +177,16 @@ export default function AppLayout() {
             <div className="relative shrink-0">
               <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-semibold text-white">
                 {profile?.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
                 ) : (
                   getInitials(profile?.username || 'U')
                 )}
               </div>
               {profile?.is_verified && (
-                <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-blue-500 text-white border-2 border-white dark:border-nex-bg shadow-sm" title="Verified Member">
+                <span
+                  className="dark:border-nex-bg absolute -right-0.5 -bottom-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-white bg-blue-500 text-white shadow-sm"
+                  title="Verified Member"
+                >
                   <Check className="h-1.5 w-1.5 stroke-[4]" />
                 </span>
               )}
@@ -220,7 +221,11 @@ export default function AppLayout() {
                   >
                     <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 text-xs font-bold text-white">
                       {currentMess.avatar_url ? (
-                        <img src={currentMess.avatar_url} alt="" className="h-full w-full object-cover" />
+                        <img
+                          src={currentMess.avatar_url}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
                         currentMess.name[0]
                       )}
@@ -253,7 +258,11 @@ export default function AppLayout() {
                           >
                             <div className="bg-nex-elevated text-nex-muted flex h-5.5 w-5.5 items-center justify-center overflow-hidden rounded text-[10px] font-bold">
                               {mess.avatar_url ? (
-                                <img src={mess.avatar_url} alt="" className="h-full w-full object-cover" />
+                                <img
+                                  src={mess.avatar_url}
+                                  alt=""
+                                  className="h-full w-full object-cover"
+                                />
                               ) : (
                                 mess.name[0]
                               )}

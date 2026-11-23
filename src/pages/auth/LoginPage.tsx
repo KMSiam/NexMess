@@ -9,11 +9,13 @@ import { useSEO } from '../../hooks/useSEO'
 import { loginSchema, validateForm } from '../../lib/validation/schemas'
 import { checkRateLimit, recordRateLimitAttempt } from '../../lib/rateLimiter'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import { AnalyticsEvents, trackEvent } from '../../lib/analytics'
 
 export default function LoginPage() {
   useSEO({
     title: 'Sign In',
-    description: 'Log in to your NexMess account to track meals, manage shared expenses, check bazaar rotation, and coordinate with your roommates.',
+    description:
+      'Log in to your NexMess account to track meals, manage shared expenses, check bazaar rotation, and coordinate with your roommates.',
     canonical: 'https://www.nexmess.shop/login',
     robots: 'index, follow',
   })
@@ -66,6 +68,7 @@ export default function LoginPage() {
             useAuthStore.getState().setSession(data.session)
             await useAuthStore.getState().fetchProfile()
           }
+          trackEvent(AnalyticsEvents.AUTH_LOGIN, { auth_method: 'password' })
           toast.success('Welcome back!')
           navigate('/dashboard')
         }
@@ -140,7 +143,9 @@ export default function LoginPage() {
           {cooldownSec > 0 && (
             <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-400">
               <ShieldAlert className="h-5 w-5 shrink-0" />
-              <span>Too many consecutive attempts. Please wait {cooldownSec}s before retrying.</span>
+              <span>
+                Too many consecutive attempts. Please wait {cooldownSec}s before retrying.
+              </span>
             </div>
           )}
 

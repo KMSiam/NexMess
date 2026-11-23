@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { Plus, Users } from 'lucide-react'
 import { isMealCutoffPassed, dhakaToday, dhakaTomorrow } from '../../lib/utils'
 import { sendPushToUsers } from '../../lib/push'
+import { AnalyticsEvents, trackEvent } from '../../lib/analytics'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 import ConfirmDialog from '../../components/ConfirmDialog'
@@ -157,6 +158,12 @@ export default function DashboardPage() {
         ...prev,
         [tab]: { ...prev[tab], [type]: !newValue },
       }))
+    } else {
+      trackEvent(AnalyticsEvents.MEAL_TOGGLED, {
+        meal_type: type,
+        meal_date: tab,
+        is_selected: newValue,
+      })
     }
     setMealLoading(false)
   }
@@ -239,7 +246,11 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white shadow-inner">
                     {req.messes?.avatar_url ? (
-                      <img src={req.messes.avatar_url} alt="" className="h-full w-full object-cover" />
+                      <img
+                        src={req.messes.avatar_url}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       req.messes?.name?.[0] || '?'
                     )}

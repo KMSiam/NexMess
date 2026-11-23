@@ -22,6 +22,7 @@ import { format } from 'date-fns'
 import { usePageTitle } from '../../../hooks/usePageTitle'
 import MarkdownRenderer from '../../../components/MarkdownRenderer'
 import { sanitizeAppError } from '../../../lib/errorHandler'
+import { AnalyticsEvents, trackEvent } from '../../../lib/analytics'
 
 interface Message {
   id: string
@@ -101,12 +102,15 @@ export default function AIMarketAssistant() {
     }
   }, [currentMess?.id, fetchMessages])
 
-  const handleSend = async (textToSend: string) => {
+  const handleSend = async (
+    textToSend: string,
+    querySource: 'freeform' | 'suggestion' = 'freeform'
+  ) => {
     if (!textToSend.trim() || !currentMess?.id || !session?.access_token || loading) return
 
     const userMessageText = textToSend.trim()
     setInputText('')
-    
+
     // Add user's message optimistically in the UI first (instant rendering like Messenger/WhatsApp)
     const tempId = `temp-${crypto.randomUUID()}`
     const optimisticUserMessage: Message = {
@@ -119,7 +123,7 @@ export default function AIMarketAssistant() {
       profiles: {
         username: profile?.username || 'Member',
         avatar_url: profile?.avatar_url || null,
-      }
+      },
     }
     setMessages((prev) => [...prev, optimisticUserMessage])
     setLoading(true)
@@ -160,6 +164,7 @@ export default function AIMarketAssistant() {
         throw new Error(errData.error || 'Failed to get response from assistant.')
       }
 
+      trackEvent(AnalyticsEvents.AI_MARKET_QUERY, { query_source: querySource })
       // Realtime subscription handles the message refresh via debounced fetchMessages
     } catch (error: any) {
       toast.error(sanitizeAppError(error, 'Error communicating with AI assistant.'))
@@ -173,7 +178,7 @@ export default function AIMarketAssistant() {
 
   const handleSuggestClick = (suggestion: string) => {
     setInputText('')
-    handleSend(suggestion)
+    handleSend(suggestion, 'suggestion')
   }
 
   const suggestions = [

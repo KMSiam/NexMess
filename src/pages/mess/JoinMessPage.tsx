@@ -5,6 +5,7 @@ import { useMessStore } from '../../stores/messStore'
 import { Users, ArrowRight, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import { AnalyticsEvents, trackEvent } from '../../lib/analytics'
 
 export default function JoinMessPage() {
   const navigate = useNavigate()
@@ -28,6 +29,7 @@ export default function JoinMessPage() {
     try {
       const result = await joinMess(cleanCode, user.id)
       if (result.success) {
+        trackEvent(AnalyticsEvents.MESS_JOIN_REQUESTED)
         toast.success('Join request sent! Waiting for manager approval.')
         navigate('/dashboard')
       } else {
@@ -70,7 +72,11 @@ export default function JoinMessPage() {
             <div className="nex-card border-nex-border/80 space-y-4 border p-5 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-base font-bold text-white shadow-inner">
                 {pendingReq?.messes?.avatar_url ? (
-                  <img src={pendingReq.messes.avatar_url} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={pendingReq.messes.avatar_url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   pendingReq?.messes?.name?.[0] || '?'
                 )}

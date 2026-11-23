@@ -1,18 +1,23 @@
 import posthog from 'posthog-js'
 
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY as string | undefined
-const POSTHOG_HOST = (import.meta.env.VITE_POSTHOG_HOST as string | undefined) || 'https://us.i.posthog.com'
+const POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST as string | undefined
 
 let isInitialized = false
 
 /**
  * Initializes PostHog for privacy-respecting product analytics and funnel telemetry.
- * Operates gracefully as a no-op if VITE_POSTHOG_KEY is not configured.
+ * Operates gracefully as a no-op in production if its Vite configuration is absent.
  */
 export function initAnalytics() {
-  if (!POSTHOG_KEY) {
+  if (isInitialized) return
+
+  if (!POSTHOG_KEY || !POSTHOG_HOST) {
     if (import.meta.env.DEV) {
-      console.info('[Analytics] VITE_POSTHOG_KEY is not configured. Analytics running in local mock mode.')
+      const missingVariable = !POSTHOG_KEY ? 'VITE_POSTHOG_KEY' : 'VITE_POSTHOG_HOST'
+      throw new Error(
+        `${missingVariable} variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once ${missingVariable} is configured`
+      )
     }
     return
   }
@@ -31,8 +36,17 @@ export function initAnalytics() {
     autocapture: true,
     capture_pageview: false, // We manually trigger pageviews on React Router route changes
     capture_pageleave: true,
+    capture_exceptions: {
+      capture_unhandled_errors: true,
+      capture_unhandled_rejections: true,
+      capture_console_errors: false,
+    },
     persistence: 'localStorage',
     disable_session_recording: false,
+    logs: {
+      serviceName: 'nexmess-web',
+      environment: import.meta.env.MODE,
+    },
     sanitize_properties: (properties) => {
       // Strip any sensitive passwords or tokens before ingestion
       if (properties.password) delete properties.password
@@ -42,6 +56,15 @@ export function initAnalytics() {
   })
 
   isInitialized = true
+  logOperationalInfo('web_analytics_initialized', { runtime: 'browser' })
+}
+
+export function logOperationalInfo(
+  message: string,
+  attributes?: Record<string, string | number | boolean>
+) {
+  if (!isInitialized) return
+  posthog.logger.info(message, attributes)
 }
 
 /**

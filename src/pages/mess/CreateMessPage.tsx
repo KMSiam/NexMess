@@ -6,6 +6,7 @@ import { ArrowRight, Home } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { createMessSchema, validateForm } from '../../lib/validation/schemas'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import { AnalyticsEvents, logOperationalInfo, trackEvent } from '../../lib/analytics'
 
 export default function CreateMessPage() {
   const navigate = useNavigate()
@@ -33,6 +34,8 @@ export default function CreateMessPage() {
     try {
       const mess = await createMess(validation.data.name, user.id)
       if (mess) {
+        trackEvent(AnalyticsEvents.MESS_CREATE)
+        logOperationalInfo('mess_created')
         toast.success(`"${mess.name}" created! Code: ${mess.unique_code}`)
         navigate('/dashboard')
       } else {

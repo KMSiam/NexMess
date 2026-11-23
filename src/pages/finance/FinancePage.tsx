@@ -12,6 +12,7 @@ import { sendPushToUser } from '../../lib/push'
 import { expenseSchema, depositSchema, validateForm } from '../../lib/validation/schemas'
 import { validateUploadedFile, generateSafeFileName } from '../../lib/fileValidator'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import { AnalyticsEvents, trackEvent } from '../../lib/analytics'
 
 import { useFinanceData } from '../../hooks/useFinanceData'
 import { usePageTitle } from '../../hooks/usePageTitle'
@@ -141,7 +142,9 @@ export default function FinancePage() {
       const fileName = `${currentMess.id}/${safeName}`
 
       try {
-        const { error: uploadError } = await supabase.storage.from('receipts').upload(fileName, file)
+        const { error: uploadError } = await supabase.storage
+          .from('receipts')
+          .upload(fileName, file)
         if (uploadError) {
           toast.error(sanitizeAppError(uploadError, 'Failed to upload receipt'))
           return
@@ -168,6 +171,10 @@ export default function FinancePage() {
       if (error) {
         toast.error(sanitizeAppError(error, 'Failed to add expense'))
       } else {
+        trackEvent(AnalyticsEvents.EXPENSE_ADDED, {
+          expense_category: validation.data.category,
+          has_receipt: Boolean(file),
+        })
         toast.success('Expense added!')
         refetch()
       }
@@ -258,6 +265,9 @@ export default function FinancePage() {
       if (error) {
         toast.error(sanitizeAppError(error, 'Failed to add deposit'))
       } else {
+        trackEvent(AnalyticsEvents.DEPOSIT_SUBMITTED, {
+          recorded_for_self: userId === user?.id,
+        })
         toast.success('Deposit recorded!')
         refetch()
         await supabase.from('notifications').insert({
@@ -491,6 +501,7 @@ export default function FinancePage() {
       dailyMeals,
       dailyDeposits,
     })
+    trackEvent(AnalyticsEvents.PDF_EXPORTED, { report_month: currentMonth })
     toast.success('PDF Report Downloaded!')
   }
 

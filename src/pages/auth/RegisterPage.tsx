@@ -8,11 +8,13 @@ import { useSEO } from '../../hooks/useSEO'
 import { registerSchema, validateForm } from '../../lib/validation/schemas'
 import { checkRateLimit, recordRateLimitAttempt } from '../../lib/rateLimiter'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import { AnalyticsEvents, trackEvent } from '../../lib/analytics'
 
 export default function RegisterPage() {
   useSEO({
     title: 'Get Started | Create Your Mess',
-    description: 'Register for NexMess and create or join a mess. Start tracking meals, managing group expenses, and automating roommate duties today.',
+    description:
+      'Register for NexMess and create or join a mess. Start tracking meals, managing group expenses, and automating roommate duties today.',
     canonical: 'https://www.nexmess.shop/register',
     robots: 'index, follow',
   })
@@ -70,6 +72,7 @@ export default function RegisterPage() {
       } else {
         recordRateLimitAttempt(rateLimitKey, true)
         setCooldownSec(0)
+        trackEvent(AnalyticsEvents.AUTH_REGISTER, { auth_method: 'password' })
         toast.success('Check your email for a verification link!')
         navigate('/verify-email', { state: { email } })
       }
@@ -141,7 +144,9 @@ export default function RegisterPage() {
           {cooldownSec > 0 && (
             <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-400">
               <ShieldAlert className="h-5 w-5 shrink-0" />
-              <span>Too many registration attempts. Please wait {cooldownSec}s before retrying.</span>
+              <span>
+                Too many registration attempts. Please wait {cooldownSec}s before retrying.
+              </span>
             </div>
           )}
 

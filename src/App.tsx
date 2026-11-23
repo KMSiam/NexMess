@@ -1,9 +1,9 @@
-import { useEffect, lazy, Suspense } from 'react'
+import { useEffect, useRef, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { useAuthStore } from './stores/authStore'
 import { useMessStore } from './stores/messStore'
-import { trackPageView, identifyUser, resetUser } from './lib/analytics'
+import { trackPageView, identifyUser, resetUser, logOperationalInfo } from './lib/analytics'
 import { setUserContext, clearUserContext } from './lib/sentry'
 
 // Guards
@@ -51,21 +51,35 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   const { fetchUserMesses } = useMessStore()
   const navigate = useNavigate()
   const location = useLocation()
+  const identifiedUserId = useRef<string | null>(null)
 
   // Track virtual pageviews on route navigation
   useEffect(() => {
     trackPageView(location.pathname + location.search)
   }, [location])
 
-  // Synchronize authenticated user identity with telemetry & crash reporting
+  // Identify when auth resolves, and only reset after an identified user leaves or changes.
   useEffect(() => {
     if (user) {
-      identifyUser(user.id, { email: user.email })
+      if (identifiedUserId.current && identifiedUserId.current !== user.id) {
+        resetUser()
+      }
+
+      if (identifiedUserId.current !== user.id) {
+        identifyUser(user.id, { email: user.email })
+        logOperationalInfo('authenticated_session_identified')
+        identifiedUserId.current = user.id
+      }
+
       setUserContext(user.id, user.email)
-    } else {
-      resetUser()
-      clearUserContext()
+      return
     }
+
+    if (identifiedUserId.current) {
+      resetUser()
+      identifiedUserId.current = null
+    }
+    clearUserContext()
   }, [user])
 
   // Handle Supabase error redirects (e.g. expired OTP link)
@@ -91,7 +105,8 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   // Initialize theme globally (for public landing, login, and private pages)
   useEffect(() => {
     const saved = localStorage.getItem('nexmess-theme')
-    const isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    const isDark =
+      saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
     if (isDark) {
       document.documentElement.classList.add('dark')
     } else {

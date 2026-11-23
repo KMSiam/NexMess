@@ -5,6 +5,83 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
+const GEMINI_MODEL = 'gemini-3.6-flash'
+const posthogKey = Deno.env.get('POSTHOG_KEY')
+const posthogHost = Deno.env.get('POSTHOG_HOST')
+const posthogCaptureUrl = posthogHost ? new URL('/i/v0/e/', posthogHost).toString() : null
+
+if ((!posthogKey || !posthogHost) && Deno.env.get('DENO_ENV') !== 'production') {
+  const missingVariable = !posthogKey ? 'POSTHOG_KEY' : 'POSTHOG_HOST'
+  console.warn(
+    `${missingVariable} variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once ${missingVariable} is configured`
+  )
+}
+
+interface AiGenerationCapture {
+  distinctId?: string
+  traceId: string
+  sessionId: string
+  input: Array<{ role: string; content: string }>
+  output?: string
+  latencyMs: number
+  status?: number
+  usage?: { promptTokenCount?: number; candidatesTokenCount?: number }
+  grounded: boolean
+  isError?: boolean
+}
+
+async function sendAiGeneration(capture: AiGenerationCapture) {
+  if (!posthogKey || !posthogCaptureUrl) return
+
+  const properties: Record<string, unknown> = {
+    distinct_id: capture.distinctId ?? capture.sessionId,
+    $ai_trace_id: capture.traceId,
+    $ai_session_id: capture.sessionId,
+    $ai_model: GEMINI_MODEL,
+    $ai_provider: 'gemini',
+    $ai_input: capture.input,
+    $ai_output_choices: capture.output ? [{ role: 'assistant', content: capture.output }] : [],
+    $ai_input_tokens: capture.usage?.promptTokenCount ?? 0,
+    $ai_output_tokens: capture.usage?.candidatesTokenCount ?? 0,
+    $ai_latency: capture.latencyMs / 1000,
+    $ai_http_status: capture.status,
+    $ai_is_error: capture.isError,
+  }
+
+  if (!capture.distinctId) properties.$process_person_profile = false
+  if (capture.grounded) properties.$ai_tools = [{ type: 'google_search' }]
+
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 1500)
+  try {
+    await fetch(posthogCaptureUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: posthogKey, event: '$ai_generation', properties }),
+      signal: controller.signal,
+    })
+  } catch {
+    // AI observability must never interrupt a successful Gemini response.
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+function enqueueAiGeneration(capture: AiGenerationCapture) {
+  const capturePromise = sendAiGeneration(capture)
+  const edgeRuntime = (
+    globalThis as typeof globalThis & {
+      EdgeRuntime?: { waitUntil: (promise: Promise<unknown>) => void }
+    }
+  ).EdgeRuntime
+
+  if (edgeRuntime) {
+    edgeRuntime.waitUntil(capturePromise)
+  } else {
+    void capturePromise
+  }
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -103,7 +180,9 @@ Deno.serve(async (req) => {
       // Apply Rate Limiting per user
       if (!checkEdgeRateLimit(user.id)) {
         return new Response(
-          JSON.stringify({ error: 'Too many requests. Please wait a moment before sending more messages.' }),
+          JSON.stringify({
+            error: 'Too many requests. Please wait a moment before sending more messages.',
+          }),
           {
             status: 429,
             headers: { ...CORS, 'Content-Type': 'application/json', 'Retry-After': '180' },
@@ -215,7 +294,6 @@ Please ask your Mess Manager to configure the location in **Settings > Mess Deta
       fallbackDateStr = bstDate.toISOString().split('T')[0]
     }
     const targetDate = fallbackDateStr
-
 
     // Today's Meals
     const { data: meals } = await serviceSupabase
@@ -371,11 +449,23 @@ No intros, no filler. Straight to the data.`,
       })
     }
 
+    const aiTraceId = crypto.randomUUID()
+    const aiSessionId = `mess-${mess_id}`
+    const aiInput = [
+      { role: 'system', content: messContextPrompt },
+      ...contentsPayload.map((content) => ({
+        role: content.role === 'model' ? 'assistant' : 'user',
+        content: content.parts.map((part: { text?: string }) => part.text ?? '').join('\n'),
+      })),
+    ]
+
     // Call Gemini API with Search Grounding (try paid/grounded first)
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiKey}`
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiKey}`
 
     let responseText = ''
     let isGrounded = true
+    let groundedGenerationCaptured = false
+    const groundedStartedAt = performance.now()
 
     try {
       const response = await fetch(geminiUrl, {
@@ -392,6 +482,17 @@ No intros, no filler. Straight to the data.`,
 
       if (!response.ok) {
         const errText = await response.text()
+        enqueueAiGeneration({
+          distinctId: user?.id,
+          traceId: aiTraceId,
+          sessionId: aiSessionId,
+          input: aiInput,
+          latencyMs: performance.now() - groundedStartedAt,
+          status: response.status,
+          grounded: true,
+          isError: true,
+        })
+        groundedGenerationCaptured = true
         console.warn(
           'Search Grounding API call returned non-200. Status:',
           response.status,
@@ -417,8 +518,31 @@ No intros, no filler. Straight to the data.`,
         const resultJson = await response.json()
         const candidate = resultJson.candidates?.[0]
         responseText = candidate?.content?.parts?.[0]?.text || ''
+        enqueueAiGeneration({
+          distinctId: user?.id,
+          traceId: aiTraceId,
+          sessionId: aiSessionId,
+          input: aiInput,
+          output: responseText,
+          latencyMs: performance.now() - groundedStartedAt,
+          status: response.status,
+          usage: resultJson.usageMetadata,
+          grounded: true,
+        })
+        groundedGenerationCaptured = true
       }
     } catch (e) {
+      if (!groundedGenerationCaptured) {
+        enqueueAiGeneration({
+          distinctId: user?.id,
+          traceId: aiTraceId,
+          sessionId: aiSessionId,
+          input: aiInput,
+          latencyMs: performance.now() - groundedStartedAt,
+          grounded: true,
+          isError: true,
+        })
+      }
       console.error('Initial grounded call failed:', e)
       isGrounded = false
     }
@@ -426,39 +550,77 @@ No intros, no filler. Straight to the data.`,
     // Fallback: If grounded search failed (due to 429/credits/no-billing), retry without the search tool
     if (!isGrounded || !responseText) {
       console.warn('Executing fallback Gemini call without search grounding...')
-      const fallbackResponse = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: contentsPayload,
-          systemInstruction: {
-            parts: [
-              {
-                text:
-                  messContextPrompt +
-                  '\n\nADDITIONAL INFO:\nLive Google Search is currently disabled or key credits are depleted. Fall back to your general knowledge or estimate typical local prices for this region. Add a short warning notice at the very end of your response stating that live search is disabled and billing setup is required.',
-              },
-            ],
-          },
-        }),
-      })
+      const fallbackStartedAt = performance.now()
+      try {
+        const fallbackResponse = await fetch(geminiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: contentsPayload,
+            systemInstruction: {
+              parts: [
+                {
+                  text:
+                    messContextPrompt +
+                    '\n\nADDITIONAL INFO:\nLive Google Search is currently disabled or key credits are depleted. Fall back to your general knowledge or estimate typical local prices for this region. Add a short warning notice at the very end of your response stating that live search is disabled and billing setup is required.',
+                },
+              ],
+            },
+          }),
+        })
 
-      if (!fallbackResponse.ok) {
-        const errText = await fallbackResponse.text()
-        console.error('Gemini Fallback API Error details:', errText)
-        throw new Error(`Gemini API returned status ${fallbackResponse.status}: ${errText}`)
-      }
+        if (!fallbackResponse.ok) {
+          const errText = await fallbackResponse.text()
+          enqueueAiGeneration({
+            distinctId: user?.id,
+            traceId: aiTraceId,
+            sessionId: aiSessionId,
+            input: aiInput,
+            latencyMs: performance.now() - fallbackStartedAt,
+            status: fallbackResponse.status,
+            grounded: false,
+            isError: true,
+          })
+          console.error('Gemini Fallback API Error details:', errText)
+          throw new Error(`Gemini API returned status ${fallbackResponse.status}: ${errText}`)
+        }
 
-      const resultJson = await fallbackResponse.json()
-      const candidate = resultJson.candidates?.[0]
-      responseText =
-        candidate?.content?.parts?.[0]?.text ||
-        'I was unable to retrieve price reports right now. Please check your Gemini API Studio billing/prepayment credits.'
+        const resultJson = await fallbackResponse.json()
+        const candidate = resultJson.candidates?.[0]
+        responseText =
+          candidate?.content?.parts?.[0]?.text ||
+          'I was unable to retrieve price reports right now. Please check your Gemini API Studio billing/prepayment credits.'
 
-      // Append a clear footer warning to the response if not already present
-      if (!responseText.includes('Live search is disabled')) {
-        responseText +=
-          '\n\n*(Notice: Live Google Search is disabled due to depleted API prepayment credits. Showing estimates based on general market trends.)*'
+        // Append a clear footer warning to the response if not already present
+        if (!responseText.includes('Live search is disabled')) {
+          responseText +=
+            '\n\n*(Notice: Live Google Search is disabled due to depleted API prepayment credits. Showing estimates based on general market trends.)*'
+        }
+
+        enqueueAiGeneration({
+          distinctId: user?.id,
+          traceId: aiTraceId,
+          sessionId: aiSessionId,
+          input: aiInput,
+          output: responseText,
+          latencyMs: performance.now() - fallbackStartedAt,
+          status: fallbackResponse.status,
+          usage: resultJson.usageMetadata,
+          grounded: false,
+        })
+      } catch (e) {
+        if (!(e instanceof Error && e.message.startsWith('Gemini API returned status'))) {
+          enqueueAiGeneration({
+            distinctId: user?.id,
+            traceId: aiTraceId,
+            sessionId: aiSessionId,
+            input: aiInput,
+            latencyMs: performance.now() - fallbackStartedAt,
+            grounded: false,
+            isError: true,
+          })
+        }
+        throw e
       }
     }
 
@@ -473,9 +635,9 @@ No intros, no filler. Straight to the data.`,
     } else {
       // For chat action: only save AI message (user message was inserted by client)
       if (message) {
-        await serviceSupabase.from('market_chat_messages').insert(
-          { mess_id, text: responseText, is_ai: true }
-        )
+        await serviceSupabase
+          .from('market_chat_messages')
+          .insert({ mess_id, text: responseText, is_ai: true })
       }
     }
 
@@ -486,7 +648,9 @@ No intros, no filler. Straight to the data.`,
   } catch (err: any) {
     console.error('[market-assistant] Internal Error:', err)
     return new Response(
-      JSON.stringify({ error: 'Failed to process market assistant request. Please try again later.' }),
+      JSON.stringify({
+        error: 'Failed to process market assistant request. Please try again later.',
+      }),
       {
         status: 500,
         headers: { ...CORS, 'Content-Type': 'application/json' },
