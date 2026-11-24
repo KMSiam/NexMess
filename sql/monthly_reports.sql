@@ -127,14 +127,32 @@ BEGIN
                       THEN v_total_expenses / v_total_meals
                       ELSE 0 END;
 
-  -- ── Per-member breakdown via the existing RPC ────────────────
-  -- (calculate_member_balance is the same function FinancePage calls
-  --  client-side, so archived numbers match the live view exactly.)
+  -- ── Per-member breakdown for all members who belonged to or had records in p_month ──
   FOR v_member IN
-    SELECT m.user_id, m.status, COALESCE(p.username, 'Member') AS username
-    FROM public.mess_members m
-    LEFT JOIN public.profiles p ON p.id = m.user_id
-    WHERE m.mess_id = p_mess_id AND m.status IN ('approved', 'left')
+    SELECT DISTINCT ru.user_id, ru.status, COALESCE(p.username, 'Member') AS username
+    FROM (
+      -- 1. Members who were in the mess during this month
+      SELECT mm.user_id, mm.status
+      FROM public.mess_members mm
+      WHERE mm.mess_id = p_mess_id
+        AND mm.status IN ('approved', 'left')
+        AND mm.joined_at::date <= v_month_end
+        AND (mm.left_at IS NULL OR mm.left_at::date >= v_month_start)
+      UNION
+      -- 2. Any member who had meals in this mess during this month
+      SELECT m.user_id, COALESCE(mm.status, 'left') AS status
+      FROM public.meals m
+      LEFT JOIN public.mess_members mm ON mm.mess_id = m.mess_id AND mm.user_id = m.user_id
+      WHERE m.mess_id = p_mess_id AND m.date BETWEEN v_month_start AND v_month_end
+      UNION
+      -- 3. Any member who had verified deposits in this mess during this month
+      SELECT d.user_id, COALESCE(mm.status, 'left') AS status
+      FROM public.deposits d
+      LEFT JOIN public.mess_members mm ON mm.mess_id = d.mess_id AND mm.user_id = d.user_id
+      WHERE d.mess_id = p_mess_id AND d.verified = true AND d.date BETWEEN v_month_start AND v_month_end
+    ) ru
+    LEFT JOIN public.profiles p ON p.id = ru.user_id
+    ORDER BY username ASC
   LOOP
     v_bal := NULL;
     SELECT row_to_json(r) INTO v_bal

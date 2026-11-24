@@ -16,7 +16,7 @@ interface UseFinanceDataReturn {
 
 export function useFinanceData(
   messId: string | undefined,
-  membersList: { user_id: string; status: string }[]
+  membersList: { user_id: string; status: string; left_at?: string | null }[]
 ): UseFinanceDataReturn {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [deposits, setDeposits] = useState<Deposit[]>([])
@@ -28,7 +28,14 @@ export function useFinanceData(
   const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd')
   const monthEnd = format(endOfMonth(new Date()), 'yyyy-MM-dd')
 
-  const financeMembers = membersList.filter((m) => m.status === 'approved' || m.status === 'left')
+  const financeMembers = membersList.filter((m) => {
+    if (m.status === 'approved') return true
+    if (m.status === 'left') {
+      if (!m.left_at) return true
+      return new Date(m.left_at) >= startOfMonth(new Date())
+    }
+    return false
+  })
   const financeMemberIdsStr = JSON.stringify(financeMembers.map((m) => m.user_id))
 
   const fetchBalances = useCallback(async () => {

@@ -43,7 +43,14 @@ export default function FinancePage() {
 
   const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
   const approvedMembers = members.filter((m) => m.status === 'approved')
-  const financeMembers = members.filter((m) => m.status === 'approved' || m.status === 'left')
+  const financeMembers = members.filter((m) => {
+    if (m.status === 'approved') return true
+    if (m.status === 'left') {
+      if (!m.left_at) return true
+      return new Date(m.left_at) >= new Date(currentMonth + '-01')
+    }
+    return false
+  })
 
   const {
     expenses,
