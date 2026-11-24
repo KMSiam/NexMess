@@ -16,7 +16,7 @@
 | **Observability & Security** | **A** | Implemented (Phase 1) | Sentry crash reporting, PostHog telemetry, and Edge Function rate limits. |
 | **Reliability & Testing** | **A** | Implemented (Phase 3) | 29 unit tests passing (Vitest), Playwright E2E suite, GitHub Actions CI. |
 | **Localization & Fonts** | **A+** | Implemented (Phase 4) | Full app-wide authentic Bengali localization, Hind Siliguri typography, reactive theme synchronization. |
-| **Commercialization** | **C+** | Next Milestones (Phase 5 & 2) | Google Play Store TWA Release & Regional Payment Gateways (bKash/Nagad). |
+| **Commercialization & Mobile** | **Planned** | Future Roadmap (Phases 5 & 2) | Google Play Store TWA Release & Regional Payment Gateways (bKash/Nagad) saved for future expansion. |
 
 ---
 
@@ -28,13 +28,12 @@
 ├────────────────────────────────────────────────────────┤
 │ Phase 3: Automated Testing & CI/CD Pipelines [COMPLETED│
 ├────────────────────────────────────────────────────────┤
-│ Phase 4: Localization & Market Expansion     [COMPLETED│
+│ Phase 4: Localization & Theme Sync Engine    [COMPLETED│
 ├────────────────────────────────────────────────────────┤
-│ Phase 5: Mobile App Store Release (Google Play TWA)    │
-├────────────────────────────────────────────────────────┤
-│ Phase 2: Payment Gateways & Subscription Gating        │
-├────────────────────────────────────────────────────────┤
-│ Phase 6: Launch, Beta Cohort & Growth Marketing        │
+│ 🔮 FUTURE ROADMAP (Saved for Future Expansion):        │
+│   • Phase 5: Mobile App Store Release (Google Play TWA)│
+│   • Phase 2: Payment Gateways & Subscription Gating    │
+│   • Phase 6: Launch, Beta Cohort & Growth Marketing    │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -102,7 +101,9 @@
 
 ---
 
-## 📱 Phase 5: Google Play Store Release (Week 10)
+## 📱 Phase 5: Google Play Store Release — 🔮 FUTURE PLAN
+
+> **Status:** Saved for future expansion. The current focus remains on the core responsive Web & PWA experience.
 
 - [ ] **Trusted Web Activity (TWA)**:
   - Package the existing Vite PWA into an Android `.apk` / `.aab` using **Bubblewrap** or **Capacitor**.
@@ -111,14 +112,16 @@
 
 ---
 
-## 💳 Phase 2: Payment Gateways & Monetization (Scheduled)
+## 💳 Phase 2: Payment Gateways & Monetization — 🔮 FUTURE PLAN
+
+> **Status:** Saved for future expansion. The free MVP operational model remains active with full access for initial users.
 
 ### 1. Revenue Model & Tiers
 - **Free Tier (Free Forever)**:
-  - Up to 5 members per mess.
+  - Up to 6 members per mess.
   - Basic daily meal tracking & split ledger.
-  - 10 AI market queries per month.
-- **Pro Tier (৳499/mo or ৳4,999/yr per mess)**:
+  - 20 AI market queries per month.
+- **Pro Tier (৳149/mo or ৳1,490/yr per mess)**:
   - Unlimited mess members.
   - Unlimited Google Gemini 3.6 Flash AI assistant queries.
   - Monthly PDF financial audit reports with export history.
@@ -164,4 +167,5 @@
 | **Phase 1** | ✅ Complete: Sentry, PostHog, Edge rate-limiters & Cloudflare instructions installed. |
 | **Phase 3** | ✅ Complete: 29 Vitest unit tests, Playwright config, and GitHub Actions CI pipeline active. |
 | **Phase 4** | ✅ Complete: App-wide authentic Bengali localization, Hind Siliguri typography, and reactive theme synchronization. |
-| **Next Target** | **Phase 5 (Google Play Store TWA Packaging)** followed by **Phase 2 (Payment Gateways & Subscriptions)**. |
+| **Future Plans** | 🔮 **Phase 5** (Play Store TWA) & **Phase 2** (Payment Gateways & Subscriptions) saved for future expansion. |
+| **Current Focus** | Production stability, user onboarding, and core web platform refinements. |
