@@ -41,6 +41,16 @@ export default function FinancePage() {
     }
   }, [currentMess?.id, fetchMembers])
 
+  const {
+    expenses,
+    deposits,
+    fixedCosts,
+    balances,
+    loading: loadingData,
+    refetch,
+    currentMonth,
+  } = useFinanceData(currentMess?.id, members)
+
   const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
   const approvedMembers = members.filter((m) => m.status === 'approved')
   const financeMembers = members.filter((m) => {
@@ -51,16 +61,6 @@ export default function FinancePage() {
     }
     return false
   })
-
-  const {
-    expenses,
-    deposits,
-    fixedCosts,
-    balances,
-    loading: loadingData,
-    refetch,
-    currentMonth,
-  } = useFinanceData(currentMess?.id, members)
 
   const [paidFixedCostId, setPaidFixedCostId] = useState<string | null>(null)
 
