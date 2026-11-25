@@ -15,8 +15,7 @@ import {
   Settings,
   LogOut,
   Check,
-  PanelLeft,
-  PanelLeftClose,
+  ChevronLeft,
   X,
   MoreHorizontal,
   Sun,
@@ -109,82 +108,107 @@ export default function AppLayout() {
   return (
     <div className="bg-nex-bg flex min-h-dvh">
       <aside
-        className={`nex-glass border-nex-border/50 sticky top-0 hidden h-screen flex-col border-r transition-all duration-300 md:flex ${
+        className={`bg-nex-surface/95 border-nex-border/60 sticky top-0 z-40 hidden h-screen shrink-0 flex-col border-r backdrop-blur-md transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[width] md:flex ${
           sidebarCollapsed ? 'w-[72px]' : 'w-64'
         }`}
       >
-        <div
-          className={`border-nex-border/50 flex items-center border-b ${sidebarCollapsed ? 'flex-col gap-2 px-2 py-3' : 'gap-3 px-4 py-4'}`}
+        <button
+          type="button"
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className="bg-nex-surface border-nex-border text-nex-muted hover:text-nex-text hover:bg-nex-hover absolute top-5 -right-3.5 z-50 flex h-7 w-7 items-center justify-center rounded-full border shadow-sm transition-transform duration-200 hover:scale-105 active:scale-95"
+          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          <img src={logoIcon} alt="NexMess" className="rounded-card h-9 w-9 shrink-0" />
-          {!sidebarCollapsed && (
-            <h1 className="text-nex-text flex-1 text-lg font-bold tracking-tight">NexMess</h1>
-          )}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="rounded-btn text-nex-muted hover:bg-nex-hover p-1.5 transition-colors"
-            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {sidebarCollapsed ? (
-              <PanelLeft className="h-4 w-4" />
-            ) : (
-              <PanelLeftClose className="h-4 w-4" />
-            )}
-          </button>
-        </div>
+          <ChevronLeft
+            className={`h-3.5 w-3.5 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              sidebarCollapsed ? 'rotate-180' : 'rotate-0'
+            }`}
+          />
+        </button>
 
-        <nav className="flex-1 space-y-1 px-3 py-3">
-          {sidebarItems.map(({ to, icon: Icon, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              title={label}
-              className={({ isActive }) =>
-                `rounded-btn flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
-                  isActive ? 'nex-nav-active' : 'nex-nav-inactive'
-                } ${sidebarCollapsed ? 'justify-center' : ''}`
-              }
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="border-nex-border/50 flex h-[65px] shrink-0 items-center gap-3 border-b px-[18px]">
+            <img src={logoIcon} alt="NexMess" className="rounded-card h-9 w-9 shrink-0" />
+            <h1
+              className={`text-nex-text overflow-hidden text-lg font-bold tracking-tight whitespace-nowrap transition-[opacity,transform] duration-200 ease-out ${
+                sidebarCollapsed
+                  ? 'pointer-events-none -translate-x-2 opacity-0'
+                  : 'translate-x-0 opacity-100 delay-75'
+              }`}
+              aria-hidden={sidebarCollapsed}
             >
-              <Icon className="h-5 w-5 shrink-0" />
-              {!sidebarCollapsed && <span>{label}</span>}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="border-nex-border/50 border-t px-3 py-3">
-          <div className="flex items-center gap-3">
-            <div className="relative shrink-0">
-              <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-semibold text-white">
-                {profile?.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  getInitials(profile?.username || 'U')
+              NexMess
+            </h1>
+          </div>
+
+          <nav className="flex-1 space-y-1 overflow-x-hidden overflow-y-auto px-3 py-3">
+            {sidebarItems.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                title={sidebarCollapsed ? label : undefined}
+                className={({ isActive }) =>
+                  `rounded-btn flex items-center gap-3 py-2.5 pr-3 pl-[10px] text-sm transition-colors duration-200 ${
+                    isActive ? 'nex-nav-active' : 'nex-nav-inactive'
+                  }`
+                }
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                <span
+                  className={`overflow-hidden whitespace-nowrap transition-[opacity,transform] duration-200 ease-out ${
+                    sidebarCollapsed
+                      ? 'pointer-events-none -translate-x-2 opacity-0'
+                      : 'translate-x-0 opacity-100 delay-75'
+                  }`}
+                >
+                  {label}
+                </span>
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="border-nex-border/50 shrink-0 border-t px-[18px] py-3">
+            <div className="flex items-center gap-3">
+              <div className="relative shrink-0">
+                <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-semibold text-white">
+                  {profile?.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    getInitials(profile?.username || 'U')
+                  )}
+                </div>
+                {profile?.is_verified && (
+                  <span className="border-white dark:border-nex-bg absolute -right-0.5 -bottom-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 bg-blue-500 text-white shadow-sm" title="Verified Member">
+                    <Check className="h-1.5 w-1.5 stroke-[4]" />
+                  </span>
                 )}
               </div>
-              {profile?.is_verified && (
-                <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-blue-500 text-white border-2 border-white dark:border-nex-bg shadow-sm" title="Verified Member">
-                  <Check className="h-1.5 w-1.5 stroke-[4]" />
-                </span>
-              )}
-            </div>
-            {!sidebarCollapsed && (
-              <div className="min-w-0 flex-1">
+              <div
+                className={`min-w-0 flex-1 overflow-hidden transition-[opacity,transform] duration-200 ease-out ${
+                  sidebarCollapsed
+                    ? 'pointer-events-none -translate-x-2 opacity-0'
+                    : 'translate-x-0 opacity-100 delay-75'
+                }`}
+                aria-hidden={sidebarCollapsed}
+              >
                 <p className="text-nex-text flex items-center gap-1.5 truncate text-sm font-medium">
                   {profile?.username || 'User'}
                 </p>
                 <button
                   onClick={handleSignOut}
                   disabled={signingOut}
-                  className="text-nex-muted hover:text-nex-danger flex items-center gap-1 text-xs transition-colors disabled:opacity-50"
+                  tabIndex={sidebarCollapsed ? -1 : undefined}
+                  className="text-nex-muted hover:text-nex-danger flex items-center gap-1 text-xs whitespace-nowrap transition-colors disabled:opacity-50"
                 >
-                  <LogOut className="h-3 w-3" /> {signingOut ? t('common.signingOut') : t('common.signOut')}
+                  <LogOut className="h-3 w-3 shrink-0" />{' '}
+                  {signingOut ? t('common.signingOut') : t('common.signOut')}
                 </button>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </aside>
@@ -342,60 +366,84 @@ function MobileBottomNav({
 
   useEffect(() => {
     document.documentElement.dataset.mobileDrawer = showMore ? 'open' : 'closed'
+    if (!showMore) {
+      return () => {
+        delete document.documentElement.dataset.mobileDrawer
+      }
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowMore(false)
+    }
+    window.addEventListener('keydown', onKey)
     return () => {
+      window.removeEventListener('keydown', onKey)
       delete document.documentElement.dataset.mobileDrawer
     }
   }, [showMore])
 
   return (
     <>
-      {showMore && (
-        <div
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
-          onClick={() => setShowMore(false)}
-        />
-      )}
+      <AnimatePresence>
+        {showMore && (
+          <>
+            <motion.div
+              key="mobile-drawer-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
+              onClick={() => setShowMore(false)}
+            />
 
-      {showMore && (
-        <div className="nex-card border-nex-border animate-slide-up safe-area-bottom fixed right-2 bottom-20 left-2 z-50 border p-2 shadow-2xl md:hidden">
-          <NavLink
-            to="/market"
-            onClick={() => setShowMore(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
-            }
-          >
-            <ShoppingBag className="h-5 w-5" /> {t('nav.market')}
-          </NavLink>
-          <NavLink
-            to="/chat"
-            onClick={() => setShowMore(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
-            }
-          >
-            <MessageSquare className="h-5 w-5" /> {t('nav.chat')}
-          </NavLink>
+            <motion.div
+              key="mobile-drawer-sheet"
+              initial={{ opacity: 0, y: 18, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 14, scale: 0.97 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="nex-card border-nex-border safe-area-bottom fixed right-2 bottom-20 left-2 z-50 border p-2 shadow-2xl md:hidden"
+            >
+              <NavLink
+                to="/market"
+                onClick={() => setShowMore(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
+                }
+              >
+                <ShoppingBag className="h-5 w-5" /> {t('nav.market')}
+              </NavLink>
+              <NavLink
+                to="/chat"
+                onClick={() => setShowMore(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
+                }
+              >
+                <MessageSquare className="h-5 w-5" /> {t('nav.chat')}
+              </NavLink>
 
-          <NavLink
-            to="/settings"
-            onClick={() => setShowMore(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
-            }
-          >
-            <Settings className="h-5 w-5" /> {t('nav.settings')}
-          </NavLink>
-          <div className="border-nex-border my-1 border-t" />
-          <button
-            onClick={handleSignOut}
-            disabled={signingOut}
-            className="hover:bg-nex-danger-light flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-red-600 transition-colors disabled:opacity-50"
-          >
-            <LogOut className="h-5 w-5" /> {signingOut ? t('common.signingOut') : t('common.signOut')}
-          </button>
-        </div>
-      )}
+              <NavLink
+                to="/settings"
+                onClick={() => setShowMore(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
+                }
+              >
+                <Settings className="h-5 w-5" /> {t('nav.settings')}
+              </NavLink>
+              <div className="border-nex-border my-1 border-t" />
+              <button
+                onClick={handleSignOut}
+                disabled={signingOut}
+                className="hover:bg-nex-danger-light flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-red-600 transition-colors disabled:opacity-50"
+              >
+                <LogOut className="h-5 w-5" /> {signingOut ? t('common.signingOut') : t('common.signOut')}
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <nav
         className="nex-glass border-nex-border/50 safe-area-bottom fixed inset-x-0 bottom-0 z-40 border-t md:hidden"
