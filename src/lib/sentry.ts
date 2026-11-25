@@ -17,12 +17,13 @@ export function initSentry() {
   Sentry.init({
     dsn: SENTRY_DSN,
     environment: import.meta.env.MODE || 'production',
-    release: 'nexmess@1.27.0',
+    release: 'nexmess@2.0.0',
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({
-        maskAllText: false,
-        blockAllMedia: false,
+        maskAllText: true,
+        blockAllMedia: true,
+        maskAllInputs: true,
       }),
     ],
     // Tracing sampling rate
@@ -35,6 +36,11 @@ export function initSentry() {
       if (event.request?.headers) {
         delete event.request.headers['Authorization']
         delete event.request.headers['apikey']
+        delete event.request.headers['cookie']
+      }
+      if (event.user) {
+        delete event.user.email
+        delete event.user.ip_address
       }
       return event
     },
@@ -67,11 +73,10 @@ export function captureException(error: unknown, context?: Record<string, unknow
 /**
  * Associate the active logged-in user with Sentry error traces.
  */
-export function setUserContext(userId: string, email?: string) {
+export function setUserContext(userId: string) {
   if (!SENTRY_DSN) return
   Sentry.setUser({
     id: userId,
-    email: email,
   })
 }
 

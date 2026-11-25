@@ -12,6 +12,7 @@ import {
   Trash2,
   Calendar,
   ArrowRightLeft,
+  X,
 } from 'lucide-react'
 import {
   format,
@@ -24,7 +25,8 @@ import {
   isBefore,
   endOfMonth,
 } from 'date-fns'
-import { getInitials, formatNumber, formatLocalizedDate } from '../../../lib/utils'
+import { getInitials, formatNumber, formatLocalizedDate, isApprovedManager } from '../../../lib/utils'
+import { sanitizeAppError } from '../../../lib/errorHandler'
 import toast from 'react-hot-toast'
 import { Skeleton } from '../../../components/Skeleton'
 import ConfirmDialog from '../../../components/ConfirmDialog'
@@ -42,7 +44,7 @@ export default function BazaarSchedule() {
   const [loadingSchedules, setLoadingSchedules] = useState(true)
   const [deleteScheduleId, setDeleteScheduleId] = useState<string | null>(null)
 
-  const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
+  const isManager = isApprovedManager(members, user?.id)
   const approvedMembers = members.filter((m) => m.status === 'approved')
 
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 6 })
@@ -110,7 +112,9 @@ export default function BazaarSchedule() {
 
     if (error) {
       toast.error(
-        error.message.includes('duplicate') ? 'Already assigned for some dates' : 'Failed to assign'
+        error.message.includes('duplicate')
+          ? 'Already assigned for some dates'
+          : sanitizeAppError(error, 'Failed to assign')
       )
     } else {
       toast.success(`Bazaar duty assigned for ${selectedDates.length} date(s)!`)
@@ -202,84 +206,111 @@ export default function BazaarSchedule() {
         )}
       </div>
 
-      {/* Add Form */}
+      {/* Add Form Modal */}
       {showAdd && isManager && (
-        <div className="nex-card animate-slide-up p-5">
-          <h3 className="text-nex-text mb-4 text-lg font-semibold">{t('market.schedule.assignTitle')}</h3>
-          <form onSubmit={handleAssign} className="space-y-4">
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <select
-                value={selectedUser}
-                onChange={(e) => setSelectedUser(e.target.value)}
-                className="nex-input flex-1"
-                required
-                id="schedule-member"
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          onClick={() => setShowAdd(false)}
+        >
+          <div
+            className="nex-card animate-slide-up max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-b-none p-5 sm:rounded-b-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-nex-text text-lg font-semibold">{t('market.schedule.assignTitle')}</h3>
+              <button
+                type="button"
+                onClick={() => setShowAdd(false)}
+                className="text-nex-muted hover:text-nex-text rounded-lg p-1"
+                aria-label="Close"
               >
-                <option value="">{t('market.schedule.selectMember')}</option>
-                {approvedMembers.map((m) => {
-                  const p = m.profiles as any
-                  return (
-                    <option key={m.user_id} value={m.user_id}>
-                      {p?.username || t('common.member')}
-                    </option>
-                  )
-                })}
-              </select>
-              <button type="button" onClick={clearDates} className="nex-btn-secondary text-xs">
-                {t('market.schedule.clearDates')}
+                <X className="h-4 w-4" />
               </button>
             </div>
-
-            <div>
-              <p className="text-nex-text mb-2 text-sm font-medium">{t('market.schedule.selectDates')}</p>
-              <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
-                {eachDayOfInterval({ start: new Date(), end: endOfMonth(new Date()) }).map(
-                  (dayDate) => {
-                    const dateStr = format(dayDate, 'yyyy-MM-dd')
-                    const isSelected = selectedDates.includes(dateStr)
-                    const isPast = isBefore(dayDate, new Date()) && !isToday(dayDate)
+            <form onSubmit={handleAssign} className="space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <select
+                  value={selectedUser}
+                  onChange={(e) => setSelectedUser(e.target.value)}
+                  className="nex-input flex-1"
+                  required
+                  id="schedule-member"
+                >
+                  <option value="">{t('market.schedule.selectMember')}</option>
+                  {approvedMembers.map((m) => {
+                    const p = m.profiles as any
                     return (
-                      <button
-                        key={dateStr}
-                        type="button"
-                        disabled={isPast}
-                        onClick={() => toggleDate(dateStr)}
-                        className={`rounded-lg p-2 text-left text-xs font-medium transition-colors ${
-                          isSelected
-                            ? 'bg-nex-primary text-white'
-                            : isPast
-                              ? 'bg-nex-elevated text-nex-muted/40 cursor-not-allowed'
-                              : 'bg-nex-elevated text-nex-text hover:bg-nex-hover'
-                        }`}
-                      >
-                        <span className="block text-[10px] uppercase opacity-70">
-                          {formatLocalizedDate(dayDate, 'EEE')}
-                        </span>
-                        <span className="block font-semibold">{formatLocalizedDate(dayDate, 'MMM d')}</span>
-                      </button>
+                      <option key={m.user_id} value={m.user_id}>
+                        {p?.username || t('common.member')}
+                      </option>
                     )
-                  }
-                )}
+                  })}
+                </select>
+                <button type="button" onClick={clearDates} className="nex-btn-secondary text-xs">
+                  {t('market.schedule.clearDates')}
+                </button>
               </div>
-            </div>
 
-            {selectedDates.length > 0 && (
-              <p className="text-nex-muted text-xs">
-                {formatNumber(selectedDates.length)} {t('market.schedule.datesSelected')}:{' '}
-                {selectedDates.map((d) => formatLocalizedDate(d, 'MMM d')).join(', ')}
-              </p>
-            )}
+              <div>
+                <p className="text-nex-text mb-2 text-sm font-medium">{t('market.schedule.selectDates')}</p>
+                <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+                  {eachDayOfInterval({ start: new Date(), end: endOfMonth(new Date()) }).map(
+                    (dayDate) => {
+                      const dateStr = format(dayDate, 'yyyy-MM-dd')
+                      const isSelected = selectedDates.includes(dateStr)
+                      const isPast = isBefore(dayDate, new Date()) && !isToday(dayDate)
+                      return (
+                        <button
+                          key={dateStr}
+                          type="button"
+                          disabled={isPast}
+                          onClick={() => toggleDate(dateStr)}
+                          className={`rounded-lg p-2 text-left text-xs font-medium transition-colors ${
+                            isSelected
+                              ? 'bg-nex-primary text-white'
+                              : isPast
+                                ? 'bg-nex-elevated text-nex-muted/50 cursor-not-allowed'
+                                : 'bg-nex-elevated text-nex-text hover:bg-nex-hover'
+                          }`}
+                        >
+                          <span className="block text-[10px] uppercase opacity-75">
+                            {formatLocalizedDate(dayDate, 'EEE')}
+                          </span>
+                          <span className="block font-semibold">{formatLocalizedDate(dayDate, 'MMM d')}</span>
+                        </button>
+                      )
+                    }
+                  )}
+                </div>
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading || selectedDates.length === 0}
-              className="nex-btn-primary w-full disabled:opacity-50"
-            >
-              {loading
-                ? t('market.schedule.assigning')
-                : t('market.schedule.assignToCount', { count: formatNumber(selectedDates.length) })}
-            </button>
-          </form>
+              {selectedDates.length > 0 && (
+                <p className="text-nex-muted text-xs">
+                  {formatNumber(selectedDates.length)} {t('market.schedule.datesSelected')}:{' '}
+                  {selectedDates.map((d) => formatLocalizedDate(d, 'MMM d')).join(', ')}
+                </p>
+              )}
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAdd(false)}
+                  className="nex-btn-secondary flex-1"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading || selectedDates.length === 0}
+                  className="nex-btn-primary flex-1 disabled:opacity-50"
+                >
+                  {loading
+                    ? t('market.schedule.assigning')
+                    : t('market.schedule.assignToCount', { count: formatNumber(selectedDates.length) })}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
@@ -382,8 +413,8 @@ export default function BazaarSchedule() {
                       </div>
                     ) : (
                       <div className="py-2">
-                        <Calendar className="text-nex-muted/40 mx-auto h-5 w-5" />
-                        <p className="text-nex-muted/40 mt-1 text-xs">{t('market.schedule.unassigned')}</p>
+                        <Calendar className="text-nex-muted/70 mx-auto h-5 w-5" />
+                        <p className="text-nex-muted/75 mt-1 text-xs">{t('market.schedule.unassigned')}</p>
                       </div>
                     )}
                   </div>
@@ -474,7 +505,7 @@ export default function BazaarSchedule() {
                         })}
                       </div>
                     ) : (
-                      <div className="text-nex-muted/40 flex flex-1 items-center gap-2 py-1">
+                      <div className="text-nex-muted/75 flex flex-1 items-center gap-2 py-1">
                         <Calendar className="h-4 w-4" />
                         <p className="text-xs">{t('market.schedule.unassigned')}</p>
                       </div>

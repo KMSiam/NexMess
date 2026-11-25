@@ -5,11 +5,39 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const ALLOWED_ORIGINS = new Set([
+  'https://www.nexmess.shop',
+  'https://nexmess.shop',
+  'http://localhost:5173',
+  'http://localhost:4173',
+])
+
+function getCorsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get('Origin') ?? ''
+  const customOrigin = Deno.env.get('ALLOWED_ORIGIN')
+  const allowOrigin =
+    origin && (ALLOWED_ORIGINS.has(origin) || (customOrigin && origin === customOrigin))
+      ? origin
+      : 'https://www.nexmess.shop'
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    Vary: 'Origin',
+  }
 }
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (!a || !b || a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  }
+  return diff === 0
+}
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/
 
 interface ChatHistoryItem {
   text: string
@@ -47,6 +75,7 @@ function checkEdgeRateLimit(identifier: string): boolean {
 }
 
 Deno.serve(async (req) => {
+  const CORS = getCorsHeaders(req)
   // CORS Preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS })
@@ -75,9 +104,9 @@ Deno.serve(async (req) => {
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
-    // Detect if caller is using the service role key (e.g. morning-reminder cron)
-    const token = authHeader.replace('Bearer ', '')
-    const isServiceRole = token === serviceRoleKey
+    // Detect if caller is using the service role key (e.g. morning-reminder cron) using constant-time check
+    const token = authHeader.replace(/^Bearer\s+/i, '')
+    const isServiceRole = timingSafeEqual(token, serviceRoleKey)
 
     let user: { id: string } | null = null
 
@@ -124,8 +153,8 @@ Deno.serve(async (req) => {
     }
 
     const { mess_id, message, action = 'chat', date_str, history = [] } = body
-    if (!mess_id || typeof mess_id !== 'string' || mess_id.length > 64) {
-      return new Response(JSON.stringify({ error: 'A valid mess_id is required' }), {
+    if (!mess_id || typeof mess_id !== 'string' || !UUID_REGEX.test(mess_id)) {
+      return new Response(JSON.stringify({ error: 'A valid mess_id UUID is required' }), {
         status: 400,
         headers: { ...CORS, 'Content-Type': 'application/json' },
       })
@@ -133,6 +162,13 @@ Deno.serve(async (req) => {
 
     if (action !== 'chat' && action !== 'generate_daily_update') {
       return new Response(JSON.stringify({ error: 'Invalid action parameter' }), {
+        status: 400,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (date_str !== undefined && (typeof date_str !== 'string' || !DATE_REGEX.test(date_str))) {
+      return new Response(JSON.stringify({ error: 'Invalid date_str format (expected YYYY-MM-DD)' }), {
         status: 400,
         headers: { ...CORS, 'Content-Type': 'application/json' },
       })
@@ -148,8 +184,8 @@ Deno.serve(async (req) => {
     // Create Service Role client to bypass RLS and fetch context securely
     const serviceSupabase = createClient(supabaseUrl, serviceRoleKey)
 
-    // Verify the user is an approved member of this mess (skip for service role / daily updates)
-    if (!isServiceRole && action !== 'generate_daily_update') {
+    // Verify the user is an approved member of this mess for ALL user-triggered actions
+    if (!isServiceRole) {
       const { data: membership, error: memberError } = await serviceSupabase
         .from('mess_members')
         .select('role')
@@ -357,12 +393,15 @@ No intros, no filler. Straight to the data.`,
         },
       ]
     } else {
-      // Standard chat: load history and append current message
-      history.forEach((h) => {
-        contentsPayload.push({
-          role: h.is_ai ? 'model' : 'user',
-          parts: [{ text: h.text }],
-        })
+      // Standard chat: validate/cap history and append current message
+      const safeHistory = Array.isArray(history) ? history.slice(-20) : []
+      safeHistory.forEach((h) => {
+        if (h && typeof h.text === 'string' && h.text.trim()) {
+          contentsPayload.push({
+            role: h.is_ai ? 'model' : 'user',
+            parts: [{ text: h.text.slice(0, 2000) }],
+          })
+        }
       })
 
       contentsPayload.push({
@@ -372,7 +411,8 @@ No intros, no filler. Straight to the data.`,
     }
 
     // Call Gemini API with Search Grounding (try paid/grounded first)
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiKey}`
+    const geminiUrl =
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent'
 
     let responseText = ''
     let isGrounded = true
@@ -380,7 +420,10 @@ No intros, no filler. Straight to the data.`,
     try {
       const response = await fetch(geminiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': geminiKey,
+        },
         body: JSON.stringify({
           contents: contentsPayload,
           systemInstruction: {
@@ -428,7 +471,10 @@ No intros, no filler. Straight to the data.`,
       console.warn('Executing fallback Gemini call without search grounding...')
       const fallbackResponse = await fetch(geminiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': geminiKey,
+        },
         body: JSON.stringify({
           contents: contentsPayload,
           systemInstruction: {

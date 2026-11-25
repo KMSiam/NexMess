@@ -19,7 +19,9 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const code = params.get('code')
-    const next = params.get('next') ?? '/dashboard'
+    const rawNext = params.get('next')
+    const next =
+      rawNext && /^\/(?!\/)/.test(rawNext.trim()) ? rawNext.trim() : '/dashboard'
     const error = params.get('error')
     const errorDescription = params.get('error_description')
 

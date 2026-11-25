@@ -62,11 +62,11 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
     trackPageView(location.pathname + location.search)
   }, [location])
 
-  // Synchronize authenticated user identity with telemetry & crash reporting
+  // Synchronize authenticated user identity with telemetry & crash reporting (pseudonymous ID only)
   useEffect(() => {
     if (user) {
-      identifyUser(user.id, { email: user.email })
-      setUserContext(user.id, user.email)
+      identifyUser(user.id)
+      setUserContext(user.id)
     } else {
       resetUser()
       clearUserContext()

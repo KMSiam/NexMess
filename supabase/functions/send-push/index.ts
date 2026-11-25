@@ -6,23 +6,48 @@
 import webPush from 'npm:web-push@3.6.7'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const ALLOWED_ORIGINS = new Set([
+  'https://www.nexmess.shop',
+  'https://nexmess.shop',
+  'http://localhost:5173',
+  'http://localhost:4173',
+])
+
+function getCorsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get('Origin') ?? ''
+  const customOrigin = Deno.env.get('ALLOWED_ORIGIN')
+  const allowOrigin =
+    origin && (ALLOWED_ORIGINS.has(origin) || (customOrigin && origin === customOrigin))
+      ? origin
+      : 'https://www.nexmess.shop'
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-internal-secret',
+    Vary: 'Origin',
+  }
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (!a || !b || a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  }
+  return diff === 0
 }
 
 // ─── In-Memory Sliding Window Rate Limiter ───
 const PUSH_WINDOW_MS = 3 * 60 * 1000 // 3 minutes
-const MAX_PUSH_PER_WINDOW = 30 // max 30 pushes per user per 3m
+const MAX_PUSH_PER_WINDOW = 30 // max 30 pushes per caller per 3m
 const pushRateMap = new Map<string, { count: number; windowStart: number }>()
 
-function checkPushRateLimit(userId: string): boolean {
+function checkPushRateLimit(rateKey: string): boolean {
   const now = Date.now()
-  const record = pushRateMap.get(userId)
+  const record = pushRateMap.get(rateKey)
 
   if (!record || now - record.windowStart > PUSH_WINDOW_MS) {
-    pushRateMap.set(userId, { count: 1, windowStart: now })
+    pushRateMap.set(rateKey, { count: 1, windowStart: now })
     return true
   }
 
@@ -35,6 +60,7 @@ function checkPushRateLimit(userId: string): boolean {
 }
 
 Deno.serve(async (req) => {
+  const CORS = getCorsHeaders(req)
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
 
   try {
@@ -53,9 +79,11 @@ Deno.serve(async (req) => {
     webPush.setVapidDetails(subject, publicKey, privateKey)
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const internalPushSecret = Deno.env.get('INTERNAL_PUSH_SECRET') ?? ''
 
-    if (!supabaseUrl || !serviceRoleKey) {
+    if (!supabaseUrl || !serviceRoleKey || !supabaseAnonKey) {
       console.error('[send-push] Missing Supabase environment variables')
       return new Response(JSON.stringify({ error: 'Internal configuration error' }), {
         status: 500,
@@ -63,7 +91,40 @@ Deno.serve(async (req) => {
       })
     }
 
+    const authHeader = req.headers.get('Authorization') ?? ''
+    const token = authHeader.replace(/^Bearer\s+/i, '')
+    const providedInternalSecret = req.headers.get('x-internal-secret') ?? ''
+    const isServiceRole = timingSafeEqual(token, serviceRoleKey)
+    const isInternalTrigger = Boolean(
+      internalPushSecret && timingSafeEqual(providedInternalSecret, internalPushSecret)
+    )
+
     const supabase = createClient(supabaseUrl, serviceRoleKey)
+
+    let callerUserId: string | null = null
+    if (!isServiceRole && !isInternalTrigger) {
+      if (!authHeader) {
+        return new Response(JSON.stringify({ error: 'Missing Authorization header' }), {
+          status: 401,
+          headers: CORS,
+        })
+      }
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      })
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await userClient.auth.getUser()
+
+      if (authError || !authUser) {
+        return new Response(JSON.stringify({ error: 'Unauthorized caller' }), {
+          status: 401,
+          headers: CORS,
+        })
+      }
+      callerUserId = authUser.id
+    }
 
     let body: { user_id: string; title: string; body?: string; url?: string }
     try {
@@ -83,8 +144,38 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Rate Limiting Check
-    if (!checkPushRateLimit(user_id)) {
+    // Verify authenticated user shares an approved mess with target user_id (or targets self)
+    if (callerUserId && callerUserId !== user_id) {
+      const { data: callerMesses } = await supabase
+        .from('mess_members')
+        .select('mess_id')
+        .eq('user_id', callerUserId)
+        .eq('status', 'approved')
+
+      const callerMessIds = (callerMesses || []).map((m) => m.mess_id)
+      let sharesMess = false
+      if (callerMessIds.length > 0) {
+        const { data: shared } = await supabase
+          .from('mess_members')
+          .select('mess_id')
+          .eq('user_id', user_id)
+          .eq('status', 'approved')
+          .in('mess_id', callerMessIds)
+          .limit(1)
+        sharesMess = Boolean(shared && shared.length > 0)
+      }
+
+      if (!sharesMess) {
+        return new Response(JSON.stringify({ error: 'Forbidden: target user is outside your mess' }), {
+          status: 403,
+          headers: CORS,
+        })
+      }
+    }
+
+    // Rate Limiting Check (keyed by caller identity so attackers cannot lock out a victim)
+    const rateKey = callerUserId ? `caller:${callerUserId}` : `internal:${user_id}`
+    if (!checkPushRateLimit(rateKey)) {
       return new Response(
         JSON.stringify({ error: 'Push notification rate limit exceeded. Please wait a few minutes.' }),
         {
@@ -94,10 +185,11 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Sanitize length
+    // Sanitize length and block protocol-relative (//evil.com) or external URLs
     const cleanTitle = title.slice(0, 120)
     const cleanBody = (msgBody || '').slice(0, 500)
-    const cleanUrl = url && url.startsWith('/') ? url.slice(0, 200) : '/dashboard'
+    const cleanUrl =
+      typeof url === 'string' && /^\/(?!\/)/.test(url.trim()) ? url.trim().slice(0, 200) : '/dashboard'
 
     const { data: subs, error } = await supabase
       .from('push_subscriptions')

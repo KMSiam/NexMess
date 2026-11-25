@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getInitials, formatNumber } from '../../../lib/utils'
+import { getInitials, formatNumber, isSafeHttpUrl } from '../../../lib/utils'
 import { supabase } from '../../../lib/supabase'
 import toast from 'react-hot-toast'
 import {
@@ -52,6 +52,10 @@ export default function MemberManagement({
 
   const handleViewDoc = async (docUrl: string) => {
     if (docUrl.startsWith('http://') || docUrl.startsWith('https://')) {
+      if (!isSafeHttpUrl(docUrl)) {
+        toast.error('Invalid verification document URL')
+        return
+      }
       setSelectedDocUrl(docUrl)
       return
     }

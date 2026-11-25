@@ -35,7 +35,6 @@ export default function ChatPage() {
   const [hasMore, setHasMore] = useState(true)
 
   const messagesContainerRef = useRef<HTMLDivElement>(null)
-  const bottomRef = useRef<HTMLDivElement>(null)
   const membersRef = useRef(members)
   useEffect(() => {
     membersRef.current = members
@@ -92,7 +91,6 @@ export default function ChatPage() {
           if (messagesContainerRef.current) {
             messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
           }
-          bottomRef.current?.scrollIntoView({ behavior: 'auto' })
         }, 100)
       }
 
@@ -167,7 +165,12 @@ export default function ChatPage() {
               container.scrollHeight - container.clientHeight - container.scrollTop < 100
             if (isAtBottom) {
               setTimeout(() => {
-                bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+                if (messagesContainerRef.current) {
+                  messagesContainerRef.current.scrollTo({
+                    top: messagesContainerRef.current.scrollHeight,
+                    behavior: 'smooth',
+                  })
+                }
               }, 50)
             }
           }
@@ -240,7 +243,12 @@ export default function ChatPage() {
     if (data && !error) {
       setMessages((prev) => prev.map((m) => (m.id === tempId ? (data as ChatMessage) : m)))
       setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTo({
+            top: messagesContainerRef.current.scrollHeight,
+            behavior: 'smooth',
+          })
+        }
       }, 50)
     } else {
       setMessages((prev) => prev.filter((m) => m.id !== tempId))
@@ -271,7 +279,7 @@ export default function ChatPage() {
   if (!currentMess) return null
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-8rem)] max-w-3xl flex-col md:h-[calc(100vh-6rem)]">
+    <div className="mx-auto flex h-[calc(100dvh-11rem)] max-w-3xl flex-col md:h-[calc(100dvh-7.75rem)]">
       <div className="mb-3 flex shrink-0 items-center justify-between">
         <div className="flex items-center gap-3">
           <MessageSquare className="text-nex-primary h-5 w-5 sm:h-6 sm:w-6" />
@@ -315,7 +323,7 @@ export default function ChatPage() {
             />
           )
         })}
-        <div ref={bottomRef} />
+        <div className="h-1 shrink-0" />
       </div>
 
       <form onSubmit={(e) => handleSend(e)} className="mt-2 flex shrink-0 gap-2">

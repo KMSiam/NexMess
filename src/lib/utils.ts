@@ -66,11 +66,21 @@ export function formatFoodName(name: string): string {
 
 export function generateMessCode(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  const randomBytes = new Uint8Array(6)
+  crypto.getRandomValues(randomBytes)
   let code = 'NEX-'
-  for (let i = 0; i < 4; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)]
+  for (let i = 0; i < randomBytes.length; i++) {
+    code += chars[randomBytes[i] % chars.length]
   }
   return code
+}
+
+export function isApprovedManager(
+  members: Array<{ user_id: string; role: string; status: string }>,
+  userId?: string | null
+): boolean {
+  if (!userId) return false
+  return members.some((m) => m.user_id === userId && m.role === 'manager' && m.status === 'approved')
 }
 
 export function formatCurrency(amount: number): string {
@@ -184,13 +194,21 @@ export function getMealRoutineDow(dateStr: string = dhakaToday()): number {
   return (d.getUTCDay() + 1) % 7
 }
 
-export function isSafeUrl(url: string): boolean {
+export function isSafeHttpUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') return false
   try {
-    const parsed = new URL(url)
-    return ['http:', 'https:'].includes(parsed.protocol)
+    const parsed = new URL(url.trim())
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:'
   } catch {
-    // Relative paths (like /dashboard) or blob URLs are considered safe
-    return url.startsWith('/') || url.startsWith('blob:')
+    return false
   }
+}
+
+export function isSafeUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') return false
+  const trimmed = url.trim()
+  if (isSafeHttpUrl(trimmed)) return true
+  // Allow only single-leading-slash relative paths (block protocol-relative //evil.com and blob:/data:/javascript:)
+  return /^\/(?!\/)/.test(trimmed)
 }
 

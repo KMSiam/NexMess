@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -36,9 +36,29 @@ export default function AppLayout() {
   const location = useLocation()
   const { profile, signOut } = useAuthStore()
   const { currentMess, messes, setCurrentMess, fetchUserMesses, reset: resetMess } = useMessStore()
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 1024
+  )
   const [showMessDropdown, setShowMessDropdown] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
+  const messDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleOutside = (e: MouseEvent) => {
+      if (messDropdownRef.current && !messDropdownRef.current.contains(e.target as Node)) {
+        setShowMessDropdown(false)
+      }
+    }
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowMessDropdown(false)
+    }
+    document.addEventListener('mousedown', handleOutside)
+    window.addEventListener('keydown', handleKey)
+    return () => {
+      document.removeEventListener('mousedown', handleOutside)
+      window.removeEventListener('keydown', handleKey)
+    }
+  }, [])
 
   const sidebarItems = currentMess
     ? [
@@ -103,6 +123,8 @@ export default function AppLayout() {
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="rounded-btn text-nex-muted hover:bg-nex-hover p-1.5 transition-colors"
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {sidebarCollapsed ? (
               <PanelLeft className="h-4 w-4" />
@@ -167,10 +189,10 @@ export default function AppLayout() {
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col pb-16 md:pb-0">
-        <header className="nex-glass border-nex-border/50 sticky top-0 z-10 border-b px-4 py-3 md:px-6">
+      <div className="flex min-w-0 flex-1 flex-col pb-20 md:pb-0">
+        <header className="nex-glass border-nex-border/50 sticky top-0 z-30 border-b px-4 py-3 md:px-6">
           <div className="flex items-center justify-between font-medium">
-            <div className="relative">
+            <div className="relative" ref={messDropdownRef}>
               {currentMess ? (
                 <>
                   <button
@@ -318,17 +340,24 @@ function MobileBottomNav({
         { to: '/settings', icon: Settings, label: t('nav.settings') },
       ]
 
+  useEffect(() => {
+    document.documentElement.dataset.mobileDrawer = showMore ? 'open' : 'closed'
+    return () => {
+      delete document.documentElement.dataset.mobileDrawer
+    }
+  }, [showMore])
+
   return (
     <>
       {showMore && (
         <div
-          className="fixed inset-0 z-20 bg-black/20 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
           onClick={() => setShowMore(false)}
         />
       )}
 
       {showMore && (
-        <div className="nex-card border-nex-border animate-slide-up safe-area-bottom fixed right-2 bottom-16 left-2 z-30 border p-2 shadow-xl md:hidden">
+        <div className="nex-card border-nex-border animate-slide-up safe-area-bottom fixed right-2 bottom-20 left-2 z-50 border p-2 shadow-2xl md:hidden">
           <NavLink
             to="/market"
             onClick={() => setShowMore(false)}
@@ -369,7 +398,7 @@ function MobileBottomNav({
       )}
 
       <nav
-        className="nex-glass border-nex-border/50 safe-area-bottom fixed inset-x-0 bottom-0 z-20 border-t md:hidden"
+        className="nex-glass border-nex-border/50 safe-area-bottom fixed inset-x-0 bottom-0 z-40 border-t md:hidden"
         style={{ transform: 'translate3d(0,0,0)', WebkitTransform: 'translate3d(0,0,0)' }}
       >
         <div className="flex items-center justify-around py-1.5">

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Plus, PiggyBank, CheckCircle2, Trash2, Clock } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Plus, PiggyBank, CheckCircle2, Trash2, Clock, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatCurrency, formatLocalizedDate } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
@@ -44,11 +44,27 @@ export default function DepositTab({
     setLoading(false)
   }
 
+  const handleClose = () => {
+    setShowAddDeposit(false)
+    setDepAmount('')
+    setDepNote('')
+    setDepUserId('')
+  }
+
+  useEffect(() => {
+    if (!showAddDeposit) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [showAddDeposit])
+
   return (
     <div className="space-y-4">
       {isManager && (
         <button
-          onClick={() => setShowAddDeposit(!showAddDeposit)}
+          onClick={() => setShowAddDeposit(true)}
           className="nex-btn-primary text-sm"
         >
           <Plus className="h-4 w-4" /> {t('finance.depositModal.recordTitle')}
@@ -56,75 +72,96 @@ export default function DepositTab({
       )}
 
       {showAddDeposit && (
-        <div className="nex-card animate-slide-up p-5">
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label className="text-nex-text mb-1 block text-sm font-medium">
-                  {t('finance.depositModal.memberLabel')}
-                </label>
-                <select
-                  value={depUserId}
-                  onChange={(e) => setDepUserId(e.target.value)}
-                  className="nex-input"
-                  required
-                >
-                  <option value="">{t('finance.depositModal.selectMember')}</option>
-                  {approvedMembers.map((m) => {
-                    const p = m.profiles as any
-                    return (
-                      <option key={m.user_id} value={m.user_id}>
-                        {p?.username || t('common.member')}
-                      </option>
-                    )
-                  })}
-                </select>
-              </div>
-              <div>
-                <label className="text-nex-text mb-1 block text-sm font-medium">
-                  {t('finance.depositModal.amountLabel')}
-                </label>
-                <input
-                  type="number"
-                  value={depAmount}
-                  onChange={(e) => setDepAmount(e.target.value)}
-                  className="nex-input"
-                  placeholder="0.00"
-                  required
-                  step="0.01"
-                  min="0"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="text-nex-text mb-1 block text-sm font-medium">
-                {t('finance.depositModal.noteLabel')}
-              </label>
-              <input
-                type="text"
-                value={depNote}
-                onChange={(e) => setDepNote(e.target.value)}
-                className="nex-input"
-                placeholder={t('finance.depositModal.notePlaceholder')}
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="nex-btn-primary disabled:opacity-50"
-              >
-                {t('common.save')}
-              </button>
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          onClick={handleClose}
+        >
+          <div
+            className="nex-card animate-slide-up w-full max-w-md rounded-b-none p-5 sm:rounded-b-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-nex-text text-lg font-semibold">
+                {t('finance.depositModal.recordTitle')}
+              </h3>
               <button
                 type="button"
-                onClick={() => setShowAddDeposit(false)}
-                className="nex-btn-secondary"
+                onClick={handleClose}
+                className="text-nex-muted hover:text-nex-text rounded-lg p-1"
+                aria-label="Close"
               >
-                {t('common.cancel')}
+                <X className="h-4 w-4" />
               </button>
             </div>
-          </form>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="text-nex-text mb-1 block text-sm font-medium">
+                    {t('finance.depositModal.memberLabel')}
+                  </label>
+                  <select
+                    value={depUserId}
+                    onChange={(e) => setDepUserId(e.target.value)}
+                    className="nex-input"
+                    required
+                  >
+                    <option value="">{t('finance.depositModal.selectMember')}</option>
+                    {approvedMembers.map((m) => {
+                      const p = m.profiles as any
+                      return (
+                        <option key={m.user_id} value={m.user_id}>
+                          {p?.username || t('common.member')}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-nex-text mb-1 block text-sm font-medium">
+                    {t('finance.depositModal.amountLabel')}
+                  </label>
+                  <input
+                    type="number"
+                    value={depAmount}
+                    onChange={(e) => setDepAmount(e.target.value)}
+                    className="nex-input"
+                    placeholder="0.00"
+                    required
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-nex-text mb-1 block text-sm font-medium">
+                  {t('finance.depositModal.noteLabel')}
+                </label>
+                <input
+                  type="text"
+                  value={depNote}
+                  onChange={(e) => setDepNote(e.target.value)}
+                  className="nex-input"
+                  placeholder={t('finance.depositModal.notePlaceholder')}
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="nex-btn-secondary flex-1"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="nex-btn-primary flex-1 disabled:opacity-50"
+                >
+                  {loading ? t('common.saving') : t('common.save')}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

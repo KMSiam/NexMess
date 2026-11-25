@@ -45,8 +45,8 @@ export default function PrivacyPage() {
             </h1>
             <p className="text-nex-muted text-sm leading-relaxed">
               {isBangla
-                ? 'কার্যকর তারিখ: ২৫ নভেম্বর ২০২৬ (ভার্সন ১.২৭.০)। এই গোপনীয়তা নীতি নেক্সমেস ("আমরা" বা "আমাদের") কীভাবে আপনার ব্যক্তিগত ও মেস-সংক্রান্ত তথ্য সংগ্রহ, সংরক্ষণ এবং সুরক্ষিত করে তা নির্ধারণ করে। আমরা বাংলাদেশের ব্যক্তিগত তথ্য সুরক্ষা আইন (PDPA), GDPR এবং আন্তর্জাতিক তথ্য নিরাপত্তা মানদণ্ড মেনে আপনার তথ্যের গোপনীয়তা রক্ষায় প্রতিশ্রুতিবদ্ধ।'
-                : 'Effective Date: November 25, 2026 (v1.27.0). This Privacy Policy governs the data collection, processing, and storage practices of NexMess ("we," "us," or "our"). We are committed to protecting the privacy, security, and integrity of your personal information in accordance with the Bangladesh Personal Data Protection Act (PDPA), GDPR, and CCPA/CPRA.'}
+                ? 'কার্যকর তারিখ: ২৫ নভেম্বর ২০২৬ (ভার্সন ২.০.০)। এই গোপনীয়তা নীতি নেক্সমেস ("আমরা" বা "আমাদের") কীভাবে আপনার ব্যক্তিগত ও মেস-সংক্রান্ত তথ্য সংগ্রহ, সংরক্ষণ এবং সুরক্ষিত করে তা নির্ধারণ করে। আমরা বাংলাদেশের ব্যক্তিগত তথ্য সুরক্ষা আইন (PDPA), GDPR এবং আন্তর্জাতিক তথ্য নিরাপত্তা মানদণ্ড মেনে আপনার তথ্যের গোপনীয়তা রক্ষায় প্রতিশ্রুতিবদ্ধ।'
+                : 'Effective Date: November 25, 2026 (v2.0.0). This Privacy Policy governs the data collection, processing, and storage practices of NexMess ("we," "us," or "our"). We are committed to protecting the privacy, security, and integrity of your personal information in accordance with the Bangladesh Personal Data Protection Act (PDPA), GDPR, and CCPA/CPRA.'}
             </p>
           </div>
 

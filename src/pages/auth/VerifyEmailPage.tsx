@@ -5,6 +5,7 @@ import { MailCheck, RefreshCw } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
 import { useSEO } from '../../hooks/useSEO'
+import { sanitizeAppError } from '../../lib/errorHandler'
 
 const COOLDOWN = 60
 
@@ -40,7 +41,7 @@ export default function VerifyEmailPage() {
     })
     setResending(false)
     if (error) {
-      toast.error(error.message)
+      toast.error(sanitizeAppError(error, 'Failed to resend verification email.'))
     } else {
       toast.success('Verification email resent!')
       setCooldown(COOLDOWN)

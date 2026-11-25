@@ -1,10 +1,12 @@
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { ReactNode } from 'react'
+import { sanitizeAppError } from '../lib/errorHandler'
 
 function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
-  const errorMessage =
-    error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.'
+  const errorMessage = import.meta.env.DEV && error instanceof Error
+    ? error.message
+    : sanitizeAppError(error, 'An unexpected error occurred. Please try again.')
   return (
     <div className="animate-fade-in flex min-h-[50vh] flex-col items-center justify-center p-6 text-center">
       <div className="bg-nex-danger-light mb-4 flex h-16 w-16 items-center justify-center rounded-full">

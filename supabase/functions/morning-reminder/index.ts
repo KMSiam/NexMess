@@ -5,21 +5,60 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const ALLOWED_ORIGINS = new Set([
+  'https://www.nexmess.shop',
+  'https://nexmess.shop',
+  'http://localhost:5173',
+  'http://localhost:4173',
+])
+
+function getCorsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get('Origin') ?? ''
+  const customOrigin = Deno.env.get('ALLOWED_ORIGIN')
+  const allowOrigin =
+    origin && (ALLOWED_ORIGINS.has(origin) || (customOrigin && origin === customOrigin))
+      ? origin
+      : 'https://www.nexmess.shop'
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
+    Vary: 'Origin',
+  }
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (!a || !b || a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  }
+  return diff === 0
 }
 
 Deno.serve(async (req) => {
+  const CORS = getCorsHeaders(req)
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    const cronSecret = Deno.env.get('CRON_SECRET') ?? ''
 
     if (!supabaseUrl || !serviceRoleKey) {
       throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
+    }
+
+    const authToken = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '')
+    const providedCronSecret = req.headers.get('x-cron-secret') ?? ''
+    const isServiceCaller = timingSafeEqual(authToken, serviceRoleKey)
+    const isCronCaller = Boolean(cronSecret && timingSafeEqual(providedCronSecret, cronSecret))
+
+    if (!isServiceCaller && !isCronCaller) {
+      return new Response(JSON.stringify({ error: 'Unauthorized cron invocation' }), {
+        status: 401,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+      })
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey)
@@ -151,10 +190,10 @@ Deno.serve(async (req) => {
       await supabase.from('notifications').insert({
         user_id,
         mess_id,
-        type: 'market_reminder',
+        type: 'bazaar_reminder',
         title: '🛒 Bazaar Duty Today!',
         body: `Good morning ${username}! You're on bazaar duty for ${messName} today. Check NexMessAI for today's shopping list & prices.`,
-        url: 'https://www.nexmess.shop/nexmess-ai',
+        url: '/nexmess-ai',
       })
 
       sentCount++

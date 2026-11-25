@@ -117,7 +117,7 @@ export const profileUpdateSchema = z.object({
     .optional()
     .nullable(),
   verificationDocType: z
-    .enum(['none', 'nid', 'student_id', 'passport'])
+    .enum(['none', 'nid', 'birth_certificate', 'other'])
     .optional()
     .nullable(),
   verificationDocNo: z
@@ -170,7 +170,7 @@ export const expenseSchema = z.object({
     .number()
     .positive('Amount must be greater than 0')
     .max(1000000, 'Amount exceeds maximum allowed limit (1,000,000)'),
-  category: z.enum(['bazaar', 'utility', 'maid', 'wifi', 'rent', 'other']),
+  category: z.enum(['bazaar', 'utilities', 'utility', 'maid', 'wifi', 'rent', 'other']),
   description: z
     .string()
     .trim()

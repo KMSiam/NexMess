@@ -47,15 +47,17 @@ export default function AIMarketAssistant() {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputText, setInputText] = useState('')
   const [loading, setLoading] = useState(false)
-  const chatEndRef = useRef<HTMLDivElement>(null)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const hasLocation = !!currentMess?.location?.trim()
   const messLocation = currentMess?.location || ''
 
-  // Scroll to bottom on new messages
+  // Scroll inner message container smoothly without scrolling parent document window
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const container = chatContainerRef.current
+    if (!container) return
+    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
   }, [messages, loading])
 
   // Real-time message subscription
@@ -218,7 +220,7 @@ export default function AIMarketAssistant() {
   if (!currentMess) return null
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-8rem)] w-full max-w-4xl flex-col md:h-[calc(100vh-6rem)]">
+    <div className="mx-auto flex h-[calc(100dvh-11rem)] w-full max-w-4xl flex-col md:h-[calc(100dvh-7.75rem)]">
       <div className="mb-3 flex shrink-0 items-center justify-between px-1">
         <div className="flex items-center gap-3">
           <div className="from-nex-primary/20 to-nex-primary/5 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br">
@@ -324,7 +326,7 @@ export default function AIMarketAssistant() {
           </div>
 
           {/* Chat Messages Scrolling Area */}
-          <div className="bg-nex-bg/20 flex-1 space-y-4 overflow-y-auto p-4">
+          <div ref={chatContainerRef} className="bg-nex-bg/20 flex-1 space-y-4 overflow-y-auto p-4">
             {messages.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center p-6 text-center">
                 <div className="from-nex-primary/10 to-nex-primary/5 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br">
@@ -459,7 +461,7 @@ export default function AIMarketAssistant() {
               </div>
             )}
 
-            <div ref={chatEndRef} />
+            <div className="h-1 shrink-0" />
           </div>
 
           {/* Input form */}

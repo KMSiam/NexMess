@@ -7,6 +7,7 @@ import { History, Plus, Download, RefreshCw, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 import { formatCurrency, formatNumber, formatLocalizedDate } from '../../../lib/utils'
 import { buildReportPdf, computeSettlements, ReportData } from '../../../lib/reportPdf'
+import { sanitizeAppError } from '../../../lib/errorHandler'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton } from '../../../components/Skeleton'
 
@@ -174,7 +175,7 @@ export default function HistoryTab() {
     setGenMonth('')
     setBusy(false)
     if (error) {
-      toast.error(error.message || 'Failed to generate report')
+      toast.error(sanitizeAppError(error, 'Failed to generate report'))
     } else {
       toast.success(
         `${formatLocalizedDate(genMonth + '-01', 'MMMM yyyy')} - ${t('finance.history.refreshedToast')}`
@@ -191,7 +192,7 @@ export default function HistoryTab() {
       p_month: month,
     })
     setBusy(false)
-    if (error) toast.error(error.message || 'Failed to regenerate report')
+    if (error) toast.error(sanitizeAppError(error, 'Failed to regenerate report'))
     else {
       toast.success(t('finance.history.refreshedToast'))
       fetchReports()

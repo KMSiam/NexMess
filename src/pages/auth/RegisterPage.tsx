@@ -71,7 +71,9 @@ export default function RegisterPage() {
         if (!newRl.allowed) setCooldownSec(newRl.retryAfterSec)
       } else if (data?.user?.identities && data.user.identities.length === 0) {
         recordRateLimitAttempt(rateLimitKey, false)
-        toast.error('This email is already registered. Please sign in.')
+        setCooldownSec(0)
+        toast.success('If this email is not already registered, check your inbox for a verification link!')
+        navigate('/verify-email', { state: { email: validation.data.email } })
       } else {
         recordRateLimitAttempt(rateLimitKey, true)
         setCooldownSec(0)

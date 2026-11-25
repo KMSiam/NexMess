@@ -47,6 +47,7 @@ export default function MealsPage() {
   )
 
   const [overrideOpen, setOverrideOpen] = useState(false)
+  const [detailDate, setDetailDate] = useState<string | null>(null)
   const [ovUserId, setOvUserId] = useState('')
   const [ovDate, setOvDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [ovLunch, setOvLunch] = useState(false)
@@ -312,29 +313,29 @@ export default function MealsPage() {
           </button>
         </div>
 
-        <div className="mb-5 grid grid-cols-3 gap-3">
+        <div className="mb-5 grid grid-cols-3 gap-2.5 sm:gap-3">
           <div className="bg-nex-primary-light rounded-xl p-3 text-center">
-            <p className="text-nex-primary text-2xl font-bold">{formatNumber(monthlyStats.total)}</p>
-            <p className="text-xs font-medium tracking-wider text-blue-600 uppercase">
+            <p className="text-nex-primary text-2xl font-bold tabular-nums">{formatNumber(monthlyStats.total)}</p>
+            <p className="text-nex-primary/85 text-[11px] font-medium tracking-wider uppercase sm:text-xs">
               {t('meals.totalMeals')}
             </p>
           </div>
           <div className="rounded-xl bg-amber-500/10 p-3 text-center">
-            <p className="text-2xl font-bold text-amber-600">{formatNumber(monthlyStats.lunch)}</p>
-            <p className="text-xs font-medium tracking-wider text-amber-600 uppercase">
+            <p className="text-2xl font-bold text-amber-600 tabular-nums dark:text-amber-400">{formatNumber(monthlyStats.lunch)}</p>
+            <p className="text-[11px] font-medium tracking-wider text-amber-600 uppercase sm:text-xs dark:text-amber-400">
               {t('meals.lunch')}
             </p>
           </div>
           <div className="rounded-xl bg-indigo-500/10 p-3 text-center">
-            <p className="text-2xl font-bold text-indigo-600">{formatNumber(monthlyStats.dinner)}</p>
-            <p className="text-xs font-medium tracking-wider text-indigo-600 uppercase">
+            <p className="text-2xl font-bold text-indigo-600 tabular-nums dark:text-indigo-400">{formatNumber(monthlyStats.dinner)}</p>
+            <p className="text-[11px] font-medium tracking-wider text-indigo-600 uppercase sm:text-xs dark:text-indigo-400">
               {t('meals.dinner')}
             </p>
           </div>
         </div>
 
-        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-          <div className="grid min-w-[320px] grid-cols-7 gap-1">
+        <div className="overflow-x-hidden">
+          <div className="grid w-full grid-cols-7 gap-1 sm:gap-1.5">
             {[
               t('days.sat'),
               t('days.sun'),
@@ -346,7 +347,7 @@ export default function MealsPage() {
             ].map((d) => (
               <div
                 key={d}
-                className="text-nex-muted py-2 text-center text-xs font-semibold tracking-wider uppercase"
+                className="text-nex-muted py-1.5 text-center text-[11px] font-semibold tracking-wider uppercase sm:py-2 sm:text-xs"
               >
                 {d}
               </div>
@@ -360,24 +361,34 @@ export default function MealsPage() {
               const today = isToday(day)
               const isPastDate = isBefore(day, startOfDay(new Date()))
 
-              const managerClickable = isManager && viewMode === 'all' && inMonth
+              const dayClickable = viewMode === 'all' && inMonth
               return (
                 <div
                   key={dateStr}
-                  onClick={managerClickable ? () => openOverride(undefined, dateStr) : undefined}
-                  role={managerClickable ? 'button' : undefined}
-                  tabIndex={managerClickable ? 0 : undefined}
-                  className={`relative min-h-[72px] rounded-xl border p-1.5 transition-colors ${
+                  onClick={dayClickable ? () => setDetailDate(dateStr) : undefined}
+                  role={dayClickable ? 'button' : undefined}
+                  tabIndex={dayClickable ? 0 : undefined}
+                  onKeyDown={
+                    dayClickable
+                      ? (e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            setDetailDate(dateStr)
+                          }
+                        }
+                      : undefined
+                  }
+                  className={`relative min-h-[68px] min-w-0 rounded-xl border p-1 transition-colors sm:min-h-[72px] sm:p-1.5 ${
                     today
                       ? 'border-nex-primary bg-nex-primary-light'
                       : inMonth
                         ? 'border-nex-border bg-nex-surface'
-                        : 'bg-nex-elevated/50 border-transparent'
-                  } ${managerClickable ? 'hover:border-nex-primary cursor-pointer' : ''}`}
+                        : 'bg-nex-elevated/40 border-transparent'
+                  } ${dayClickable ? 'hover:border-nex-primary cursor-pointer' : ''}`}
                 >
                   <p
                     className={`mb-1 text-center text-xs font-medium ${
-                      today ? 'text-nex-primary' : inMonth ? 'text-nex-text' : 'text-nex-muted/40'
+                      today ? 'text-nex-primary font-bold' : inMonth ? 'text-nex-text' : 'text-nex-muted/65'
                     }`}
                   >
                     {formatLocalizedDate(day, 'd')}
@@ -409,27 +420,27 @@ export default function MealsPage() {
                           <button
                             onClick={() => toggleMeal(dateStr, 'lunch')}
                             disabled={lunchLocked}
-                            className={`flex w-full items-center justify-center gap-0.5 rounded px-1 py-1 text-[10px] font-medium transition-colors ${
+                            className={`flex w-full items-center justify-center gap-0.5 rounded px-0.5 py-1 text-[10px] font-medium transition-colors sm:px-1 ${
                               meal?.lunch || (meal?.guest_lunch || 0) > 0
-                                ? 'bg-amber-500/15 text-amber-500'
+                                ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
                                 : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
-                            } ${lunchLocked ? 'cursor-not-allowed opacity-50' : ''}`}
+                            } ${lunchLocked ? 'cursor-not-allowed opacity-70' : ''}`}
                             title={lunchTitle}
                           >
-                            <Sun className="h-2.5 w-2.5" /> {t('meals.lunchBadge')}{' '}
+                            <Sun className="h-2.5 w-2.5 shrink-0" /> {t('meals.lunchBadge')}{' '}
                             {(meal?.guest_lunch || 0) > 0 && `+${formatNumber(meal?.guest_lunch || 0)}`}
                           </button>
                           <button
                             onClick={() => toggleMeal(dateStr, 'dinner')}
                             disabled={dinnerLocked}
-                            className={`flex w-full items-center justify-center gap-0.5 rounded px-1 py-1 text-[10px] font-medium transition-colors ${
+                            className={`flex w-full items-center justify-center gap-0.5 rounded px-0.5 py-1 text-[10px] font-medium transition-colors sm:px-1 ${
                               meal?.dinner || (meal?.guest_dinner || 0) > 0
-                                ? 'bg-indigo-500/15 text-indigo-400'
+                                ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'
                                 : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
-                            } ${dinnerLocked ? 'cursor-not-allowed opacity-50' : ''}`}
+                            } ${dinnerLocked ? 'cursor-not-allowed opacity-70' : ''}`}
                             title={dinnerTitle}
                           >
-                            <Moon className="h-2.5 w-2.5" /> {t('meals.dinnerBadge')}{' '}
+                            <Moon className="h-2.5 w-2.5 shrink-0" /> {t('meals.dinnerBadge')}{' '}
                             {(meal?.guest_dinner || 0) > 0 && `+${formatNumber(meal?.guest_dinner || 0)}`}
                           </button>
                         </div>
@@ -452,13 +463,13 @@ export default function MealsPage() {
                       return (
                         <div className="mt-1 flex flex-col items-center gap-0.5">
                           {lunchTotal > 0 && (
-                            <div className="flex w-full items-center justify-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-500">
+                            <div className="flex w-full items-center justify-center gap-0.5 rounded bg-amber-500/15 px-1 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
                               <span>{t('meals.lunchBadge')}:</span>
                               <span>{formatNumber(lunchTotal)}</span>
                             </div>
                           )}
                           {dinnerTotal > 0 && (
-                            <div className="flex w-full items-center justify-center gap-1 rounded bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-bold text-indigo-400">
+                            <div className="flex w-full items-center justify-center gap-0.5 rounded bg-indigo-500/15 px-1 py-0.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
                               <span>{t('meals.dinnerBadge')}:</span>
                               <span>{formatNumber(dinnerTotal)}</span>
                             </div>
@@ -471,7 +482,104 @@ export default function MealsPage() {
             })}
           </div>
         </div>
+
+        {/* Legend & Cutoff Info Bar */}
+        <div className="border-nex-border mt-4 flex flex-wrap items-center justify-between gap-2 border-t pt-3 text-[11px] text-nex-muted">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
+              {t('meals.lunch')}: {mealCutoffLabel('lunch')}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-2 w-2 rounded-full bg-indigo-500" />
+              {t('meals.dinner')}: {mealCutoffLabel('dinner')}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <span>{t('meals.legendGuest')}</span>
+          </div>
+        </div>
       </div>
+
+      {/* Day Member Breakdown Modal (All Members View) */}
+      {detailDate && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          onClick={() => setDetailDate(null)}
+        >
+          <div
+            className="nex-card animate-slide-up w-full max-w-md rounded-b-none p-5 sm:rounded-b-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <h3 className="text-nex-text text-base font-semibold">{t('meals.monthlyLog')}</h3>
+                <p className="text-nex-muted text-xs">{formatLocalizedDate(detailDate, 'EEEE, MMM d, yyyy')}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDetailDate(null)}
+                className="text-nex-muted hover:text-nex-text rounded-lg p-1"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="divide-nex-border max-h-[55vh] divide-y overflow-y-auto">
+              {members
+                .filter((m) => m.status === 'approved')
+                .map((m) => {
+                  const row = meals.find((r) => r.user_id === m.user_id && r.date === detailDate)
+                  const p = m.profiles as { username?: string } | null
+                  return (
+                    <div key={m.user_id} className="flex items-center justify-between gap-2 py-2.5 text-xs">
+                      <span className="text-nex-text truncate font-medium">
+                        {p?.username || t('common.member')}
+                        {m.user_id === user?.id ? ` ${t('meals.you')}` : ''}
+                      </span>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <span
+                          className={`rounded px-2 py-0.5 font-medium ${
+                            row?.lunch || (row?.guest_lunch || 0) > 0
+                              ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                              : 'bg-nex-elevated text-nex-muted'
+                          }`}
+                        >
+                          {t('meals.lunchBadge')}: {row?.lunch ? formatNumber(1) : formatNumber(0)}
+                          {(row?.guest_lunch || 0) > 0 ? `+${formatNumber(row?.guest_lunch || 0)}` : ''}
+                        </span>
+                        <span
+                          className={`rounded px-2 py-0.5 font-medium ${
+                            row?.dinner || (row?.guest_dinner || 0) > 0
+                              ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'
+                              : 'bg-nex-elevated text-nex-muted'
+                          }`}
+                        >
+                          {t('meals.dinnerBadge')}: {row?.dinner ? formatNumber(1) : formatNumber(0)}
+                          {(row?.guest_dinner || 0) > 0 ? `+${formatNumber(row?.guest_dinner || 0)}` : ''}
+                        </span>
+                        {isManager && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const targetD = detailDate
+                              setDetailDate(null)
+                              openOverride(m.user_id, targetD)
+                            }}
+                            className="text-nex-primary hover:underline font-semibold"
+                          >
+                            {t('common.edit')}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {overrideOpen && isManager && (
         <div

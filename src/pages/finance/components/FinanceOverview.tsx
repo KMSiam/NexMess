@@ -17,35 +17,41 @@ export default function FinanceOverview({
   const { t } = useTranslation()
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div className="nex-card p-5">
-        <p className="text-nex-muted text-xs font-medium tracking-wider uppercase">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="nex-card p-4 sm:p-5">
+        <p className="text-nex-muted text-[11px] font-medium tracking-wider uppercase sm:text-xs">
           {t('finance.cards.totalDeposit')}
         </p>
-        <p className="text-nex-success mt-2 text-2xl font-bold">{formatCurrency(totalDeposits)}</p>
+        <p className="text-nex-success mt-1.5 text-lg font-bold tabular-nums sm:mt-2 sm:text-2xl">
+          {formatCurrency(totalDeposits)}
+        </p>
       </div>
-      <div className="nex-card p-5">
-        <p className="text-nex-muted text-xs font-medium tracking-wider uppercase">
+      <div className="nex-card p-4 sm:p-5">
+        <p className="text-nex-muted text-[11px] font-medium tracking-wider uppercase sm:text-xs">
           {t('finance.cards.totalBazaar')}
         </p>
-        <p className="text-nex-text mt-2 text-2xl font-bold">{formatCurrency(totalExpenses)}</p>
+        <p className="text-nex-text mt-1.5 text-lg font-bold tabular-nums sm:mt-2 sm:text-2xl">
+          {formatCurrency(totalExpenses)}
+        </p>
       </div>
-      <div className="nex-card p-5">
-        <p className="text-nex-muted text-xs font-medium tracking-wider uppercase">
+      <div className="nex-card p-4 sm:p-5">
+        <p className="text-nex-muted text-[11px] font-medium tracking-wider uppercase sm:text-xs">
           {t('finance.cards.totalFixed')}
         </p>
-        <p className="mt-2 text-2xl font-bold text-amber-600">{formatCurrency(totalFixed)}</p>
+        <p className="mt-1.5 text-lg font-bold text-amber-600 tabular-nums sm:mt-2 sm:text-2xl">
+          {formatCurrency(totalFixed)}
+        </p>
       </div>
-      <div className="nex-card p-5">
-        <p className="text-nex-muted text-xs font-medium tracking-wider uppercase">
+      <div className="nex-card p-4 sm:p-5">
+        <p className="text-nex-muted text-[11px] font-medium tracking-wider uppercase sm:text-xs">
           {t('finance.cards.treasuryCash')}
         </p>
         <p
-          className={`mt-2 text-2xl font-bold ${messBalance >= 0 ? 'text-nex-success' : 'text-red-500'}`}
+          className={`mt-1.5 text-lg font-bold tabular-nums sm:mt-2 sm:text-2xl ${messBalance >= 0 ? 'text-nex-success' : 'text-red-500'}`}
         >
           {formatCurrency(messBalance)}
         </p>
-        <p className="text-nex-muted mt-1 text-[10px]">{t('finance.cards.formula')}</p>
+        <p className="text-nex-muted mt-1 text-[10px] leading-snug">{t('finance.cards.formula')}</p>
       </div>
     </div>
   )

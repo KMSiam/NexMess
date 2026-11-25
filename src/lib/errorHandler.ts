@@ -52,9 +52,11 @@ const SENSITIVE_ERROR_PATTERNS = [
   /relation ".*" does not exist/i,
   /syntax error at or near/i,
   /null value in column ".*" violates not-null constraint/i,
-  /permission denied for (table|schema|relation)/i,
+  /permission denied for (table|schema|relation|function)/i,
   /column ".*" does not exist/i,
   /function .* does not exist/i,
+  /violates check constraint/i,
+  /violates foreign key constraint/i,
 ]
 
 /**
@@ -124,7 +126,14 @@ export function sanitizeAppError(
 }
 
 function cleanRawErrorString(msg: string, fallback: string): string {
-  if (!msg || msg.length > 200 || msg.includes('at ') || msg.includes('SELECT ') || msg.includes('INSERT INTO')) {
+  if (
+    !msg ||
+    msg.length > 200 ||
+    msg.includes('at ') ||
+    msg.includes('SELECT ') ||
+    msg.includes('INSERT INTO') ||
+    /postgres|postgrest|pgrst|supabase\.co|violates |constraint |relation "|column "/i.test(msg)
+  ) {
     return fallback
   }
   return msg

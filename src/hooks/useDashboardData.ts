@@ -134,7 +134,7 @@ export function useDashboardData(
       // 3. Upcoming Bazaar
       supabase
         .from('market_schedules')
-        .select('assigned_date, profiles(username)')
+        .select('assigned_date, user_id, profiles(username)')
         .eq('mess_id', messId)
         .gte('assigned_date', today)
         .order('assigned_date', { ascending: true })
@@ -223,8 +223,10 @@ export function useDashboardData(
         marketRes.data.some(
           (m: Record<string, unknown>) =>
             m.assigned_date === today &&
-            (m.profiles as Record<string, unknown>)?.username?.toString().toLowerCase() ===
-              username?.toLowerCase()
+            (m.user_id
+              ? m.user_id === userId
+              : (m.profiles as Record<string, unknown>)?.username?.toString().toLowerCase() ===
+                username?.toLowerCase())
         )
       )
       setUpcomingBazaar(

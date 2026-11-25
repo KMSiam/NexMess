@@ -6,7 +6,7 @@ import { supabase } from '../../../lib/supabase'
 import { CalendarClock, Pencil, Save, X } from 'lucide-react'
 import EmptyState from '../../../components/EmptyState'
 import { Skeleton } from '../../../components/Skeleton'
-import { getFoodEmoji, formatFoodName, getMealRoutineDow, dhakaToday } from '../../../lib/utils'
+import { getFoodEmoji, formatFoodName, getMealRoutineDow, dhakaToday, isApprovedManager } from '../../../lib/utils'
 import toast from 'react-hot-toast'
 
 const DAYS_EN = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
@@ -47,7 +47,7 @@ export default function MealRoutine() {
     type: 'lunch' | 'dinner'
   } | null>(null)
 
-  const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
+  const isManager = isApprovedManager(members, user?.id)
   const todayDow = getMealRoutineDow(dhakaToday())
 
   const fetchRoutines = useCallback(async () => {
@@ -285,7 +285,7 @@ export default function MealRoutine() {
                             <span className="text-nex-text text-xs font-medium">{formatFoodName(value)}</span>
                           </div>
                         ) : (
-                          <span className="text-nex-muted/40 text-xs">—</span>
+                          <span className="text-nex-muted/70 text-xs">—</span>
                         )}
                       </td>
                     )
@@ -348,7 +348,7 @@ export default function MealRoutine() {
                             {getFoodEmoji(value)} {formatFoodName(value)}
                           </p>
                         ) : (
-                          <p className="text-nex-muted/50 text-xs">{t('market.routine.notSet')}</p>
+                          <p className="text-nex-muted/75 text-xs">{t('market.routine.notSet')}</p>
                         )}
                       </div>
                     )

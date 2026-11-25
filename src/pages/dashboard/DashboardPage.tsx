@@ -5,8 +5,9 @@ import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { Link } from 'react-router-dom'
 import { Plus, Users } from 'lucide-react'
-import { isMealCutoffPassed, dhakaToday, dhakaTomorrow } from '../../lib/utils'
+import { isMealCutoffPassed, dhakaToday, dhakaTomorrow, isApprovedManager } from '../../lib/utils'
 import { sendPushToUsers } from '../../lib/push'
+import { sanitizeAppError } from '../../lib/errorHandler'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 import ConfirmDialog from '../../components/ConfirmDialog'
@@ -56,7 +57,7 @@ export default function DashboardPage() {
   // Emergency Contact Delete Dialog State
   const [deleteEcId, setDeleteEcId] = useState<string | null>(null)
 
-  const isManager = members.some((m) => m.user_id === profile?.id && m.role === 'manager')
+  const isManager = isApprovedManager(members, profile?.id)
 
   const handleSaveNotice = async (text: string) => {
     if (!currentMess?.id || !profile?.id) return
@@ -154,7 +155,7 @@ export default function DashboardPage() {
     )
 
     if (error) {
-      toast.error(error.message || 'Failed to update meal')
+      toast.error(sanitizeAppError(error, 'Failed to update meal'))
       setMealsData((prev) => ({
         ...prev,
         [tab]: { ...prev[tab], [type]: !newValue },
@@ -198,7 +199,7 @@ export default function DashboardPage() {
     )
 
     if (error) {
-      toast.error(error.message || 'Failed to update guests')
+      toast.error(sanitizeAppError(error, 'Failed to update guests'))
       setMealsData((prev) => ({
         ...prev,
         [tab]: { ...prev[tab], [key]: mData[key] },

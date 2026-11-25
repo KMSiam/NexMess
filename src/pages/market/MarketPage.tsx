@@ -15,28 +15,28 @@ export default function MarketPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Tab Switcher */}
-      <div className="border-nex-border flex items-center justify-between border-b">
-        <div className="flex">
+      <div className="border-nex-border flex items-center justify-between gap-2 border-b">
+        <div className="scrollbar-none flex min-w-0 overflow-x-auto">
           <button
             onClick={() => setActiveTab('bazaar')}
-            className={`-mb-[2px] flex items-center gap-2 border-b-2 px-4 pb-3 text-sm font-semibold transition-all focus:outline-none ${
+            className={`-mb-[2px] flex shrink-0 items-center gap-1.5 border-b-2 px-3 pb-3 text-xs font-semibold whitespace-nowrap transition-all focus:outline-none sm:gap-2 sm:px-4 sm:text-sm ${
               activeTab === 'bazaar'
                 ? 'border-nex-primary text-nex-primary'
                 : 'text-nex-muted hover:text-nex-text border-transparent'
             }`}
           >
-            <ShoppingBag className="h-4.5 w-4.5" />
+            <ShoppingBag className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
             <span>{t('market.tabs.schedule')}</span>
           </button>
           <button
             onClick={() => setActiveTab('routine')}
-            className={`-mb-[2px] flex items-center gap-2 border-b-2 px-4 pb-3 text-sm font-semibold transition-all focus:outline-none ${
+            className={`-mb-[2px] flex shrink-0 items-center gap-1.5 border-b-2 px-3 pb-3 text-xs font-semibold whitespace-nowrap transition-all focus:outline-none sm:gap-2 sm:px-4 sm:text-sm ${
               activeTab === 'routine'
                 ? 'border-nex-primary text-nex-primary'
                 : 'text-nex-muted hover:text-nex-text border-transparent'
             }`}
           >
-            <CalendarClock className="h-4.5 w-4.5" />
+            <CalendarClock className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
             <span>{t('market.tabs.routine')}</span>
           </button>
         </div>
@@ -44,7 +44,7 @@ export default function MarketPage() {
         {/* NexMessAI Quick Access Button */}
         <button
           onClick={() => navigate('/nexmess-ai')}
-          className="bg-nex-primary/10 text-nex-primary hover:bg-nex-primary/20 mb-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all active:scale-95"
+          className="bg-nex-primary/10 text-nex-primary hover:bg-nex-primary/20 mb-2 flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all active:scale-95"
           id="open-ai-assistant"
         >
           <Sparkles className="h-3.5 w-3.5 animate-pulse" />

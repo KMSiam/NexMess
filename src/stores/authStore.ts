@@ -83,7 +83,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   updateProfile: async (updates) => {
     const user = get().user
-    if (!user) return
+    if (!user) throw new Error('Not authenticated')
 
     const { data, error } = await supabase
       .from('profiles')
@@ -92,7 +92,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       .select()
       .single()
 
-    if (!error && data) {
+    if (error) throw error
+    if (data) {
       set({ profile: data as Profile })
     }
   },

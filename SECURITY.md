@@ -22,7 +22,7 @@ The following are in scope:
 
 NexMess implements the following security practices:
 
-- **Supabase Row-Level Security (RLS)** on all 11+ database tables
+- **Supabase Row-Level Security (RLS)** on all 20 database tables
 - **VAPID-based Web Push** — server-side key validation
 - **Input sanitization** — message length limits, file type/size validation
 - **OAuth 2.0** via Supabase Auth (Google provider)

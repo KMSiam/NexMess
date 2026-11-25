@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { X, Send, MessageCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../lib/supabase'
+import { useAuthStore } from '../stores/authStore'
 import toast from 'react-hot-toast'
 import { feedbackSchema, validateForm } from '../lib/validation/schemas'
 import { sanitizeAppError } from '../lib/errorHandler'
@@ -14,12 +15,19 @@ interface SupportModalProps {
 
 export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
   const { t } = useTranslation()
+  const { user, profile } = useAuthStore()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const modalRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+    setName((prev) => prev || profile?.username || '')
+    setEmail((prev) => prev || user?.email || '')
+  }, [isOpen, profile?.username, user?.email])
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

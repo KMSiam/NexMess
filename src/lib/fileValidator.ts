@@ -172,7 +172,12 @@ export async function validateUploadedFile(
  */
 export function generateSafeFileName(prefix: string, ext: string): string {
   const cleanPrefix = prefix.replace(/[^a-zA-Z0-9_-]/g, '')
-  const randomSuffix = Math.random().toString(36).substring(2, 10)
+  const randomSuffix =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID().replace(/-/g, '').slice(0, 12)
+      : Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) =>
+          b.toString(16).padStart(2, '0')
+        ).join('')
   const cleanExt = ext.replace(/[^a-zA-Z0-9]/g, '')
   return `${cleanPrefix}-${Date.now()}-${randomSuffix}.${cleanExt}`
 }

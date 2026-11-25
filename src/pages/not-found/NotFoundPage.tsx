@@ -2,9 +2,12 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { AlertCircle, Home } from 'lucide-react'
 import { useSEO } from '../../hooks/useSEO'
+import { useAuthStore } from '../../stores/authStore'
 
 export default function NotFoundPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const isBangla = (i18n.language || 'en').startsWith('bn')
+  const user = useAuthStore((s) => s.user)
   useSEO({
     title: 'Page Not Found',
     description: 'The page you are looking for does not exist on NexMess.',
@@ -21,9 +24,9 @@ export default function NotFoundPage() {
       <p className="text-nex-muted mb-8 max-w-sm text-sm leading-relaxed">
         {t('notFound.desc')}
       </p>
-      <Link to="/dashboard" className="nex-btn-primary flex items-center gap-2">
+      <Link to={user ? '/dashboard' : '/'} className="nex-btn-primary flex items-center gap-2">
         <Home className="h-4 w-4" />
-        {t('notFound.backHome')}
+        {user ? t('notFound.backHome') : isBangla ? 'হোমে ফিরে যান' : 'Back to Home'}
       </Link>
     </div>
   )

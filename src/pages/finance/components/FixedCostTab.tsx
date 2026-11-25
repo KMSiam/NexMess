@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Plus, CheckCircle2, DollarSign, Trash2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Plus, CheckCircle2, DollarSign, Trash2, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatCurrency, formatLocalizedDate } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
@@ -63,6 +63,15 @@ export default function FixedCostTab({
     setFixLabel('')
   }
 
+  useEffect(() => {
+    if (!showAddFixed) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleCancel()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [showAddFixed])
+
   const icons: Record<string, string> = {
     rent: '🏠',
     utilities: '💡',
@@ -75,76 +84,96 @@ export default function FixedCostTab({
   return (
     <div className="space-y-4">
       {isManager && (
-        <button onClick={() => setShowAddFixed(!showAddFixed)} className="nex-btn-primary text-sm">
-          <Plus className="h-4 w-4" />{' '}
-          {editFixedCostId
-            ? t('finance.fixedModal.editTitle')
-            : t('finance.fixedModal.addTitle')}
+        <button onClick={() => setShowAddFixed(true)} className="nex-btn-primary text-sm">
+          <Plus className="h-4 w-4" /> {t('finance.fixedModal.addTitle')}
         </button>
       )}
 
       {showAddFixed && (
-        <div className="nex-card animate-slide-up p-5">
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label className="text-nex-text mb-1 block text-sm font-medium">
-                  {t('finance.fixedModal.categoryLabel')}
-                </label>
-                <select
-                  value={fixCategory}
-                  onChange={(e) => setFixCategory(e.target.value)}
-                  className="nex-input"
-                >
-                  <option value="rent">🏠 {t('finance.categories.rent')}</option>
-                  <option value="utilities">💡 {t('finance.categories.utilities')}</option>
-                  <option value="maid">🧹 {t('finance.categories.maid')}</option>
-                  <option value="internet">🌐 {t('finance.categories.internet')}</option>
-                  <option value="gas">🔥 {t('finance.categories.gas')}</option>
-                  <option value="other">📋 {t('finance.categories.other')}</option>
-                </select>
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          onClick={handleCancel}
+        >
+          <div
+            className="nex-card animate-slide-up w-full max-w-md rounded-b-none p-5 sm:rounded-b-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-nex-text text-lg font-semibold">
+                {editFixedCostId
+                  ? t('finance.fixedModal.editTitle')
+                  : t('finance.fixedModal.addTitle')}
+              </h3>
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="text-nex-muted hover:text-nex-text rounded-lg p-1"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="text-nex-text mb-1 block text-sm font-medium">
+                    {t('finance.fixedModal.categoryLabel')}
+                  </label>
+                  <select
+                    value={fixCategory}
+                    onChange={(e) => setFixCategory(e.target.value)}
+                    className="nex-input"
+                  >
+                    <option value="rent">{t('finance.categories.rent')}</option>
+                    <option value="utilities">{t('finance.categories.utilities')}</option>
+                    <option value="maid">{t('finance.categories.maid')}</option>
+                    <option value="internet">{t('finance.categories.internet')}</option>
+                    <option value="gas">{t('finance.categories.gas')}</option>
+                    <option value="other">{t('finance.categories.other')}</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-nex-text mb-1 block text-sm font-medium">
+                    {t('finance.fixedModal.amountLabel')}
+                  </label>
+                  <input
+                    type="number"
+                    value={fixAmount}
+                    onChange={(e) => setFixAmount(e.target.value)}
+                    className="nex-input"
+                    placeholder="0.00"
+                    required
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-nex-text mb-1 block text-sm font-medium">
-                  {t('finance.fixedModal.amountLabel')}
+                  {t('finance.fixedModal.labelLabel')}
                 </label>
                 <input
-                  type="number"
-                  value={fixAmount}
-                  onChange={(e) => setFixAmount(e.target.value)}
+                  type="text"
+                  value={fixLabel}
+                  onChange={(e) => setFixLabel(e.target.value)}
                   className="nex-input"
-                  placeholder="0.00"
-                  required
-                  step="0.01"
-                  min="0"
+                  placeholder={t('finance.fixedModal.labelPlaceholder')}
                 />
               </div>
-            </div>
-            <div>
-              <label className="text-nex-text mb-1 block text-sm font-medium">
-                {t('finance.fixedModal.labelLabel')}
-              </label>
-              <input
-                type="text"
-                value={fixLabel}
-                onChange={(e) => setFixLabel(e.target.value)}
-                className="nex-input"
-                placeholder={t('finance.fixedModal.labelPlaceholder')}
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="nex-btn-primary disabled:opacity-50"
-              >
-                {t('common.save')}
-              </button>
-              <button type="button" onClick={handleCancel} className="nex-btn-secondary">
-                {t('common.cancel')}
-              </button>
-            </div>
-          </form>
+              <div className="flex gap-2 pt-2">
+                <button type="button" onClick={handleCancel} className="nex-btn-secondary flex-1">
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="nex-btn-primary flex-1 disabled:opacity-50"
+                >
+                  {loading ? t('common.saving') : t('common.save')}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

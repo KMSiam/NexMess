@@ -133,7 +133,7 @@
   --nex-primary-light: #edf2ee;
   --nex-bg: #faf5f0;
   --nex-surface: #ffffff;
-  --nex-glass-bg: rgba(255, 255, 255, 0.7);
+  --nex-glass-bg: rgba(255, 255, 255, 0.92);
   --nex-text: #221e1a;
   --nex-muted: #8c8276;
   --nex-border: #f2ece4;
@@ -151,7 +151,7 @@
   --nex-primary-light: rgba(74, 109, 86, 0.12);
   --nex-bg: #0c0c0d;
   --nex-surface: #161618;
-  --nex-glass-bg: rgba(22, 22, 24, 0.7);
+  --nex-glass-bg: rgba(18, 18, 21, 0.92);
   --nex-text: #f4f4f5;
   --nex-muted: #8f8f92;
   --nex-border: #2b2b2f;

@@ -1,10 +1,10 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
-import { Activity, ArrowLeft, Receipt, PiggyBank, Megaphone, UserPlus } from 'lucide-react'
+import { Activity, ArrowLeft, Receipt, PiggyBank, Megaphone, UserPlus, Search } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { formatCurrency, formatLocalizedDate } from '../../lib/utils'
+import { formatCurrency, formatLocalizedDate, formatNumber } from '../../lib/utils'
 
 // Hooks
 import { usePageTitle } from '../../hooks/usePageTitle'
@@ -19,12 +19,17 @@ interface LogItem {
   user?: string
 }
 
+const PAGE_STEP = 15
+
 export default function ActivityLogPage() {
   const { t } = useTranslation()
   usePageTitle(t('activity.title'))
   const { currentMess } = useMessStore()
   const [logs, setLogs] = useState<LogItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [filterType, setFilterType] = useState<'all' | LogItem['type']>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [visibleCount, setVisibleCount] = useState(PAGE_STEP)
 
   const fetchActivityLogs = useCallback(async () => {
     if (!currentMess?.id) return
@@ -137,6 +142,30 @@ export default function ActivityLogPage() {
     fetchActivityLogs()
   }, [fetchActivityLogs])
 
+  const filteredLogs = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    return logs.filter((log) => {
+      if (filterType !== 'all' && log.type !== filterType) return false
+      if (!q) return true
+      return (
+        log.title.toLowerCase().includes(q) ||
+        log.description.toLowerCase().includes(q) ||
+        (log.user?.toLowerCase().includes(q) ?? false) ||
+        (log.amount !== undefined && String(log.amount).includes(q))
+      )
+    })
+  }, [logs, filterType, searchQuery])
+
+  const visibleLogs = filteredLogs.slice(0, visibleCount)
+
+  const filterChips: { key: 'all' | LogItem['type']; label: string }[] = [
+    { key: 'all', label: t('activity.filterAll') },
+    { key: 'expense', label: t('activity.expense') },
+    { key: 'deposit', label: t('activity.deposit') },
+    { key: 'notice', label: t('activity.notice') },
+    { key: 'member', label: t('activity.member') },
+  ]
+
   const icons = {
     expense: { element: <Receipt className="h-4 w-4 text-amber-600" />, bg: 'bg-amber-500/10' },
     deposit: {
@@ -150,17 +179,54 @@ export default function ActivityLogPage() {
   if (!currentMess) return null
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-5">
       <div className="flex items-center gap-3">
         <Link
           to="/dashboard"
           className="rounded-btn hover:bg-nex-hover text-nex-muted p-2 transition-colors"
+          aria-label="Back to Dashboard"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div className="flex items-center gap-2">
           <Activity className="text-nex-primary h-6 w-6" />
           <h1 className="text-nex-text text-2xl font-bold">{t('activity.title')}</h1>
+        </div>
+      </div>
+
+      {/* Filter & Search Bar */}
+      <div className="nex-card space-y-3 p-4">
+        <div className="relative">
+          <Search className="text-nex-muted pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2" />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              setVisibleCount(PAGE_STEP)
+            }}
+            placeholder={t('activity.searchPlaceholder')}
+            className="nex-input py-2 pl-10 text-sm"
+          />
+        </div>
+        <div className="scrollbar-none flex gap-1.5 overflow-x-auto pb-0.5">
+          {filterChips.map((chip) => (
+            <button
+              key={chip.key}
+              type="button"
+              onClick={() => {
+                setFilterType(chip.key)
+                setVisibleCount(PAGE_STEP)
+              }}
+              className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors ${
+                filterType === chip.key
+                  ? 'bg-nex-primary text-white shadow-sm'
+                  : 'bg-nex-elevated text-nex-muted hover:text-nex-text hover:bg-nex-hover'
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -177,42 +243,56 @@ export default function ActivityLogPage() {
               </div>
             ))}
           </div>
-        ) : logs.length === 0 ? (
+        ) : filteredLogs.length === 0 ? (
           <p className="text-nex-muted py-8 text-center text-sm">{t('dashboard.noActivity')}</p>
         ) : (
-          <div className="before:bg-nex-border relative space-y-6 before:absolute before:top-2 before:bottom-2 before:left-[17px] before:w-0.5">
-            {logs.map((log) => {
-              const iconMeta = icons[log.type]
-              return (
-                <div key={log.id} className="relative flex gap-4">
-                  <div
-                    className={`h-9 w-9 rounded-full ${iconMeta.bg} border-nex-bg z-10 flex shrink-0 items-center justify-center border`}
-                  >
-                    {iconMeta.element}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="text-nex-text text-sm font-semibold">{log.title}</p>
-                      <p className="text-nex-muted text-[10px] whitespace-nowrap">
-                        {formatLocalizedDate(log.created_at, 'MMM d, h:mm a')}
-                      </p>
+          <>
+            <div className="before:bg-nex-border relative space-y-6 before:absolute before:top-2 before:bottom-2 before:left-[17px] before:w-0.5">
+              {visibleLogs.map((log) => {
+                const iconMeta = icons[log.type]
+                return (
+                  <div key={log.id} className="relative flex gap-4">
+                    <div
+                      className={`h-9 w-9 rounded-full ${iconMeta.bg} border-nex-bg z-10 flex shrink-0 items-center justify-center border`}
+                    >
+                      {iconMeta.element}
                     </div>
-                    <p className="text-nex-muted mt-1 text-xs leading-relaxed">{log.description}</p>
-                    {log.amount && (
-                      <p className="text-nex-text mt-1 text-xs font-semibold">
-                        {t('common.amount')}:{' '}
-                        <span
-                          className={log.type === 'deposit' ? 'text-nex-success' : 'text-nex-text'}
-                        >
-                          {formatCurrency(log.amount)}
-                        </span>
-                      </p>
-                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-4">
+                        <p className="text-nex-text text-sm font-semibold">{log.title}</p>
+                        <p className="text-nex-muted text-[10px] whitespace-nowrap">
+                          {formatLocalizedDate(log.created_at, 'MMM d, h:mm a')}
+                        </p>
+                      </div>
+                      <p className="text-nex-muted mt-1 text-xs leading-relaxed">{log.description}</p>
+                      {log.amount && (
+                        <p className="text-nex-text mt-1 text-xs font-semibold">
+                          {t('common.amount')}:{' '}
+                          <span
+                            className={log.type === 'deposit' ? 'text-nex-success' : 'text-nex-text'}
+                          >
+                            {formatCurrency(log.amount)}
+                          </span>
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+
+            {filteredLogs.length > visibleCount && (
+              <div className="border-nex-border mt-6 border-t pt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((prev) => prev + PAGE_STEP)}
+                  className="nex-btn-secondary px-5 py-2 text-xs"
+                >
+                  {t('activity.showMore')} ({formatNumber(filteredLogs.length - visibleCount)})
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

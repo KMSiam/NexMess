@@ -210,14 +210,14 @@ function RenderBlock({ block }: { block: Block }) {
 
     case 'table':
       return (
-        <div className="my-2 overflow-x-auto">
-          <table className="border-nex-border w-full border-collapse text-[11px]">
+        <div className="border-nex-border my-2.5 overflow-x-auto rounded-lg border">
+          <table className="w-full border-collapse text-[11px]">
             <thead>
-              <tr className="bg-nex-elevated/60">
+              <tr className="bg-nex-elevated/80">
                 {block.headers.map((h, i) => (
                   <th
                     key={i}
-                    className="text-nex-text border-nex-border border-b px-2.5 py-1.5 text-left text-[11px] font-semibold"
+                    className="text-nex-text border-nex-border border-b px-2.5 py-1.5 text-left text-[11px] font-semibold whitespace-nowrap"
                   >
                     {renderInline(h)}
                   </th>
@@ -226,10 +226,13 @@ function RenderBlock({ block }: { block: Block }) {
             </thead>
             <tbody>
               {block.rows.map((row, ri) => (
-                <tr key={ri} className="border-nex-border/50 border-b last:border-0">
-                  {row.map((cell, ci) => (
-                    <td key={ci} className="text-nex-text px-2.5 py-1.5 text-[11px]">
-                      {renderInline(cell)}
+                <tr
+                  key={ri}
+                  className="border-nex-border/50 even:bg-nex-elevated/25 border-b last:border-0"
+                >
+                  {block.headers.map((_, ci) => (
+                    <td key={ci} className="text-nex-text px-2.5 py-1.5 align-top text-[11px]">
+                      {row[ci] ? renderInline(row[ci]) : '—'}
                     </td>
                   ))}
                 </tr>

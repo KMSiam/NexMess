@@ -109,6 +109,8 @@ export default function NotificationBell({ className }: NotificationBellProps) {
         onClick={() => setShowPanel(!showPanel)}
         className="rounded-btn text-nex-muted hover:bg-nex-hover relative p-2 transition-colors"
         id="notification-bell"
+        aria-label={t('notifications.title')}
+        aria-expanded={showPanel}
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
@@ -120,7 +122,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
 
       {/* Panel */}
       {showPanel && (
-        <div className="nex-card animate-slide-up absolute top-12 right-0 z-50 flex max-h-[70vh] w-80 flex-col overflow-hidden shadow-lg sm:w-96">
+        <div className="nex-card animate-slide-up fixed top-16 right-3 left-3 z-50 flex max-h-[70vh] flex-col overflow-hidden shadow-xl sm:absolute sm:top-12 sm:right-0 sm:left-auto sm:w-96">
           {/* Header */}
           <div className="border-nex-border flex items-center justify-between border-b px-4 py-3">
             <h3 className="text-nex-text text-sm font-semibold">{t('notifications.title')}</h3>
@@ -135,7 +137,8 @@ export default function NotificationBell({ className }: NotificationBellProps) {
               )}
               <button
                 onClick={() => setShowPanel(false)}
-                className="text-nex-muted hover:text-nex-text"
+                className="text-nex-muted hover:text-nex-text rounded p-1"
+                aria-label={t('common.close', { defaultValue: 'Close' })}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -150,7 +153,12 @@ export default function NotificationBell({ className }: NotificationBellProps) {
                 <p className="text-nex-muted text-sm">{t('notifications.empty')}</p>
               </div>
             ) : (
-              notifications.map((n) => (
+              notifications.map((n) => {
+                const icon = getIcon(n.type)
+                const cleanTitle = n.title.startsWith(icon)
+                  ? n.title.slice(icon.length).trim()
+                  : n.title
+                return (
                 <div
                   key={n.id}
                   className={`hover:bg-nex-hover cursor-pointer px-4 py-3 transition-colors ${
@@ -159,12 +167,12 @@ export default function NotificationBell({ className }: NotificationBellProps) {
                   onClick={() => !n.is_read && markRead(n.id)}
                 >
                   <div className="flex gap-3">
-                    <span className="shrink-0 text-lg">{getIcon(n.type)}</span>
+                    <span className="shrink-0 text-lg" aria-hidden="true">{icon}</span>
                     <div className="min-w-0 flex-1">
                       <p
                         className={`text-sm ${!n.is_read ? 'text-nex-text font-semibold' : 'text-nex-text'}`}
                       >
-                        {n.title}
+                        {cleanTitle}
                       </p>
                       {n.body && (
                         <p className="text-nex-muted mt-0.5 line-clamp-2 text-xs">{n.body}</p>
@@ -178,13 +186,15 @@ export default function NotificationBell({ className }: NotificationBellProps) {
                         e.stopPropagation()
                         deleteNotification(n.id)
                       }}
-                      className="text-nex-muted/40 hover:text-nex-danger shrink-0 self-start transition-colors"
+                      className="text-nex-muted/50 hover:text-nex-danger shrink-0 self-start p-1 transition-colors"
+                      aria-label={t('common.delete')}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
-              ))
+                )
+              })
             )}
           </div>
         </div>

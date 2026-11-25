@@ -11,7 +11,7 @@ import ConfirmDialog from '../../components/ConfirmDialog'
 import SupportModal from '../../components/SupportModal'
 import pkg from '../../../package.json'
 import { sanitizeAppError } from '../../lib/errorHandler'
-import { formatNumber } from '../../lib/utils'
+import { formatNumber, isApprovedManager } from '../../lib/utils'
 
 import { usePageTitle } from '../../hooks/usePageTitle'
 import ProfileSection from './components/ProfileSection'
@@ -43,7 +43,7 @@ export default function SettingsPage() {
   const [promoteMemberId, setPromoteMemberId] = useState<string | null>(null)
   const [demoteMemberId, setDemoteMemberId] = useState<string | null>(null)
 
-  const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
+  const isManager = isApprovedManager(members, user?.id)
   const pendingMembers = members.filter((m) => m.status === 'pending')
   const approvedMembers = members.filter((m) => m.status === 'approved')
 
@@ -320,34 +320,45 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center gap-3">
-        <Settings className="text-nex-primary h-6 w-6" />
-        <h1 className="text-nex-text text-2xl font-bold">{t('settings.title')}</h1>
+    <div className="mx-auto max-w-4xl space-y-6 pb-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Settings className="text-nex-primary h-6 w-6" />
+          <h1 className="text-nex-text text-2xl font-bold">{t('settings.title')}</h1>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsSupportOpen(true)}
+          className="nex-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium"
+          aria-label={t('support.title')}
+        >
+          <MessageCircle className="text-nex-primary h-3.5 w-3.5" />
+          <span>{t('support.title')}</span>
+        </button>
       </div>
 
-      <div className="bg-nex-elevated border-nex-border/80 scrollbar-none flex w-full max-w-full gap-1.5 overflow-x-auto rounded-xl border p-1 whitespace-nowrap">
+      <div className="bg-nex-elevated border-nex-border/80 scrollbar-none flex w-full max-w-full gap-1.5 overflow-x-auto rounded-xl border px-1.5 pt-2 pb-1 whitespace-nowrap sm:flex-wrap sm:overflow-visible sm:p-1.5">
         <button
           onClick={() => setActiveTab('profile')}
-          className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
             activeTab === 'profile'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
           }`}
         >
-          <User className="h-4 w-4" />
+          <User className="h-4 w-4 shrink-0" />
           <span>{t('settings.tabs.profile')}</span>
         </button>
 
         <button
           onClick={() => setActiveTab('members')}
-          className={`relative flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+          className={`relative flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
             activeTab === 'members'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
           }`}
         >
-          <Users className="h-4 w-4" />
+          <Users className="h-4 w-4 shrink-0" />
           <span>{t('settings.tabs.members')}</span>
           {pendingMembers.length > 0 && (
             <span className="bg-nex-danger ring-nex-bg absolute -top-1 -right-1 flex h-4.5 w-4.5 animate-pulse items-center justify-center rounded-full text-[9px] font-bold text-white ring-2">
@@ -358,49 +369,49 @@ export default function SettingsPage() {
 
         <button
           onClick={() => setActiveTab('mess')}
-          className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
             activeTab === 'mess'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
           }`}
         >
-          <Home className="h-4 w-4" />
+          <Home className="h-4 w-4 shrink-0" />
           <span>{t('settings.tabs.mess')}</span>
         </button>
 
         <button
           onClick={() => setActiveTab('notifications')}
-          className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
             activeTab === 'notifications'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
           }`}
         >
-          <Bell className="h-4 w-4" />
+          <Bell className="h-4 w-4 shrink-0" />
           <span>{t('settings.tabs.notifications')}</span>
         </button>
 
         <button
           onClick={() => setActiveTab('preferences')}
-          className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
             activeTab === 'preferences'
               ? 'bg-nex-primary text-white shadow-md'
               : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
           }`}
         >
-          <Languages className="h-4 w-4" />
+          <Languages className="h-4 w-4 shrink-0" />
           <span>{t('settings.tabs.preferences')}</span>
         </button>
 
         <button
           onClick={() => setActiveTab('danger')}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
             activeTab === 'danger'
               ? 'bg-red-500 text-white shadow-md'
               : 'text-nex-muted hover:bg-red-500/10 hover:text-red-500'
           }`}
         >
-          <AlertTriangle className="h-4 w-4" />
+          <AlertTriangle className="h-4 w-4 shrink-0" />
           <span>{t('settings.tabs.danger')}</span>
         </button>
       </div>
@@ -532,14 +543,6 @@ export default function SettingsPage() {
         onConfirm={handleConfirmDemoteMember}
         onCancel={() => setDemoteMemberId(null)}
       />
-
-      <button
-        onClick={() => setIsSupportOpen(true)}
-        className="bg-nex-primary shadow-nex-primary/30 group fixed right-6 bottom-24 z-40 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 md:bottom-6"
-        aria-label="Support and Contact"
-      >
-        <MessageCircle className="h-6 w-6 group-hover:animate-pulse" />
-      </button>
 
       <SupportModal isOpen={isSupportOpen} onClose={() => setIsSupportOpen(false)} />
     </div>

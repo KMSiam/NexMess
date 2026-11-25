@@ -1,6 +1,6 @@
 import { useState, useEffect, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getInitials } from '../../../lib/utils'
+import { getInitials, isSafeHttpUrl } from '../../../lib/utils'
 import { supabase } from '../../../lib/supabase'
 import { Camera } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -46,11 +46,8 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
       return
     }
 
-    if (
-      verificationDocUrl.startsWith('http://') ||
-      verificationDocUrl.startsWith('https://')
-    ) {
-      setDocPreviewUrl(verificationDocUrl)
+    if (verificationDocUrl.startsWith('http://') || verificationDocUrl.startsWith('https://')) {
+      setDocPreviewUrl(isSafeHttpUrl(verificationDocUrl) ? verificationDocUrl : '')
       return
     }
 
@@ -142,7 +139,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
     if (!file || !profile?.id) return
 
     const validation = await validateUploadedFile(file, {
-      category: 'document',
+      category: 'image',
       maxSizeInBytes: 2 * 1024 * 1024,
     })
 
@@ -202,8 +199,13 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
             </label>
           </div>
           <div className="w-full flex-1 space-y-3">
-            <div>
-              <p className="text-nex-muted mb-1 font-mono text-xs">{t('settings.profileSection.email')}: {email}</p>
+            <div className="bg-nex-elevated/70 border-nex-border flex items-center justify-between gap-2 rounded-xl border px-3.5 py-2">
+              <span className="text-nex-muted text-xs font-medium">
+                {t('settings.profileSection.email')}
+              </span>
+              <span className="text-nex-text truncate font-mono text-xs font-medium">
+                {email || '—'}
+              </span>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
@@ -308,7 +310,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
                           <span>{uploadingDoc ? '...' : t('settings.profileSection.uploadDoc')}</span>
                           <input
                             type="file"
-                            accept="image/jpeg,image/png,image/webp,application/pdf"
+                            accept="image/jpeg,image/png,image/webp"
                             onChange={handleDocUpload}
                             className="hidden"
                             disabled={uploadingDoc}

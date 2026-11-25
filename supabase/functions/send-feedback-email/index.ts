@@ -4,10 +4,26 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const ALLOWED_ORIGINS = new Set([
+  'https://www.nexmess.shop',
+  'https://nexmess.shop',
+  'http://localhost:5173',
+  'http://localhost:4173',
+])
+
+function getCorsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get('Origin') ?? ''
+  const customOrigin = Deno.env.get('ALLOWED_ORIGIN')
+  const allowOrigin =
+    origin && (ALLOWED_ORIGINS.has(origin) || (customOrigin && origin === customOrigin))
+      ? origin
+      : 'https://www.nexmess.shop'
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    Vary: 'Origin',
+  }
 }
 
 // ─── In-Memory Rate Limiting ───
@@ -33,6 +49,7 @@ function checkFeedbackRateLimit(userId: string): boolean {
 }
 
 Deno.serve(async (req) => {
+  const CORS = getCorsHeaders(req)
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
 
   try {
@@ -119,10 +136,16 @@ Deno.serve(async (req) => {
         .replace(/'/g, '&#039;')
 
     const rawName = record.name || 'Anonymous'
-    const rawEmail = record.email || 'No email provided'
+    const rawEmail = typeof record.email === 'string' ? record.email.trim() : ''
+    const hasValidEmail = /^[^\s<>@"']+@[^\s<>@"']+\.[^\s<>@"']+$/.test(rawEmail)
+    const safeEmail = hasValidEmail ? sanitizeHtml(rawEmail.slice(0, 150)) : ''
     const name = sanitizeHtml(String(rawName).slice(0, 100))
-    const email = sanitizeHtml(String(rawEmail).slice(0, 150))
+    const emailDisplay = safeEmail || sanitizeHtml(String(rawEmail || 'No email provided').slice(0, 150))
     const message = sanitizeHtml(String(record.message).slice(0, 3000))
+
+    const replyToMarkup = safeEmail
+      ? `<a href="mailto:${safeEmail}" style="color:#4A6D56;text-decoration:none">${emailDisplay}</a>`
+      : `<span style="color:#111827">${emailDisplay}</span>`
 
     const htmlBody = `
       <div style="font-family:Inter,system-ui,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;">
@@ -140,7 +163,7 @@ Deno.serve(async (req) => {
             <strong>From:</strong> <span style="color:#111827">${name}</span>
           </p>
           <p style="margin:0 0 12px;font-size:14px;color:#6b7280">
-            <strong>Reply-To:</strong> <a href="mailto:${email}" style="color:#4A6D56;text-decoration:none">${email}</a>
+            <strong>Reply-To:</strong> ${replyToMarkup}
           </p>
           <div style="margin-top:24px;padding-top:24px;border-top:1px solid #e5e7eb;">
             <p style="margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;font-weight:600">Message</p>

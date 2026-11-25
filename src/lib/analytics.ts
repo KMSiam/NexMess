@@ -5,6 +5,27 @@ const POSTHOG_HOST = (import.meta.env.VITE_POSTHOG_HOST as string | undefined) |
 
 let isInitialized = false
 
+const SENSITIVE_PROPERTY_KEYS = new Set([
+  'password',
+  'token',
+  'email',
+  'phone',
+  'contact_no',
+  'emergency_contact_no',
+  'verification_doc_no',
+  'verification_doc_url',
+])
+
+function scrubProperties(properties: Record<string, unknown>): Record<string, unknown> {
+  const cleaned: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(properties)) {
+    if (!SENSITIVE_PROPERTY_KEYS.has(key.toLowerCase())) {
+      cleaned[key] = value
+    }
+  }
+  return cleaned
+}
+
 /**
  * Initializes PostHog for privacy-respecting product analytics and funnel telemetry.
  * Operates gracefully as a no-op if VITE_POSTHOG_KEY is not configured.
@@ -33,12 +54,12 @@ export function initAnalytics() {
     capture_pageleave: true,
     persistence: 'localStorage',
     disable_session_recording: false,
-    sanitize_properties: (properties) => {
-      // Strip any sensitive passwords or tokens before ingestion
-      if (properties.password) delete properties.password
-      if (properties.token) delete properties.token
-      return properties
+    mask_all_text: true,
+    mask_all_element_attributes: true,
+    session_recording: {
+      maskAllInputs: true,
     },
+    sanitize_properties: (properties) => scrubProperties(properties),
   })
 
   isInitialized = true
@@ -66,7 +87,7 @@ export function trackPageView(path: string, title?: string) {
  */
 export function identifyUser(userId: string, traits?: Record<string, unknown>) {
   if (!isInitialized) return
-  posthog.identify(userId, traits)
+  posthog.identify(userId, traits ? scrubProperties(traits) : undefined)
 }
 
 /**

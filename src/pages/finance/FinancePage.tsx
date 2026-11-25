@@ -13,6 +13,7 @@ import { sendPushToUser } from '../../lib/push'
 import { expenseSchema, depositSchema, validateForm } from '../../lib/validation/schemas'
 import { validateUploadedFile, generateSafeFileName } from '../../lib/fileValidator'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import { isApprovedManager, isSafeHttpUrl } from '../../lib/utils'
 
 import { useFinanceData } from '../../hooks/useFinanceData'
 import { usePageTitle } from '../../hooks/usePageTitle'
@@ -51,7 +52,7 @@ export default function FinancePage() {
     currentMonth,
   } = useFinanceData(currentMess?.id, members)
 
-  const isManager = members.some((m) => m.user_id === user?.id && m.role === 'manager')
+  const isManager = isApprovedManager(members, user?.id)
   const approvedMembers = members.filter((m) => m.status === 'approved')
   const financeMembers = members.filter((m) => {
     if (m.status === 'approved') return true
@@ -63,6 +64,8 @@ export default function FinancePage() {
   })
 
   const [paidFixedCostId, setPaidFixedCostId] = useState<string | null>(null)
+  const [deleteDepositId, setDeleteDepositId] = useState<string | null>(null)
+  const [deleteFixedCostId, setDeleteFixedCostId] = useState<string | null>(null)
 
   const totalExpenses = expenses
     .filter((e) => e.date.startsWith(currentMonth))
@@ -155,7 +158,12 @@ export default function FinancePage() {
           toast.error(sanitizeAppError(uploadError, 'Failed to upload receipt'))
           return
         }
-        receiptUrl = supabase.storage.from('receipts').getPublicUrl(fileName).data.publicUrl
+        const publicUrl = supabase.storage.from('receipts').getPublicUrl(fileName).data.publicUrl
+        if (!isSafeHttpUrl(publicUrl)) {
+          toast.error('Invalid receipt URL generated')
+          return
+        }
+        receiptUrl = publicUrl
       } catch (uploadErr) {
         toast.error(sanitizeAppError(uploadErr, 'Failed to upload receipt'))
         return
@@ -301,7 +309,7 @@ export default function FinancePage() {
       .update({ verified: true, verified_by: user.id })
       .eq('id', id)
 
-    if (error) toast.error('Failed to verify deposit')
+    if (error) toast.error(sanitizeAppError(error, 'Failed to verify deposit'))
     else {
       toast.success('Deposit verified!')
       refetch()
@@ -312,7 +320,7 @@ export default function FinancePage() {
             await supabase.from('notifications').insert({
               user_id: currentMess.manager_id,
               mess_id: currentMess.id,
-              type: 'deposit_confirmed',
+              type: 'deposit_verified',
               title: '✅ Deposit Confirmed',
               body: `${profile?.username || 'A member'} confirmed the deposit of ৳${dep.amount}.`,
             })
@@ -344,20 +352,22 @@ export default function FinancePage() {
     }
   }
 
-  const handleDeleteDeposit = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this deposit?')) return
-    const { error } = await supabase.from('deposits').delete().eq('id', id)
-    if (error) toast.error('Failed to delete deposit')
+  const handleConfirmDeleteDeposit = async () => {
+    if (!deleteDepositId) return
+    const { error } = await supabase.from('deposits').delete().eq('id', deleteDepositId)
+    setDeleteDepositId(null)
+    if (error) toast.error(sanitizeAppError(error, 'Failed to delete deposit'))
     else {
       toast.success('Deposit deleted!')
       refetch()
     }
   }
 
-  const handleDeleteFixedCost = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this fixed cost?')) return
-    const { error } = await supabase.from('fixed_costs').delete().eq('id', id)
-    if (error) toast.error('Failed to delete fixed cost')
+  const handleConfirmDeleteFixedCost = async () => {
+    if (!deleteFixedCostId) return
+    const { error } = await supabase.from('fixed_costs').delete().eq('id', deleteFixedCostId)
+    setDeleteFixedCostId(null)
+    if (error) toast.error(sanitizeAppError(error, 'Failed to delete fixed cost'))
     else {
       toast.success('Fixed cost deleted!')
       refetch()
@@ -395,7 +405,7 @@ export default function FinancePage() {
       error = res.error
     }
 
-    if (error) toast.error('Failed to save')
+    if (error) toast.error(sanitizeAppError(error, 'Failed to save fixed cost'))
     else {
       toast.success('Fixed cost saved!')
       refetch()
@@ -409,7 +419,7 @@ export default function FinancePage() {
       .update({ is_paid: true })
       .eq('id', paidFixedCostId)
     if (error) {
-      toast.error('Failed to mark as paid')
+      toast.error(sanitizeAppError(error, 'Failed to mark as paid'))
     } else {
       toast.success('Marked as paid!')
       refetch()
@@ -548,7 +558,7 @@ export default function FinancePage() {
           <h1 className="text-nex-text text-2xl font-bold">{t('nav.finance')}</h1>
         </div>
         <div className="flex flex-wrap gap-2">
-          {activeTab === 'summary' && isManager && (
+          {(activeTab === 'summary' || activeTab === 'history') && isManager && (
             <button
               onClick={handleDownloadPDF}
               className="nex-btn-primary flex items-center gap-1.5 px-3 py-2 text-xs"
@@ -566,16 +576,16 @@ export default function FinancePage() {
         messBalance={messBalance}
       />
 
-      <div className="bg-nex-elevated rounded-btn scrollbar-none flex w-full max-w-full gap-1 overflow-x-auto p-1">
+      <div className="bg-nex-elevated rounded-btn scrollbar-none flex w-full max-w-full gap-1 overflow-x-auto p-1 sm:justify-between">
         {tabs.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`flex shrink-0 items-center gap-1.5 rounded-md px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
-              activeTab === key ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'
+            className={`flex shrink-0 items-center justify-center gap-1.5 rounded-md px-2.5 py-2 text-xs font-medium whitespace-nowrap transition-colors sm:flex-1 sm:px-3 ${
+              activeTab === key ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'
             }`}
           >
-            <Icon className="h-3.5 w-3.5" /> {label}
+            <Icon className="h-3.5 w-3.5 shrink-0" /> {label}
           </button>
         ))}
       </div>
@@ -598,7 +608,10 @@ export default function FinancePage() {
           currentUserId={user?.id || ''}
           onAddDeposit={handleAddDeposit}
           onConfirmDeposit={handleConfirmDeposit}
-          onDeleteDeposit={handleDeleteDeposit}
+          onDeleteDeposit={(id) => {
+            setDeleteDepositId(id)
+            return Promise.resolve()
+          }}
         />
       )}
 
@@ -611,7 +624,10 @@ export default function FinancePage() {
             setPaidFixedCostId(id)
             return Promise.resolve()
           }}
-          onDeleteFixedCost={handleDeleteFixedCost}
+          onDeleteFixedCost={(id) => {
+            setDeleteFixedCostId(id)
+            return Promise.resolve()
+          }}
         />
       )}
 
@@ -633,6 +649,28 @@ export default function FinancePage() {
         variant="warning"
         onConfirm={handleConfirmMarkPaid}
         onCancel={() => setPaidFixedCostId(null)}
+      />
+
+      <ConfirmDialog
+        open={deleteDepositId !== null}
+        title={t('common.delete')}
+        message={t('finance.depositModal.deleteConfirm')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+        variant="danger"
+        onConfirm={handleConfirmDeleteDeposit}
+        onCancel={() => setDeleteDepositId(null)}
+      />
+
+      <ConfirmDialog
+        open={deleteFixedCostId !== null}
+        title={t('common.delete')}
+        message={t('finance.fixedModal.deleteConfirm')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+        variant="danger"
+        onConfirm={handleConfirmDeleteFixedCost}
+        onCancel={() => setDeleteFixedCostId(null)}
       />
     </div>
   )

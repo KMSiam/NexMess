@@ -37,7 +37,7 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
               <Calendar className="h-3.5 w-3.5" />
               {formatLocalizedDate(new Date(), 'EEEE, MMMM d')}
             </span>
-            <span className="h-1.5 w-1.5 rounded-full bg-slate-200 dark:bg-slate-800" />
+            <span aria-hidden="true" className="bg-nex-muted/50 h-1 w-1 rounded-full" />
             <span
               className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${
                 isManager

@@ -35,43 +35,45 @@ export default function MealSelector({
 
   return (
     <div className="nex-card h-full p-5">
-      <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-2">
-          <h4 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
+      <div className="mb-4 space-y-2.5">
+        <div className="flex items-center justify-between gap-3">
+          <h4 className="text-nex-text shrink-0 text-xs font-bold tracking-wider whitespace-nowrap uppercase sm:text-sm sm:font-semibold">
             {t('dashboard.myMealsTitle')}
           </h4>
-          {routines[mealTab].lunch || routines[mealTab].dinner ? (
-            <div className="flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1">
-              <UtensilsCrossed className="h-3 w-3 text-amber-500" />
-              <span className="text-xs font-medium text-amber-500">
-                {mealTab === 'today' ? t('common.today') : t('common.tomorrow')}:{' '}
-                {routines[mealTab].lunch
-                  ? `${getFoodEmoji(routines[mealTab].lunch)} ${formatFoodName(routines[mealTab].lunch)} (${t('meals.lunchShort')})`
-                  : ''}
-                {routines[mealTab].lunch && routines[mealTab].dinner ? ' · ' : ''}
-                {routines[mealTab].dinner
-                  ? `${getFoodEmoji(routines[mealTab].dinner)} ${formatFoodName(routines[mealTab].dinner)} (${t('meals.dinnerShort')})`
-                  : ''}
-              </span>
-            </div>
-          ) : null}
+          <div className="bg-nex-elevated rounded-btn flex shrink-0 gap-1 p-1">
+            <button
+              type="button"
+              onClick={() => setMealTab('today')}
+              className={`rounded px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors ${mealTab === 'today' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'}`}
+            >
+              {t('common.today')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMealTab('tomorrow')}
+              className={`rounded px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors ${mealTab === 'tomorrow' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'}`}
+            >
+              {t('common.tomorrow')}
+            </button>
+          </div>
         </div>
-        <div className="bg-nex-elevated rounded-btn flex gap-1 self-start p-1 sm:self-auto">
-          <button
-            onClick={() => setMealTab('today')}
-            className={`rounded px-3 py-1 text-xs font-medium transition-colors ${mealTab === 'today' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'}`}
-          >
-            {t('common.today')}
-          </button>
-          <button
-            onClick={() => setMealTab('tomorrow')}
-            className={`rounded px-3 py-1 text-xs font-medium transition-colors ${mealTab === 'tomorrow' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted'}`}
-          >
-            {t('common.tomorrow')}
-          </button>
-        </div>
+        {(routines[mealTab].lunch || routines[mealTab].dinner) && (
+          <div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1">
+            <UtensilsCrossed className="h-3 w-3 shrink-0 text-amber-500" />
+            <span className="truncate text-xs font-medium text-amber-500">
+              {mealTab === 'today' ? t('common.today') : t('common.tomorrow')}:{' '}
+              {routines[mealTab].lunch
+                ? `${getFoodEmoji(routines[mealTab].lunch)} ${formatFoodName(routines[mealTab].lunch)} (${t('meals.lunchShort')})`
+                : ''}
+              {routines[mealTab].lunch && routines[mealTab].dinner ? ' · ' : ''}
+              {routines[mealTab].dinner
+                ? `${getFoodEmoji(routines[mealTab].dinner)} ${formatFoodName(routines[mealTab].dinner)} (${t('meals.dinnerShort')})`
+                : ''}
+            </span>
+          </div>
+        )}
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2">
         {[
           {
             type: 'lunch' as const,
@@ -103,60 +105,60 @@ export default function MealSelector({
                   : 'border-nex-border bg-nex-elevated/70 dark:border-[#2c2c32] dark:bg-[#1c1c20]'
               }`}
             >
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="shrink-0 text-2xl">{emoji}</span>
-                  <div className="min-w-0">
-                    <p className="text-nex-text text-sm font-medium">{label}</p>
-                    <p
-                      className={`text-xs font-medium ${
-                        locked
-                          ? 'text-nex-muted'
-                          : on
-                            ? 'font-semibold text-[#3a5643] dark:text-emerald-400'
-                            : 'text-nex-muted'
-                      }`}
-                    >
-                      {locked
-                        ? `${t('dashboard.locked')} · ${mealCutoffLabel(type)}`
-                        : on
-                          ? t('common.eating')
-                          : t('common.skipping')}
-                    </p>
+              <div className="mb-3 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="shrink-0 text-xl">{emoji}</span>
+                    <p className="text-nex-text truncate text-sm font-semibold">{label}</p>
                   </div>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={on}
-                  aria-label={label}
-                  onClick={() => onToggleMeal(mealTab, type)}
-                  disabled={mealLoading || locked}
-                  title={lockTitle}
-                  className={`focus-visible:ring-nex-primary/50 relative inline-flex h-7 w-13 shrink-0 items-center rounded-full p-1 transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 ${
-                    locked ? 'cursor-not-allowed' : 'cursor-pointer active:scale-[0.96]'
-                  } ${
-                    on
-                      ? locked
-                        ? 'bg-[#4a6d56]/55 dark:bg-emerald-500/40'
-                        : 'bg-gradient-to-r from-[#3a5643] to-[#4a6d56] shadow-inner shadow-black/15 dark:from-emerald-600 dark:to-emerald-500 dark:shadow-[0_0_12px_rgba(16,185,129,0.25)]'
-                      : locked
-                        ? 'border border-black/5 bg-[#e6dfd5]/70 dark:border-white/5 dark:bg-[#242429]'
-                        : 'border border-black/5 bg-[#ded6ca] hover:bg-[#d4cabe] dark:border-white/10 dark:bg-[#2f2f36] dark:hover:bg-[#3a3a42]'
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                      on ? 'translate-x-6' : 'translate-x-0'
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={on}
+                    aria-label={label}
+                    onClick={() => onToggleMeal(mealTab, type)}
+                    disabled={mealLoading || locked}
+                    title={lockTitle}
+                    className={`focus-visible:ring-nex-primary/50 relative inline-flex h-6 w-11 shrink-0 items-center rounded-full p-1 transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 ${
+                      locked ? 'cursor-not-allowed' : 'cursor-pointer active:scale-[0.96]'
+                    } ${
+                      on
+                        ? locked
+                          ? 'bg-[#4a6d56]/55 dark:bg-emerald-500/40'
+                          : 'bg-gradient-to-r from-[#3a5643] to-[#4a6d56] shadow-inner shadow-black/15 dark:from-emerald-600 dark:to-emerald-500 dark:shadow-[0_0_12px_rgba(16,185,129,0.25)]'
+                        : locked
+                          ? 'border border-black/5 bg-[#e6dfd5]/70 dark:border-white/5 dark:bg-[#242429]'
+                          : 'border border-black/5 bg-[#ded6ca] hover:bg-[#d4cabe] dark:border-white/10 dark:bg-[#2f2f36] dark:hover:bg-[#3a3a42]'
                     }`}
                   >
-                    {locked ? (
-                      <Lock className="text-nex-muted h-2.5 w-2.5" />
-                    ) : on ? (
-                      <Check className="h-2.5 w-2.5 stroke-[3] text-[#3a5643] dark:text-emerald-600" />
-                    ) : null}
-                  </span>
-                </button>
+                    <span
+                      className={`pointer-events-none flex h-4 w-4 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                        on ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    >
+                      {locked ? (
+                        <Lock className="text-nex-muted h-2.5 w-2.5" />
+                      ) : on ? (
+                        <Check className="h-2.5 w-2.5 stroke-[3] text-[#3a5643] dark:text-emerald-600" />
+                      ) : null}
+                    </span>
+                  </button>
+                </div>
+                <p
+                  className={`flex items-center gap-1 pl-7 text-[11px] font-medium whitespace-nowrap ${
+                    locked
+                      ? 'text-nex-muted'
+                      : on
+                        ? 'font-semibold text-[#3a5643] dark:text-emerald-400'
+                        : 'text-nex-muted'
+                  }`}
+                >
+                  {locked
+                    ? `${t('dashboard.locked')} · ${mealCutoffLabel(type)}`
+                    : on
+                      ? t('common.eating')
+                      : t('common.skipping')}
+                </p>
               </div>
               <div
                 className={`flex items-center justify-between border-t pt-3 ${

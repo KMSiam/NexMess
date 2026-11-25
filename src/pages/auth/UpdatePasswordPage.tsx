@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { Lock, Eye, EyeOff, ArrowRight, AlertTriangle } from 'lucide-react'
@@ -9,6 +9,21 @@ import { useSEO } from '../../hooks/useSEO'
 import { updatePasswordSchema, validateForm } from '../../lib/validation/schemas'
 import { sanitizeAppError } from '../../lib/errorHandler'
 
+function isRecoveryJwt(accessToken: string | undefined): boolean {
+  if (!accessToken) return false
+  try {
+    const parts = accessToken.split('.')
+    if (parts.length < 2) return false
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/')
+    const payload = JSON.parse(atob(base64)) as { amr?: Array<{ method?: string }> }
+    return Boolean(
+      payload.amr?.some((entry) => entry?.method === 'recovery' || entry?.method === 'otp')
+    )
+  } catch {
+    return false
+  }
+}
+
 export default function UpdatePasswordPage() {
   const { t } = useTranslation()
   useSEO({
@@ -17,10 +32,22 @@ export default function UpdatePasswordPage() {
     robots: 'noindex, nofollow',
   })
   const navigate = useNavigate()
+  const location = useLocation()
+  const [currentPassword, setCurrentPassword] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [requiresCurrentPassword, setRequiresCurrentPassword] = useState(false)
+  const [sessionEmail, setSessionEmail] = useState<string | null>(null)
+  const [isRecoveryFlow, setIsRecoveryFlow] = useState<boolean>(() => {
+    const state = location.state as { isRecovery?: boolean } | null
+    return Boolean(
+      state?.isRecovery ||
+        window.location.search.includes('code=') ||
+        window.location.hash.includes('type=recovery')
+    )
+  })
   
   const [ready, setReady] = useState(false)
   const [invalid, setInvalid] = useState(false)
@@ -29,6 +56,13 @@ export default function UpdatePasswordPage() {
     // Check if we already have a session (in case auto-exchange happened quickly)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        const recovery = isRecoveryJwt(session.access_token)
+        if (recovery) setIsRecoveryFlow(true)
+        const providers = (session.user?.app_metadata?.providers as string[] | undefined) || []
+        const hasEmailPassword =
+          session.user?.app_metadata?.provider === 'email' || providers.includes('email')
+        setSessionEmail(session.user?.email || null)
+        setRequiresCurrentPassword(!recovery && !isRecoveryFlow && Boolean(hasEmailPassword))
         setReady(true)
         setInvalid(false)
       }
@@ -48,6 +82,17 @@ export default function UpdatePasswordPage() {
     } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {
         clearTimeout(timeout)
+        const recovery = event === 'PASSWORD_RECOVERY' || isRecoveryJwt(session.access_token)
+        if (recovery) {
+          setIsRecoveryFlow(true)
+          setRequiresCurrentPassword(false)
+        } else {
+          const providers = (session.user?.app_metadata?.providers as string[] | undefined) || []
+          const hasEmailPassword =
+            session.user?.app_metadata?.provider === 'email' || providers.includes('email')
+          setSessionEmail(session.user?.email || null)
+          setRequiresCurrentPassword(!isRecoveryFlow && Boolean(hasEmailPassword))
+        }
         setReady(true)
         setInvalid(false)
       }
@@ -57,7 +102,7 @@ export default function UpdatePasswordPage() {
       clearTimeout(timeout)
       subscription.unsubscribe()
     }
-  }, [])
+  }, [isRecoveryFlow])
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -69,8 +114,25 @@ export default function UpdatePasswordPage() {
       return
     }
 
+    if (requiresCurrentPassword && !currentPassword) {
+      toast.error('Please enter your current password to confirm this change.')
+      return
+    }
+
     setLoading(true)
     try {
+      if (requiresCurrentPassword && sessionEmail) {
+        const { error: reauthError } = await supabase.auth.signInWithPassword({
+          email: sessionEmail,
+          password: currentPassword,
+        })
+        if (reauthError) {
+          toast.error('Current password is incorrect.')
+          setLoading(false)
+          return
+        }
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: validation.data.password,
       })
@@ -144,6 +206,25 @@ export default function UpdatePasswordPage() {
             </div>
           ) : (
             <form onSubmit={handleUpdate} className="space-y-4">
+              {requiresCurrentPassword && (
+                <div>
+                  <label className="text-nex-text mb-1.5 block text-sm font-medium">
+                    Current Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="text-nex-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                    <input
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="nex-input pl-10"
+                      placeholder="Enter your current password"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="text-nex-text mb-1.5 block text-sm font-medium">
                   {t('auth.updatePassword.newPassword')}

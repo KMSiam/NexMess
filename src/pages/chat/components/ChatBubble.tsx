@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Smile } from 'lucide-react'
-import { getInitials, isSafeUrl, formatNumber, formatLocalizedDate } from '../../../lib/utils'
+import { getInitials, isSafeHttpUrl, formatNumber, formatLocalizedDate } from '../../../lib/utils'
 import type { ChatMessage, Profile } from '../../../types/database'
 
 interface Reaction {
@@ -62,7 +62,7 @@ export default function ChatBubble({
     <div className={`group/bubble relative flex gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
       {!isOwn && (
         <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-slate-300 to-slate-400 text-[10px] font-semibold text-white sm:h-8 sm:w-8 sm:text-xs">
-          {sender?.avatar_url ? (
+          {sender?.avatar_url && isSafeHttpUrl(sender.avatar_url) ? (
             <img src={sender.avatar_url} alt="" className="h-full w-full object-cover" />
           ) : (
             getInitials(sender?.username || '?')
@@ -81,9 +81,9 @@ export default function ChatBubble({
                 : 'bg-nex-elevated text-nex-text border-nex-border/50 rounded-bl-sm border'
             }`}
           >
-            {msg.message_type === 'image' ? (
+            {msg.message_type === 'image' && isSafeHttpUrl(msg.text) ? (
               <a
-                href={isSafeUrl(msg.text) ? msg.text : '#'}
+                href={msg.text}
                 target="_blank"
                 rel="noreferrer"
                 className="block max-w-xs overflow-hidden rounded-lg"

@@ -5,6 +5,7 @@ import { useMessStore } from '../stores/messStore'
 import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
 import { ShieldAlert, RefreshCw, LogOut } from 'lucide-react'
+import { sanitizeAppError } from '../lib/errorHandler'
 
 export function AuthGuard() {
   const { session, loading, initialized, profile, signOut } = useAuthStore()
@@ -33,7 +34,7 @@ export function AuthGuard() {
         .eq('id', profile.id)
 
       if (error) {
-        toast.error('Failed to restore account: ' + error.message)
+        toast.error(sanitizeAppError(error, 'Failed to restore account. Please try again.'))
       } else {
         toast.success('Account successfully restored!')
         const { fetchProfile } = useAuthStore.getState()

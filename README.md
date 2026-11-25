@@ -127,7 +127,6 @@ NexMess/
 │       └── morning-reminder/        # Automated morning meal reminder cron
 ├── index.html               # Main HTML entry point
 ├── package.json             # NPM dependencies and project scripts
-├── tailwind.config.js       # Tailwind CSS design system configuration
 └── vite.config.ts           # Vite build configuration with PWA plugin
 ```
 
@@ -332,7 +331,7 @@ npm run preview
 | :--- | :--- | :--- |
 | `npm run dev` | `vite` | Starts local hot-reloading dev server at `http://localhost:5173` |
 | `npm run build` | `tsc -b && vite build` | Type-checks codebase and builds minified production bundle in `dist/` |
-| `npm test` | `vitest run` | Runs all 22 unit tests for finance, cutoff, validation & analytics |
+| `npm test` | `vitest run` | Runs all 36 unit tests for finance, cutoff, validation, security & analytics |
 | `npm run test:watch` | `vitest` | Runs Vitest in interactive watch mode for live test-driven development |
 | `npm run test:coverage`| `vitest run --coverage` | Generates detailed code test coverage reports |
 | `npm run test:e2e` | `playwright test` | Runs Playwright browser end-to-end smoke & navigation test suite |

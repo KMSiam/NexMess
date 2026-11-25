@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { Plus, ImageIcon, Receipt, Edit2, Trash2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Plus, ImageIcon, Receipt, Edit2, Trash2, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { formatCurrency, formatLocalizedDate } from '../../../lib/utils'
+import { formatCurrency, formatLocalizedDate, isSafeHttpUrl } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
 import ConfirmDialog from '../../../components/ConfirmDialog'
 import type { Expense } from '../../../types/database'
@@ -69,6 +69,15 @@ export default function ExpenseTab({
     setExpFile(null)
   }
 
+  useEffect(() => {
+    if (!showAddExpense) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleCancel()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [showAddExpense])
+
   const confirmDelete = async () => {
     if (!deleteExpenseId) return
     setLoading(true)
@@ -80,97 +89,119 @@ export default function ExpenseTab({
   return (
     <div className="space-y-4">
       <button
-        onClick={() => {
-          if (showAddExpense) handleCancel()
-          else setShowAddExpense(true)
-        }}
+        onClick={() => setShowAddExpense(true)}
         className="nex-btn-primary text-sm"
       >
-        <Plus className="h-4 w-4" />{' '}
-        {editingExpenseId
-          ? t('finance.expenseModal.editTitle')
-          : t('finance.expenseModal.addTitle')}
+        <Plus className="h-4 w-4" /> {t('finance.expenseModal.addTitle')}
       </button>
 
       {showAddExpense && (
-        <div className="nex-card animate-slide-up p-5">
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          onClick={handleCancel}
+        >
+          <div
+            className="nex-card animate-slide-up w-full max-w-md rounded-b-none p-5 sm:rounded-b-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-nex-text text-lg font-semibold">
+                {editingExpenseId
+                  ? t('finance.expenseModal.editTitle')
+                  : t('finance.expenseModal.addTitle')}
+              </h3>
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="text-nex-muted hover:text-nex-text rounded-lg p-1"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="text-nex-text mb-1 block text-sm font-medium">
+                    {t('finance.expenseModal.amountLabel')}
+                  </label>
+                  <input
+                    type="number"
+                    value={expAmount}
+                    onChange={(e) => setExpAmount(e.target.value)}
+                    className="nex-input"
+                    placeholder="0.00"
+                    required
+                    step="0.01"
+                    min="0"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="text-nex-text mb-1 block text-sm font-medium">
+                    {t('finance.expenseModal.categoryLabel')}
+                  </label>
+                  <select
+                    value={expCategory}
+                    onChange={(e) => setExpCategory(e.target.value)}
+                    className="nex-input"
+                  >
+                    <option value="bazaar">{t('finance.categories.bazaar')}</option>
+                    <option value="utilities">{t('finance.categories.utilities')}</option>
+                    <option value="rent">{t('finance.categories.rent')}</option>
+                    <option value="other">{t('finance.categories.other')}</option>
+                  </select>
+                </div>
+              </div>
               <div>
                 <label className="text-nex-text mb-1 block text-sm font-medium">
-                  {t('finance.expenseModal.amountLabel')}
+                  {t('finance.expenseModal.descLabel')}
                 </label>
                 <input
-                  type="number"
-                  value={expAmount}
-                  onChange={(e) => setExpAmount(e.target.value)}
+                  type="text"
+                  value={expDesc}
+                  onChange={(e) => setExpDesc(e.target.value)}
                   className="nex-input"
-                  placeholder="0.00"
-                  required
-                  step="0.01"
-                  min="0"
+                  placeholder={t('finance.expenseModal.descPlaceholder')}
                 />
               </div>
-              <div>
-                <label className="text-nex-text mb-1 block text-sm font-medium">
-                  {t('finance.expenseModal.categoryLabel')}
-                </label>
-                <select
-                  value={expCategory}
-                  onChange={(e) => setExpCategory(e.target.value)}
-                  className="nex-input"
+              {!editingExpenseId && (
+                <div>
+                  <label className="text-nex-text mb-1 block text-sm font-medium">
+                    {t('finance.expenseModal.receiptLabel')}
+                  </label>
+                  <label className="border-nex-border hover:bg-nex-hover flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-2 transition-colors">
+                    <ImageIcon className="text-nex-muted h-4 w-4 shrink-0" />
+                    <span className="text-nex-muted truncate text-sm">
+                      {expFile ? expFile.name : t('finance.expenseModal.uploadReceipt')}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setExpFile(e.target.files?.[0] || null)}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              )}
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="nex-btn-secondary flex-1"
                 >
-                  <option value="bazaar">🛒 {t('finance.categories.bazaar')}</option>
-                  <option value="utilities">💡 {t('finance.categories.utilities')}</option>
-                  <option value="rent">🏠 {t('finance.categories.rent')}</option>
-                  <option value="other">📋 {t('finance.categories.other')}</option>
-                </select>
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="nex-btn-primary flex-1 disabled:opacity-50"
+                >
+                  {loading ? t('common.saving') : t('common.save')}
+                </button>
               </div>
-            </div>
-            <div>
-              <label className="text-nex-text mb-1 block text-sm font-medium">
-                {t('finance.expenseModal.descLabel')}
-              </label>
-              <input
-                type="text"
-                value={expDesc}
-                onChange={(e) => setExpDesc(e.target.value)}
-                className="nex-input"
-                placeholder={t('finance.expenseModal.descPlaceholder')}
-              />
-            </div>
-            {!editingExpenseId && (
-              <div>
-                <label className="text-nex-text mb-1 block text-sm font-medium">
-                  {t('finance.expenseModal.receiptLabel')}
-                </label>
-                <label className="border-nex-border hover:bg-nex-hover flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-2 transition-colors">
-                  <ImageIcon className="text-nex-muted h-4 w-4" />
-                  <span className="text-nex-muted text-sm">
-                    {expFile ? expFile.name : t('finance.expenseModal.uploadReceipt')}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setExpFile(e.target.files?.[0] || null)}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-            )}
-            <div className="flex gap-2 pt-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="nex-btn-primary disabled:opacity-50"
-              >
-                {t('common.save')}
-              </button>
-              <button type="button" onClick={handleCancel} className="nex-btn-secondary">
-                {t('common.cancel')}
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       )}
 
@@ -208,7 +239,7 @@ export default function ExpenseTab({
                 <div>
                   <p className="text-nex-text flex items-center gap-2 text-sm font-medium">
                     {exp.description || t(`finance.categories.${exp.category}`, { defaultValue: exp.category })}
-                    {exp.receipt_url && (
+                    {exp.receipt_url && isSafeHttpUrl(exp.receipt_url) && (
                       <a
                         href={exp.receipt_url}
                         target="_blank"

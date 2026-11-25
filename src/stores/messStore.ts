@@ -112,7 +112,8 @@ export const useMessStore = create<MessState>()(
           .select()
           .single()
 
-        if (!error && data) {
+        if (error) throw error
+        if (data) {
           set((state) => ({
             currentMess: state.currentMess?.id === messId ? (data as Mess) : state.currentMess,
             messes: state.messes.map((m) => (m.id === messId ? (data as Mess) : m)),
