@@ -3,23 +3,37 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../stores/authStore'
-import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldAlert } from 'lucide-react'
+import { useThemeStore } from '../../stores/themeStore'
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldAlert, Sun, Moon } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 import { useSEO } from '../../hooks/useSEO'
 import { loginSchema, validateForm } from '../../lib/validation/schemas'
 import { checkRateLimit, recordRateLimitAttempt } from '../../lib/rateLimiter'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import { formatNumber } from '../../lib/utils'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
+
+const VALIDATION_ERROR_KEYS: Record<string, string> = {
+  'Email is required': 'auth.login.errors.emailRequired',
+  'Please enter a valid email address': 'auth.login.errors.emailInvalid',
+  'Email cannot exceed 255 characters': 'auth.login.errors.emailTooLong',
+  'Password is required': 'auth.login.errors.passwordRequired',
+  'Password cannot exceed 72 characters': 'auth.login.errors.passwordTooLong',
+}
 
 export default function LoginPage() {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const isBangla = (i18n.language || 'en').startsWith('bn')
+  const { isDark, toggleTheme } = useThemeStore()
+
   useSEO({
-    title: 'Sign In',
-    description: 'Log in to your NexMess account to track meals, manage shared expenses, check bazaar rotation, and coordinate with your roommates.',
+    title: t('auth.login.seoTitle'),
+    description: t('auth.login.seoDesc'),
     canonical: 'https://www.nexmess.shop/login',
     robots: 'index, follow',
   })
+
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -28,13 +42,26 @@ export default function LoginPage() {
   const [googlePending, startGoogleTransition] = useTransition()
   const [cooldownSec, setCooldownSec] = useState<number>(0)
 
+  const localizeSanitizedError = (err: unknown): string => {
+    const msg = sanitizeAppError(err)
+    if (!isBangla) return msg
+    const lower = msg.toLowerCase()
+    if (lower.includes('invalid email or password')) return t('auth.login.errors.invalidCredentials')
+    if (lower.includes('verify your email')) return t('auth.login.errors.emailNotConfirmed')
+    if (lower.includes('too many') || lower.includes('rate limit')) return t('auth.login.errors.rateLimit')
+    if (lower.includes('network connection')) return t('auth.login.errors.network')
+    if (lower.includes('unexpected error')) return t('auth.login.errors.generic')
+    return msg
+  }
+
   const handleEmailLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     // 1. Strict Schema Validation
     const validation = validateForm(loginSchema, { email, password })
     if (!validation.success) {
-      toast.error(validation.error)
+      const key = VALIDATION_ERROR_KEYS[validation.error]
+      toast.error(key ? t(key) : validation.error)
       return
     }
 
@@ -43,7 +70,7 @@ export default function LoginPage() {
     const rlStatus = checkRateLimit(rateLimitKey)
     if (!rlStatus.allowed) {
       setCooldownSec(rlStatus.retryAfterSec)
-      toast.error(rlStatus.message || 'Too many failed attempts. Please wait.')
+      toast.error(t('auth.login.rateLimitToast', { sec: formatNumber(rlStatus.retryAfterSec) }))
       return
     }
 
@@ -56,8 +83,7 @@ export default function LoginPage() {
 
         if (error) {
           recordRateLimitAttempt(rateLimitKey, false)
-          const sanitizedMsg = sanitizeAppError(error)
-          toast.error(sanitizedMsg)
+          toast.error(localizeSanitizedError(error))
           const newRl = checkRateLimit(rateLimitKey)
           if (!newRl.allowed) {
             setCooldownSec(newRl.retryAfterSec)
@@ -69,12 +95,12 @@ export default function LoginPage() {
             useAuthStore.getState().setSession(data.session)
             await useAuthStore.getState().fetchProfile()
           }
-          toast.success('Welcome back!')
+          toast.success(t('auth.login.welcomeToast'))
           navigate('/dashboard')
         }
       } catch (err: unknown) {
         recordRateLimitAttempt(rateLimitKey, false)
-        toast.error(sanitizeAppError(err))
+        toast.error(localizeSanitizedError(err))
       }
     })
   }
@@ -87,67 +113,99 @@ export default function LoginPage() {
           options: { redirectTo: `${window.location.origin}/dashboard` },
         })
         if (error) {
-          toast.error(sanitizeAppError(error))
+          toast.error(localizeSanitizedError(error))
         }
       } catch (err: unknown) {
-        toast.error(sanitizeAppError(err))
+        toast.error(localizeSanitizedError(err))
       }
     })
   }
 
+  const brandName = isBangla ? t('common.appName') : 'NexMess'
+  const features = [
+    t('auth.login.featureMeals'),
+    t('auth.login.featureBilling'),
+    t('auth.login.featureChat'),
+  ]
+
   return (
-    <div className="bg-nex-bg flex min-h-screen">
+    <div className={`bg-nex-bg flex min-h-screen ${isBangla ? 'font-bangla' : 'font-sans'}`}>
       <div className="hidden w-1/2 flex-col items-center justify-center bg-gradient-to-br from-[#3A5643] via-[#4A6D56] to-[#5F886E] p-12 text-white lg:flex">
         <div className="max-w-md">
           <Link to="/" className="mb-8 flex items-center gap-3 transition-opacity hover:opacity-85">
             <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white/20 backdrop-blur">
-              <img src={logoIcon} alt="NexMess" className="h-10 w-10" />
+              <img src={logoIcon} alt={brandName} className="h-10 w-10" />
             </div>
-            <span className="text-3xl font-bold">NexMess</span>
+            <span className="text-3xl font-bold">{brandName}</span>
           </Link>
           <h2 className="mb-4 text-4xl leading-tight font-bold">
-            Manage your mess,
+            {t('auth.login.heroTitleLine1')}
             <br />
-            the smart way.
+            {t('auth.login.heroTitleLine2')}
           </h2>
           <p className="text-lg leading-relaxed text-[#EDF2EE]">
-            Track meals, split expenses, coordinate bazaar duty — all in one beautiful app built for
-            shared living.
+            {t('auth.login.heroDesc')}
           </p>
-          <div className="mt-10 flex gap-6">
-            {['Real-time Meals', 'Auto Billing', 'Group Chat'].map((f) => (
-              <div key={f} className="flex items-center gap-2 text-sm text-[#EDF2EE]">
+          <div className="mt-10 flex flex-wrap gap-6">
+            {features.map((feature) => (
+              <div key={feature} className="flex items-center gap-2 text-sm text-[#EDF2EE]">
                 <div className="bg-nex-success h-1.5 w-1.5 rounded-full" />
-                {f}
+                {feature}
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="flex flex-1 items-center justify-center p-6">
+      <div className="relative flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
-          <Link
-            to="/"
-            className="mb-8 flex items-center gap-3 transition-opacity hover:opacity-85 lg:hidden"
-          >
-            <div className="h-10 w-10 overflow-hidden rounded-xl">
-              <img src={logoIcon} alt="NexMess" className="h-full w-full" />
+          <div className="mb-8 flex items-center justify-between lg:justify-end">
+            <Link
+              to="/"
+              className="flex items-center gap-2.5 transition-opacity hover:opacity-85 lg:hidden"
+            >
+              <div className="h-9 w-9 overflow-hidden rounded-xl">
+                <img src={logoIcon} alt={brandName} className="h-full w-full" />
+              </div>
+              <span className="text-nex-text text-xl font-bold">{brandName}</span>
+            </Link>
+
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher variant="pill" />
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="rounded-btn hover:bg-nex-hover text-nex-muted hover:text-nex-text relative flex h-9 w-9 items-center justify-center transition-colors active:scale-95"
+                title={isDark ? t('common.light') : t('common.dark')}
+                aria-label={t('settings.theme.toggle')}
+              >
+                <Sun
+                  className={`h-4.5 w-4.5 text-amber-400 transition-all duration-300 ${
+                    isDark ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-90 opacity-0'
+                  }`}
+                />
+                <Moon
+                  className={`absolute h-4.5 w-4.5 transition-all duration-300 ${
+                    isDark ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'
+                  }`}
+                />
+              </button>
             </div>
-            <span className="text-nex-text text-2xl font-bold">NexMess</span>
-          </Link>
+          </div>
 
           <h1 className="text-nex-text mb-1 text-2xl font-bold">
-            {isBangla ? 'স্বাগতম' : 'Welcome back'}
+            {t('auth.login.title')}
           </h1>
           <p className="text-nex-muted mb-8">
-            {isBangla ? 'আপনার অ্যাকাউন্টে প্রবেশ করতে লগইন করুন' : 'Sign in to continue to your dashboard'}
+            {t('auth.login.subtitle')}
           </p>
 
           {cooldownSec > 0 && (
             <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-400">
               <ShieldAlert className="h-5 w-5 shrink-0" />
-              <span>Too many consecutive attempts. Please wait {cooldownSec}s before retrying.</span>
+              <span>
+                {t('auth.login.cooldownWarning', { sec: formatNumber(cooldownSec) })}
+              </span>
             </div>
           )}
 
@@ -179,19 +237,15 @@ export default function LoginPage() {
                 />
               </svg>
             )}
-            {googlePending
-              ? isBangla
-                ? 'লগইন হচ্ছে...'
-                : 'Redirecting...'
-              : isBangla
-                ? 'গুগল দিয়ে প্রবেশ করুন'
-                : 'Continue with Google'}
+            {googlePending ? t('auth.login.redirecting') : t('auth.login.google')}
           </button>
 
           <div className="mb-6 flex items-center gap-3">
             <div className="bg-nex-border h-px flex-1" />
-            <span className="text-nex-muted text-xs tracking-wider uppercase">
-              {isBangla ? 'অথবা ইমেইল দিয়ে প্রবেশ করুন' : 'or sign in with email'}
+            <span
+              className={`text-nex-muted text-xs ${!isBangla ? 'tracking-wider uppercase' : ''}`}
+            >
+              {t('auth.login.orEmail')}
             </span>
             <div className="bg-nex-border h-px flex-1" />
           </div>
@@ -199,7 +253,7 @@ export default function LoginPage() {
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div>
               <label className="text-nex-text mb-1.5 block text-sm font-medium">
-                {isBangla ? 'ইমেইল অ্যাড্রেস' : 'Email'}
+                {t('auth.login.email')}
               </label>
               <div className="relative">
                 <Mail className="text-nex-muted absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
@@ -218,13 +272,13 @@ export default function LoginPage() {
             <div>
               <div className="mb-1.5 flex items-center justify-between">
                 <label className="text-nex-text block text-sm font-medium">
-                  {isBangla ? 'পাসওয়ার্ড' : 'Password'}
+                  {t('auth.login.password')}
                 </label>
                 <Link
                   to="/forgot-password"
                   className="text-nex-primary hover:text-nex-primary-dark text-xs font-medium transition-colors"
                 >
-                  {isBangla ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot password?'}
+                  {t('auth.login.forgotPassword')}
                 </Link>
               </div>
               <div className="relative">
@@ -241,6 +295,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? t('auth.login.hidePassword') : t('auth.login.showPassword')}
                   className="text-nex-muted hover:text-nex-text absolute top-1/2 right-3 -translate-y-1/2"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -258,16 +313,16 @@ export default function LoginPage() {
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 <>
-                  {isBangla ? 'লগইন করুন' : 'Sign In'} <ArrowRight className="h-4 w-4" />
+                  {t('auth.login.submit')} <ArrowRight className="h-4 w-4" />
                 </>
               )}
             </button>
           </form>
 
           <p className="text-nex-muted mt-6 text-center text-sm">
-            {isBangla ? 'কোনো অ্যাকাউন্ট নেই?' : "Don't have an account?"}{' '}
+            {t('auth.login.noAccount')}{' '}
             <Link to="/register" className="text-nex-primary font-medium hover:underline">
-              {isBangla ? 'নতুন অ্যাকাউন্ট খুলুন' : 'Create one'}
+              {t('auth.login.createAccount')}
             </Link>
           </p>
         </div>
