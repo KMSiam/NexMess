@@ -1,8 +1,8 @@
 # 🗺️ NexMess — Commercialization & Production Scale Roadmap
 
 > **Target:** Transitioning NexMess from a high-performance MVP into a fully commercialized, revenue-generating SaaS platform.  
-> **Created:** November 2026  
-> **Status:** Active Reference & Execution Guide
+> **Updated:** November 26, 2026 (`v2.4.0`)  
+> **Status:** Active Reference & Execution Guide · See [PROGRESS.md](./PROGRESS.md) for the chronological session changelog
 
 ---
 
@@ -10,12 +10,12 @@
 
 | Domain | Current Grade | Status | Notes |
 | :--- | :---: | :--- | :--- |
-| **UI/UX & Design** | **A** | Startup Ready | Modern Sage Green design system, Tailwind CSS v4, smooth animations. |
-| **System Architecture** | **A-** | Robust | 3-tier architecture with Supabase PostgreSQL, RLS multi-tenancy, Edge Functions. |
-| **Feature Completeness** | **A** | Full MVP | Meal tracking, cut-off locks, 5-tab finance suite, chat, AI market assistant. |
-| **Observability & Security** | **A** | Implemented (Phase 1) | Sentry crash reporting, PostHog telemetry, and Edge Function rate limits. |
-| **Reliability & Testing** | **A** | Implemented (Phase 3) | 29 unit tests passing (Vitest), Playwright E2E suite, GitHub Actions CI. |
-| **Localization & Fonts** | **A+** | Implemented (Phase 4) | Full app-wide authentic Bengali localization, Hind Siliguri typography, reactive theme synchronization. |
+| **UI/UX & Design** | **A+** | Polished (`v2.4.0`) | Modern Sage Green design system, smooth sidebar/drawer motion, single-line Settings slider, fixed chat/AI scroll, native mobile pull-to-refresh. |
+| **System Architecture** | **A-** | Robust | 3-tier architecture with Supabase PostgreSQL, RLS multi-tenancy, Edge Functions (retired `nexmess-next` & unused deps cleaned). |
+| **Feature Completeness** | **A** | Full MVP | Meal tracking, cut-off locks, `All Members` Day Breakdown modal, 5-tab finance suite, modal workflows, Activity filters, chat, AI market assistant. |
+| **Observability & Security** | **A-** | Hardened (`v2.0.0` Client) | Sentry/PostHog PII masking, XSS/URL guards, client auth hardening, Edge Function local patches; DB/Auth/Storage cloud migrations queued in [PROGRESS.md](./PROGRESS.md). |
+| **Reliability & Testing** | **A** | Implemented (Phase 3) | `38` unit tests passing across `8` files (Vitest), Playwright E2E suite, GitHub Actions CI, dynamic `APP_VERSION` sync. |
+| **Localization & Fonts** | **A+** | Implemented (Phase 4) | Full app-wide authentic Bengali localization, Hind Siliguri + Noto Sans Bengali numerals typography, reactive theme synchronization. |
 | **Commercialization & Mobile** | **Planned** | Future Roadmap (Phases 5 & 2) | Google Play Store TWA Release & Regional Payment Gateways (bKash/Nagad) saved for future expansion. |
 
 ---
@@ -165,7 +165,9 @@
 | Status | Next Immediate Action |
 | :--- | :--- |
 | **Phase 1** | ✅ Complete: Sentry, PostHog, Edge rate-limiters & Cloudflare instructions installed. |
-| **Phase 3** | ✅ Complete: 29 Vitest unit tests, Playwright config, and GitHub Actions CI pipeline active. |
-| **Phase 4** | ✅ Complete: App-wide authentic Bengali localization, Hind Siliguri typography, and reactive theme synchronization. |
+| **Phase 3** | ✅ Complete: `38` Vitest unit tests (`8` suites), Playwright config, and GitHub Actions CI pipeline active. |
+| **Phase 4** | ✅ Complete: App-wide authentic Bengali localization, Hind Siliguri + Noto Sans Bengali digits, and reactive theme synchronization. |
+| **v2.0.0–v2.4.0** | ✅ Complete: Tech stack cleanup, client security hardening, dynamic `APP_VERSION`, multi-viewport UX polish, smooth sidebar, horizontal Settings tabs, NexMessAI/Chat scroll fix & mobile pull-to-refresh (tracked in [PROGRESS.md](./PROGRESS.md)). |
+| **Next Up** | ⏳ Deploy `v2.4.0` to Vercel (`www.nexmess.shop`), review/apply pending Supabase SQL/Edge/Auth/CSP security rollouts listed in [PROGRESS.md](./PROGRESS.md). |
 | **Future Plans** | 🔮 **Phase 5** (Play Store TWA) & **Phase 2** (Payment Gateways & Subscriptions) saved for future expansion. |
-| **Current Focus** | Production stability, user onboarding, and core web platform refinements. |
+| **Current Focus** | Production deployment sync, approved backend security rollouts, user onboarding, and stability. |

@@ -10,6 +10,7 @@ lerna-debug.log*
 # Dependencies & Build Outputs
 node_modules
 dist
+dev-dist
 dist-ssr
 *.local
 
