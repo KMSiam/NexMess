@@ -17,7 +17,7 @@ export function initSentry() {
   Sentry.init({
     dsn: SENTRY_DSN,
     environment: import.meta.env.MODE || 'production',
-    release: 'nexmess@1.26.4',
+    release: 'nexmess@1.27.0',
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({
