@@ -63,7 +63,7 @@ export default function PreferencesSection() {
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <button
             type="button"
-            onClick={() => setTheme(false)}
+            onClick={(e) => setTheme(false, e)}
             className={`flex items-center justify-between rounded-2xl border p-4 text-left transition-all ${
               !isDark
                 ? 'border-nex-primary bg-nex-primary/5 dark:bg-nex-primary/10 shadow-sm ring-1 ring-nex-primary'
@@ -88,7 +88,7 @@ export default function PreferencesSection() {
 
           <button
             type="button"
-            onClick={() => setTheme(true)}
+            onClick={(e) => setTheme(true, e)}
             className={`flex items-center justify-between rounded-2xl border p-4 text-left transition-all ${
               isDark
                 ? 'border-nex-primary bg-nex-primary/5 dark:bg-nex-primary/10 shadow-sm ring-1 ring-nex-primary'

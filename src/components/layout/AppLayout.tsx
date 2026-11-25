@@ -233,11 +233,22 @@ export default function AppLayout() {
             <div className="flex items-center gap-1.5 sm:gap-2">
               <LanguageSwitcher />
               <button
+                type="button"
                 onClick={toggleTheme}
-                className="rounded-btn hover:bg-nex-hover text-nex-muted p-2 transition-colors"
-                title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                className="rounded-btn hover:bg-nex-hover text-nex-muted hover:text-nex-text relative flex h-9 w-9 items-center justify-center transition-colors active:scale-95"
+                title={isDark ? t('common.light') : t('common.dark')}
+                aria-label={t('settings.theme.toggle')}
               >
-                {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                <Sun
+                  className={`h-5 w-5 text-amber-400 transition-all duration-300 ${
+                    isDark ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-90 opacity-0'
+                  }`}
+                />
+                <Moon
+                  className={`absolute h-5 w-5 transition-all duration-300 ${
+                    isDark ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'
+                  }`}
+                />
               </button>
               <NotificationBell />
             </div>

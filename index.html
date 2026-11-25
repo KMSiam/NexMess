@@ -30,6 +30,20 @@
 
   <meta name="theme-color" content="#3B82F6" />
 
+  <!-- Prevent theme and language flash before React mounts -->
+  <script>
+    try {
+      var t = localStorage.getItem('nexmess-theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+      var l = localStorage.getItem('nexmess-lang');
+      if (l === 'bn' || l === 'en') {
+        document.documentElement.lang = l;
+      }
+    } catch (e) {}
+  </script>
+
   <!-- Google Fonts: Inter, Hind Siliguri & Noto Sans Bengali -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
