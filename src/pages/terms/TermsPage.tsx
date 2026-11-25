@@ -3,6 +3,7 @@ import { FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSEO } from '../../hooks/useSEO'
 import { formatNumber } from '../../lib/utils'
+import { APP_VERSION } from '../../lib/version'
 import PublicHeader from '../../components/layout/PublicHeader'
 
 export default function TermsPage() {
@@ -45,8 +46,8 @@ export default function TermsPage() {
             </h1>
             <p className="text-nex-muted text-sm leading-relaxed">
               {isBangla
-                ? 'কার্যকর তারিখ: ২৫ নভেম্বর ২০২৬ (ভার্সন ২.০.০)। এই শর্তাবলী আপনার এবং নেক্সমেস ("আমরা" বা "আমাদের")-এর মধ্যে একটি আইনগত চুক্তি। প্ল্যাটফর্মটি ব্যবহারের পূর্বে অনুগ্রহ করে শর্তাবলী মনোযোগ দিয়ে পড়ুন।'
-                : 'Effective Date: November 25, 2026 (v2.0.0). These Terms of Service ("Terms") constitute a legally binding agreement between you ("User") and NexMess ("we," "us," or "our"). Please read these Terms carefully before accessing or using our platform.'}
+                ? `কার্যকর তারিখ: ২৫ নভেম্বর ২০২৬ (ভার্সন ${formatNumber(APP_VERSION)})। এই শর্তাবলী আপনার এবং নেক্সমেস ("আমরা" বা "আমাদের")-এর মধ্যে একটি আইনগত চুক্তি। প্ল্যাটফর্মটি ব্যবহারের পূর্বে অনুগ্রহ করে শর্তাবলী মনোযোগ দিয়ে পড়ুন।`
+                : `Effective Date: November 25, 2026 (v${APP_VERSION}). These Terms of Service ("Terms") constitute a legally binding agreement between you ("User") and NexMess ("we," "us," or "our"). Please read these Terms carefully before accessing or using our platform.`}
             </p>
           </div>
 

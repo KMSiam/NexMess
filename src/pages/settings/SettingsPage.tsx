@@ -9,7 +9,7 @@ import { isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/pu
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import SupportModal from '../../components/SupportModal'
-import pkg from '../../../package.json'
+import { APP_VERSION } from '../../lib/version'
 import { sanitizeAppError } from '../../lib/errorHandler'
 import { formatNumber, isApprovedManager } from '../../lib/utils'
 
@@ -463,7 +463,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="text-nex-muted border-nex-border/30 border-t py-4 text-center text-xs">
-        NexMess v{pkg.version}
+        NexMess v{formatNumber(APP_VERSION)}
       </div>
 
       <ConfirmDialog

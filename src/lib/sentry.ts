@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react'
+import { APP_VERSION } from './version'
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN as string | undefined
 
@@ -17,7 +18,7 @@ export function initSentry() {
   Sentry.init({
     dsn: SENTRY_DSN,
     environment: import.meta.env.MODE || 'production',
-    release: 'nexmess@2.0.0',
+    release: `nexmess@${APP_VERSION}`,
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({

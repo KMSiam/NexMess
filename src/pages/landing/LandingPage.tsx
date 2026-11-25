@@ -19,7 +19,7 @@ import { useSEO } from '../../hooks/useSEO'
 import { useAuthStore } from '../../stores/authStore'
 import { useThemeStore } from '../../stores/themeStore'
 import { formatCurrency, formatNumber } from '../../lib/utils'
-import pkg from '../../../package.json'
+import { APP_VERSION } from '../../lib/version'
 import { useEffect, useState } from 'react'
 import SupportModal from '../../components/SupportModal'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
@@ -148,8 +148,8 @@ export default function LandingPage() {
             <Zap className="text-nex-primary h-3.5 w-3.5 dark:text-emerald-400" />
             <span className="text-nex-primary text-xs font-bold tracking-wide uppercase dark:text-emerald-400">
               {isBangla
-                ? `ভার্সন ${formatNumber(pkg.version)} লাইভ`
-                : `Version ${pkg.version} Live`}
+                ? `ভার্সন ${formatNumber(APP_VERSION)} লাইভ`
+                : `Version ${APP_VERSION} Live`}
             </span>
           </div>
 
