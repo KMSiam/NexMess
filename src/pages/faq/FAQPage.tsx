@@ -275,7 +275,7 @@ export default function FAQPage() {
 
   return (
     <div
-      className={`bg-nex-bg text-nex-text flex min-h-screen flex-col overflow-x-hidden select-none ${
+      className={`bg-nex-bg text-nex-text flex min-h-screen flex-col overflow-x-clip select-none ${
         isBangla ? 'font-bangla' : 'font-sans'
       }`}
     >
