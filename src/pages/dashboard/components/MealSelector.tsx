@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { UtensilsCrossed } from 'lucide-react'
+import { UtensilsCrossed, Check, Lock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   isMealCutoffPassed,
@@ -93,18 +93,29 @@ export default function MealSelector({
           const lockTitle = locked
             ? t('meals.cutoffTooltip', { meal: label, time: mealCutoffLabel(type) })
             : ''
+          const isActive = on || guests > 0
           return (
             <div
               key={type}
-              className={`flex flex-col rounded-xl border p-4 transition-colors duration-200 ${on || guests > 0 ? 'bg-nex-success-light border-emerald-200 dark:border-emerald-500/25' : 'bg-nex-elevated border-nex-border'}`}
+              className={`flex flex-col rounded-xl border p-4 transition-all duration-300 ${
+                isActive
+                  ? 'border-emerald-200/90 bg-emerald-50/75 dark:border-emerald-500/25 dark:bg-emerald-500/[0.08]'
+                  : 'border-nex-border bg-nex-elevated/70 dark:border-[#2c2c32] dark:bg-[#1c1c20]'
+              }`}
             >
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{emoji}</span>
-                  <div>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="shrink-0 text-2xl">{emoji}</span>
+                  <div className="min-w-0">
                     <p className="text-nex-text text-sm font-medium">{label}</p>
                     <p
-                      className={`text-xs font-medium ${locked ? 'text-nex-muted' : on ? 'font-semibold text-emerald-600 dark:text-emerald-400' : 'text-nex-muted'}`}
+                      className={`text-xs font-medium ${
+                        locked
+                          ? 'text-nex-muted'
+                          : on
+                            ? 'font-semibold text-[#3a5643] dark:text-emerald-400'
+                            : 'text-nex-muted'
+                      }`}
                     >
                       {locked
                         ? `${t('dashboard.locked')} · ${mealCutoffLabel(type)}`
@@ -115,33 +126,63 @@ export default function MealSelector({
                   </div>
                 </div>
                 <button
+                  type="button"
+                  role="switch"
+                  aria-checked={on}
+                  aria-label={label}
                   onClick={() => onToggleMeal(mealTab, type)}
                   disabled={mealLoading || locked}
                   title={lockTitle}
-                  className={`relative h-7 w-12 rounded-full transition-colors duration-200 ${on ? 'nex-toggle-on' : 'nex-toggle-off'} ${locked ? 'cursor-not-allowed opacity-50' : ''}`}
+                  className={`focus-visible:ring-nex-primary/50 relative inline-flex h-7 w-13 shrink-0 items-center rounded-full p-1 transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 ${
+                    locked ? 'cursor-not-allowed' : 'cursor-pointer active:scale-[0.96]'
+                  } ${
+                    on
+                      ? locked
+                        ? 'bg-[#4a6d56]/55 dark:bg-emerald-500/40'
+                        : 'bg-gradient-to-r from-[#3a5643] to-[#4a6d56] shadow-inner shadow-black/15 dark:from-emerald-600 dark:to-emerald-500 dark:shadow-[0_0_12px_rgba(16,185,129,0.25)]'
+                      : locked
+                        ? 'border border-black/5 bg-[#e6dfd5]/70 dark:border-white/5 dark:bg-[#242429]'
+                        : 'border border-black/5 bg-[#ded6ca] hover:bg-[#d4cabe] dark:border-white/10 dark:bg-[#2f2f36] dark:hover:bg-[#3a3a42]'
+                  }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow-sm transition-transform duration-200 ${on ? 'translate-x-5' : 'translate-x-0'}`}
-                  />
+                    className={`pointer-events-none flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                      on ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  >
+                    {locked ? (
+                      <Lock className="text-nex-muted h-2.5 w-2.5" />
+                    ) : on ? (
+                      <Check className="h-2.5 w-2.5 stroke-[3] text-[#3a5643] dark:text-emerald-600" />
+                    ) : null}
+                  </span>
                 </button>
               </div>
-              <div className="flex items-center justify-between border-t border-emerald-100/50 pt-3">
-                <p className="text-xs font-medium text-slate-500">{t('dashboard.guests')}</p>
+              <div
+                className={`flex items-center justify-between border-t pt-3 ${
+                  isActive
+                    ? 'border-emerald-200/60 dark:border-emerald-500/15'
+                    : 'border-nex-border/70 dark:border-white/5'
+                }`}
+              >
+                <p className="text-nex-muted text-xs font-medium">{t('dashboard.guests')}</p>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => onUpdateGuest(mealTab, type, -1)}
                     disabled={mealLoading || locked || guests === 0}
                     title={lockTitle}
-                    className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-6 w-6 items-center justify-center rounded-md border disabled:opacity-50"
+                    className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-6 w-6 items-center justify-center rounded-md border transition-colors disabled:opacity-45 dark:bg-[#161618] dark:hover:bg-[#26262b]"
                   >
                     -
                   </button>
-                  <span className="w-4 text-center text-sm font-semibold">{formatNumber(guests)}</span>
+                  <span className="text-nex-text w-4 text-center text-sm font-semibold">
+                    {formatNumber(guests)}
+                  </span>
                   <button
                     onClick={() => onUpdateGuest(mealTab, type, 1)}
                     disabled={mealLoading || locked}
                     title={lockTitle}
-                    className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-6 w-6 items-center justify-center rounded-md border disabled:opacity-50"
+                    className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-6 w-6 items-center justify-center rounded-md border transition-colors disabled:opacity-45 dark:bg-[#161618] dark:hover:bg-[#26262b]"
                   >
                     +
                   </button>

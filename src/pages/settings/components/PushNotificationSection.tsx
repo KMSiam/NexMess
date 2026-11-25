@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, BellOff, AlertTriangle, HelpCircle, ShieldAlert } from 'lucide-react'
+import { Bell, BellOff, AlertTriangle, HelpCircle, ShieldAlert, Loader2 } from 'lucide-react'
 
 interface PushNotificationSectionProps {
   pushEnabled: boolean
@@ -40,58 +40,68 @@ export default function PushNotificationSection({
 
   // Determine the status text and color
   let statusText = t('settings.pushSection.disabled')
-  let statusColor = 'text-nex-muted bg-nex-muted/10 border-nex-muted/20'
+  let statusColor =
+    'text-nex-muted bg-nex-elevated border-nex-border dark:bg-[#242429] dark:border-[#32323a]'
 
   if (permission === 'unsupported') {
     statusText = t('settings.pushSection.unsupported')
-    statusColor = 'text-red-500 bg-red-500/10 border-red-500/20'
+    statusColor =
+      'text-rose-600 bg-rose-500/10 border-rose-500/20 dark:text-rose-400 dark:bg-rose-500/15 dark:border-rose-500/30'
   } else if (permission === 'denied') {
     statusText = t('settings.pushSection.blocked')
-    statusColor = 'text-red-500 bg-red-500/10 border-red-500/20'
+    statusColor =
+      'text-rose-600 bg-rose-500/10 border-rose-500/20 dark:text-rose-400 dark:bg-rose-500/15 dark:border-rose-500/30'
   } else if (pushEnabled) {
     statusText = t('settings.pushSection.active')
-    statusColor = 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20'
+    statusColor =
+      'text-[#3a5643] bg-[#edf2ee] border-[#4a6d56]/25 dark:text-emerald-400 dark:bg-emerald-500/15 dark:border-emerald-500/30'
   }
 
   return (
-    <div className="nex-card border-nex-border/50 relative overflow-hidden border p-6">
-      {/* Decorative gradient light */}
-      <div className="pointer-events-none absolute top-0 right-0 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl" />
+    <div className="nex-card border-nex-border/70 relative overflow-hidden border p-6">
+      {/* Decorative gradient light matched to Sage/Emerald theme */}
+      <div className="bg-nex-primary/10 pointer-events-none absolute -top-12 -right-12 h-56 w-56 rounded-full blur-3xl dark:bg-emerald-500/10" />
 
-      <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+      <div className="relative mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <div className="mb-1.5 flex items-center gap-2">
-            <h3 className="text-nex-text text-lg font-semibold">{t('settings.pushSection.title')}</h3>
+          <div className="mb-1.5 flex items-center gap-2.5">
+            <h3 className="text-nex-text text-lg font-semibold">
+              {t('settings.pushSection.title')}
+            </h3>
             <span
-              className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusColor}`}
+              className={`rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors duration-300 ${statusColor}`}
             >
               {statusText}
             </span>
           </div>
-          <p className="text-nex-muted text-xs">
-            {t('settings.pushSection.desc')}
-          </p>
+          <p className="text-nex-muted text-xs">{t('settings.pushSection.desc')}</p>
         </div>
 
         {permission !== 'unsupported' && (
           <button
+            type="button"
+            role="switch"
+            aria-checked={pushEnabled}
+            aria-label={t('settings.pushSection.title')}
             onClick={onToggle}
             disabled={pushLoading}
-            className={`relative h-8 w-14 shrink-0 rounded-full shadow-inner transition-all duration-300 disabled:opacity-50 ${
+            className={`group focus-visible:ring-nex-primary/50 relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full p-1 transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 active:scale-[0.97] disabled:cursor-wait disabled:opacity-70 ${
               pushEnabled
-                ? 'bg-blue-600 shadow-blue-700/50'
-                : 'bg-nex-elevated border-nex-border border'
+                ? 'bg-gradient-to-r from-[#3a5643] to-[#4a6d56] shadow-inner shadow-black/15 dark:from-emerald-600 dark:to-emerald-500 dark:shadow-[0_0_14px_rgba(16,185,129,0.28)]'
+                : 'border border-[#d8cfc4] bg-[#e6dfd5] hover:bg-[#ddd4c8] dark:border-[#34343d] dark:bg-[#27272d] dark:hover:bg-[#313138]'
             }`}
           >
             <span
-              className={`absolute top-0.5 left-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-md transition-transform duration-300 ${
+              className={`pointer-events-none flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                 pushEnabled ? 'translate-x-6' : 'translate-x-0'
               }`}
             >
-              {pushEnabled ? (
-                <Bell className="h-3.5 w-3.5 text-blue-600" />
+              {pushLoading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-[#4a6d56] dark:text-emerald-600" />
+              ) : pushEnabled ? (
+                <Bell className="h-3.5 w-3.5 text-[#3a5643] transition-transform duration-300 group-hover:scale-110 dark:text-emerald-600" />
               ) : (
-                <BellOff className="text-nex-muted h-3.5 w-3.5" />
+                <BellOff className="text-nex-muted h-3.5 w-3.5 transition-transform duration-300" />
               )}
             </span>
           </button>
