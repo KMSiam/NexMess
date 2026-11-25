@@ -11,10 +11,13 @@ import { checkRateLimit, recordRateLimitAttempt } from '../../lib/rateLimiter'
 import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function RegisterPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const isBangla = (i18n.language || 'en').startsWith('bn')
   useSEO({
-    title: 'Get Started | Create Your Mess',
-    description: 'Register for NexMess and create or join a mess. Start tracking meals, managing group expenses, and automating roommate duties today.',
+    title: isBangla ? 'শুরু করুন | নতুন মেস তৈরি করুন' : 'Get Started | Create Your Mess',
+    description: isBangla
+      ? 'নেক্সমেসে বিনামূল্যে অ্যাকাউন্ট খুলুন এবং আপনার মেস তৈরি বা যুক্ত করুন। দৈনিক মিল হিসাব, খরচ বণ্টন এবং বাজারের পালা পরিচালনা শুরু করুন।'
+      : 'Register for NexMess and create or join a mess. Start tracking meals, managing group expenses, and automating roommate duties today.',
     canonical: 'https://www.nexmess.shop/register',
     robots: 'index, follow',
   })

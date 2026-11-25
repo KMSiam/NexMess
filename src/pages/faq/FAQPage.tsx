@@ -9,23 +9,13 @@ import PublicHeader from '../../components/layout/PublicHeader'
 
 interface FAQItem {
   question: string
+  answerText: string
   answer: React.ReactNode
 }
 
 export default function FAQPage() {
   const { i18n } = useTranslation()
   const isBangla = (i18n.language || 'en').startsWith('bn')
-
-  useSEO({
-    title: isBangla
-      ? 'সাধারণ প্রশ্নোত্তর (FAQ) | নেক্সমেস'
-      : 'Frequently Asked Questions (FAQ) | NexMess',
-    description: isBangla
-      ? 'নেক্সমেস কীভাবে কাজ করে? মিল রেট হিসাব, কাট-অফ টাইম, পুরোনো মেম্বার রিপোর্ট ও এআই বাজার সহকারী সম্পর্কে বিস্তারিত জানুন।'
-      : 'Have questions about NexMess? Learn about meal rate calculations, 10 AM / 4 PM cut-off locks, member history archives, and AI features.',
-    canonical: 'https://www.nexmess.shop/faq',
-    robots: 'index, follow',
-  })
 
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
@@ -37,6 +27,8 @@ export default function FAQPage() {
     ? [
         {
           question: 'নেক্সমেস (NexMess) কী এবং ব্যাচেলর বা ছাত্র মেসে এটি কীভাবে সাহায্য করে?',
+          answerText:
+            'নেক্সমেস হলো ব্যাচেলর মেস, স্টুডেন্ট হোস্টেল এবং শেয়ার্ড অ্যাপার্টমেন্টের জন্য তৈরি আধুনিক ক্লাউড-ভিত্তিক মেস ম্যানেজমেন্ট প্ল্যাটফর্ম। এটি রিয়েল-টাইমে দৈনিক মিল গণনা, স্বয়ংক্রিয় মিল রেট, বাজার শিডিউল, লেনদেন নিষ্পত্তি এবং গ্রুপ চ্যাটের সম্পূর্ণ সমাধান দেয়।',
           answer: (
             <p>
               <strong>নেক্সমেস</strong> হলো ব্যাচেলর মেস, স্টুডেন্ট হোস্টেল এবং শেয়ার্ড অ্যাপার্টমেন্টের
@@ -48,6 +40,8 @@ export default function FAQPage() {
         },
         {
           question: 'দৈনিক মিল চালু-বন্ধ এবং কাট-অফ টাইম (Cut-off Lock) কীভাবে কাজ করে?',
+          answerText:
+            'সদস্যরা ড্যাশবোর্ড বা মিল ক্যালেন্ডার থেকে আজকের বা আগামীকালের দুপুর ও রাতের মিল চালু/বন্ধ ও মেহমান সংখ্যা যোগ করতে পারেন। বাংলাদেশ সময় (UTC+6) অনুযায়ী দুপুরের মিল সকাল ১০:০০ টায় এবং রাতের মিল বিকাল ৪:০০ টায় স্বয়ংক্রিয়ভাবে লক হয়ে যায়।',
           answer: (
             <p>
               সদস্যরা ড্যাশবোর্ড বা মিল ক্যালেন্ডার থেকে আজকের বা আগামীকালের <strong>দুপুর</strong> ও{' '}
@@ -61,6 +55,8 @@ export default function FAQPage() {
         },
         {
           question: 'নেক্সমেস কীভাবে মিল রেট ও প্রত্যেকের ব্যালেন্স হিসাব করে?',
+          answerText:
+            'মিল রেট = মোট বাজার খরচ ÷ মেসের সকল সদস্যের মোট মিল। প্রত্যেক সদস্যের মিল খরচ ও ফিক্সড খরচের অংশ মোট জমা থেকে বাদ দিয়ে নির্ভুল ব্যালেন্স বের করা হয়।',
           answer: (
             <p>
               সহজ ও স্বচ্ছ সূত্র:{' '}
@@ -76,6 +72,8 @@ export default function FAQPage() {
         },
         {
           question: 'কোনো সদস্য মেস থেকে চলে গেলে বা বহিষ্কৃত হলে পুরোনো মাসের হিসাব কি নষ্ট হয়?',
+          answerText:
+            'না। মাসের মাঝামাঝি কেউ চলে গেলে চলতি মাসের শেষ পর্যন্ত ফাইনান্স সামারিতে মেস ত্যাগ করেছেন ব্যাজসহ থাকবেন এবং পূর্ববর্তী সকল মাসের রিপোর্ট ও PDF ইতিহাসে তাঁর তথ্য চিরকাল সুরক্ষিত থাকবে।',
           answer: (
             <p>
               <strong>একদমই না!</strong> কেউ যদি মাসের মাঝামাঝি (যেমন ১৭ তারিখে) মেস ছেড়ে চলে যান,
@@ -89,6 +87,8 @@ export default function FAQPage() {
         },
         {
           question: 'বাড়ি ভাড়া, খালা/বাবুর্চির বিল ও ইউটিলিটি খরচ আলাদাভাবে রাখা যায় কি?',
+          answerText:
+            'হ্যাঁ, ফিক্সড খরচ (Fixed Costs) ট্যাবে বাড়ি ভাড়া, খালা/বাবুর্চির বিল, গ্যাস, পানি, বিদ্যুৎ ও ইন্টারনেট বিল আলাদাভাবে যুক্ত ও ট্র্যাক করা যায়।',
           answer: (
             <p>
               হ্যাঁ! <strong>ফিক্সড খরচ (Fixed Costs)</strong> ট্যাবে আপনি প্রতি মাসের বাড়ি ভাড়া,
@@ -100,6 +100,8 @@ export default function FAQPage() {
         },
         {
           question: 'সাপ্তাহিক বাজার শিডিউল ও খাবারের মেন্যু কীভাবে পরিচালিত হয়?',
+          answerText:
+            'বাজার ও মেন্যু পেজে এক ক্লিকে অটো বণ্টন ব্যবহার করে বাজারের পালা ভাগ করা যায় এবং সাপ্তাহিক দুপুর ও রাতের মেন্যু সেট করা যায়।',
           answer: (
             <p>
               <strong>বাজার ও মেন্যু</strong> পেজে ম্যানেজার এক ক্লিকে <em>অটো বণ্টন (Auto Assign)</em>{' '}
@@ -111,6 +113,8 @@ export default function FAQPage() {
         },
         {
           question: 'নেক্সমেস এআই (NexMessAI) কী কাজে লাগে?',
+          answerText:
+            'Google Gemini চালিত নেক্সমেস এআই স্থানীয় বাজার দর অনুমান, বাজেট অনুযায়ী মেন্যু পরিকল্পনা এবং বাজারের ফর্দ তৈরিতে রিড-অনলি সহায়তা দেয়।',
           answer: (
             <p>
               Google Gemini চালিত <strong>নেক্সমেস এআই</strong> আপনার মেসের এলাকা অনুযায়ী নিত্যপণ্যের
@@ -122,6 +126,8 @@ export default function FAQPage() {
         },
         {
           question: 'আমার মেসের ডেটা কি নিরাপদ এবং বাংলা ও অফলাইনে কি ব্যবহার করা যাবে?',
+          answerText:
+            'হ্যাঁ, সমস্ত ডেটা Supabase RLS ও Google OAuth দ্বারা সুরক্ষিত। নেক্সমেস সম্পূর্ণ বাংলা ও ইংরেজি ভাষা, লাইট/ডার্ক থিম এবং PWA অফলাইন সাপোর্ট করে।',
           answer: (
             <p>
               হ্যাঁ। সমস্ত ডেটা <strong>Supabase Row-Level Security (RLS)</strong> ও Google OAuth
@@ -136,6 +142,8 @@ export default function FAQPage() {
     : [
         {
           question: 'What is NexMess and how does it help student or bachelor mess apartments?',
+          answerText:
+            'NexMess is a modern cloud-based mess and hostel management platform designed for roommates, flatmates, and student groups with real-time meal tracking, automated meal rate calculations, bazaar schedules, debt settlements, and group chat.',
           answer: (
             <p>
               <strong>NexMess</strong> is a modern cloud-based mess and hostel management platform
@@ -147,6 +155,8 @@ export default function FAQPage() {
         },
         {
           question: 'How do daily meal tracking and cut-off locks work on NexMess?',
+          answerText:
+            'Members can toggle Lunch and Dinner meals and add guest counts for Today or Tomorrow. Meals lock automatically in Bangladesh Standard Time (UTC+6) at 10:00 AM for Lunch and 4:00 PM for Dinner, with Manager Override support.',
           answer: (
             <p>
               Members can toggle their <strong>Lunch</strong> and <strong>Dinner</strong> meals and
@@ -159,6 +169,8 @@ export default function FAQPage() {
         },
         {
           question: 'How does NexMess calculate the meal rate and individual balances?',
+          answerText:
+            'Meal Rate = Total Bazaar Expenses divided by Total Meals Eaten by All Members. Each member meal cost plus equal fixed cost share is subtracted from deposits for accurate balances and Settle Up transfers.',
           answer: (
             <p>
               The formula is transparent:{' '}
@@ -173,6 +185,8 @@ export default function FAQPage() {
         },
         {
           question: 'What happens to past reports if a member leaves or is removed from the mess?',
+          answerText:
+            'Historical data is always preserved. Mid-month leavers stay in the current month Finance Summary with a [LEFT] badge until month-end, and all past monthly archives and PDF reports keep their records permanently.',
           answer: (
             <p>
               <strong>Your historical data is always preserved.</strong> If a member leaves mid-month
@@ -186,6 +200,8 @@ export default function FAQPage() {
         },
         {
           question: 'Can we separate house rent, cook salary, and utilities from grocery bills?',
+          answerText:
+            'Yes. The Fixed Costs tab separates recurring shared bills like house rent, cook salary, gas, water, electricity, and internet from daily bazaar grocery costs.',
           answer: (
             <p>
               Yes! The <strong>Fixed Costs</strong> tab separates recurring shared bills—such as house
@@ -196,6 +212,8 @@ export default function FAQPage() {
         },
         {
           question: 'How does the bazaar schedule and weekly meal routine work?',
+          answerText:
+            'Under Market & Routine, managers can assign shopping dates manually or use Auto Assign for automatic weekly rotation and configure weekly Lunch and Dinner menus.',
           answer: (
             <p>
               Under <strong>Market &amp; Routine</strong>, managers can assign shopping dates manually
@@ -207,6 +225,8 @@ export default function FAQPage() {
         },
         {
           question: 'What can NexMessAI do?',
+          answerText:
+            'Powered by Google Gemini, NexMessAI estimates local market prices, generates smart shopping lists, and helps plan balanced mess meals within your budget in strict read-only mode.',
           answer: (
             <p>
               Powered by Google Gemini, <strong>NexMessAI</strong> helps you estimate local market
@@ -218,6 +238,8 @@ export default function FAQPage() {
         },
         {
           question: 'Is NexMess free, secure, and available in Bengali & Offline mode?',
+          answerText:
+            'Yes. NexMess is free, secured with Supabase Row-Level Security (RLS) and Google OAuth, and supports English and Bengali localization, Light/Dark themes, and PWA offline caching.',
           answer: (
             <p>
               Yes! NexMess is free to use and protected by <strong>Supabase Row-Level Security (RLS)</strong>{' '}
@@ -227,6 +249,29 @@ export default function FAQPage() {
           ),
         },
       ]
+
+  useSEO({
+    title: isBangla
+      ? 'সাধারণ প্রশ্নোত্তর (FAQ) | নেক্সমেস'
+      : 'Frequently Asked Questions (FAQ) | NexMess',
+    description: isBangla
+      ? 'নেক্সমেস কীভাবে কাজ করে? মিল রেট হিসাব, কাট-অফ টাইম, পুরোনো মেম্বার রিপোর্ট ও এআই বাজার সহকারী সম্পর্কে বিস্তারিত জানুন।'
+      : 'Have questions about NexMess? Learn about meal rate calculations, 10 AM / 4 PM cut-off locks, member history archives, and AI features.',
+    canonical: 'https://www.nexmess.shop/faq',
+    robots: 'index, follow',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqItems.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answerText,
+        },
+      })),
+    },
+  })
 
   return (
     <div

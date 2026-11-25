@@ -139,6 +139,7 @@ export default function LandingPage() {
         </div>
       </header>
 
+      <main className="flex-1">
       {/* Hero Section */}
       <section className="relative mx-auto flex min-h-[82dvh] w-full max-w-7xl flex-col items-center justify-center gap-10 px-5 py-10 sm:px-12 lg:min-h-[80vh] lg:flex-row lg:gap-12 lg:py-14">
         {/* Left copy */}
@@ -588,6 +589,7 @@ export default function LandingPage() {
           )}
         </p>
       </section>
+      </main>
 
       {/* Footer */}
       <footer className="text-nex-muted border-nex-border/50 mt-auto border-t px-6 py-8 text-center text-xs">
