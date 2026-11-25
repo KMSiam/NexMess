@@ -2,10 +2,9 @@ import { useEffect, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
-import { format } from 'date-fns'
 import { Activity, ArrowLeft, Receipt, PiggyBank, Megaphone, UserPlus } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { formatCurrency } from '../../lib/utils'
+import { formatCurrency, formatLocalizedDate } from '../../lib/utils'
 
 // Hooks
 import { usePageTitle } from '../../hooks/usePageTitle'
@@ -62,11 +61,18 @@ export default function ActivityLogPage() {
 
     // Expenses
     expRes.data?.forEach((e: any) => {
+      const catLabel = t(`finance.categories.${e.category || 'other'}`, {
+        defaultValue: e.category || 'other',
+      })
       compiledLogs.push({
         id: `exp-${e.id}`,
         type: 'expense',
         title: t('activity.expense'),
-        description: `${e.profiles?.username || t('common.member')} added ${e.category} expense: "${e.description || e.category}"`,
+        description: t('activity.addedExpenseDetail', {
+          user: e.profiles?.username || t('common.member'),
+          category: catLabel,
+          desc: e.description || catLabel,
+        }),
         amount: Number(e.amount),
         created_at: e.created_at,
         user: e.profiles?.username,
@@ -79,7 +85,10 @@ export default function ActivityLogPage() {
         id: `dep-${d.id}`,
         type: 'deposit',
         title: t('activity.deposit'),
-        description: `${d.profiles?.username || t('common.member')} deposited funds: "${d.note || 'Regular Deposit'}"`,
+        description: t('activity.depositedFundsDetail', {
+          user: d.profiles?.username || t('common.member'),
+          note: d.note || t('activity.regularDeposit'),
+        }),
         amount: Number(d.amount),
         created_at: d.created_at,
         user: d.profiles?.username,
@@ -92,7 +101,10 @@ export default function ActivityLogPage() {
         id: `not-${n.id}`,
         type: 'notice',
         title: t('activity.notice'),
-        description: `${n.profiles?.username || t('common.manager')} posted a notice: "${n.message}"`,
+        description: t('activity.postedNotice', {
+          user: n.profiles?.username || t('common.manager'),
+          msg: n.message,
+        }),
         created_at: n.created_at,
         user: n.profiles?.username,
       })
@@ -101,11 +113,15 @@ export default function ActivityLogPage() {
     // Members
     memberRes.data?.forEach((m: any) => {
       if (m.status === 'approved') {
+        const roleLabel = t(`common.${m.role || 'member'}`, { defaultValue: m.role })
         compiledLogs.push({
           id: `mem-${m.joined_at}`,
           type: 'member',
           title: t('activity.member'),
-          description: `${m.profiles?.username || t('common.member')} joined the mess as ${m.role}.`,
+          description: t('activity.joinedMess', {
+            user: m.profiles?.username || t('common.member'),
+            role: roleLabel,
+          }),
           created_at: m.joined_at,
           user: m.profiles?.username,
         })
@@ -178,7 +194,7 @@ export default function ActivityLogPage() {
                     <div className="flex items-center justify-between gap-4">
                       <p className="text-nex-text text-sm font-semibold">{log.title}</p>
                       <p className="text-nex-muted text-[10px] whitespace-nowrap">
-                        {format(new Date(log.created_at), 'MMM d, h:mm a')}
+                        {formatLocalizedDate(log.created_at, 'MMM d, h:mm a')}
                       </p>
                     </div>
                     <p className="text-nex-muted mt-1 text-xs leading-relaxed">{log.description}</p>

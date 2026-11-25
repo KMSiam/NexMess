@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { getInitials, formatCurrency } from '../../../lib/utils'
+import { getInitials, formatCurrency, formatNumber } from '../../../lib/utils'
 import type { MessMember } from '../../../types/database'
 
 interface SummaryTabProps {
@@ -55,7 +55,7 @@ export default function SummaryTab({ financeMembers, balances, totalFixed }: Sum
                   )}
                 </span>
               </div>
-              <p className="text-nex-text text-right text-sm">{b.personal_meals || 0}</p>
+              <p className="text-nex-text text-right text-sm">{formatNumber(b.personal_meals || 0)}</p>
               <p className="text-nex-text text-right text-sm">{formatCurrency(mealCost)}</p>
               <p className="text-nex-text text-right text-sm">
                 {formatCurrency(perPersonFixedCost)}
@@ -83,7 +83,7 @@ export default function SummaryTab({ financeMembers, balances, totalFixed }: Sum
                     )}
                   </p>
                   <p className="text-nex-muted text-xs">
-                    {b.personal_meals || 0} {t('finance.summaryTable.meals')}
+                    {formatNumber(b.personal_meals || 0)} {t('finance.summaryTable.meals')}
                   </p>
                 </div>
                 <p

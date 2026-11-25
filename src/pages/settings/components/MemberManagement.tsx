@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getInitials } from '../../../lib/utils'
+import { getInitials, formatNumber } from '../../../lib/utils'
 import { supabase } from '../../../lib/supabase'
 import toast from 'react-hot-toast'
 import {
@@ -74,7 +74,7 @@ export default function MemberManagement({
           <h3 className="text-nex-text mb-4 flex items-center gap-2 text-lg font-semibold">
             {t('settings.memberSection.pendingTitle')}
             <span className="nex-badge nex-badge-danger animate-pulse">
-              {pendingMembers.length}
+              {formatNumber(pendingMembers.length)}
             </span>
           </h3>
           <div className="space-y-3">
@@ -121,7 +121,7 @@ export default function MemberManagement({
 
       <div className="nex-card p-6">
         <h3 className="text-nex-text mb-4 text-lg font-semibold">
-          {t('settings.memberSection.activeTitle')} ({approvedMembers.length})
+          {t('settings.memberSection.activeTitle')} ({formatNumber(approvedMembers.length)})
         </h3>
         <div className="space-y-3">
           {approvedMembers.map((member) => {
@@ -157,9 +157,11 @@ export default function MemberManagement({
                     </div>
                     <div>
                       <p className="text-nex-text flex items-center gap-1.5 text-sm font-semibold">
-                        {p?.username || 'Unknown'}
+                        {p?.username || t('common.member')}
                       </p>
-                      <p className="text-nex-muted text-xs font-medium capitalize">{member.role}</p>
+                      <p className="text-nex-muted text-xs font-medium capitalize">
+                        {t(`common.${member.role}`, { defaultValue: member.role })}
+                      </p>
                     </div>
                   </div>
 
@@ -168,30 +170,30 @@ export default function MemberManagement({
                       {p?.contact_no && (
                         <span
                           className="bg-nex-primary h-1.5 w-1.5 rounded-full"
-                          title="Phone number set"
+                          title={t('settings.memberSection.phoneNo')}
                         />
                       )}
                       {p?.emergency_contact_no && (
                         <span
                           className="h-1.5 w-1.5 rounded-full bg-red-500"
-                          title="Emergency contact set"
+                          title={t('settings.memberSection.emergencyNo')}
                         />
                       )}
                       {p?.verification_doc_type && (
                         <span
                           className="h-1.5 w-1.5 rounded-full bg-emerald-500"
-                          title="Verification document set"
+                          title={t('settings.memberSection.verificationDoc')}
                         />
                       )}
                     </div>
                     <span className="text-nex-primary bg-nex-primary/10 hover:bg-nex-primary/20 flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors">
                       {isExpanded ? (
                         <>
-                          Hide <ChevronUp className="h-3.5 w-3.5" />
+                          {t('settings.memberSection.hide')} <ChevronUp className="h-3.5 w-3.5" />
                         </>
                       ) : (
                         <>
-                          Details <ChevronDown className="h-3.5 w-3.5" />
+                          {t('settings.memberSection.details')} <ChevronDown className="h-3.5 w-3.5" />
                         </>
                       )}
                     </span>
@@ -203,26 +205,26 @@ export default function MemberManagement({
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <h4 className="text-nex-muted text-[10px] font-bold tracking-wider uppercase">
-                          Contact Information
+                          {t('settings.memberSection.contactInfo')}
                         </h4>
                         <div className="space-y-2">
                           <div className="bg-nex-elevated border-nex-border/50 flex items-center justify-between rounded-xl border p-3">
                             <span className="text-nex-muted flex items-center gap-1.5 text-xs">
                               <Phone className="text-nex-primary h-3.5 w-3.5" />
-                              Phone Number
+                              {t('settings.memberSection.phoneNo')}
                             </span>
                             <span className="text-nex-text font-mono text-xs font-semibold">
-                              {p?.contact_no || 'Not set'}
+                              {p?.contact_no || t('settings.memberSection.notSet')}
                             </span>
                           </div>
 
                           <div className="flex items-center justify-between rounded-xl border border-red-500/10 bg-red-500/5 p-3">
                             <span className="flex items-center gap-1.5 text-xs font-medium text-red-500">
                               <ShieldAlert className="h-3.5 w-3.5 text-red-500" />
-                              Emergency Contact
+                              {t('settings.memberSection.emergencyNo')}
                             </span>
                             <span className="font-mono text-xs font-semibold text-red-600 dark:text-red-400">
-                              {p?.emergency_contact_no || 'Not set'}
+                              {p?.emergency_contact_no || t('settings.memberSection.notSet')}
                             </span>
                           </div>
                         </div>
@@ -230,31 +232,31 @@ export default function MemberManagement({
 
                       <div className="space-y-2">
                         <h4 className="text-nex-muted text-[10px] font-bold tracking-wider uppercase">
-                          Verification Document
+                          {t('settings.memberSection.verificationDoc')}
                         </h4>
                         <div className="bg-nex-elevated border-nex-border/50 space-y-3 rounded-xl border p-3">
                           <div className="flex items-center justify-between">
                             <span className="text-nex-muted flex items-center gap-1.5 text-xs">
                               <FileText className="h-3.5 w-3.5 text-emerald-500" />
-                              Document Details
+                              {t('settings.memberSection.docDetails')}
                             </span>
                             {p?.verification_doc_type ? (
                               <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-600 uppercase dark:text-emerald-400">
                                 {p.verification_doc_type === 'nid'
-                                  ? 'National ID'
+                                  ? t('settings.memberSection.nidShort')
                                   : p.verification_doc_type === 'birth_certificate'
-                                    ? 'Birth Cert'
-                                    : 'Other'}
+                                    ? t('settings.memberSection.birthCertShort')
+                                    : t('settings.memberSection.otherShort')}
                               </span>
                             ) : (
-                              <span className="text-nex-muted text-xs">Not uploaded</span>
+                              <span className="text-nex-muted text-xs">{t('settings.memberSection.notUploaded')}</span>
                             )}
                           </div>
 
                           {p?.verification_doc_type && (
                             <div className="border-nex-border/30 flex items-center justify-between gap-2 border-t pt-2">
                               <span className="text-nex-muted truncate font-mono text-[11px]">
-                                No: {p.verification_doc_no || 'N/A'}
+                                {t('settings.memberSection.docNoPrefix')}: {p.verification_doc_no || 'N/A'}
                               </span>
                               {p.verification_doc_url ? (
                                 <button
@@ -262,11 +264,11 @@ export default function MemberManagement({
                                   onClick={() => handleViewDoc(p.verification_doc_url)}
                                   className="text-nex-primary bg-nex-primary-light flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition-colors hover:text-blue-500"
                                 >
-                                  View Copy
+                                  {t('settings.memberSection.viewCopy')}
                                 </button>
                               ) : (
                                 <span className="text-nex-muted shrink-0 text-[10px] italic">
-                                  No image file
+                                  {t('settings.memberSection.noImageFile')}
                                 </span>
                               )}
                             </div>

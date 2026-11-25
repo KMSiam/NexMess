@@ -376,9 +376,10 @@ export default function DashboardPage() {
       {/* Reusable Confirmation Dialog for Emergency Contact Deletion */}
       <ConfirmDialog
         open={deleteEcId !== null}
-        title="Remove Emergency Contact"
-        message="Are you sure you want to remove this emergency contact? This action is irreversible."
-        confirmText="Remove"
+        title={t('dashboard.deleteContactTitle')}
+        message={t('dashboard.deleteContactConfirm')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         variant="danger"
         onConfirm={confirmDeleteEC}
         onCancel={() => setDeleteEcId(null)}

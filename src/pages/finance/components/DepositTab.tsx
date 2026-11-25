@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Plus, PiggyBank, CheckCircle2, Trash2, Clock } from 'lucide-react'
-import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
-import { formatCurrency } from '../../../lib/utils'
+import { formatCurrency, formatLocalizedDate } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
 import type { Deposit, MessMember } from '../../../types/database'
 
@@ -151,7 +150,7 @@ export default function DepositTab({
                     {(dep as any).profiles?.username}
                   </p>
                   <p className="text-nex-muted text-xs">
-                    {format(new Date(dep.date), 'MMM d')} {dep.note && `· ${dep.note}`}
+                    {formatLocalizedDate(dep.date, 'MMM d')} {dep.note && `· ${dep.note}`}
                   </p>
                 </div>
               </div>

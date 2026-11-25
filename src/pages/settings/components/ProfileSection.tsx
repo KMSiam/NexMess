@@ -275,7 +275,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
                       value={verificationDocNo}
                       onChange={(e) => setVerificationDocNo(e.target.value)}
                       className="nex-input text-sm"
-                      placeholder="Enter document number"
+                      placeholder={t('settings.profileSection.docNoPlaceholder')}
                       required
                     />
                   </div>
@@ -293,7 +293,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
                             rel="noreferrer"
                             className="text-nex-primary max-w-[150px] truncate text-xs font-medium hover:underline"
                           >
-                            View Uploaded Document
+                            {t('settings.profileSection.viewDoc')}
                           </a>
                           <button
                             type="button"

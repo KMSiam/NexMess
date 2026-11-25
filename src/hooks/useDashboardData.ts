@@ -32,6 +32,9 @@ export interface DashboardActivity {
   text: string
   type: string
   time: string
+  username?: string
+  category?: string
+  amount?: number
 }
 
 export interface EmergencyContact {
@@ -242,12 +245,17 @@ export function useDashboardData(
         text: `${(e.profiles as Record<string, unknown>)?.username} added ${e.category} expense of ৳${e.amount}`,
         type: 'expense',
         time: e.created_at as string,
+        username: ((e.profiles as Record<string, unknown>)?.username as string) || 'Member',
+        category: (e.category as string) || 'other',
+        amount: Number(e.amount || 0),
       })),
       ...(depRes.data || []).map((d: Record<string, unknown>) => ({
         id: d.id as string,
         text: `${(d.profiles as Record<string, unknown>)?.username} deposited ৳${d.amount}`,
         type: 'deposit',
         time: d.created_at as string,
+        username: ((d.profiles as Record<string, unknown>)?.username as string) || 'Member',
+        amount: Number(d.amount || 0),
       })),
     ]
       .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())

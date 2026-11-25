@@ -1,7 +1,6 @@
-import { format } from 'date-fns'
 import { Calendar, UserCheck, Shield } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { getGreeting } from '../../../lib/utils'
+import { getGreeting, formatLocalizedDate } from '../../../lib/utils'
 import { useAuthStore } from '../../../stores/authStore'
 
 interface WelcomeCardProps {
@@ -36,7 +35,7 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="text-nex-muted flex items-center gap-1 text-xs">
               <Calendar className="h-3.5 w-3.5" />
-              {format(new Date(), 'EEEE, MMMM d')}
+              {formatLocalizedDate(new Date(), 'EEEE, MMMM d')}
             </span>
             <span className="h-1.5 w-1.5 rounded-full bg-slate-200 dark:bg-slate-800" />
             <span

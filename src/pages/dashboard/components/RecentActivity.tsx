@@ -1,8 +1,8 @@
 import { Activity } from 'lucide-react'
-import { format } from 'date-fns'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import EmptyState from '../../../components/EmptyState'
+import { formatCurrency, formatLocalizedDate } from '../../../lib/utils'
 import type { DashboardActivity } from '../../../hooks/useDashboardData'
 
 interface RecentActivityProps {
@@ -11,6 +11,26 @@ interface RecentActivityProps {
 
 export default function RecentActivity({ activities }: RecentActivityProps) {
   const { t } = useTranslation()
+
+  const getActivityText = (act: DashboardActivity) => {
+    if (act.type === 'expense' && act.username !== undefined && act.amount !== undefined) {
+      const catLabel = t(`finance.categories.${act.category || 'other'}`, {
+        defaultValue: act.category || 'other',
+      })
+      return t('activity.addedExpense', {
+        user: act.username,
+        category: catLabel,
+        amount: formatCurrency(act.amount),
+      })
+    }
+    if (act.type === 'deposit' && act.username !== undefined && act.amount !== undefined) {
+      return t('activity.depositedAmount', {
+        user: act.username,
+        amount: formatCurrency(act.amount),
+      })
+    }
+    return act.text
+  }
 
   return (
     <div className="nex-card p-5">
@@ -41,9 +61,9 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
                 className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${act.type === 'deposit' ? 'bg-nex-success' : 'bg-amber-500'}`}
               />
               <div>
-                <p className="text-nex-text text-sm">{act.text}</p>
+                <p className="text-nex-text text-sm">{getActivityText(act)}</p>
                 <p className="text-nex-muted text-[10px]">
-                  {format(new Date(act.time), 'MMM d, h:mm a')}
+                  {formatLocalizedDate(act.time, 'MMM d, h:mm a')}
                 </p>
               </div>
             </div>

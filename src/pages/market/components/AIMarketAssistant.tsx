@@ -23,6 +23,7 @@ import { format } from 'date-fns'
 import { usePageTitle } from '../../../hooks/usePageTitle'
 import MarkdownRenderer from '../../../components/MarkdownRenderer'
 import { sanitizeAppError } from '../../../lib/errorHandler'
+import { formatLocalizedDate } from '../../../lib/utils'
 
 interface Message {
   id: string
@@ -38,9 +39,9 @@ interface Message {
 }
 
 export default function AIMarketAssistant() {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const isBangla = (i18n.language || 'en').startsWith('bn')
-  usePageTitle('NexMessAI')
+  usePageTitle(t('nav.nexmessAi'))
   const { session, user, profile } = useAuthStore()
   const { currentMess } = useMessStore()
   const [messages, setMessages] = useState<Message[]>([])
@@ -311,11 +312,11 @@ export default function AIMarketAssistant() {
                 <Bot className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h4 className="text-nex-text text-sm font-bold">NexMessAI</h4>
+                <h4 className="text-nex-text text-sm font-bold">{t('nav.nexmessAi')}</h4>
                 <div className="flex items-center gap-1.5">
                   <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
                   <p className="text-nex-muted text-[10px]">
-                    {hasLocation ? messLocation : 'Location unconfigured'}
+                    {hasLocation ? messLocation : t('market.ai.unconfigured')}
                   </p>
                 </div>
               </div>
@@ -370,7 +371,7 @@ export default function AIMarketAssistant() {
                 <div className="bg-nex-surface/40 border-nex-border/40 mb-4 flex items-center justify-center gap-2 rounded-xl border p-2.5 text-center">
                   <Clock className="text-nex-muted h-3.5 w-3.5" />
                   <span className="text-nex-muted text-[10px] font-medium">
-                    Older messages are archived and cannot be accessed to optimize performance.
+                    {t('market.ai.archivedNote')}
                   </span>
                 </div>
                 {messages.map((m) => {
@@ -401,14 +402,14 @@ export default function AIMarketAssistant() {
                       <div className="min-w-0 space-y-0.5">
                         <div className="flex items-center gap-2 px-1">
                           <span className="text-nex-text text-[10px] font-semibold">
-                            {m.is_ai ? 'NexMessAI' : m.profiles?.username || 'Member'}
+                            {m.is_ai ? t('nav.nexmessAi') : m.profiles?.username || t('common.member')}
                           </span>
                           <span className="text-nex-muted text-[9px]">
-                            {format(new Date(m.created_at), 'hh:mm a')}
+                            {formatLocalizedDate(m.created_at, 'hh:mm a')}
                           </span>
                           {m.is_daily_update && (
                             <span className="bg-nex-primary/10 text-nex-primary rounded-full px-1.5 py-0.5 text-[8px] font-semibold">
-                              Daily Report
+                              {t('market.ai.dailyReport')}
                             </span>
                           )}
                         </div>
@@ -447,10 +448,10 @@ export default function AIMarketAssistant() {
                     <Loader2 className="text-nex-primary h-4 w-4 animate-spin" />
                     <div className="space-y-1">
                       <span className="text-nex-text block text-[10px] font-medium">
-                        Searching prices...
+                        {t('market.ai.searching')}
                       </span>
                       <span className="text-nex-muted block text-[9px]">
-                        Analyzing live market data
+                        {t('market.ai.analyzing')}
                       </span>
                     </div>
                   </div>

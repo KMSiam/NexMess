@@ -11,6 +11,7 @@ import ConfirmDialog from '../../components/ConfirmDialog'
 import SupportModal from '../../components/SupportModal'
 import pkg from '../../../package.json'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import { formatNumber } from '../../lib/utils'
 
 import { usePageTitle } from '../../hooks/usePageTitle'
 import ProfileSection from './components/ProfileSection'
@@ -350,7 +351,7 @@ export default function SettingsPage() {
           <span>{t('settings.tabs.members')}</span>
           {pendingMembers.length > 0 && (
             <span className="bg-nex-danger ring-nex-bg absolute -top-1 -right-1 flex h-4.5 w-4.5 animate-pulse items-center justify-center rounded-full text-[9px] font-bold text-white ring-2">
-              {pendingMembers.length}
+              {formatNumber(pendingMembers.length)}
             </span>
           )}
         </button>
@@ -472,7 +473,9 @@ export default function SettingsPage() {
         confirmText={t('settings.dangerSection.deleteAccountTitle')}
         cancelText={t('common.cancel')}
         confirmInput={profile?.username || ''}
-        confirmInputLabel={`Type your username "${profile?.username || ''}" to confirm`}
+        confirmInputLabel={t('settings.dangerSection.confirmUsername', {
+          name: profile?.username || '',
+        })}
         variant="danger"
         onConfirm={handleConfirmDeleteAccount}
         onCancel={() => setConfirmDeleteAccountOpen(false)}
@@ -485,7 +488,9 @@ export default function SettingsPage() {
         confirmText={t('settings.dangerSection.deleteMessTitle')}
         cancelText={t('common.cancel')}
         confirmInput={currentMess?.name}
-        confirmInputLabel={`Type the mess name "${currentMess?.name}" to confirm`}
+        confirmInputLabel={t('settings.dangerSection.confirmMessName', {
+          name: currentMess?.name || '',
+        })}
         variant="danger"
         onConfirm={handleConfirmDeleteMess}
         onCancel={() => setConfirmDeleteOpen(false)}
@@ -505,7 +510,7 @@ export default function SettingsPage() {
       <ConfirmDialog
         open={promoteMemberId !== null}
         title={t('settings.memberSection.makeManager')}
-        message="Promote this member to manager? They will have full manager controls, including history logs and settings access."
+        message={t('settings.memberSection.confirmPromote')}
         confirmText={t('common.confirm')}
         cancelText={t('common.cancel')}
         variant="info"
@@ -518,8 +523,8 @@ export default function SettingsPage() {
         title={t('settings.memberSection.demoteManager')}
         message={
           demoteMemberId === user?.id
-            ? 'Are you sure you want to demote yourself? You will lose manager access immediately.'
-            : 'Demote this manager back to a regular member?'
+            ? t('settings.memberSection.confirmDemoteSelf')
+            : t('settings.memberSection.confirmDemoteOther')
         }
         confirmText={t('common.confirm')}
         cancelText={t('common.cancel')}

@@ -1,8 +1,67 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { format, formatDistanceToNow } from 'date-fns'
+import { bn } from 'date-fns/locale/bn'
+import i18n, { toBengaliDigits } from './i18n'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+export function isBanglaLang(): boolean {
+  return (i18n.language || 'en').startsWith('bn')
+}
+
+export function formatNumber(val: number | string): string {
+  const str = String(val)
+  return isBanglaLang() ? toBengaliDigits(str) : str
+}
+
+export function formatLocalizedDate(date: Date | string | number, pattern: string): string {
+  const d = date instanceof Date ? date : new Date(date)
+  if (Number.isNaN(d.getTime())) return ''
+  const isBn = isBanglaLang()
+  const out = format(d, pattern, isBn ? { locale: bn } : undefined)
+  return isBn ? toBengaliDigits(out) : out
+}
+
+export function formatLocalizedDistance(date: Date | string | number): string {
+  const d = date instanceof Date ? date : new Date(date)
+  if (Number.isNaN(d.getTime())) return ''
+  const isBn = isBanglaLang()
+  const out = formatDistanceToNow(d, { addSuffix: true, ...(isBn ? { locale: bn } : {}) })
+  return isBn ? toBengaliDigits(out) : out
+}
+
+const FOOD_BN_MAP: Record<string, string> = {
+  chicken: 'মুরগি',
+  fish: 'মাছ',
+  egg: 'ডিম',
+  eggs: 'ডিম',
+  vegetables: 'সবজি',
+  veg: 'সবজি',
+  beef: 'গরুর মাংস',
+  mutton: 'খাসির মাংস',
+  dal: 'ডাল',
+  lentil: 'ডাল',
+  shrimp: 'চিংড়ি',
+  rice: 'ভাত',
+  khichuri: 'খিচুড়ি',
+  biryani: 'বিরিয়ানি',
+  polao: 'পোলাও',
+  potato: 'আলু',
+}
+
+export function formatFoodName(name: string): string {
+  if (!name || !isBanglaLang()) return name
+  return name
+    .split(',')
+    .map((part) => {
+      const trimmed = part.trim()
+      const mapped = FOOD_BN_MAP[trimmed.toLowerCase()]
+      return mapped || trimmed
+    })
+    .join(', ')
 }
 
 export function generateMessCode(): string {
@@ -15,7 +74,12 @@ export function generateMessCode(): string {
 }
 
 export function formatCurrency(amount: number): string {
-  return `৳ ${amount.toLocaleString('en-BD', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
+  const formatted = amount.toLocaleString('en-BD', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })
+  const str = `৳ ${formatted}`
+  return isBanglaLang() ? toBengaliDigits(str) : str
 }
 
 export function getInitials(name: string): string {
@@ -46,9 +110,10 @@ export function getFoodEmoji(foodName: string) {
 
 export function getGreeting(): string {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Good morning'
-  if (hour < 17) return 'Good afternoon'
-  return 'Good evening'
+  if (hour < 12) return i18n.t('dashboard.greetingMorning')
+  if (hour < 15) return i18n.t('dashboard.greetingNoon')
+  if (hour < 18) return i18n.t('dashboard.greetingAfternoon')
+  return i18n.t('dashboard.greetingEvening')
 }
 
 // Meal cut-off times (Asia/Dhaka). After cut-off, today's meal cannot be toggled.
@@ -75,6 +140,9 @@ export function isMealCutoffPassed(dateStr: string, type: 'lunch' | 'dinner'): b
 }
 
 export function mealCutoffLabel(type: 'lunch' | 'dinner'): string {
+  if (isBanglaLang()) {
+    return type === 'lunch' ? 'সকাল ১০:০০' : 'বিকাল ৪:০০'
+  }
   return type === 'lunch' ? '10:00 AM' : '4:00 PM'
 }
 

@@ -139,7 +139,7 @@
     "contactName": "Contact Name",
     "contactPhone": "Phone Number",
     "contactRelation": "Relation / Role",
-    "deleteContactConfirm": "Are you sure you want to delete this emergency contact?",
+    "deleteContactConfirm": "Are you sure you want to remove this emergency contact? This action is irreversible.",
     "noMess": {
       "title": "No mess joined yet",
       "description": "Create a new mess or join an existing one with an invite code.",
@@ -147,7 +147,13 @@
       "join": "Join Mess",
       "pendingRequests": "Pending Requests",
       "waitingApproval": "Waiting for approval"
-    }
+    },
+    "greetingMorning": "Good morning",
+    "greetingNoon": "Good afternoon",
+    "greetingAfternoon": "Good afternoon",
+    "greetingEvening": "Good evening",
+    "noticePlaceholder": "Write a notice for all mess members...",
+    "deleteContactTitle": "Remove Emergency Contact"
   },
   "meals": {
     "title": "Daily Meal Tracking",
@@ -174,7 +180,19 @@
     "pastDayError": "Cannot update meals for past days",
     "cutoffPassedError": "Cut-off time has already passed for this meal",
     "override": "Manager Override",
-    "overrideDesc": "Adjust meal status or add retroactive records"
+    "overrideDesc": "Adjust meal status or add retroactive records",
+    "lunchShort": "L",
+    "dinnerShort": "D",
+    "lunchBadge": "L",
+    "dinnerBadge": "D",
+    "pastDayTooltip": "Cannot update past meals",
+    "toggleLunch": "Toggle Lunch",
+    "toggleDinner": "Toggle Dinner",
+    "cutoffTooltip": "{{meal}} cut-off ({{time}}) has passed",
+    "you": "(you)",
+    "guestCountNegative": "Guest counts cannot be negative",
+    "guestCountLimit": "Guest count cannot exceed 20 meals per person",
+    "mealUpdated": "Meal updated"
   },
   "finance": {
     "title": "Finance",
@@ -256,7 +274,9 @@
       "markPaid": "Mark Paid",
       "deleteConfirm": "Are you sure you want to delete this fixed cost?",
       "empty": "No fixed costs added",
-      "emptyDesc": "Add regular shared mess bills like rent, cook, and electricity."
+      "emptyDesc": "Add regular shared mess bills like rent, cook, and electricity.",
+      "markPaidTitle": "Mark Fixed Cost as Paid",
+      "markPaidConfirm": "Are you sure you want to mark this fixed cost as paid? You won't be able to edit it afterward."
     },
     "summaryTable": {
       "member": "Member",
@@ -277,7 +297,13 @@
     "history": {
       "monthSelect": "Select Month",
       "empty": "No history records found",
-      "emptyDesc": "Historical archives for closed months will appear here."
+      "emptyDesc": "Historical archives for closed months will appear here.",
+      "summaryLine": "{{meals}} meals · {{members}} members · {{expenses}} expenses",
+      "refresh": "Refresh",
+      "refreshTooltip": "Recompile this month with the latest data",
+      "pdf": "PDF",
+      "refreshedToast": "Report refreshed with the latest data",
+      "downloadedToast": "PDF downloaded"
     }
   },
   "market": {
@@ -321,14 +347,24 @@
       "lunchMenu": "Lunch Menu",
       "dinnerMenu": "Dinner Menu",
       "notSet": "Not planned yet",
-      "save": "Save Routine"
+      "save": "Save Routine",
+      "emptyTitle": "No Meal Routine Set",
+      "emptyDescManager": "Click \"Edit Weekly Routine\" to set up the weekly meal menu.",
+      "emptyDescMember": "The manager hasn't set a weekly meal menu yet.",
+      "quickAdd": "Quick add to",
+      "placeholder": "Set menu..."
     },
     "ai": {
       "title": "NexMessAI Market & Cooking Assistant",
       "subtitle": "Smart budget shopping list and mess meal planning",
       "budgetPlaceholder": "e.g. Budget 500 Taka, what to cook for 4 people?",
       "askBtn": "Get Suggestions",
-      "samplePrompts": "Popular Prompts"
+      "samplePrompts": "Popular Prompts",
+      "unconfigured": "Location unconfigured",
+      "archivedNote": "Older messages are archived and cannot be accessed to optimize performance.",
+      "dailyReport": "Daily Report",
+      "searching": "Searching prices...",
+      "analyzing": "Analyzing live market data"
     }
   },
   "chat": {
@@ -370,7 +406,9 @@
       "docNo": "Document Number",
       "emergencyNo": "Emergency Contact Number",
       "uploadDoc": "Upload Document",
-      "updateProfile": "Update Profile"
+      "updateProfile": "Update Profile",
+      "viewDoc": "View Uploaded Document",
+      "docNoPlaceholder": "Enter document number"
     },
     "memberSection": {
       "pendingTitle": "Pending Requests",
@@ -381,7 +419,25 @@
       "demoteManager": "Demote to Member",
       "removeMember": "Remove Member",
       "viewDoc": "View Verification ID",
-      "confirmRemove": "Are you sure you want to remove this member from the mess?"
+      "confirmRemove": "Are you sure you want to remove this member from the mess?",
+      "details": "Details",
+      "hide": "Hide",
+      "contactInfo": "Contact Information",
+      "phoneNo": "Phone Number",
+      "emergencyNo": "Emergency Contact",
+      "notSet": "Not set",
+      "verificationDoc": "Verification Document",
+      "docDetails": "Document Details",
+      "nidShort": "National ID",
+      "birthCertShort": "Birth Cert",
+      "otherShort": "Other",
+      "notUploaded": "Not uploaded",
+      "docNoPrefix": "No",
+      "viewCopy": "View Copy",
+      "noImageFile": "No image file",
+      "confirmPromote": "Promote this member to manager? They will have full manager controls, including history logs and settings access.",
+      "confirmDemoteSelf": "Are you sure you want to demote yourself? You will lose manager access immediately.",
+      "confirmDemoteOther": "Demote this manager back to a regular member?"
     },
     "messSection": {
       "title": "Mess Information",
@@ -428,7 +484,9 @@
       "deleteMessTitle": "Delete Mess",
       "deleteMessDesc": "Permanently delete this mess, along with all meals, costs, and member data. Irreversible.",
       "deleteAccountTitle": "Delete Account",
-      "deleteAccountDesc": "Permanently delete your profile and sign-in credentials from NexMess."
+      "deleteAccountDesc": "Permanently delete your profile and sign-in credentials from NexMess.",
+      "confirmUsername": "Type your username \"{{name}}\" to confirm",
+      "confirmMessName": "Type the mess name \"{{name}}\" to confirm"
     },
     "dangerZone": {
       "title": "Danger Zone",
@@ -534,7 +592,14 @@
     "expense": "Expense Logged",
     "deposit": "Deposit Recorded",
     "notice": "Notice Board Update",
-    "member": "Member Approved"
+    "member": "Member Approved",
+    "addedExpense": "{{user}} added {{category}} expense of {{amount}}",
+    "depositedAmount": "{{user}} deposited {{amount}}",
+    "addedExpenseDetail": "{{user}} added {{category}} expense: \"{{desc}}\"",
+    "depositedFundsDetail": "{{user}} deposited funds: \"{{note}}\"",
+    "regularDeposit": "Regular Deposit",
+    "postedNotice": "{{user}} posted a notice: \"{{msg}}\"",
+    "joinedMess": "{{user}} joined the mess as {{role}}."
   },
   "notFound": {
     "title": "404",

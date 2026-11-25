@@ -5,6 +5,8 @@ import {
   isMealCutoffPassed,
   mealCutoffLabel,
   getFoodEmoji,
+  formatFoodName,
+  formatNumber,
   dhakaToday,
   dhakaTomorrow,
 } from '../../../lib/utils'
@@ -44,11 +46,11 @@ export default function MealSelector({
               <span className="text-xs font-medium text-amber-500">
                 {mealTab === 'today' ? t('common.today') : t('common.tomorrow')}:{' '}
                 {routines[mealTab].lunch
-                  ? `${getFoodEmoji(routines[mealTab].lunch)} ${routines[mealTab].lunch} (L)`
+                  ? `${getFoodEmoji(routines[mealTab].lunch)} ${formatFoodName(routines[mealTab].lunch)} (${t('meals.lunchShort')})`
                   : ''}
                 {routines[mealTab].lunch && routines[mealTab].dinner ? ' · ' : ''}
                 {routines[mealTab].dinner
-                  ? `${getFoodEmoji(routines[mealTab].dinner)} ${routines[mealTab].dinner} (D)`
+                  ? `${getFoodEmoji(routines[mealTab].dinner)} ${formatFoodName(routines[mealTab].dinner)} (${t('meals.dinnerShort')})`
                   : ''}
               </span>
             </div>
@@ -88,7 +90,9 @@ export default function MealSelector({
         ].map(({ type, emoji, on, label, guests }) => {
           const targetDate = mealTab === 'today' ? today : tomorrow
           const locked = isMealCutoffPassed(targetDate, type)
-          const lockTitle = locked ? `${label} cut-off (${mealCutoffLabel(type)}) has passed` : ''
+          const lockTitle = locked
+            ? t('meals.cutoffTooltip', { meal: label, time: mealCutoffLabel(type) })
+            : ''
           return (
             <div
               key={type}
@@ -132,7 +136,7 @@ export default function MealSelector({
                   >
                     -
                   </button>
-                  <span className="w-4 text-center text-sm font-semibold">{guests}</span>
+                  <span className="w-4 text-center text-sm font-semibold">{formatNumber(guests)}</span>
                   <button
                     onClick={() => onUpdateGuest(mealTab, type, 1)}
                     disabled={mealLoading || locked}

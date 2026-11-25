@@ -1,6 +1,6 @@
 import { Clock, AlertTriangle, Wallet, ShoppingBag, CheckCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { formatCurrency, mealCutoffApproaching, mealCutoffLabel } from '../../../lib/utils'
+import { formatCurrency, formatNumber, mealCutoffApproaching, mealCutoffLabel } from '../../../lib/utils'
 import type { DashboardMeals, DashboardStats } from '../../../hooks/useDashboardData'
 
 interface AlertBannersProps {
@@ -46,8 +46,8 @@ export default function AlertBanners({
             <div className="min-w-0">
               <p className="text-nex-text text-xs font-semibold">
                 {b.type === 'lunch'
-                  ? t('alerts.lunchApproaching', { minutes: b.minutes })
-                  : t('alerts.dinnerApproaching', { minutes: b.minutes })}
+                  ? t('alerts.lunchApproaching', { minutes: formatNumber(b.minutes) })
+                  : t('alerts.dinnerApproaching', { minutes: formatNumber(b.minutes) })}
               </p>
               <p className="text-nex-muted max-w-[200px] truncate text-[10px] sm:max-w-xs">
                 {t('alerts.locksAt', { time: mealCutoffLabel(b.type) })}
@@ -94,7 +94,7 @@ export default function AlertBanners({
           <Wallet className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" />
           <div>
             <p className="text-nex-text text-xs font-semibold">
-              {t('alerts.unpaidBills', { count: unpaidFixed })}
+              {t('alerts.unpaidBills', { count: formatNumber(unpaidFixed) })}
             </p>
             <p className="text-nex-muted text-[10px]">{t('alerts.fixedCostsPending')}</p>
           </div>

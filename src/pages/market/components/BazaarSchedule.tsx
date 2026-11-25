@@ -24,7 +24,7 @@ import {
   isBefore,
   endOfMonth,
 } from 'date-fns'
-import { getInitials } from '../../../lib/utils'
+import { getInitials, formatNumber, formatLocalizedDate } from '../../../lib/utils'
 import toast from 'react-hot-toast'
 import { Skeleton } from '../../../components/Skeleton'
 import ConfirmDialog from '../../../components/ConfirmDialog'
@@ -253,9 +253,9 @@ export default function BazaarSchedule() {
                         }`}
                       >
                         <span className="block text-[10px] uppercase opacity-70">
-                          {format(dayDate, 'EEE')}
+                          {formatLocalizedDate(dayDate, 'EEE')}
                         </span>
-                        <span className="block font-semibold">{format(dayDate, 'MMM d')}</span>
+                        <span className="block font-semibold">{formatLocalizedDate(dayDate, 'MMM d')}</span>
                       </button>
                     )
                   }
@@ -265,8 +265,8 @@ export default function BazaarSchedule() {
 
             {selectedDates.length > 0 && (
               <p className="text-nex-muted text-xs">
-                {selectedDates.length} {t('market.schedule.datesSelected')}:{' '}
-                {selectedDates.map((d) => format(new Date(d), 'MMM d')).join(', ')}
+                {formatNumber(selectedDates.length)} {t('market.schedule.datesSelected')}:{' '}
+                {selectedDates.map((d) => formatLocalizedDate(d, 'MMM d')).join(', ')}
               </p>
             )}
 
@@ -277,7 +277,7 @@ export default function BazaarSchedule() {
             >
               {loading
                 ? t('market.schedule.assigning')
-                : t('market.schedule.assignToCount', { count: selectedDates.length })}
+                : t('market.schedule.assignToCount', { count: formatNumber(selectedDates.length) })}
             </button>
           </form>
         </div>
@@ -293,7 +293,7 @@ export default function BazaarSchedule() {
             <ChevronLeft className="h-5 w-5" />
           </button>
           <h2 className="text-nex-text text-sm font-semibold sm:text-base">
-            {format(weekStart, 'MMM d')} – {format(weekEnd, 'MMM d, yyyy')}
+            {formatLocalizedDate(weekStart, 'MMM d')} – {formatLocalizedDate(weekEnd, 'MMM d, yyyy')}
           </h2>
           <button
             onClick={() => setCurrentWeek(addWeeks(currentWeek, 1))}
@@ -341,12 +341,12 @@ export default function BazaarSchedule() {
                         todayFlag ? 'text-nex-primary' : 'text-nex-muted'
                       }`}
                     >
-                      {format(day, 'EEE')}
+                      {formatLocalizedDate(day, 'EEE')}
                     </p>
                     <p
                       className={`mb-2 text-lg font-bold ${todayFlag ? 'text-nex-primary' : 'text-nex-text'}`}
                     >
-                      {format(day, 'd')}
+                      {formatLocalizedDate(day, 'd')}
                     </p>
                     {daySchedules.length > 0 ? (
                       <div className="space-y-2">
@@ -431,8 +431,8 @@ export default function BazaarSchedule() {
                     <div
                       className={`w-12 shrink-0 pt-1 text-center ${todayFlag ? 'text-nex-primary' : 'text-nex-text'}`}
                     >
-                      <p className="text-xs font-semibold uppercase">{format(day, 'EEE')}</p>
-                      <p className="text-lg leading-tight font-bold">{format(day, 'd')}</p>
+                      <p className="text-xs font-semibold uppercase">{formatLocalizedDate(day, 'EEE')}</p>
+                      <p className="text-lg leading-tight font-bold">{formatLocalizedDate(day, 'd')}</p>
                     </div>
 
                     <div className="bg-nex-border w-px shrink-0 self-stretch"></div>
@@ -505,7 +505,7 @@ export default function BazaarSchedule() {
                   </div>
                   <span className="text-nex-text text-sm">{p?.username || t('common.member')}</span>
                 </div>
-                <span className="nex-badge-primary text-xs">{count} {t('market.schedule.days')}</span>
+                <span className="nex-badge-primary text-xs">{formatNumber(count)} {t('market.schedule.days')}</span>
               </div>
             )
           })}

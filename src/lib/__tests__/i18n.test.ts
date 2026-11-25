@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import i18n, { changeLanguage, toBengaliDigits } from '../i18n'
+import { formatCurrency, formatNumber, formatLocalizedDate, formatFoodName, mealCutoffLabel } from '../utils'
 import en from '../../locales/en.json'
 import bn from '../../locales/bn.json'
 
@@ -48,5 +49,22 @@ describe('i18n Localization Engine', () => {
     expect(toBengaliDigits(1234567890)).toBe('১২৩৪৫৬৭৮৯০')
     expect(toBengaliDigits('৳ 1,450.50')).toBe('৳ ১,৪৫০.৫০')
     expect(toBengaliDigits('Room 302')).toBe('Room ৩০২')
+  })
+
+  it('localizes currency, numbers, dates, and food names when language switches to bn', async () => {
+    await changeLanguage('en')
+    expect(formatNumber(25)).toBe('25')
+    expect(formatCurrency(-200)).toBe('৳ -200')
+    expect(mealCutoffLabel('lunch')).toBe('10:00 AM')
+    expect(formatFoodName('Chicken')).toBe('Chicken')
+
+    await changeLanguage('bn')
+    expect(formatNumber(25)).toBe('২৫')
+    expect(formatCurrency(-200)).toBe('৳ -২০০')
+    expect(formatCurrency(1450)).toBe('৳ ১,৪৫০')
+    expect(mealCutoffLabel('lunch')).toBe('সকাল ১০:০০')
+    expect(mealCutoffLabel('dinner')).toBe('বিকাল ৪:০০')
+    expect(formatFoodName('Chicken, Egg')).toBe('মুরগি, ডিম')
+    expect(formatLocalizedDate('2026-11-25T12:00:00Z', 'MMMM d')).toBe('নভেম্বর ২৫')
   })
 })

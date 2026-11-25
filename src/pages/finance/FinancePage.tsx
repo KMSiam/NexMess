@@ -626,9 +626,10 @@ export default function FinancePage() {
 
       <ConfirmDialog
         open={paidFixedCostId !== null}
-        title="Mark Fixed Cost as Paid"
-        message="Are you sure you want to mark this fixed cost as paid? You won't be able to edit it afterward."
-        confirmText="Mark Paid"
+        title={t('finance.fixedModal.markPaidTitle')}
+        message={t('finance.fixedModal.markPaidConfirm')}
+        confirmText={t('finance.fixedModal.markPaid')}
+        cancelText={t('common.cancel')}
         variant="warning"
         onConfirm={handleConfirmMarkPaid}
         onCancel={() => setPaidFixedCostId(null)}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Plus, CheckCircle2, DollarSign, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { formatCurrency } from '../../../lib/utils'
+import { formatCurrency, formatLocalizedDate } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
 import type { FixedCost } from '../../../types/database'
 
@@ -167,7 +167,9 @@ export default function FixedCostTab({
                   <p className="text-nex-text text-sm font-medium capitalize">
                     {fc.label || t(`finance.categories.${fc.category}`, { defaultValue: fc.category })}
                   </p>
-                  <p className="text-nex-muted text-xs">{fc.month}</p>
+                  <p className="text-nex-muted text-xs">
+                    {formatLocalizedDate(fc.month + '-01', 'MMMM yyyy')}
+                  </p>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">

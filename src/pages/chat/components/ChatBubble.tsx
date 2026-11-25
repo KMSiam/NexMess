@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { format } from 'date-fns'
 import { Smile } from 'lucide-react'
-import { getInitials, isSafeUrl } from '../../../lib/utils'
+import { getInitials, isSafeUrl, formatNumber, formatLocalizedDate } from '../../../lib/utils'
 import type { ChatMessage, Profile } from '../../../types/database'
 
 interface Reaction {
@@ -150,14 +149,14 @@ export default function ChatBubble({
                 } hover:bg-nex-hover transition-colors`}
               >
                 <span>{emoji}</span>
-                <span className="text-[10px] font-semibold">{data.count}</span>
+                <span className="text-[10px] font-semibold">{formatNumber(data.count)}</span>
               </button>
             ))}
           </div>
         )}
 
         <p className={`text-nex-muted mt-0.5 text-[10px] ${isOwn ? 'mr-1 text-right' : 'ml-1'}`}>
-          {format(new Date(msg.created_at), 'h:mm a')}
+          {formatLocalizedDate(msg.created_at, 'h:mm a')}
         </p>
       </div>
     </div>

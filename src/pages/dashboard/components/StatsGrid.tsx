@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { formatCurrency } from '../../../lib/utils'
+import { formatCurrency, formatNumber } from '../../../lib/utils'
 import type { DashboardStats } from '../../../hooks/useDashboardData'
 
 interface StatsGridProps {
@@ -15,7 +15,7 @@ export default function StatsGrid({ stats }: StatsGridProps) {
         <p className="text-nex-muted text-xs font-medium tracking-wider uppercase">
           {t('dashboard.stats.myMeals')}
         </p>
-        <p className="text-nex-text mt-1 text-xl font-bold">{stats.totalMeals}</p>
+        <p className="text-nex-text mt-1 text-xl font-bold">{formatNumber(stats.totalMeals)}</p>
       </div>
       <div className="nex-card p-4 text-center">
         <p className="text-nex-muted text-xs font-medium tracking-wider uppercase">

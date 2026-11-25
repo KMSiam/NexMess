@@ -4,7 +4,7 @@ import { useAuthStore } from '../stores/authStore'
 import { supabase } from '../lib/supabase'
 import { Notification } from '../types/database'
 import { Bell, CheckCheck, Trash2, X } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
+import { formatNumber, formatLocalizedDistance } from '../lib/utils'
 
 interface NotificationBellProps {
   className?: string
@@ -113,7 +113,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
           <span className="bg-nex-danger absolute top-1 right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white">
-            {unreadCount > 9 ? '9+' : unreadCount}
+            {formatNumber(unreadCount > 9 ? '9+' : unreadCount)}
           </span>
         )}
       </button>
@@ -170,7 +170,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
                         <p className="text-nex-muted mt-0.5 line-clamp-2 text-xs">{n.body}</p>
                       )}
                       <p className="text-nex-muted mt-1 text-[10px]">
-                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                        {formatLocalizedDistance(n.created_at)}
                       </p>
                     </div>
                     <button

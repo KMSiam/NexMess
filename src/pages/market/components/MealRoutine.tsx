@@ -6,7 +6,7 @@ import { supabase } from '../../../lib/supabase'
 import { CalendarClock, Pencil, Save, X } from 'lucide-react'
 import EmptyState from '../../../components/EmptyState'
 import { Skeleton } from '../../../components/Skeleton'
-import { getFoodEmoji, getMealRoutineDow, dhakaToday } from '../../../lib/utils'
+import { getFoodEmoji, formatFoodName, getMealRoutineDow, dhakaToday } from '../../../lib/utils'
 import toast from 'react-hot-toast'
 
 const DAYS_EN = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
@@ -204,11 +204,11 @@ export default function MealRoutine() {
         <div className="nex-card">
           <EmptyState
             icon={CalendarClock}
-            title="No Meal Routine Set"
+            title={t('market.routine.emptyTitle')}
             description={
               isManager
-                ? 'Click "Edit Routine" to set up the weekly meal menu.'
-                : "The manager hasn't set a weekly meal menu yet."
+                ? t('market.routine.emptyDescManager')
+                : t('market.routine.emptyDescMember')
             }
           />
         </div>
@@ -218,8 +218,9 @@ export default function MealRoutine() {
       {editing && activeEditCell && (
         <div className="nex-card animate-slide-up p-4">
           <p className="text-nex-muted mb-2 text-xs font-medium">
-            Quick add to <span className="text-nex-text font-bold">{DAYS[activeEditCell.day]}</span>{' '}
-            {activeEditCell.type}:
+            {t('market.routine.quickAdd')}{' '}
+            <span className="text-nex-text font-bold">{DAYS[activeEditCell.day]}</span>{' '}
+            {activeEditCell.type === 'lunch' ? t('dashboard.lunch') : t('dashboard.dinner')}:
           </p>
           <div className="flex flex-wrap gap-2">
             {PRESET_ITEMS.map((item) => (
@@ -228,7 +229,7 @@ export default function MealRoutine() {
                 onClick={() => addPresetToCell(activeEditCell.day, activeEditCell.type, item.label)}
                 className="bg-nex-elevated hover:bg-nex-hover text-nex-text rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
               >
-                {item.emoji} {item.label}
+                {item.emoji} {formatFoodName(item.label)}
               </button>
             ))}
           </div>
@@ -281,7 +282,7 @@ export default function MealRoutine() {
                         ) : value ? (
                           <div className="flex flex-col items-center gap-0.5">
                             <span className="text-base">{getFoodEmoji(value)}</span>
-                            <span className="text-nex-text text-xs font-medium">{value}</span>
+                            <span className="text-nex-text text-xs font-medium">{formatFoodName(value)}</span>
                           </div>
                         ) : (
                           <span className="text-nex-muted/40 text-xs">—</span>
@@ -340,11 +341,11 @@ export default function MealRoutine() {
                             onChange={(e) => updateEditCell(r.day_of_week, type, e.target.value)}
                             onFocus={() => setActiveEditCell({ day: r.day_of_week, type })}
                             className={`bg-nex-surface w-full rounded-lg border px-2 py-1.5 text-sm transition-colors ${isActive ? 'border-nex-primary' : 'border-transparent'} focus:border-nex-primary focus:outline-none`}
-                            placeholder="Set menu..."
+                            placeholder={t('market.routine.placeholder')}
                           />
                         ) : value ? (
                           <p className="text-nex-text text-sm font-medium">
-                            {getFoodEmoji(value)} {value}
+                            {getFoodEmoji(value)} {formatFoodName(value)}
                           </p>
                         ) : (
                           <p className="text-nex-muted/50 text-xs">{t('market.routine.notSet')}</p>

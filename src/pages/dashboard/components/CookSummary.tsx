@@ -1,5 +1,6 @@
 import { ChefHat } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { formatNumber } from '../../../lib/utils'
 import type { CookSummary as CookSummaryData } from '../../../hooks/useDashboardData'
 
 interface CookSummaryProps {
@@ -27,14 +28,14 @@ export default function CookSummary({ data }: CookSummaryProps) {
             </p>
             <div className="flex items-center justify-between px-1">
               <div className="text-center">
-                <p className="text-nex-text text-xl font-extrabold">{data.todayL}</p>
+                <p className="text-nex-text text-xl font-extrabold">{formatNumber(data.todayL)}</p>
                 <p className="text-nex-muted mt-0.5 text-[9px] font-semibold tracking-wider uppercase">
                   {t('dashboard.lunch')}
                 </p>
               </div>
               <div className="bg-nex-border h-6 w-px"></div>
               <div className="text-center">
-                <p className="text-nex-text text-xl font-extrabold">{data.todayD}</p>
+                <p className="text-nex-text text-xl font-extrabold">{formatNumber(data.todayD)}</p>
                 <p className="text-nex-muted mt-0.5 text-[9px] font-semibold tracking-wider uppercase">
                   {t('dashboard.dinner')}
                 </p>
@@ -49,14 +50,14 @@ export default function CookSummary({ data }: CookSummaryProps) {
             </p>
             <div className="flex items-center justify-between px-1">
               <div className="text-center">
-                <p className="text-nex-text text-xl font-extrabold">{data.tomorrowL}</p>
+                <p className="text-nex-text text-xl font-extrabold">{formatNumber(data.tomorrowL)}</p>
                 <p className="text-nex-muted mt-0.5 text-[9px] font-semibold tracking-wider uppercase">
                   {t('dashboard.lunch')}
                 </p>
               </div>
               <div className="bg-nex-border h-6 w-px"></div>
               <div className="text-center">
-                <p className="text-nex-text text-xl font-extrabold">{data.tomorrowD}</p>
+                <p className="text-nex-text text-xl font-extrabold">{formatNumber(data.tomorrowD)}</p>
                 <p className="text-nex-muted mt-0.5 text-[9px] font-semibold tracking-wider uppercase">
                   {t('dashboard.dinner')}
                 </p>

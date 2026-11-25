@@ -5,7 +5,7 @@ import { useAuthStore } from '../../../stores/authStore'
 import { supabase } from '../../../lib/supabase'
 import { History, Plus, Download, RefreshCw, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
-import { formatCurrency } from '../../../lib/utils'
+import { formatCurrency, formatNumber, formatLocalizedDate } from '../../../lib/utils'
 import { buildReportPdf, computeSettlements, ReportData } from '../../../lib/reportPdf'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton } from '../../../components/Skeleton'
@@ -176,7 +176,9 @@ export default function HistoryTab() {
     if (error) {
       toast.error(error.message || 'Failed to generate report')
     } else {
-      toast.success(`Report for ${format(new Date(genMonth + '-01'), 'MMMM yyyy')} is ready`)
+      toast.success(
+        `${formatLocalizedDate(genMonth + '-01', 'MMMM yyyy')} - ${t('finance.history.refreshedToast')}`
+      )
       fetchReports()
     }
   }
@@ -191,17 +193,17 @@ export default function HistoryTab() {
     setBusy(false)
     if (error) toast.error(error.message || 'Failed to regenerate report')
     else {
-      toast.success('Report refreshed with the latest data')
+      toast.success(t('finance.history.refreshedToast'))
       fetchReports()
     }
   }
 
   const handleDownload = (report: MonthlyReport) => {
     buildReportPdf(buildData(report))
-    toast.success('PDF downloaded')
+    toast.success(t('finance.history.downloadedToast'))
   }
 
-  const monthLabel = (m: string) => format(new Date(m + '-01'), 'MMMM yyyy')
+  const monthLabel = (m: string) => formatLocalizedDate(m + '-01', 'MMMM yyyy')
 
   return (
     <div className="space-y-5">
@@ -265,8 +267,11 @@ export default function HistoryTab() {
                   <div className="min-w-0">
                     <p className="text-nex-text text-sm font-medium">{monthLabel(r.month)}</p>
                     <p className="text-nex-muted truncate text-xs">
-                      {s.totalMeals} meals · {s.financeMembersCount} members ·{' '}
-                      {formatCurrency(Number(s.totalExpenses))} expenses
+                      {t('finance.history.summaryLine', {
+                        meals: formatNumber(s.totalMeals),
+                        members: formatNumber(s.financeMembersCount),
+                        expenses: formatCurrency(Number(s.totalExpenses)),
+                      })}
                     </p>
                   </div>
                 </div>
@@ -275,17 +280,17 @@ export default function HistoryTab() {
                     <button
                       onClick={() => handleRegenerate(r.month)}
                       disabled={busy}
-                      title="Recompile this month with the latest data"
+                      title={t('finance.history.refreshTooltip')}
                       className="nex-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs disabled:opacity-50"
                     >
-                      <RefreshCw className="h-3.5 w-3.5" /> Refresh
+                      <RefreshCw className="h-3.5 w-3.5" /> {t('finance.history.refresh')}
                     </button>
                   )}
                   <button
                     onClick={() => handleDownload(r)}
                     className="nex-btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs"
                   >
-                    <Download className="h-3.5 w-3.5" /> PDF
+                    <Download className="h-3.5 w-3.5" /> {t('finance.history.pdf')}
                   </button>
                 </div>
               </div>

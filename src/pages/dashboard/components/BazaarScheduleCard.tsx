@@ -1,6 +1,7 @@
 import { CalendarDays } from 'lucide-react'
-import { format, isToday, isTomorrow } from 'date-fns'
+import { isToday, isTomorrow } from 'date-fns'
 import { useTranslation } from 'react-i18next'
+import { formatLocalizedDate } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
 
 interface BazaarScheduleCardProps {
@@ -36,11 +37,11 @@ export default function BazaarScheduleCard({ schedule }: BazaarScheduleCardProps
                     ? t('common.today')
                     : isTomorrow(new Date(ub.date))
                       ? t('common.tomorrow')
-                      : format(new Date(ub.date), 'dd')}
+                      : formatLocalizedDate(ub.date, 'dd')}
                 </div>
                 <p className="text-nex-text text-sm font-medium">{ub.username}</p>
               </div>
-              <p className="text-nex-muted text-xs">{format(new Date(ub.date), 'MMM d')}</p>
+              <p className="text-nex-muted text-xs">{formatLocalizedDate(ub.date, 'MMM d')}</p>
             </div>
           ))
         )}

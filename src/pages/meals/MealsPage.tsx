@@ -20,7 +20,7 @@ import {
   startOfDay,
 } from 'date-fns'
 import toast from 'react-hot-toast'
-import { isMealCutoffPassed, mealCutoffLabel } from '../../lib/utils'
+import { isMealCutoffPassed, mealCutoffLabel, formatNumber, formatLocalizedDate } from '../../lib/utils'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { useRealtimeTable } from '../../hooks/useRealtimeTable'
 import { sanitizeAppError } from '../../lib/errorHandler'
@@ -95,13 +95,16 @@ export default function MealsPage() {
     if (!user?.id || !currentMess?.id) return
 
     if (isBefore(new Date(date), startOfDay(new Date()))) {
-      toast.error('Cannot update meals for past days')
+      toast.error(t('meals.pastDayError'))
       return
     }
 
     if (isMealCutoffPassed(date, type)) {
       toast.error(
-        `${type === 'lunch' ? 'Lunch' : 'Dinner'} cut-off (${mealCutoffLabel(type)}) has passed`
+        t('meals.cutoffTooltip', {
+          meal: type === 'lunch' ? t('meals.lunch') : t('meals.dinner'),
+          time: mealCutoffLabel(type),
+        })
       )
       return
     }
@@ -192,11 +195,11 @@ export default function MealsPage() {
     e.preventDefault()
     if (!currentMess?.id || !ovUserId || !ovDate) return
     if (ovGuestLunch < 0 || ovGuestDinner < 0) {
-      toast.error('Guest counts cannot be negative')
+      toast.error(t('meals.guestCountNegative'))
       return
     }
     if (ovGuestLunch > 20 || ovGuestDinner > 20) {
-      toast.error('Guest count cannot exceed 20 meals per person')
+      toast.error(t('meals.guestCountLimit'))
       return
     }
     setOvSaving(true)
@@ -214,7 +217,7 @@ export default function MealsPage() {
       toast.error(sanitizeAppError(error, 'Override failed'))
       return
     }
-    toast.success('Meal updated')
+    toast.success(t('meals.mealUpdated'))
     setOverrideOpen(false)
     fetchMeals()
   }
@@ -299,7 +302,7 @@ export default function MealsPage() {
             <ChevronLeft className="h-5 w-5" />
           </button>
           <h2 className="text-nex-text text-lg font-semibold">
-            {format(currentDate, 'MMMM yyyy')}
+            {formatLocalizedDate(currentDate, 'MMMM yyyy')}
           </h2>
           <button
             onClick={() => setCurrentDate(addMonths(currentDate, 1))}
@@ -311,19 +314,19 @@ export default function MealsPage() {
 
         <div className="mb-5 grid grid-cols-3 gap-3">
           <div className="bg-nex-primary-light rounded-xl p-3 text-center">
-            <p className="text-nex-primary text-2xl font-bold">{monthlyStats.total}</p>
+            <p className="text-nex-primary text-2xl font-bold">{formatNumber(monthlyStats.total)}</p>
             <p className="text-xs font-medium tracking-wider text-blue-600 uppercase">
               {t('meals.totalMeals')}
             </p>
           </div>
           <div className="rounded-xl bg-amber-500/10 p-3 text-center">
-            <p className="text-2xl font-bold text-amber-600">{monthlyStats.lunch}</p>
+            <p className="text-2xl font-bold text-amber-600">{formatNumber(monthlyStats.lunch)}</p>
             <p className="text-xs font-medium tracking-wider text-amber-600 uppercase">
               {t('meals.lunch')}
             </p>
           </div>
           <div className="rounded-xl bg-indigo-500/10 p-3 text-center">
-            <p className="text-2xl font-bold text-indigo-600">{monthlyStats.dinner}</p>
+            <p className="text-2xl font-bold text-indigo-600">{formatNumber(monthlyStats.dinner)}</p>
             <p className="text-xs font-medium tracking-wider text-indigo-600 uppercase">
               {t('meals.dinner')}
             </p>
@@ -377,7 +380,7 @@ export default function MealsPage() {
                       today ? 'text-nex-primary' : inMonth ? 'text-nex-text' : 'text-nex-muted/40'
                     }`}
                   >
-                    {format(day, 'd')}
+                    {formatLocalizedDate(day, 'd')}
                   </p>
 
                   {inMonth &&
@@ -386,15 +389,21 @@ export default function MealsPage() {
                       const lunchLocked = isPastDate || isMealCutoffPassed(dateStr, 'lunch')
                       const dinnerLocked = isPastDate || isMealCutoffPassed(dateStr, 'dinner')
                       const lunchTitle = isPastDate
-                        ? 'Cannot update past meals'
+                        ? t('meals.pastDayTooltip')
                         : isMealCutoffPassed(dateStr, 'lunch')
-                          ? `Lunch cut-off (${mealCutoffLabel('lunch')}) has passed`
-                          : 'Toggle Lunch'
+                          ? t('meals.cutoffTooltip', {
+                              meal: t('meals.lunch'),
+                              time: mealCutoffLabel('lunch'),
+                            })
+                          : t('meals.toggleLunch')
                       const dinnerTitle = isPastDate
-                        ? 'Cannot update past meals'
+                        ? t('meals.pastDayTooltip')
                         : isMealCutoffPassed(dateStr, 'dinner')
-                          ? `Dinner cut-off (${mealCutoffLabel('dinner')}) has passed`
-                          : 'Toggle Dinner'
+                          ? t('meals.cutoffTooltip', {
+                              meal: t('meals.dinner'),
+                              time: mealCutoffLabel('dinner'),
+                            })
+                          : t('meals.toggleDinner')
                       return (
                         <div className="flex flex-col gap-0.5">
                           <button
@@ -407,8 +416,8 @@ export default function MealsPage() {
                             } ${lunchLocked ? 'cursor-not-allowed opacity-50' : ''}`}
                             title={lunchTitle}
                           >
-                            <Sun className="h-2.5 w-2.5" /> L{' '}
-                            {(meal?.guest_lunch || 0) > 0 && `+${meal?.guest_lunch}`}
+                            <Sun className="h-2.5 w-2.5" /> {t('meals.lunchBadge')}{' '}
+                            {(meal?.guest_lunch || 0) > 0 && `+${formatNumber(meal?.guest_lunch || 0)}`}
                           </button>
                           <button
                             onClick={() => toggleMeal(dateStr, 'dinner')}
@@ -420,8 +429,8 @@ export default function MealsPage() {
                             } ${dinnerLocked ? 'cursor-not-allowed opacity-50' : ''}`}
                             title={dinnerTitle}
                           >
-                            <Moon className="h-2.5 w-2.5" /> D{' '}
-                            {(meal?.guest_dinner || 0) > 0 && `+${meal?.guest_dinner}`}
+                            <Moon className="h-2.5 w-2.5" /> {t('meals.dinnerBadge')}{' '}
+                            {(meal?.guest_dinner || 0) > 0 && `+${formatNumber(meal?.guest_dinner || 0)}`}
                           </button>
                         </div>
                       )
@@ -444,14 +453,14 @@ export default function MealsPage() {
                         <div className="mt-1 flex flex-col items-center gap-0.5">
                           {lunchTotal > 0 && (
                             <div className="flex w-full items-center justify-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-500">
-                              <span>L:</span>
-                              <span>{lunchTotal}</span>
+                              <span>{t('meals.lunchBadge')}:</span>
+                              <span>{formatNumber(lunchTotal)}</span>
                             </div>
                           )}
                           {dinnerTotal > 0 && (
                             <div className="flex w-full items-center justify-center gap-1 rounded bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-bold text-indigo-400">
-                              <span>D:</span>
-                              <span>{dinnerTotal}</span>
+                              <span>{t('meals.dinnerBadge')}:</span>
+                              <span>{formatNumber(dinnerTotal)}</span>
                             </div>
                           )}
                         </div>
@@ -507,7 +516,7 @@ export default function MealsPage() {
                   .map((m) => (
                     <option key={m.user_id} value={m.user_id}>
                       {m.profiles?.username || m.user_id.slice(0, 8)}
-                      {m.user_id === user?.id ? ' (you)' : ''}
+                      {m.user_id === user?.id ? ` ${t('meals.you')}` : ''}
                     </option>
                   ))}
               </select>
