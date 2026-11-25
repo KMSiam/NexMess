@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* ── Dedicated Bengali Numerals (০-৯) from Noto Sans Bengali ──────────────
    Hind Siliguri's glyph for ১ (1) looks open/similar to ৎ at smaller sizes.
