@@ -167,9 +167,9 @@ export default function AppLayout() {
             ))}
           </nav>
 
-          <div className="border-nex-border/50 shrink-0 border-t px-[18px] py-3">
-            <div className="flex items-center gap-3">
-              <div className="relative shrink-0">
+          <div className="border-nex-border/50 shrink-0 border-t py-3">
+            <div className="flex items-center gap-3 px-[18px]">
+              <div className="relative shrink-0" title={profile?.username || 'User'}>
                 <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-semibold text-white">
                   {profile?.avatar_url ? (
                     <img
@@ -195,19 +195,32 @@ export default function AppLayout() {
                 }`}
                 aria-hidden={sidebarCollapsed}
               >
-                <p className="text-nex-text flex items-center gap-1.5 truncate text-sm font-medium">
+                <p className="text-nex-text truncate text-sm font-medium">
                   {profile?.username || 'User'}
                 </p>
-                <button
-                  onClick={handleSignOut}
-                  disabled={signingOut}
-                  tabIndex={sidebarCollapsed ? -1 : undefined}
-                  className="text-nex-muted hover:text-nex-danger flex items-center gap-1 text-xs whitespace-nowrap transition-colors disabled:opacity-50"
-                >
-                  <LogOut className="h-3 w-3 shrink-0" />{' '}
-                  {signingOut ? t('common.signingOut') : t('common.signOut')}
-                </button>
               </div>
+            </div>
+
+            <div className="mt-2 px-3">
+              <button
+                type="button"
+                onClick={handleSignOut}
+                disabled={signingOut}
+                title={signingOut ? t('common.signingOut') : t('common.signOut')}
+                aria-label={signingOut ? t('common.signingOut') : t('common.signOut')}
+                className="rounded-btn text-nex-danger hover:bg-nex-danger-light flex w-full items-center gap-3 border-l-4 border-transparent py-2 pr-3 pl-[10px] text-sm font-medium transition-colors duration-200 disabled:opacity-50"
+              >
+                <LogOut className="h-5 w-5 shrink-0" />
+                <span
+                  className={`overflow-hidden whitespace-nowrap transition-[opacity,transform] duration-200 ease-out ${
+                    sidebarCollapsed
+                      ? 'pointer-events-none -translate-x-2 opacity-0'
+                      : 'translate-x-0 opacity-100 delay-75'
+                  }`}
+                >
+                  {signingOut ? t('common.signingOut') : t('common.signOut')}
+                </span>
+              </button>
             </div>
           </div>
         </div>
@@ -301,7 +314,7 @@ export default function AppLayout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-hidden p-4 md:p-6">
+        <main className="min-w-0 flex-1 overflow-hidden p-4 md:p-6">
           <GlobalErrorBoundary>
             <Suspense
               fallback={

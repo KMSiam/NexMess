@@ -1,10 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { useNavigate } from 'react-router-dom'
-import { Settings, User, Users, Home, Bell, AlertTriangle, MessageCircle, Languages } from 'lucide-react'
+import {
+  Settings,
+  User,
+  Users,
+  Home,
+  Bell,
+  AlertTriangle,
+  MessageCircle,
+  Languages,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
 import { isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
@@ -22,7 +33,7 @@ import PreferencesSection from './components/PreferencesSection'
 import DangerZone from './components/DangerZone'
 
 export default function SettingsPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   usePageTitle(t('settings.title'))
   const navigate = useNavigate()
   const { profile, user, updateProfile } = useAuthStore()
@@ -35,6 +46,8 @@ export default function SettingsPage() {
     'profile' | 'members' | 'mess' | 'notifications' | 'preferences' | 'danger'
   >('profile')
   const [isSupportOpen, setIsSupportOpen] = useState(false)
+  const tabSliderRef = useRef<HTMLDivElement>(null)
+  const [tabScrollState, setTabScrollState] = useState({ left: false, right: false })
 
   const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
@@ -50,6 +63,56 @@ export default function SettingsPage() {
   useEffect(() => {
     isSubscribed().then(setPushEnabled)
   }, [])
+
+  const updateTabScrollState = useCallback(() => {
+    const el = tabSliderRef.current
+    if (!el) return
+    const { scrollLeft, scrollWidth, clientWidth } = el
+    setTabScrollState({
+      left: scrollLeft > 4,
+      right: scrollLeft + clientWidth < scrollWidth - 4,
+    })
+  }, [])
+
+  useEffect(() => {
+    const el = tabSliderRef.current
+    if (!el) return
+    updateTabScrollState()
+    const observer =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateTabScrollState) : null
+    observer?.observe(el)
+    window.addEventListener('resize', updateTabScrollState)
+    return () => {
+      observer?.disconnect()
+      window.removeEventListener('resize', updateTabScrollState)
+    }
+  }, [updateTabScrollState, i18n.language, pendingMembers.length])
+
+  const scrollTabs = (direction: 'left' | 'right') => {
+    tabSliderRef.current?.scrollBy({
+      left: direction === 'left' ? -180 : 180,
+      behavior: 'smooth',
+    })
+  }
+
+  const settingsTabs = [
+    { key: 'profile' as const, label: t('settings.tabs.profile'), icon: User },
+    {
+      key: 'members' as const,
+      label: t('settings.tabs.members'),
+      icon: Users,
+      badge: pendingMembers.length > 0 ? pendingMembers.length : undefined,
+    },
+    { key: 'mess' as const, label: t('settings.tabs.mess'), icon: Home },
+    { key: 'notifications' as const, label: t('settings.tabs.notifications'), icon: Bell },
+    { key: 'preferences' as const, label: t('settings.tabs.preferences'), icon: Languages },
+    {
+      key: 'danger' as const,
+      label: t('settings.tabs.danger'),
+      icon: AlertTriangle,
+      danger: true,
+    },
+  ]
 
   useEffect(() => {
     if (currentMess?.id) {
@@ -337,83 +400,80 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      <div className="bg-nex-elevated border-nex-border/80 scrollbar-none flex w-full max-w-full gap-1.5 overflow-x-auto rounded-xl border px-1.5 pt-2 pb-1 whitespace-nowrap sm:flex-wrap sm:overflow-visible sm:p-1.5">
-        <button
-          onClick={() => setActiveTab('profile')}
-          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
-            activeTab === 'profile'
-              ? 'bg-nex-primary text-white shadow-md'
-              : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
-          }`}
-        >
-          <User className="h-4 w-4 shrink-0" />
-          <span>{t('settings.tabs.profile')}</span>
-        </button>
+      <div className="bg-nex-elevated border-nex-border/80 relative overflow-hidden rounded-xl border p-1.5">
+        {tabScrollState.left && (
+          <div className="from-nex-elevated via-nex-elevated/90 pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center bg-gradient-to-r to-transparent pr-4 pl-1.5">
+            <button
+              type="button"
+              onClick={() => scrollTabs('left')}
+              aria-label="Scroll settings sections left"
+              className="bg-nex-surface border-nex-border/80 text-nex-muted hover:text-nex-text pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full border shadow-sm transition-all active:scale-95"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
-        <button
-          onClick={() => setActiveTab('members')}
-          className={`relative flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
-            activeTab === 'members'
-              ? 'bg-nex-primary text-white shadow-md'
-              : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
-          }`}
+        <div
+          ref={tabSliderRef}
+          role="tablist"
+          onScroll={updateTabScrollState}
+          className="scrollbar-none flex w-full flex-nowrap items-center gap-1.5 overflow-x-auto scroll-smooth whitespace-nowrap sm:justify-between"
         >
-          <Users className="h-4 w-4 shrink-0" />
-          <span>{t('settings.tabs.members')}</span>
-          {pendingMembers.length > 0 && (
-            <span className="bg-nex-danger ring-nex-bg absolute -top-1 -right-1 flex h-4.5 w-4.5 animate-pulse items-center justify-center rounded-full text-[9px] font-bold text-white ring-2">
-              {formatNumber(pendingMembers.length)}
-            </span>
-          )}
-        </button>
+          {settingsTabs.map(({ key, label, icon: Icon, badge, danger }) => {
+            const isActive = activeTab === key
+            return (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={(e) => {
+                  setActiveTab(key)
+                  e.currentTarget.scrollIntoView({
+                    behavior: 'smooth',
+                    inline: 'nearest',
+                    block: 'nearest',
+                  })
+                }}
+                className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 sm:text-sm ${
+                  danger
+                    ? isActive
+                      ? 'bg-red-500 text-white shadow-md'
+                      : 'text-nex-muted hover:bg-red-500/10 hover:text-red-500'
+                    : isActive
+                      ? 'bg-nex-primary text-white shadow-md'
+                      : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
+                }`}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span>{label}</span>
+                {badge !== undefined && (
+                  <span
+                    className={`inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-[10px] font-bold ${
+                      isActive ? 'text-nex-danger bg-white' : 'bg-nex-danger animate-pulse text-white'
+                    }`}
+                  >
+                    {formatNumber(badge)}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
 
-        <button
-          onClick={() => setActiveTab('mess')}
-          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
-            activeTab === 'mess'
-              ? 'bg-nex-primary text-white shadow-md'
-              : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
-          }`}
-        >
-          <Home className="h-4 w-4 shrink-0" />
-          <span>{t('settings.tabs.mess')}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('notifications')}
-          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
-            activeTab === 'notifications'
-              ? 'bg-nex-primary text-white shadow-md'
-              : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
-          }`}
-        >
-          <Bell className="h-4 w-4 shrink-0" />
-          <span>{t('settings.tabs.notifications')}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('preferences')}
-          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
-            activeTab === 'preferences'
-              ? 'bg-nex-primary text-white shadow-md'
-              : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
-          }`}
-        >
-          <Languages className="h-4 w-4 shrink-0" />
-          <span>{t('settings.tabs.preferences')}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('danger')}
-          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 sm:text-sm ${
-            activeTab === 'danger'
-              ? 'bg-red-500 text-white shadow-md'
-              : 'text-nex-muted hover:bg-red-500/10 hover:text-red-500'
-          }`}
-        >
-          <AlertTriangle className="h-4 w-4 shrink-0" />
-          <span>{t('settings.tabs.danger')}</span>
-        </button>
+        {tabScrollState.right && (
+          <div className="from-nex-elevated via-nex-elevated/90 pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center bg-gradient-to-l to-transparent pr-1.5 pl-4">
+            <button
+              type="button"
+              onClick={() => scrollTabs('right')}
+              aria-label="Scroll settings sections right"
+              className="bg-nex-surface border-nex-border/80 text-nex-muted hover:text-nex-text pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full border shadow-sm transition-all active:scale-95"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="mt-4 min-h-[300px]">
