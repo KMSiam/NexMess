@@ -279,7 +279,7 @@ export default function ChatPage() {
   if (!currentMess) return null
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-11rem)] max-w-3xl flex-col md:h-[calc(100dvh-7.75rem)]">
+    <div className="mx-auto flex h-[calc(100dvh-11rem)] min-h-[400px] max-w-3xl flex-col md:h-[calc(100dvh-7.5rem)]">
       <div className="mb-3 flex shrink-0 items-center justify-between">
         <div className="flex items-center gap-3">
           <MessageSquare className="text-nex-primary h-5 w-5 sm:h-6 sm:w-6" />
@@ -290,7 +290,7 @@ export default function ChatPage() {
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="nex-card relative flex-1 space-y-4 overflow-y-auto p-3 sm:p-4"
+        className="nex-card relative min-h-0 flex-1 space-y-4 overflow-y-auto p-3 sm:p-4"
       >
         {loadingOlder && (
           <div className="flex justify-center py-2">

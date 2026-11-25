@@ -220,7 +220,7 @@ export default function AIMarketAssistant() {
   if (!currentMess) return null
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-11rem)] w-full max-w-4xl flex-col md:h-[calc(100dvh-7.75rem)]">
+    <div className="mx-auto flex h-[calc(100dvh-11rem)] min-h-[420px] w-full max-w-4xl flex-col md:h-[calc(100dvh-7.5rem)]">
       <div className="mb-3 flex shrink-0 items-center justify-between px-1">
         <div className="flex items-center gap-3">
           <div className="from-nex-primary/20 to-nex-primary/5 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br">
@@ -235,10 +235,10 @@ export default function AIMarketAssistant() {
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] gap-4 lg:grid-cols-3">
         {/* Sidebar: Location Details & Guidelines */}
-        <div className="hidden flex-col gap-4 lg:col-span-1 lg:flex">
-          <div className="nex-card space-y-4 p-5">
+        <div className="hidden min-h-0 flex-col gap-4 overflow-y-auto pr-1 lg:col-span-1 lg:flex">
+          <div className="nex-card shrink-0 space-y-4 p-5">
             <h3 className="text-nex-text flex items-center gap-2 text-sm font-semibold tracking-wider uppercase">
               <Sparkles className="text-nex-primary h-4 w-4 animate-pulse" />
               {isBangla ? 'সহকারীর তথ্য' : 'Assistant Info'}
@@ -283,7 +283,7 @@ export default function AIMarketAssistant() {
 
           {/* Suggestion Chips Box (Hidden if location is missing) */}
           {hasLocation && (
-            <div className="nex-card hidden space-y-2 p-4 lg:block">
+            <div className="nex-card hidden shrink-0 space-y-2 p-4 lg:block">
               <span className="text-nex-muted mb-1 block text-[11px] font-semibold tracking-wider uppercase">
                 {isBangla ? 'কুইক অ্যাকশন' : 'Quick Actions'}
               </span>
@@ -306,9 +306,9 @@ export default function AIMarketAssistant() {
         </div>
 
         {/* Main Chat Panel */}
-        <div className="nex-card flex h-full flex-col overflow-hidden lg:col-span-2">
+        <div className="nex-card flex h-full min-h-0 flex-col overflow-hidden lg:col-span-2">
           {/* Chat Header */}
-          <div className="border-nex-border bg-nex-elevated/40 flex items-center justify-between border-b p-4">
+          <div className="border-nex-border bg-nex-elevated/40 flex shrink-0 items-center justify-between border-b p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-sm">
                 <Bot className="h-5 w-5 text-white" />
@@ -326,7 +326,7 @@ export default function AIMarketAssistant() {
           </div>
 
           {/* Chat Messages Scrolling Area */}
-          <div ref={chatContainerRef} className="bg-nex-bg/20 flex-1 space-y-4 overflow-y-auto p-4">
+          <div ref={chatContainerRef} className="bg-nex-bg/20 min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
             {messages.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center p-6 text-center">
                 <div className="from-nex-primary/10 to-nex-primary/5 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br">
@@ -465,13 +465,10 @@ export default function AIMarketAssistant() {
           </div>
 
           {/* Input form */}
-          <div className="border-nex-border bg-nex-elevated/40 border-t p-4">
+          <div className="border-nex-border bg-nex-elevated/40 shrink-0 border-t p-4">
             {/* Horizontal scrolling suggestions for mobile */}
             {hasLocation && (
-              <div
-                className="-mx-2 flex gap-2 overflow-x-auto px-2 pb-3 lg:hidden"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              >
+              <div className="scrollbar-none -mx-2 flex gap-2 overflow-x-auto px-2 pb-3 lg:hidden">
                 {suggestions.map((s, i) => (
                   <button
                     key={i}

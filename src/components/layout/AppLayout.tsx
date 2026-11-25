@@ -314,7 +314,7 @@ export default function AppLayout() {
           </div>
         </header>
 
-        <main className="min-w-0 flex-1 overflow-hidden p-4 md:p-6">
+        <main className="min-w-0 flex-1 overflow-x-clip p-4 md:p-6">
           <GlobalErrorBoundary>
             <Suspense
               fallback={
