@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, HelpCircle, ChevronDown, ChevronUp, MessageSquare } from 'lucide-react'
+import { HelpCircle, ChevronDown, ChevronUp, MessageSquare } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useSEO } from '../../hooks/useSEO'
-import logoIcon from '../../assets/logo-icon.svg'
+import { formatNumber } from '../../lib/utils'
+import PublicHeader from '../../components/layout/PublicHeader'
 
 interface FAQItem {
   question: string
@@ -11,10 +13,16 @@ interface FAQItem {
 }
 
 export default function FAQPage() {
+  const { i18n } = useTranslation()
+  const isBangla = (i18n.language || 'en').startsWith('bn')
+
   useSEO({
-    title: 'Frequently Asked Questions (FAQ) | NexMess',
-    description:
-      'Have questions about NexMess? Read our FAQ to learn about meal rate calculations, roommate expense splits, automated bazaar schedules, and AI features.',
+    title: isBangla
+      ? 'সাধারণ প্রশ্নোত্তর (FAQ) | নেক্সমেস'
+      : 'Frequently Asked Questions (FAQ) | NexMess',
+    description: isBangla
+      ? 'নেক্সমেস কীভাবে কাজ করে? মিল রেট হিসাব, কাট-অফ টাইম, পুরোনো মেম্বার রিপোর্ট ও এআই বাজার সহকারী সম্পর্কে বিস্তারিত জানুন।'
+      : 'Have questions about NexMess? Learn about meal rate calculations, 10 AM / 4 PM cut-off locks, member history archives, and AI features.',
     canonical: 'https://www.nexmess.shop/faq',
     robots: 'index, follow',
   })
@@ -25,104 +33,227 @@ export default function FAQPage() {
     setOpenIndex(openIndex === index ? null : index)
   }
 
-  const faqItems: FAQItem[] = [
-    {
-      question: 'What is NexMess and how does it help student or bachelor mess apartments?',
-      answer: (
-        <p>
-          NexMess (also referred to as <strong>Nex Mess</strong>) is a next-generation cloud-based mess and hostel dining management platform designed to help roommates, flatmates, and student groups coordinate daily meals, bazaar duties, and split living expenses automatically. In a typical bachelor mess or shared apartment, tracking who ate what meal and who paid for which grocery items can become chaotic. NexMess eliminates manual calculations, paper logs, and spreadsheet errors by offering real-time ledger synchronization, automated dining reports, and an AI-powered market assistant.
-        </p>
-      ),
-    },
-    {
-      question: 'How does the daily meal tracking system work on NexMess?',
-      answer: (
-        <p>
-          Meal tracking is the core feature of NexMess. Members can log their planned daily meals (breakfast, lunch, dinner) in advance. To prevent last-minute dining changes and grocery waste, workspace managers can set an automated daily cut-off timer (e.g., meals must be updated before 8:00 AM for lunch). The platform registers daily logs and aggregates the meal count across the entire mess workspace, giving the assigned bazaar manager an exact quantity of groceries to purchase.
-        </p>
-      ),
-    },
-    {
-      question: 'How does NexMess calculate the meal rate and distribute individual balances?',
-      answer: (
-        <p>
-          The formula for meal rate calculation is: <code>Meal Rate = Total Grocery/Bazaar Expenses / Total Meals Eaten by All Members</code>. At the end of the monthly billing cycle, the platform multiplies each member's personal meal count by this calculated rate to find their meal cost. The system then automatically tracks their payments (deposits) and other shared expenses to generate a final ledger detailing who needs to pay and who is owed money, completely eliminating spreadsheet errors.
-        </p>
-      ),
-    },
-    {
-      question: 'Can we track shared expenses like house rent, utility bills, and cook salaries?',
-      answer: (
-        <p>
-          Yes, NexMess has a robust expense manager that handles both dining and non-dining costs. Users can record fixed or recurring flat expenses such as house rent, electricity bills, internet subscriptions, and cook salaries. These utility bills can be split equally among all flatmates or distributed using customized ratios. This separation of "bazaar cost" and "utility cost" allows for clean, multi-layered financial settlements.
-        </p>
-      ),
-    },
-    {
-      question: 'How does the automated bazaar schedule rotation work?',
-      answer: (
-        <p>
-          Grocery shopping (bazaar) is one of the most tedious duties in a shared apartment. NexMess features an automated bazaar scheduling roster. Workspace managers can input member availability and rotation intervals, and the system automatically assigns bazaar duties, sends reminders, and tracks who is responsible for grocery purchases each day. This prevents conflicts and ensures a fair, transparent distribution of responsibilities.
-        </p>
-      ),
-    },
-    {
-      question: 'Is my mess data safe, and can I access it offline?',
-      answer: (
-        <p>
-          Absolutely. NexMess secures all data using Supabase Row-Level Security (RLS) policies and Google OAuth authentication, ensuring that only members of your specific mess workspace can view your financial records and dining histories. Additionally, NexMess utilizes service worker caching to provide offline accessibility, allowing users to view current meal sheets and logs even in low-connectivity environments.
-        </p>
-      ),
-    },
-    {
-      question: 'What is the role of the AI Market Assistant in NexMess?',
-      answer: (
-        <p>
-          The NexMess AI Assistant is built to optimize your shopping and dining logistics. Powered by Google Gemini and Supabase, it analyzes your historic mess bazaar data, predicts price trends for regional grocery items, automatically drafts grocery lists based on upcoming meals, and suggests balanced menu plans to fit your budget. It can even answer specific questions about local market rates to help you avoid overspending.
-        </p>
-      ),
-    },
-    {
-      question: 'Is NexMess free to use, and how do I sign up?',
-      answer: (
-        <p>
-          NexMess is completely free to use for standard student and bachelor messes. You can sign up in seconds using Google OAuth or email registration. Once registered, you can either create a new mess workspace and invite your roommates via a unique invite link, or join an existing mess using a code provided by your manager.
-        </p>
-      ),
-    },
-  ]
+  const faqItems: FAQItem[] = isBangla
+    ? [
+        {
+          question: 'নেক্সমেস (NexMess) কী এবং ব্যাচেলর বা ছাত্র মেসে এটি কীভাবে সাহায্য করে?',
+          answer: (
+            <p>
+              <strong>নেক্সমেস</strong> হলো ব্যাচেলর মেস, স্টুডেন্ট হোস্টেল এবং শেয়ার্ড অ্যাপার্টমেন্টের
+              জন্য তৈরি আধুনিক ক্লাউড-ভিত্তিক মেস ম্যানেজমেন্ট প্ল্যাটফর্ম। কাগজের খাতা বা এক্সেল শিটের
+              ঝামেলা ও ভুল হিসাব দূর করে এটি রিয়েল-টাইমে দৈনিক মিল গণনা, স্বয়ংক্রিয় মিল রেট, বাজার
+              শিডিউল, লেনদেন নিষ্পত্তি এবং গ্রুপ চ্যাটের সম্পূর্ণ সমাধান দেয়।
+            </p>
+          ),
+        },
+        {
+          question: 'দৈনিক মিল চালু-বন্ধ এবং কাট-অফ টাইম (Cut-off Lock) কীভাবে কাজ করে?',
+          answer: (
+            <p>
+              সদস্যরা ড্যাশবোর্ড বা মিল ক্যালেন্ডার থেকে আজকের বা আগামীকালের <strong>দুপুর</strong> ও{' '}
+              <strong>রাতের</strong> মিল সহজেই চালু/বন্ধ করতে পারেন এবং মেহমান (Guest) সংখ্যা যোগ
+              করতে পারেন। বাজার অপচয় রোধে বাংলাদেশ সময় (UTC+6) অনুযায়ী{' '}
+              <strong>দুপুরের মিল সকাল ১০:০০ টায়</strong> এবং <strong>রাতের মিল বিকাল ৪:০০ টায়</strong>{' '}
+              স্বয়ংক্রিয়ভাবে লক হয়ে যায়। তবে জরুরি প্রয়োজনে ম্যানেজার <em>Manager Override</em> দিয়ে
+              যেকোনো দিনের মিল সংশোধন করতে পারবেন।
+            </p>
+          ),
+        },
+        {
+          question: 'নেক্সমেস কীভাবে মিল রেট ও প্রত্যেকের ব্যালেন্স হিসাব করে?',
+          answer: (
+            <p>
+              সহজ ও স্বচ্ছ সূত্র:{' '}
+              <code className="bg-nex-elevated rounded px-1.5 py-0.5 text-xs">
+                মিল রেট = মোট বাজার খরচ ÷ মেসের সকল সদস্যের মোট মিল
+              </code>
+              । এরপর প্রত্যেক সদস্যের মোট মিল × মিল রেট + ফিক্সড খরচের অংশ (বাড়ি ভাড়া, খালা/বাবুর্চি,
+              বিদ্যুৎ ও ইন্টারনেট বিল) যোগ করে তাঁদের মোট জমা থেকে বাদ দিয়ে নির্ভুল ব্যালেন্স বের করা হয়।
+              <strong>লেনদেন নিষ্পত্তি (Settle Up)</strong> ট্যাবে কে কত টাকা পাবে বা দেবে তা তাৎক্ষণিক
+              দেখা যায়।
+            </p>
+          ),
+        },
+        {
+          question: 'কোনো সদস্য মেস থেকে চলে গেলে বা বহিষ্কৃত হলে পুরোনো মাসের হিসাব কি নষ্ট হয়?',
+          answer: (
+            <p>
+              <strong>একদমই না!</strong> কেউ যদি মাসের মাঝামাঝি (যেমন ১৭ তারিখে) মেস ছেড়ে চলে যান,
+              তাহলে সেই চলতি মাসের শেষ পর্যন্ত তিনি ফাইনান্স সামারিতে <code>[মেস ত্যাগ করেছেন]</code>{' '}
+              ব্যাজসহ দৃশ্যমান থাকবেন যাতে তাঁর পাওনা-দেনা পরিষ্কারভাবে নিষ্পত্তি করা যায়। নতুন মাস শুরু
+              হলে তিনি আর সক্রিয় তালিকায় থাকবেন না, কিন্তু <strong>লেনদেন ইতিহাস (History)</strong>-এ
+              পূর্ববর্তী সকল মাসের রিপোর্ট এবং ডাউনলোড করা <strong>PDF</strong>-এ তাঁর সম্পূর্ণ তথ্য ও
+              মিল হিসাব চিরকাল সুরক্ষিত থাকবে।
+            </p>
+          ),
+        },
+        {
+          question: 'বাড়ি ভাড়া, খালা/বাবুর্চির বিল ও ইউটিলিটি খরচ আলাদাভাবে রাখা যায় কি?',
+          answer: (
+            <p>
+              হ্যাঁ! <strong>ফিক্সড খরচ (Fixed Costs)</strong> ট্যাবে আপনি প্রতি মাসের বাড়ি ভাড়া,
+              খালা/বাবুর্চির বিল, গ্যাস, পানি, বিদ্যুৎ ও ইন্টারনেট বিল আলাদাভাবে যুক্ত করতে এবং
+              পরিশোধিত (Paid) চিহ্নিত করতে পারবেন। এগুলো বাজার খরচের সাথে মিশবে না, বরং ওই মাসের সক্রিয়
+              সদস্যদের মাঝে সমানভাবে বণ্টিত হবে।
+            </p>
+          ),
+        },
+        {
+          question: 'সাপ্তাহিক বাজার শিডিউল ও খাবারের মেন্যু কীভাবে পরিচালিত হয়?',
+          answer: (
+            <p>
+              <strong>বাজার ও মেন্যু</strong> পেজে ম্যানেজার এক ক্লিকে <em>অটো বণ্টন (Auto Assign)</em>{' '}
+              ব্যবহার করে সপ্তাহের বাজারের দায়িত্ব সদস্যদের মধ্যে ভাগ করে দিতে পারেন। পাশাপাশি
+              সাপ্তাহিক দুপুর ও রাতের খাবারের রুটিন সাজানো থাকলে সবাই ড্যাশবোর্ডেই আজকের ও আগামীকালের
+              মেন্যু দেখতে পাবেন।
+            </p>
+          ),
+        },
+        {
+          question: 'নেক্সমেস এআই (NexMessAI) কী কাজে লাগে?',
+          answer: (
+            <p>
+              Google Gemini চালিত <strong>নেক্সমেস এআই</strong> আপনার মেসের এলাকা অনুযায়ী নিত্যপণ্যের
+              সম্ভাব্য বাজার দর, নির্ধারিত বাজেটে কয়েকজনের জন্য স্বাস্থ্যকর রান্নার মেন্যু এবং বাজারের
+              ফর্দ তৈরি করতে সাহায্য করে। নিরাপত্তার জন্য এটি কেবল রিড-অনলি (Read-only), অর্থাৎ এটি
+              আপনার মেসের হিসাব বা খরচে কোনো পরিবর্তন করতে পারে না।
+            </p>
+          ),
+        },
+        {
+          question: 'আমার মেসের ডেটা কি নিরাপদ এবং বাংলা ও অফলাইনে কি ব্যবহার করা যাবে?',
+          answer: (
+            <p>
+              হ্যাঁ। সমস্ত ডেটা <strong>Supabase Row-Level Security (RLS)</strong> ও Google OAuth
+              দ্বারা সুরক্ষিত—অর্থাৎ কেবল আপনার মেসের অনুমোদিত সদস্যরাই হিসাব দেখতে পারবেন। পাশাপাশি
+              সেটিংস থেকে সম্পূর্ণ বাংলা ভাষা (উন্নত <em>হিন্দ শিলিগুড়ি</em> ফন্ট ও স্পষ্ট বাংলা সংখ্যা)
+              এবং লাইট/ডার্ক থিম ব্যবহার করা যায় এবং PWA প্রযুক্তির কারণে দুর্বল নেটওয়ার্কেও অ্যাপটি
+              দ্রুত কাজ করে।
+            </p>
+          ),
+        },
+      ]
+    : [
+        {
+          question: 'What is NexMess and how does it help student or bachelor mess apartments?',
+          answer: (
+            <p>
+              <strong>NexMess</strong> is a modern cloud-based mess and hostel management platform
+              designed for roommates, flatmates, and student groups. It eliminates manual paper logs
+              and spreadsheet errors by providing real-time meal tracking, automated meal rate
+              calculations, bazaar schedules, debt settlement sheets, and group chat.
+            </p>
+          ),
+        },
+        {
+          question: 'How do daily meal tracking and cut-off locks work on NexMess?',
+          answer: (
+            <p>
+              Members can toggle their <strong>Lunch</strong> and <strong>Dinner</strong> meals and
+              add guest counts for Today or Tomorrow directly from the Dashboard or Meal Calendar. To
+              prevent food waste, meals lock automatically based on Bangladesh Standard Time (UTC+6) at{' '}
+              <strong>10:00 AM for Lunch</strong> and <strong>4:00 PM for Dinner</strong>. Mess
+              managers can still use <em>Manager Override</em> anytime for special adjustments.
+            </p>
+          ),
+        },
+        {
+          question: 'How does NexMess calculate the meal rate and individual balances?',
+          answer: (
+            <p>
+              The formula is transparent:{' '}
+              <code className="bg-nex-elevated rounded px-1.5 py-0.5 text-xs">
+                Meal Rate = Total Bazaar Expenses ÷ Total Meals Eaten by All Members
+              </code>
+              . Each member&apos;s meal cost plus their equal share of monthly fixed costs is deducted
+              from their verified deposits to compute their exact balance and peer-to-peer settlement in
+              the <strong>Settle Up</strong> sheet.
+            </p>
+          ),
+        },
+        {
+          question: 'What happens to past reports if a member leaves or is removed from the mess?',
+          answer: (
+            <p>
+              <strong>Your historical data is always preserved.</strong> If a member leaves mid-month
+              (for example, on the 17th), they remain visible in that month&apos;s Finance Summary with
+              a <code>[LEFT]</code> badge until month-end so final dues can be settled. Starting next
+              month, they disappear from active views, while all past monthly archives and{' '}
+              <strong>PDF reports</strong> in the History tab keep their exact meal and deposit records
+              intact.
+            </p>
+          ),
+        },
+        {
+          question: 'Can we separate house rent, cook salary, and utilities from grocery bills?',
+          answer: (
+            <p>
+              Yes! The <strong>Fixed Costs</strong> tab separates recurring shared bills—such as house
+              rent, maid/cook salary, gas, utilities, and internet—from daily bazaar grocery costs. You
+              can also track whether each bill is marked as Paid or Pending.
+            </p>
+          ),
+        },
+        {
+          question: 'How does the bazaar schedule and weekly meal routine work?',
+          answer: (
+            <p>
+              Under <strong>Market &amp; Routine</strong>, managers can assign shopping dates manually
+              or use <em>Auto Assign</em> for automatic weekly rotation. You can also configure a
+              weekly Lunch &amp; Dinner menu so every roommate sees today&apos;s and tomorrow&apos;s
+              dishes right on the Dashboard.
+            </p>
+          ),
+        },
+        {
+          question: 'What can NexMessAI do?',
+          answer: (
+            <p>
+              Powered by Google Gemini, <strong>NexMessAI</strong> helps you estimate local market
+              prices based on your mess location, generate smart shopping lists, and plan balanced
+              meals within your daily budget. It operates strictly read-only and never modifies your
+              financial records.
+            </p>
+          ),
+        },
+        {
+          question: 'Is NexMess free, secure, and available in Bengali & Offline mode?',
+          answer: (
+            <p>
+              Yes! NexMess is free to use and protected by <strong>Supabase Row-Level Security (RLS)</strong>{' '}
+              and Google OAuth. It supports full English and authentic Bengali (বাংলা) localization,
+              smooth Light &amp; Dark themes, and PWA offline asset caching.
+            </p>
+          ),
+        },
+      ]
 
   return (
-    <div className="bg-nex-bg text-nex-text flex min-h-screen flex-col overflow-x-hidden font-sans select-none">
-      {/* Header */}
-      <header className="nex-glass border-nex-border/50 sticky top-0 z-40 flex w-full items-center justify-between border-b px-6 py-4">
-        <div className="flex items-center gap-2">
-          <img src={logoIcon} alt="NexMess" className="h-8 w-8 rounded-lg" />
-          <span className="text-nex-text text-lg font-bold tracking-tight">NexMess</span>
-        </div>
-        <Link
-          to="/"
-          className="nex-btn-secondary flex items-center gap-1.5 px-4 py-2 text-xs font-semibold"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Home
-        </Link>
-      </header>
+    <div
+      className={`bg-nex-bg text-nex-text flex min-h-screen flex-col overflow-x-hidden select-none ${
+        isBangla ? 'font-bangla' : 'font-sans'
+      }`}
+    >
+      <PublicHeader />
 
       {/* Main Content */}
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12 select-text">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10 select-text sm:py-12">
         <div className="space-y-8">
           {/* Page Title & Intro */}
-          <div className="border-nex-border/50 space-y-4 border-b pb-8 text-center sm:text-left">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-blue-600 dark:text-blue-400">
+          <div className="border-nex-border/60 space-y-4 border-b pb-8 text-center sm:text-left">
+            <div className="border-nex-primary/20 bg-nex-primary/10 text-nex-primary inline-flex items-center gap-2 rounded-full border px-3 py-1 dark:border-emerald-500/25 dark:bg-emerald-500/15 dark:text-emerald-400">
               <HelpCircle className="h-4 w-4" />
-              <span className="text-xs font-bold tracking-wider uppercase">Support & FAQ</span>
+              <span className="text-xs font-bold tracking-wider uppercase">
+                {isBangla ? 'সহায়তা ও প্রশ্নোত্তর' : 'Support & FAQ'}
+              </span>
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Frequently Asked Questions
+              {isBangla ? 'সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ)' : 'Frequently Asked Questions'}
             </h1>
             <p className="text-nex-muted text-sm leading-relaxed">
-              Find answers to common questions about managing daily meals, sharing grocery costs, splitting utility bills, and using our automation features on the NexMess platform.
+              {isBangla
+                ? 'দৈনিক মিল হিসাব, কাট-অফ সময়, বাজার খরচ বণ্টন, পুরোনো মেম্বারদের আর্কাইভ এবং এআই ফিচার সম্পর্কে আপনার সাধারণ প্রশ্নের উত্তর এখানে পাবেন।'
+                : 'Find answers to common questions about managing daily meals, cut-off times, grocery costs, archived member reports, and our automation features.'}
             </p>
           </div>
 
@@ -133,17 +264,18 @@ export default function FAQPage() {
               return (
                 <div
                   key={index}
-                  className="bg-nex-surface border-nex-border/50 rounded-xl border overflow-hidden transition-colors"
+                  className="bg-nex-surface border-nex-border overflow-hidden rounded-xl border transition-colors"
                 >
                   <button
+                    type="button"
                     onClick={() => toggleFAQ(index)}
-                    className="flex w-full items-center justify-between p-5 text-left font-semibold transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                    className="hover:bg-nex-hover/60 flex w-full cursor-pointer items-center justify-between p-5 text-left font-semibold transition-colors"
                   >
-                    <span className="text-sm sm:text-base pr-4">{item.question}</span>
+                    <span className="pr-4 text-sm sm:text-base">{item.question}</span>
                     {isOpen ? (
-                      <ChevronUp className="text-nex-muted h-5 w-5 flex-shrink-0" />
+                      <ChevronUp className="text-nex-muted h-5 w-5 shrink-0" />
                     ) : (
-                      <ChevronDown className="text-nex-muted h-5 w-5 flex-shrink-0" />
+                      <ChevronDown className="text-nex-muted h-5 w-5 shrink-0" />
                     )}
                   </button>
                   <AnimatePresence initial={false}>
@@ -154,7 +286,7 @@ export default function FAQPage() {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <div className="text-nex-muted border-nex-border/50 border-t p-5 text-xs sm:text-sm leading-relaxed space-y-2 bg-black/[0.02] dark:bg-white/[0.01]">
+                        <div className="text-nex-muted border-nex-border/60 bg-nex-elevated/40 space-y-2 border-t p-5 text-xs leading-relaxed sm:text-sm">
                           {item.answer}
                         </div>
                       </motion.div>
@@ -166,20 +298,26 @@ export default function FAQPage() {
           </div>
 
           {/* Need More Help Block */}
-          <div className="border-nex-border/50 bg-nex-surface/30 rounded-2xl border p-6 text-center space-y-3 mt-12">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 text-blue-500">
+          <div className="border-nex-border bg-nex-surface mt-12 space-y-3 rounded-2xl border p-6 text-center shadow-sm">
+            <div className="bg-nex-primary/10 text-nex-primary inline-flex h-10 w-10 items-center justify-center rounded-full dark:bg-emerald-500/15 dark:text-emerald-400">
               <MessageSquare className="h-5 w-5" />
             </div>
-            <h3 className="text-lg font-bold">Still have questions?</h3>
-            <p className="text-nex-muted text-sm max-w-md mx-auto">
-              Our support team is here to help you get your hostel or shared mess set up. You can contact us directly.
+            <h3 className="text-lg font-bold">
+              {isBangla ? 'আরও কোনো প্রশ্ন আছে?' : 'Still have questions?'}
+            </h3>
+            <p className="text-nex-muted mx-auto max-w-md text-sm">
+              {isBangla
+                ? 'আপনার মেস সেটআপ বা কোনো সমস্যায় সাহায্যের প্রয়োজন হলে সরাসরি আমাদের সাথে যোগাযোগ করুন।'
+                : 'Our support team is here to help you get your hostel or shared mess set up. Reach out to us directly.'}
             </p>
             <div className="pt-2">
               <a
                 href="mailto:support@nexmess.shop"
-                className="bg-nex-primary hover:bg-nex-primary/95 shadow-nex-primary/20 inline-flex items-center justify-center rounded-xl px-6 py-2.5 text-xs font-bold text-white shadow-lg transition-colors"
+                className="nex-btn-primary inline-flex items-center justify-center px-6 py-2.5 text-xs font-bold"
               >
-                Email Support (support@nexmess.shop)
+                {isBangla
+                  ? 'সাপোর্ট ইমেইল (support@nexmess.shop)'
+                  : 'Email Support (support@nexmess.shop)'}
               </a>
             </div>
           </div>
@@ -189,14 +327,18 @@ export default function FAQPage() {
       {/* Footer */}
       <footer className="text-nex-muted border-nex-border/50 mt-auto border-t px-6 py-8 text-center text-xs">
         <div className="flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-4">
-          <span>&copy; {new Date().getFullYear()} NexMess Inc. All rights reserved.</span>
+          <span>
+            {isBangla
+              ? `© ${formatNumber(new Date().getFullYear())} নেক্সমেস। সর্বস্বত্ব সংরক্ষিত।`
+              : `© ${new Date().getFullYear()} NexMess Inc. All rights reserved.`}
+          </span>
           <span className="text-nex-border/50 hidden sm:inline">|</span>
           <div className="flex gap-4">
             <Link to="/privacy-policy" className="hover:text-nex-text transition-colors">
-              Privacy Policy
+              {isBangla ? 'গোপনীয়তা নীতি' : 'Privacy Policy'}
             </Link>
             <Link to="/terms-of-service" className="hover:text-nex-text transition-colors">
-              Terms of Service
+              {isBangla ? 'শর্তাবলী' : 'Terms of Service'}
             </Link>
           </div>
         </div>

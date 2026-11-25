@@ -52,6 +52,11 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Always scroll to top when navigating between routes
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
+
   // Track virtual pageviews on route navigation
   useEffect(() => {
     trackPageView(location.pathname + location.search)
