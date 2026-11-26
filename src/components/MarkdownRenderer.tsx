@@ -1,6 +1,6 @@
 /**
  * Lightweight markdown renderer for NexMessAI chat bubbles.
- * Handles: bold, headers, tables, bullet lists, and inline code.
+ * Handles: bold, headers, tables, bullet lists, blockquotes/notices, and inline code.
  * No external dependencies — keeps the bundle lean.
  */
 
@@ -13,7 +13,7 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
   const blocks = parseBlocks(text)
 
   return (
-    <div className={`markdown-content ${className}`}>
+    <div className={`markdown-content space-y-1.5 ${className}`}>
       {blocks.map((block, i) => (
         <RenderBlock key={i} block={block} />
       ))}
@@ -27,6 +27,7 @@ type Block =
   | { type: 'heading'; level: number; text: string }
   | { type: 'table'; headers: string[]; rows: string[][] }
   | { type: 'bullet'; items: string[] }
+  | { type: 'notice'; text: string }
   | { type: 'paragraph'; text: string }
 
 function parseBlocks(raw: string): Block[] {
@@ -38,7 +39,6 @@ function parseBlocks(raw: string): Block[] {
     const line = lines[i]
     const trimmed = line.trim()
 
-    // Skip empty lines
     if (!trimmed) {
       i++
       continue
@@ -60,7 +60,7 @@ function parseBlocks(raw: string): Block[] {
       continue
     }
 
-    // Table: starts with |
+    // Table: starts and ends with |
     if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
       const tableLines: string[] = []
       while (i < lines.length && lines[i].trim().startsWith('|') && lines[i].trim().endsWith('|')) {
@@ -71,6 +71,14 @@ function parseBlocks(raw: string): Block[] {
       if (parsed) {
         blocks.push(parsed)
       }
+      continue
+    }
+
+    // Blockquote (> ...) or parenthesized notice line
+    if (trimmed.startsWith('>') || /^\*?Notice:/i.test(trimmed) || /^\(Notice:/i.test(trimmed)) {
+      const noticeText = trimmed.replace(/^>\s?/, '')
+      blocks.push({ type: 'notice', text: noticeText })
+      i++
       continue
     }
 
@@ -104,9 +112,11 @@ function parseBlocks(raw: string): Block[] {
       lines[i].trim() &&
       !lines[i].trim().startsWith('#') &&
       !lines[i].trim().startsWith('|') &&
+      !lines[i].trim().startsWith('>') &&
       !/^[-•*]\s/.test(lines[i].trim()) &&
       !/^\d+[.)]\s/.test(lines[i].trim()) &&
-      !/^\*\*(.+?)\*\*\s*[-—:]?\s*$/.test(lines[i].trim())
+      !/^\*\*(.+?)\*\*\s*[-—:]?\s*$/.test(lines[i].trim()) &&
+      !/^\(Notice:/i.test(lines[i].trim())
     ) {
       paraText += ' ' + lines[i].trim()
       i++
@@ -123,12 +133,10 @@ function parseTable(lines: string[]): Block | null {
   const parseLine = (line: string) =>
     line
       .split('|')
-      .slice(1, -1) // remove first/last empty from leading/trailing |
+      .slice(1, -1)
       .map((c) => c.trim())
 
   const headers = parseLine(lines[0])
-
-  // Check if line[1] is a separator (---|---), if so skip it
   const startRow = lines[1].includes('---') ? 2 : 1
   const rows = lines.slice(startRow).map(parseLine)
 
@@ -140,37 +148,32 @@ function parseTable(lines: string[]): Block | null {
 // ─── Inline Rendering ───────────────────────────────────
 
 function renderInline(text: string): React.ReactNode[] {
-  // Process bold (**text**), inline code (`code`), and italic (*text*)
   const parts: React.ReactNode[] = []
   const regex = /(\*\*(.+?)\*\*)|(`(.+?)`)|(\*(.+?)\*)/g
   let lastIdx = 0
   let match
 
   while ((match = regex.exec(text)) !== null) {
-    // Push text before the match
     if (match.index > lastIdx) {
       parts.push(text.slice(lastIdx, match.index))
     }
 
     if (match[1]) {
-      // Bold
       parts.push(
-        <strong key={match.index} className="font-bold">
+        <strong key={match.index} className="text-nex-text font-semibold">
           {match[2]}
         </strong>
       )
     } else if (match[3]) {
-      // Inline code
       parts.push(
         <code
           key={match.index}
-          className="bg-nex-elevated rounded px-1.5 py-0.5 font-mono text-[11px]"
+          className="bg-nex-elevated text-nex-text rounded px-1.5 py-0.5 font-mono text-[11px]"
         >
           {match[4]}
         </code>
       )
     } else if (match[5]) {
-      // Italic
       parts.push(
         <em key={match.index} className="italic">
           {match[6]}
@@ -181,7 +184,6 @@ function renderInline(text: string): React.ReactNode[] {
     lastIdx = match.index + match[0].length
   }
 
-  // Push remaining text
   if (lastIdx < text.length) {
     parts.push(text.slice(lastIdx))
   }
@@ -196,12 +198,12 @@ function RenderBlock({ block }: { block: Block }) {
     case 'heading':
       return (
         <div
-          className={`font-bold ${
+          className={`text-nex-text font-bold ${
             block.level === 1
-              ? 'text-nex-text mt-2 mb-1.5 text-sm'
+              ? 'mt-2.5 mb-1 text-[15px]'
               : block.level === 2
-                ? 'text-nex-text mt-2 mb-1 text-[13px]'
-                : 'text-nex-text mt-1.5 mb-0.5 text-xs'
+                ? 'mt-2 mb-1 text-sm'
+                : 'mt-1.5 mb-0.5 text-[13px]'
           }`}
         >
           {renderInline(block.text)}
@@ -210,14 +212,14 @@ function RenderBlock({ block }: { block: Block }) {
 
     case 'table':
       return (
-        <div className="border-nex-border my-2.5 overflow-x-auto rounded-lg border">
-          <table className="w-full border-collapse text-[11px]">
+        <div className="border-nex-border my-2 overflow-x-auto rounded-xl border">
+          <table className="w-full border-collapse text-xs">
             <thead>
-              <tr className="bg-nex-elevated/80">
+              <tr className="bg-nex-elevated/90">
                 {block.headers.map((h, i) => (
                   <th
                     key={i}
-                    className="text-nex-text border-nex-border border-b px-2.5 py-1.5 text-left text-[11px] font-semibold whitespace-nowrap"
+                    className="text-nex-text border-nex-border border-b px-3 py-2 text-left text-[11px] font-semibold whitespace-nowrap"
                   >
                     {renderInline(h)}
                   </th>
@@ -228,10 +230,10 @@ function RenderBlock({ block }: { block: Block }) {
               {block.rows.map((row, ri) => (
                 <tr
                   key={ri}
-                  className="border-nex-border/50 even:bg-nex-elevated/25 border-b last:border-0"
+                  className="border-nex-border/50 even:bg-nex-elevated/35 border-b last:border-0"
                 >
                   {block.headers.map((_, ci) => (
-                    <td key={ci} className="text-nex-text px-2.5 py-1.5 align-top text-[11px]">
+                    <td key={ci} className="text-nex-text px-3 py-2 align-top text-xs">
                       {row[ci] ? renderInline(row[ci]) : '—'}
                     </td>
                   ))}
@@ -242,13 +244,20 @@ function RenderBlock({ block }: { block: Block }) {
         </div>
       )
 
+    case 'notice':
+      return (
+        <div className="border-nex-border bg-nex-elevated/60 text-nex-muted my-1.5 rounded-lg border-l-2 border-l-amber-500/70 px-3 py-1.5 text-[11.5px] leading-relaxed">
+          {renderInline(block.text)}
+        </div>
+      )
+
     case 'bullet':
       return (
-        <ul className="my-1 space-y-0.5 pl-4">
+        <ul className="my-1 space-y-1 pl-4">
           {block.items.map((item, i) => (
             <li
               key={i}
-              className="text-nex-text relative text-[11.5px] leading-relaxed before:absolute before:-left-3 before:top-[7px] before:h-1 before:w-1 before:rounded-full before:bg-current before:opacity-40"
+              className="text-nex-text relative text-[13px] leading-relaxed before:absolute before:-left-3 before:top-[9px] before:h-1.5 before:w-1.5 before:rounded-full before:bg-emerald-500/70"
             >
               {renderInline(item)}
             </li>
@@ -258,7 +267,7 @@ function RenderBlock({ block }: { block: Block }) {
 
     case 'paragraph':
       return (
-        <p className="text-nex-text my-0.5 text-[11.5px] leading-relaxed">
+        <p className="text-nex-text text-[13px] leading-relaxed">
           {renderInline(block.text)}
         </p>
       )

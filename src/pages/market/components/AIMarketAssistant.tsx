@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../../stores/authStore'
 import { useMessStore } from '../../../stores/messStore'
@@ -7,7 +8,6 @@ import {
   Send,
   Sparkles,
   MapPin,
-  Bot,
   User,
   AlertCircle,
   Loader2,
@@ -17,13 +17,19 @@ import {
   BarChart3,
   UtensilsCrossed,
   Clock,
+  CheckCircle2,
+  Info,
+  X,
+  Copy,
+  Check,
+  ShieldAlert,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { usePageTitle } from '../../../hooks/usePageTitle'
 import MarkdownRenderer from '../../../components/MarkdownRenderer'
 import { sanitizeAppError } from '../../../lib/errorHandler'
-import { formatLocalizedDate } from '../../../lib/utils'
+import { formatLocalizedDate, getInitials, isSafeHttpUrl } from '../../../lib/utils'
 
 interface Message {
   id: string
@@ -44,14 +50,19 @@ export default function AIMarketAssistant() {
   usePageTitle(t('nav.nexmessAi'))
   const { session, user, profile } = useAuthStore()
   const { currentMess } = useMessStore()
+
   const [messages, setMessages] = useState<Message[]>([])
   const [inputText, setInputText] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showMobileInfo, setShowMobileInfo] = useState(false)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
   const chatContainerRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const hasLocation = !!currentMess?.location?.trim()
-  const messLocation = currentMess?.location || ''
+  const messLocation = currentMess?.location?.trim() || ''
 
   // Scroll inner message container smoothly without scrolling parent document window
   useEffect(() => {
@@ -59,6 +70,14 @@ export default function AIMarketAssistant() {
     if (!container) return
     container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
   }, [messages, loading])
+
+  // Auto-resize composer textarea cleanly (1-4 lines)
+  useEffect(() => {
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${Math.min(el.scrollHeight, 112)}px`
+  }, [inputText])
 
   // Real-time message subscription
   const fetchMessages = useCallback(async () => {
@@ -71,8 +90,7 @@ export default function AIMarketAssistant() {
       .limit(20)
 
     if (data) {
-      const reversed = [...data].reverse()
-      setMessages(reversed as Message[])
+      setMessages([...data].reverse() as Message[])
     }
   }, [currentMess?.id])
 
@@ -92,7 +110,6 @@ export default function AIMarketAssistant() {
           filter: `mess_id=eq.${currentMess.id}`,
         },
         () => {
-          // Debounce to avoid rapid re-fetches from sequential inserts
           if (debounceRef.current) clearTimeout(debounceRef.current)
           debounceRef.current = setTimeout(() => {
             fetchMessages()
@@ -112,8 +129,7 @@ export default function AIMarketAssistant() {
 
     const userMessageText = textToSend.trim()
     setInputText('')
-    
-    // Add user's message optimistically in the UI first (instant rendering like Messenger/WhatsApp)
+
     const tempId = `temp-${crypto.randomUUID()}`
     const optimisticUserMessage: Message = {
       id: tempId,
@@ -125,16 +141,14 @@ export default function AIMarketAssistant() {
       profiles: {
         username: profile?.username || 'Member',
         avatar_url: profile?.avatar_url || null,
-      }
+      },
     }
     setMessages((prev) => [...prev, optimisticUserMessage])
     setLoading(true)
 
     try {
-      // Build local chat history to pass to Gemini (last 6 messages to keep tokens small)
       const chatHistory = messages.slice(-6).map((m) => ({ text: m.text, is_ai: m.is_ai }))
 
-      // Insert user's message to database immediately
       const { error: insertErr } = await supabase.from('market_chat_messages').insert({
         mess_id: currentMess.id,
         sender_id: user?.id || null,
@@ -143,7 +157,6 @@ export default function AIMarketAssistant() {
       })
       if (insertErr) throw insertErr
 
-      // Call Supabase Edge Function
       const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/market-assistant`
       const response = await fetch(functionUrl, {
         method: 'POST',
@@ -165,21 +178,30 @@ export default function AIMarketAssistant() {
         const errData = await response.json()
         throw new Error(errData.error || 'Failed to get response from assistant.')
       }
-
-      // Realtime subscription handles the message refresh via debounced fetchMessages
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(sanitizeAppError(error, 'Error communicating with AI assistant.'))
       console.error(error)
-      // Rollback optimistic message if insertion failed
       setMessages((prev) => prev.filter((m) => m.id !== tempId))
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSuggestClick = (suggestion: string) => {
-    setInputText('')
-    handleSend(suggestion)
+  const handleCopy = async (id: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedId(id)
+      setTimeout(() => setCopiedId((prev) => (prev === id ? null : prev)), 2000)
+    } catch {
+      toast.error(isBangla ? 'কপি করা যায়নি' : 'Could not copy message')
+    }
+  }
+
+  const handleComposerKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      void handleSend(inputText)
+    }
   }
 
   const suggestions = [
@@ -189,15 +211,15 @@ export default function AIMarketAssistant() {
       text: isBangla
         ? 'এই এলাকার জন্য আজকের নিত্যপ্রয়োজনীয় পণ্যের বাজার দর রিপোর্ট তৈরি করুন'
         : 'Please generate a new daily price report for this area',
-      color: 'text-blue-500',
+      chipClass: 'text-blue-600 bg-blue-500/10 dark:text-blue-400',
     },
     {
       icon: TrendingDown,
-      label: isBangla ? 'আজকের সেরা ডিল?' : 'Best deals today?',
+      label: isBangla ? 'সেরা ডিল কোথায়?' : 'Best deals today?',
       text: isBangla
         ? 'আজকে এই এলাকার কোন বাজারে ডিম ও ব্রয়লার মুরগির দাম সবচেয়ে কম?'
         : 'Where can I find the cheapest place to buy eggs and chicken in this area today?',
-      color: 'text-emerald-500',
+      chipClass: 'text-emerald-600 bg-emerald-500/10 dark:text-emerald-400',
     },
     {
       icon: ShoppingCart,
@@ -205,164 +227,230 @@ export default function AIMarketAssistant() {
       text: isBangla
         ? 'আজকের মিলের জন্য প্রয়োজনীয় উপাদান, পরিমাণ ও আনুমানিক খরচ সহ বাজারের ফর্দ বানিয়ে দিন।'
         : "Create a detailed grocery shopping list for today's meals with quantities and estimated cost.",
-      color: 'text-amber-500',
+      chipClass: 'text-amber-600 bg-amber-500/10 dark:text-amber-400',
     },
     {
       icon: UtensilsCrossed,
-      label: isBangla ? 'বাজেট পর্যালোচনা' : 'Budget check',
+      label: isBangla ? 'বাজেট বিশ্লেষণ' : 'Budget check',
       text: isBangla
         ? 'চলতি মাসে আমাদের মেসের বাজার খরচ বিশ্লেষণ করুন এবং খরচ কমানোর পরামর্শ দিন।'
         : 'Review our monthly spending so far and suggest how we can optimize our bazaar budget.',
-      color: 'text-purple-500',
+      chipClass: 'text-purple-600 bg-purple-500/10 dark:text-purple-400',
     },
   ]
+
+  const capabilities = isBangla
+    ? ['এলাকাভিত্তিক বাজার দর ও সাশ্রয়', 'পরিমাণসহ বাজারের ফর্দ', 'বাজেট বিশ্লেষণ ও টিপস']
+    : ['Local grocery prices & deals', 'Shopping lists with quantities', 'Budget analysis & savings tips']
 
   if (!currentMess) return null
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-11rem)] min-h-[420px] w-full max-w-4xl flex-col md:h-[calc(100dvh-7.5rem)]">
-      <div className="mb-3 flex shrink-0 items-center justify-between px-1">
-        <div className="flex items-center gap-3">
-          <div className="from-nex-primary/20 to-nex-primary/5 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br">
-            <Sparkles className="text-nex-primary h-5 w-5 animate-pulse" />
-          </div>
-          <div>
-            <h1 className="text-nex-text text-xl font-bold sm:text-2xl">NexMessAI</h1>
-            <p className="text-nex-muted text-[10px]">
-              {isBangla ? 'স্মার্ট বাজার সহকারী (Gemini AI)' : 'Smart bazaar assistant powered by Gemini'}
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="-mx-4 -mt-4 -mb-8 flex h-[calc(100dvh-8rem-env(safe-area-inset-bottom,0px))] min-h-[380px] flex-col md:mx-auto md:my-0 md:h-[calc(100dvh-7rem)] md:min-h-[480px] md:w-full md:max-w-6xl">
+      <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] gap-4 lg:grid-cols-[300px_minmax(0,1fr)]">
+        {/* Desktop Sidebar: Info & Quick Actions */}
+        <aside className="hidden min-h-0 flex-col gap-3.5 overflow-y-auto pr-0.5 lg:flex">
+          <div className="nex-card shrink-0 space-y-3.5 p-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#2F4B39] via-[#3A5643] to-emerald-600 text-white shadow-xs">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <h2 className="text-nex-text text-sm font-bold">{t('nav.nexmessAi')}</h2>
+                <p className="text-nex-muted truncate text-[11px]">
+                  {isBangla ? 'স্মার্ট বাজার সহকারী (Gemini)' : 'Smart bazaar assistant'}
+                </p>
+              </div>
+            </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] gap-4 lg:grid-cols-3">
-        {/* Sidebar: Location Details & Guidelines */}
-        <div className="hidden min-h-0 flex-col gap-4 overflow-y-auto pr-1 lg:col-span-1 lg:flex">
-          <div className="nex-card shrink-0 space-y-4 p-5">
-            <h3 className="text-nex-text flex items-center gap-2 text-sm font-semibold tracking-wider uppercase">
-              <Sparkles className="text-nex-primary h-4 w-4 animate-pulse" />
-              {isBangla ? 'সহকারীর তথ্য' : 'Assistant Info'}
-            </h3>
-            <p className="text-nex-muted text-xs leading-relaxed">
-              {isBangla
-                ? 'গুগল জেমিনাই চালিত ব্যক্তিগত বাজার সহকারী। লাইভ বাজার দর, পণ্যের পরিমাণ ও খরচের বাজেট ট্র্যাক করুন।'
-                : 'Your personal bazaar coordinator powered by Google Gemini. Gets live grocery prices, estimates quantities, and tracks your budget.'}
-            </p>
-
-            <div className="bg-nex-elevated space-y-2 rounded-xl p-4">
-              <div className="text-nex-text flex items-center gap-2 text-xs font-semibold">
-                <MapPin className="text-nex-primary h-4 w-4" />
-                {isBangla ? 'মেসের অবস্থান' : 'Location'}
+            <div className="bg-nex-elevated/80 border-nex-border/70 space-y-1.5 rounded-xl border p-3">
+              <div className="text-nex-text flex items-center justify-between gap-2 text-xs font-semibold">
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin className="text-nex-primary h-3.5 w-3.5 dark:text-emerald-400" />
+                  {isBangla ? 'মেসের অবস্থান' : 'Mess Location'}
+                </span>
+                {!hasLocation && (
+                  <Link
+                    to="/settings"
+                    className="text-nex-primary text-[11px] font-semibold hover:underline"
+                  >
+                    {isBangla ? 'সেট করুন' : 'Set now'}
+                  </Link>
+                )}
               </div>
               {hasLocation ? (
-                <p className="text-nex-success font-mono text-xs font-medium">{messLocation}</p>
+                <p className="text-nex-primary text-xs leading-snug font-medium dark:text-emerald-400">
+                  {messLocation}
+                </p>
               ) : (
-                <div className="text-nex-danger flex items-start gap-1.5 text-[11px]">
-                  <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  <span>
-                    {isBangla
-                      ? 'লোকেশন সেট করা নেই। সেটিংস → মেসের বিবরণী থেকে সেট করুন।'
-                      : 'No location set. Set it in Settings → Mess Details.'}
-                  </span>
-                </div>
+                <p className="text-nex-danger text-[11px] leading-snug">
+                  {isBangla
+                    ? 'লোকেশন সেট করা নেই। সেটিংস → মেস তথ্য থেকে যোগ করুন।'
+                    : 'No location set. Add it in Settings → Mess Info.'}
+                </p>
               )}
             </div>
 
-            <div className="text-nex-muted border-nex-border space-y-1.5 border-t pt-3 text-xs">
-              <span className="text-nex-text mb-1 block font-semibold">
-                {isBangla ? 'যা যা করতে পারে:' : 'What it can do:'}
+            <div className="border-nex-border space-y-2 border-t pt-3">
+              <span className="text-nex-text block text-[11px] font-semibold tracking-wider uppercase">
+                {isBangla ? 'যা যা করতে পারে' : 'Capabilities'}
               </span>
-              <p>✅ {isBangla ? 'তাজা বাজার দর ও সাশ্রয়ী তথ্য' : 'Live grocery prices & deals'}</p>
-              <p>✅ {isBangla ? 'পরিমাণসহ বাজারের তালিকা' : 'Shopping lists with quantities'}</p>
-              <p>✅ {isBangla ? 'বাজেট বিশ্লেষণ ও পরামর্শ' : 'Budget analysis & savings tips'}</p>
-              <p className="text-nex-muted/60 mt-2 text-[10px]">
-                ⚠️ {isBangla ? 'শুধুমাত্র তথ্য প্রদর্শন — খরচ বা রুটিন এডিট করতে পারে না' : "Read-only — can't edit expenses or schedules"}
+              <ul className="space-y-1.5">
+                {capabilities.map((cap) => (
+                  <li key={cap} className="text-nex-muted flex items-center gap-2 text-xs">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                    <span>{cap}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-nex-muted/80 flex items-center gap-1.5 pt-1 text-[11px]">
+                <ShieldAlert className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                <span>
+                  {isBangla
+                    ? 'শুধুমাত্র তথ্য দেয় — হিসাব পরিবর্তন করে না'
+                    : 'Read-only — never edits mess records'}
+                </span>
               </p>
             </div>
           </div>
 
-          {/* Suggestion Chips Box (Hidden if location is missing) */}
           {hasLocation && (
-            <div className="nex-card hidden shrink-0 space-y-2 p-4 lg:block">
-              <span className="text-nex-muted mb-1 block text-[11px] font-semibold tracking-wider uppercase">
-                {isBangla ? 'কুইক অ্যাকশন' : 'Quick Actions'}
+            <div className="nex-card shrink-0 space-y-2 p-4">
+              <span className="text-nex-muted block text-[11px] font-semibold tracking-wider uppercase">
+                {isBangla ? 'দ্রুত প্রশ্ন' : 'Quick Prompts'}
               </span>
-              <div className="flex flex-col gap-2">
-                {suggestions.map((s, i) => (
+              <div className="flex flex-col gap-1.5">
+                {suggestions.map((s) => (
                   <button
-                    key={i}
-                    onClick={() => handleSuggestClick(s.text)}
+                    key={s.label}
+                    type="button"
+                    onClick={() => void handleSend(s.text)}
                     disabled={loading}
-                    className="bg-nex-elevated hover:bg-nex-hover border-nex-border text-nex-text group flex w-full cursor-pointer items-center gap-2.5 rounded-xl border p-2.5 text-left text-xs transition-all duration-200"
+                    className="bg-nex-elevated/70 hover:bg-nex-hover border-nex-border/80 text-nex-text group flex w-full cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2 text-left text-xs font-medium transition-all disabled:opacity-50"
                   >
-                    <s.icon className={`h-3.5 w-3.5 shrink-0 ${s.color}`} />
+                    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${s.chipClass}`}>
+                      <s.icon className="h-3.5 w-3.5" />
+                    </span>
                     <span className="flex-1 truncate">{s.label}</span>
-                    <ArrowRight className="text-nex-muted group-hover:text-nex-primary h-3 w-3 transition-all group-hover:translate-x-0.5" />
+                    <ArrowRight className="text-nex-muted group-hover:text-nex-primary h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                   </button>
                 ))}
               </div>
             </div>
           )}
-        </div>
+        </aside>
 
-        {/* Main Chat Panel */}
-        <div className="nex-card flex h-full min-h-0 flex-col overflow-hidden lg:col-span-2">
-          {/* Chat Header */}
-          <div className="border-nex-border bg-nex-elevated/40 flex shrink-0 items-center justify-between border-b p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-sm">
-                <Bot className="h-5 w-5 text-white" />
+        {/* Main Chat Workspace (edge-to-edge on mobile, crisp card on md+) */}
+        <section className="bg-nex-bg md:bg-nex-surface md:border-nex-border md:rounded-card md:shadow-card flex h-full min-h-0 flex-col overflow-hidden md:border">
+          {/* Unified Compact Chat Header */}
+          <header className="border-nex-border/80 bg-nex-surface/95 flex shrink-0 items-center justify-between gap-3 border-b px-4 py-2.5 backdrop-blur-sm sm:px-5 sm:py-3">
+            <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#2F4B39] via-[#3A5643] to-emerald-600 text-white shadow-xs">
+                <Sparkles className="h-4.5 w-4.5" />
               </div>
-              <div>
-                <h4 className="text-nex-text text-sm font-bold">{t('nav.nexmessAi')}</h4>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-nex-text truncate text-sm font-bold sm:text-base">
+                    {t('nav.nexmessAi')}
+                  </h1>
+                  <span className="bg-nex-primary-light text-nex-primary hidden rounded-full px-2 py-0.5 text-[10px] font-semibold sm:inline-flex dark:text-emerald-400">
+                    Gemini
+                  </span>
+                </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-                  <p className="text-nex-muted text-[10px]">
+                  <span
+                    className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${
+                      hasLocation ? 'animate-pulse bg-emerald-500' : 'bg-amber-500'
+                    }`}
+                  />
+                  <p className="text-nex-muted truncate text-[11px]">
                     {hasLocation ? messLocation : t('market.ai.unconfigured')}
                   </p>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Chat Messages Scrolling Area */}
-          <div ref={chatContainerRef} className="bg-nex-bg/20 min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
+            <button
+              type="button"
+              onClick={() => setShowMobileInfo((prev) => !prev)}
+              className="border-nex-border bg-nex-elevated/80 hover:bg-nex-hover text-nex-muted hover:text-nex-text flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border transition-colors lg:hidden"
+              aria-label={isBangla ? 'সহকারীর তথ্য' : 'Assistant info'}
+              aria-expanded={showMobileInfo}
+            >
+              {showMobileInfo ? <X className="h-4 w-4" /> : <Info className="h-4 w-4" />}
+            </button>
+          </header>
+
+          {/* Expandable Mobile/Tablet Info Sheet */}
+          {showMobileInfo && (
+            <div className="border-nex-border bg-nex-surface space-y-2.5 border-b px-4 py-3 text-xs lg:hidden">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-nex-text inline-flex items-center gap-1.5 font-semibold">
+                  <MapPin className="text-nex-primary h-3.5 w-3.5 dark:text-emerald-400" />
+                  {hasLocation ? messLocation : t('market.ai.unconfigured')}
+                </span>
+                {!hasLocation && (
+                  <Link to="/settings" className="text-nex-primary font-semibold hover:underline">
+                    {isBangla ? 'সেট করুন' : 'Set location'}
+                  </Link>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                {capabilities.map((cap) => (
+                  <span key={cap} className="text-nex-muted inline-flex items-center gap-1 text-[11px]">
+                    <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-500" />
+                    {cap}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Messages Scroll Area */}
+          <div
+            ref={chatContainerRef}
+            className="bg-nex-bg/45 dark:bg-nex-bg/60 min-h-0 flex-1 space-y-4 overflow-y-auto px-3.5 py-4 sm:px-5"
+          >
             {messages.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center p-6 text-center">
-                <div className="from-nex-primary/10 to-nex-primary/5 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br">
-                  <Bot className="text-nex-primary h-8 w-8" />
+              <div className="flex h-full flex-col items-center justify-center px-2 py-6 text-center">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2F4B39]/15 to-emerald-500/15 ring-1 ring-emerald-500/20">
+                  <Sparkles className="text-nex-primary h-7 w-7 dark:text-emerald-400" />
                 </div>
-                <p className="text-nex-text text-sm font-semibold">
+                <h2 className="text-nex-text text-base font-bold sm:text-lg">
                   {hasLocation
                     ? isBangla
-                      ? 'হ্যালো! আমি নেক্সমেসএআই (NexMessAI) 👋'
+                      ? 'হ্যালো! আমি নেক্সমেসএআই 👋'
                       : "Hey! I'm NexMessAI 👋"
                     : isBangla
                       ? 'মেসের লোকেশন প্রয়োজন'
                       : 'Location Required'}
-                </p>
-                <p className="text-nex-muted mt-1.5 max-w-sm text-xs leading-relaxed">
+                </h2>
+                <p className="text-nex-muted mt-1.5 max-w-sm text-xs leading-relaxed sm:text-sm">
                   {hasLocation
                     ? isBangla
-                      ? 'আজকের বাজার দর, ফর্দ তৈরি অথবা মেস খরচের বাজেট যাচাই করতে যে কোনো প্রশ্ন করুন। আপনার এলাকার লাইভ দাম খোঁজা হবে!'
-                      : "Ask me about today's grocery prices, create a shopping list, or check your budget. I'll search for live prices in your area!"
+                      ? 'আজকের বাজার দর, ফর্দ তৈরি অথবা মেস খরচের বাজেট যাচাই করতে যে কোনো প্রশ্ন করুন।'
+                      : "Ask me about today's grocery prices, build a shopping list, or review your mess budget."
                     : isBangla
-                      ? 'আপনার এলাকার বাজার দর দেখতে সেটিংস → মেসের বিবরণী থেকে মেসের এলাকা নির্ধারণ করুন।'
-                      : 'Set your mess location in Settings → Mess Details so I can find local grocery prices for you.'}
+                      ? 'আপনার এলাকার বাজার দর দেখতে সেটিংস → মেস তথ্য থেকে অবস্থান যোগ করুন।'
+                      : 'Set your mess location in Settings → Mess Info to unlock local market insights.'}
                 </p>
 
-                {/* Quick action grid in empty state */}
                 {hasLocation && (
-                  <div className="mt-5 grid w-full max-w-sm grid-cols-2 gap-2">
-                    {suggestions.map((s, i) => (
+                  <div className="mt-5 grid w-full max-w-md grid-cols-1 gap-2 sm:grid-cols-2">
+                    {suggestions.map((s) => (
                       <button
-                        key={i}
-                        onClick={() => handleSuggestClick(s.text)}
+                        key={s.label}
+                        type="button"
+                        onClick={() => void handleSend(s.text)}
                         disabled={loading}
-                        className="bg-nex-surface hover:bg-nex-hover border-nex-border flex items-center gap-2 rounded-xl border p-3 text-left transition-all active:scale-[0.98]"
+                        className="bg-nex-surface hover:bg-nex-hover border-nex-border flex cursor-pointer items-center gap-2.5 rounded-xl border p-3 text-left shadow-2xs transition-all active:scale-[0.98] disabled:opacity-50"
                       >
-                        <s.icon className={`h-4 w-4 shrink-0 ${s.color}`} />
-                        <span className="text-nex-text text-[11px] font-medium">{s.label}</span>
+                        <span
+                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${s.chipClass}`}
+                        >
+                          <s.icon className="h-3.5 w-3.5" />
+                        </span>
+                        <span className="text-nex-text text-xs font-semibold">{s.label}</span>
                       </button>
                     ))}
                   </div>
@@ -370,65 +458,121 @@ export default function AIMarketAssistant() {
               </div>
             ) : (
               <>
-                <div className="bg-nex-surface/40 border-nex-border/40 mb-4 flex items-center justify-center gap-2 rounded-xl border p-2.5 text-center">
-                  <Clock className="text-nex-muted h-3.5 w-3.5" />
-                  <span className="text-nex-muted text-[10px] font-medium">
-                    {t('market.ai.archivedNote')}
+                <div className="flex justify-center">
+                  <span className="bg-nex-surface/85 border-nex-border/80 text-nex-muted inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-medium">
+                    <Clock className="h-3 w-3 shrink-0" />
+                    <span>{t('market.ai.archivedNote')}</span>
                   </span>
                 </div>
+
                 {messages.map((m) => {
                   const isMe = m.sender_id === user?.id
+                  const senderName = m.is_ai
+                    ? t('nav.nexmessAi')
+                    : m.profiles?.username || t('common.member')
+                  const senderAvatar = m.profiles?.avatar_url
+
                   return (
                     <div
                       key={m.id}
-                      className={`flex items-start gap-2.5 ${isMe ? 'ml-auto max-w-[80%] flex-row-reverse' : 'mr-auto max-w-[90%]'}`}
+                      className={`flex items-end gap-2 sm:items-start sm:gap-2.5 ${
+                        isMe
+                          ? 'ml-auto max-w-[88%] flex-row-reverse sm:max-w-[78%]'
+                          : 'mr-auto max-w-[96%] sm:max-w-[86%]'
+                      }`}
                     >
-                      {/* Sender Avatar / Icon */}
+                      {/* Compact Avatar (hidden for own messages on mobile for extra bubble width) */}
                       <div
-                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
+                        className={`h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full text-[10px] font-semibold ${
                           m.is_ai
-                            ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-sm'
-                            : 'bg-nex-elevated text-nex-text border-nex-border border'
+                            ? 'hidden bg-gradient-to-br from-[#2F4B39] via-[#3A5643] to-emerald-600 text-white shadow-xs sm:flex'
+                            : isMe
+                              ? 'bg-nex-elevated text-nex-text border-nex-border hidden border sm:flex'
+                              : 'bg-nex-elevated text-nex-text border-nex-border flex border'
                         }`}
                       >
                         {m.is_ai ? (
-                          <Bot className="h-3.5 w-3.5" />
-                        ) : m.profiles?.username ? (
-                          m.profiles.username.substring(0, 2).toUpperCase()
+                          <Sparkles className="h-3.5 w-3.5" />
+                        ) : senderAvatar && isSafeHttpUrl(senderAvatar) ? (
+                          <img src={senderAvatar} alt="" className="h-full w-full object-cover" />
+                        ) : senderName ? (
+                          getInitials(senderName)
                         ) : (
                           <User className="h-3.5 w-3.5" />
                         )}
                       </div>
 
-                      {/* Message Bubble Container */}
-                      <div className="min-w-0 space-y-0.5">
-                        <div className="flex items-center gap-2 px-1">
-                          <span className="text-nex-text text-[10px] font-semibold">
-                            {m.is_ai ? t('nav.nexmessAi') : m.profiles?.username || t('common.member')}
-                          </span>
-                          <span className="text-nex-muted text-[9px]">
-                            {formatLocalizedDate(m.created_at, 'hh:mm a')}
-                          </span>
-                          {m.is_daily_update && (
-                            <span className="bg-nex-primary/10 text-nex-primary rounded-full px-1.5 py-0.5 text-[8px] font-semibold">
-                              {t('market.ai.dailyReport')}
+                      {/* Message Column */}
+                      <div
+                        className={`min-w-0 space-y-1 ${
+                          isMe ? 'flex flex-col items-end' : 'w-fit max-w-full'
+                        }`}
+                      >
+                        <div
+                          className={`flex items-center gap-2 px-1 ${
+                            isMe ? 'flex-row-reverse' : 'justify-between'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            {m.is_ai && (
+                              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-[#2F4B39] to-emerald-600 text-white sm:hidden">
+                                <Sparkles className="h-2.5 w-2.5" />
+                              </span>
+                            )}
+                            <span className="text-nex-text text-[11px] font-semibold">
+                              {senderName}
                             </span>
+                            <span className="text-nex-muted text-[10px]">
+                              {formatLocalizedDate(m.created_at, 'hh:mm a')}
+                            </span>
+                            {m.is_daily_update && (
+                              <span className="rounded-full bg-emerald-500/12 px-2 py-0.5 text-[9px] font-semibold text-emerald-700 dark:text-emerald-300">
+                                {t('market.ai.dailyReport')}
+                              </span>
+                            )}
+                          </div>
+
+                          {m.is_ai && (
+                            <button
+                              type="button"
+                              onClick={() => void handleCopy(m.id, m.text)}
+                              className="text-nex-muted hover:text-nex-text hover:bg-nex-hover inline-flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] transition-colors"
+                              aria-label={isBangla ? 'কপি করুন' : 'Copy response'}
+                            >
+                              {copiedId === m.id ? (
+                                <>
+                                  <Check className="h-3 w-3 text-emerald-500" />
+                                  <span className="text-emerald-600 dark:text-emerald-400">
+                                    {t('common.copied')}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="h-3 w-3" />
+                                  <span className="hidden sm:inline">
+                                    {isBangla ? 'কপি' : 'Copy'}
+                                  </span>
+                                </>
+                              )}
+                            </button>
                           )}
                         </div>
 
                         <div
-                          className={`overflow-hidden rounded-2xl p-3.5 ${
+                          className={`w-fit max-w-full overflow-hidden rounded-2xl px-3.5 py-2.5 sm:px-4 sm:py-3 ${
                             m.is_daily_update
-                              ? 'bg-nex-primary-light border-nex-primary/20 text-nex-text border shadow-sm'
+                              ? 'bg-nex-surface border-nex-border border-l-nex-primary border border-l-4 shadow-xs'
                               : m.is_ai
-                                ? 'bg-nex-surface border-nex-border text-nex-text border shadow-sm'
-                                : 'bg-nex-primary text-white shadow-sm'
+                                ? 'bg-nex-surface border-nex-border rounded-tl-sm border shadow-xs'
+                                : 'rounded-br-sm bg-gradient-to-br from-[#355340] to-[#4A6D56] text-white shadow-sm'
                           }`}
                         >
                           {m.is_ai ? (
                             <MarkdownRenderer text={m.text} />
                           ) : (
-                            <p className="text-xs leading-relaxed whitespace-pre-wrap">{m.text}</p>
+                            <p className="text-[13px] leading-relaxed break-words whitespace-pre-wrap text-white">
+                              {m.text}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -440,19 +584,21 @@ export default function AIMarketAssistant() {
 
             {/* AI Typing Indicator */}
             {loading && (
-              <div className="mr-auto flex max-w-[80%] items-start gap-2.5">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-sm">
-                  <Bot className="h-3.5 w-3.5" />
+              <div className="mr-auto flex max-w-[85%] items-start gap-2.5">
+                <div className="hidden h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#2F4B39] via-[#3A5643] to-emerald-600 text-white shadow-xs sm:flex">
+                  <Sparkles className="h-3.5 w-3.5 animate-pulse" />
                 </div>
-                <div className="space-y-0.5">
-                  <span className="text-nex-text px-1 text-[10px] font-semibold">NexMessAI</span>
-                  <div className="bg-nex-surface border-nex-border flex min-w-[140px] items-center gap-2 rounded-2xl border p-3.5 shadow-sm">
-                    <Loader2 className="text-nex-primary h-4 w-4 animate-spin" />
-                    <div className="space-y-1">
-                      <span className="text-nex-text block text-[10px] font-medium">
+                <div className="space-y-1">
+                  <span className="text-nex-text px-1 text-[11px] font-semibold">
+                    {t('nav.nexmessAi')}
+                  </span>
+                  <div className="bg-nex-surface border-nex-border flex items-center gap-2.5 rounded-2xl rounded-tl-sm border px-4 py-3 shadow-xs">
+                    <Loader2 className="text-nex-primary h-4 w-4 animate-spin dark:text-emerald-400" />
+                    <div>
+                      <span className="text-nex-text block text-xs font-medium">
                         {t('market.ai.searching')}
                       </span>
-                      <span className="text-nex-muted block text-[9px]">
+                      <span className="text-nex-muted block text-[10px]">
                         {t('market.ai.analyzing')}
                       </span>
                     </div>
@@ -464,58 +610,68 @@ export default function AIMarketAssistant() {
             <div className="h-1 shrink-0" />
           </div>
 
-          {/* Input form */}
-          <div className="border-nex-border bg-nex-elevated/40 shrink-0 border-t p-4">
-            {/* Horizontal scrolling suggestions for mobile */}
-            {hasLocation && (
-              <div className="scrollbar-none -mx-2 flex gap-2 overflow-x-auto px-2 pb-3 lg:hidden">
-                {suggestions.map((s, i) => (
+          {/* Bottom Composer Area */}
+          <div className="border-nex-border/80 bg-nex-surface/95 shrink-0 border-t px-3 pt-2.5 pb-3 sm:px-4 sm:py-3">
+            {/* Mobile/Tablet Quick Action Chips (only when chat already has messages) */}
+            {hasLocation && messages.length > 0 && (
+              <div className="scrollbar-none -mx-1 mb-2.5 flex gap-1.5 overflow-x-auto px-1 lg:hidden">
+                {suggestions.map((s) => (
                   <button
-                    key={i}
+                    key={s.label}
                     type="button"
-                    onClick={() => handleSuggestClick(s.text)}
+                    onClick={() => void handleSend(s.text)}
                     disabled={loading}
-                    className="bg-nex-elevated hover:bg-nex-hover border-nex-border text-nex-text flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] whitespace-nowrap shadow-sm transition-all active:scale-95"
+                    className="bg-nex-elevated/85 hover:bg-nex-hover border-nex-border/80 text-nex-text inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium whitespace-nowrap transition-transform active:scale-95 disabled:opacity-50"
                   >
-                    <s.icon className={`h-3 w-3 ${s.color}`} />
-                    {s.label}
+                    <s.icon
+                      className={`h-3 w-3 shrink-0 ${s.chipClass.split(' ').find((c) => c.startsWith('text-')) || ''}`}
+                    />
+                    <span>{s.label}</span>
                   </button>
                 ))}
               </div>
             )}
 
             {!hasLocation ? (
-              <div className="bg-nex-danger/10 border-nex-danger/20 text-nex-danger flex items-center justify-center gap-2 rounded-xl border p-3 text-xs font-medium">
+              <Link
+                to="/settings"
+                className="bg-nex-danger-light border-nex-danger/25 text-nex-danger flex items-center justify-center gap-2 rounded-xl border p-3 text-xs font-medium transition-opacity hover:opacity-90"
+              >
                 <AlertCircle className="h-4 w-4 shrink-0" />
-                {isBangla
-                  ? 'এআই সহকারী ব্যবহার করতে সেটিংস → মেসের বিবরণী থেকে মেসের অবস্থান লিখুন।'
-                  : 'Set a location in Settings → Mess Details to enable the AI assistant.'}
-              </div>
+                <span>
+                  {isBangla
+                    ? 'এআই সহকারী ব্যবহার করতে সেটিংস → মেস তথ্য থেকে অবস্থান যোগ করুন।'
+                    : 'Set a mess location in Settings → Mess Info to enable AI chat.'}
+                </span>
+              </Link>
             ) : (
               <form
                 onSubmit={(e) => {
                   e.preventDefault()
-                  handleSend(inputText)
+                  void handleSend(inputText)
                 }}
-                className="flex items-center gap-2"
+                className="border-nex-border bg-nex-bg/65 focus-within:border-nex-primary focus-within:ring-nex-primary/15 flex items-end gap-2 rounded-2xl border px-3 py-2 transition-all focus-within:ring-2 dark:bg-nex-elevated/70"
               >
-                <input
-                  type="text"
+                <textarea
+                  ref={textareaRef}
+                  rows={1}
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={handleComposerKeyDown}
                   placeholder={
                     isBangla
-                      ? 'বাজার দর, ফর্দ তৈরি বা মেস বাজেট সম্পর্কে জিজ্ঞাসা করুন...'
-                      : 'Ask about prices, shopping lists, or budget...'
+                      ? 'বাজার দর, ফর্দ বা বাজেট নিয়ে জিজ্ঞাসা করুন...'
+                      : 'Ask about prices, lists, or budget...'
                   }
-                  className="nex-input flex-1 px-4 py-3 text-sm"
+                  className="text-nex-text placeholder:text-nex-muted max-h-28 min-h-[24px] flex-1 resize-none bg-transparent py-1 text-base leading-snug focus:outline-none sm:text-sm"
                   disabled={loading}
                   id="ai-chat-input"
                 />
                 <button
                   type="submit"
                   disabled={loading || !inputText.trim()}
-                  className="nex-btn-primary flex shrink-0 items-center justify-center rounded-xl p-3 transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                  aria-label={t('chat.send', { defaultValue: 'Send message' })}
+                  className="nex-btn-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-xl p-0 transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-45"
                   id="ai-chat-send"
                 >
                   {loading ? (
@@ -527,7 +683,7 @@ export default function AIMarketAssistant() {
               </form>
             )}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   )
