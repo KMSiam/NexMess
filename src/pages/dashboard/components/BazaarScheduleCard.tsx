@@ -1,7 +1,6 @@
 import { CalendarDays } from 'lucide-react'
-import { isToday, isTomorrow } from 'date-fns'
 import { useTranslation } from 'react-i18next'
-import { formatLocalizedDate } from '../../../lib/utils'
+import { formatLocalizedDate, dhakaToday, dhakaTomorrow } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
 
 interface BazaarScheduleCardProps {
@@ -10,6 +9,8 @@ interface BazaarScheduleCardProps {
 
 export default function BazaarScheduleCard({ schedule }: BazaarScheduleCardProps) {
   const { t } = useTranslation()
+  const todayStr = dhakaToday()
+  const tomorrowStr = dhakaTomorrow()
 
   return (
     <div className="nex-card p-5">
@@ -27,23 +28,45 @@ export default function BazaarScheduleCard({ schedule }: BazaarScheduleCardProps
             description={t('dashboard.noShopperDesc')}
           />
         ) : (
-          schedule.map((ub, idx) => (
-            <div key={idx} className="flex items-center justify-between pt-3 first:pt-0">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${isToday(new Date(ub.date)) ? 'bg-nex-success-light text-nex-success' : 'bg-nex-elevated text-nex-muted'}`}
-                >
-                  {isToday(new Date(ub.date))
-                    ? t('common.today')
-                    : isTomorrow(new Date(ub.date))
-                      ? t('common.tomorrow')
-                      : formatLocalizedDate(ub.date, 'dd')}
+          schedule.map((ub, idx) => {
+            const isTodayDuty = ub.date === todayStr
+            const isTomorrowDuty = ub.date === tomorrowStr
+
+            return (
+              <div key={idx} className="flex items-center justify-between gap-3 pt-3 first:pt-0">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold tabular-nums ${
+                      isTodayDuty
+                        ? 'bg-nex-success-light text-nex-success'
+                        : isTomorrowDuty
+                          ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
+                          : 'bg-nex-elevated text-nex-muted'
+                    }`}
+                  >
+                    {formatLocalizedDate(ub.date, 'dd')}
+                  </div>
+                  <p className="text-nex-text truncate text-sm font-medium">{ub.username}</p>
                 </div>
-                <p className="text-nex-text text-sm font-medium">{ub.username}</p>
+                <div className="flex shrink-0 items-center gap-2">
+                  {(isTodayDuty || isTomorrowDuty) && (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${
+                        isTodayDuty
+                          ? 'bg-nex-success-light text-nex-success'
+                          : 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
+                      }`}
+                    >
+                      {isTodayDuty ? t('common.today') : t('common.tomorrow')}
+                    </span>
+                  )}
+                  <p className="text-nex-muted text-xs whitespace-nowrap">
+                    {formatLocalizedDate(ub.date, 'MMM d')}
+                  </p>
+                </div>
               </div>
-              <p className="text-nex-muted text-xs">{formatLocalizedDate(ub.date, 'MMM d')}</p>
-            </div>
-          ))
+            )
+          })
         )}
       </div>
     </div>
