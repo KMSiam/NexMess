@@ -23,6 +23,12 @@ describe('i18n Localization Engine', () => {
     expect(Object.keys(bn.finance.tabs).sort()).toEqual(Object.keys(en.finance.tabs).sort())
     expect(Object.keys(bn.finance.cards).sort()).toEqual(Object.keys(en.finance.cards).sort())
     expect(Object.keys(bn.finance.breakdown).sort()).toEqual(Object.keys(en.finance.breakdown).sort())
+    expect(Object.keys(bn.finance.depositModal).sort()).toEqual(
+      Object.keys(en.finance.depositModal).sort(),
+    )
+    expect(Object.keys(bn.finance.expenseModal).sort()).toEqual(
+      Object.keys(en.finance.expenseModal).sort(),
+    )
     // Check mess & invite keys
     expect(Object.keys(bn.mess.create).sort()).toEqual(Object.keys(en.mess.create).sort())
     expect(Object.keys(bn.mess.invite).sort()).toEqual(Object.keys(en.mess.invite).sort())

@@ -261,7 +261,15 @@
       "confirmDeposit": "Confirm Deposit",
       "deleteConfirm": "Are you sure you want to delete this deposit record?",
       "empty": "No deposits recorded yet",
-      "emptyDesc": "Manager can record member deposits here."
+      "emptyDesc": "Manager can record member deposits here.",
+      "allMembers": "All Members",
+      "filterByMember": "Filter by member",
+      "clearFilter": "Clear",
+      "filteredTotal": "Total Deposited",
+      "singleEntry": "{{n}} deposit",
+      "entriesCount": "{{n}} deposits",
+      "emptyFiltered": "No deposits for this member",
+      "emptyFilteredDesc": "No deposit records found for the selected member in this month."
     },
     "fixedModal": {
       "addTitle": "Add Fixed Cost",

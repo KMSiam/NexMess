@@ -49,6 +49,7 @@ export default function ExpenseTab({
     setShowAddExpense(false)
     setExpAmount('')
     setExpDesc('')
+    setExpCategory('bazaar')
     setExpFile(null)
     setLoading(false)
   }
@@ -66,6 +67,7 @@ export default function ExpenseTab({
     setEditingExpenseId(null)
     setExpAmount('')
     setExpDesc('')
+    setExpCategory('bazaar')
     setExpFile(null)
   }
 
@@ -120,38 +122,21 @@ export default function ExpenseTab({
               </button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="text-nex-text mb-1 block text-sm font-medium">
-                    {t('finance.expenseModal.amountLabel')}
-                  </label>
-                  <input
-                    type="number"
-                    value={expAmount}
-                    onChange={(e) => setExpAmount(e.target.value)}
-                    className="nex-input"
-                    placeholder="0.00"
-                    required
-                    step="0.01"
-                    min="0"
-                    autoFocus
-                  />
-                </div>
-                <div>
-                  <label className="text-nex-text mb-1 block text-sm font-medium">
-                    {t('finance.expenseModal.categoryLabel')}
-                  </label>
-                  <select
-                    value={expCategory}
-                    onChange={(e) => setExpCategory(e.target.value)}
-                    className="nex-input"
-                  >
-                    <option value="bazaar">{t('finance.categories.bazaar')}</option>
-                    <option value="utilities">{t('finance.categories.utilities')}</option>
-                    <option value="rent">{t('finance.categories.rent')}</option>
-                    <option value="other">{t('finance.categories.other')}</option>
-                  </select>
-                </div>
+              <div>
+                <label className="text-nex-text mb-1 block text-sm font-medium">
+                  {t('finance.expenseModal.amountLabel')}
+                </label>
+                <input
+                  type="number"
+                  value={expAmount}
+                  onChange={(e) => setExpAmount(e.target.value)}
+                  className="nex-input"
+                  placeholder="0.00"
+                  required
+                  step="0.01"
+                  min="0"
+                  autoFocus
+                />
               </div>
               <div>
                 <label className="text-nex-text mb-1 block text-sm font-medium">

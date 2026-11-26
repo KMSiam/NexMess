@@ -1,9 +1,15 @@
-import { useState, useEffect } from 'react'
-import { Plus, PiggyBank, CheckCircle2, Trash2, Clock, X } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { Plus, PiggyBank, CheckCircle2, Trash2, Clock, X, Filter } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { formatCurrency, formatLocalizedDate } from '../../../lib/utils'
+import { formatCurrency, formatLocalizedDate, formatNumber } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
 import type { Deposit, MessMember } from '../../../types/database'
+import {
+  buildDepositMemberOptions,
+  extractMemberUsername,
+  filterDepositsByMember,
+  summarizeMemberDeposits,
+} from './depositUtils'
 
 interface DepositTabProps {
   deposits: Deposit[]
@@ -30,6 +36,7 @@ export default function DepositTab({
   const [depAmount, setDepAmount] = useState('')
   const [depNote, setDepNote] = useState('')
   const [loading, setLoading] = useState(false)
+  const [selectedMemberId, setSelectedMemberId] = useState('all')
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -60,16 +67,75 @@ export default function DepositTab({
     return () => window.removeEventListener('keydown', onKey)
   }, [showAddDeposit])
 
+  const filterMembers = useMemo(
+    () => buildDepositMemberOptions(approvedMembers, deposits, t('common.member')),
+    [approvedMembers, deposits, t],
+  )
+
+  const activeMemberId =
+    selectedMemberId === 'all' || filterMembers.some((m) => m.id === selectedMemberId)
+      ? selectedMemberId
+      : 'all'
+
+  const filteredDeposits = useMemo(
+    () => filterDepositsByMember(deposits, activeMemberId),
+    [deposits, activeMemberId],
+  )
+
+  const selectedMemberName = useMemo(() => {
+    if (activeMemberId === 'all') return ''
+    return filterMembers.find((m) => m.id === activeMemberId)?.name || t('common.member')
+  }, [activeMemberId, filterMembers, t])
+
+  const filteredSummary = useMemo(
+    () => summarizeMemberDeposits(filteredDeposits),
+    [filteredDeposits],
+  )
+
   return (
     <div className="space-y-4">
-      {isManager && (
-        <button
-          onClick={() => setShowAddDeposit(true)}
-          className="nex-btn-primary text-sm"
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {isManager && (
+          <button
+            onClick={() => setShowAddDeposit(true)}
+            className="nex-btn-primary w-full text-sm sm:w-auto"
+          >
+            <Plus className="h-4 w-4" /> {t('finance.depositModal.recordTitle')}
+          </button>
+        )}
+
+        <div
+          className={`flex flex-wrap items-center gap-2 ${isManager ? '' : 'sm:ml-auto'}`}
         >
-          <Plus className="h-4 w-4" /> {t('finance.depositModal.recordTitle')}
-        </button>
-      )}
+          <div className="relative flex-1 sm:w-56 sm:flex-initial">
+            <Filter className="text-nex-muted pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+            <select
+              value={activeMemberId}
+              onChange={(e) => setSelectedMemberId(e.target.value)}
+              aria-label={t('finance.depositModal.filterByMember')}
+              className="nex-input py-2 pr-8 pl-9 text-sm"
+            >
+              <option value="all">{t('finance.depositModal.allMembers')}</option>
+              {filterMembers.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {activeMemberId !== 'all' && (
+            <button
+              type="button"
+              onClick={() => setSelectedMemberId('all')}
+              className="text-nex-muted hover:text-nex-text hover:bg-nex-hover border-nex-border inline-flex items-center gap-1 rounded-xl border px-2.5 py-2 text-xs font-medium transition-colors"
+              title={t('finance.depositModal.clearFilter')}
+            >
+              <X className="h-3.5 w-3.5" />
+              <span>{t('finance.depositModal.clearFilter')}</span>
+            </button>
+          )}
+        </div>
+      </div>
 
       {showAddDeposit && (
         <div
@@ -165,6 +231,35 @@ export default function DepositTab({
         </div>
       )}
 
+      {activeMemberId !== 'all' && (
+        <div className="nex-card flex flex-wrap items-center justify-between gap-2 px-5 py-3">
+          <div className="flex items-center gap-2.5">
+            <div className="bg-nex-primary/10 text-nex-primary flex h-8 w-8 items-center justify-center rounded-lg">
+              <PiggyBank className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-nex-text text-sm font-semibold">{selectedMemberName}</p>
+              <p className="text-nex-muted text-xs">
+                {t(
+                  filteredDeposits.length === 1
+                    ? 'finance.depositModal.singleEntry'
+                    : 'finance.depositModal.entriesCount',
+                  { n: formatNumber(filteredDeposits.length) },
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-nex-muted text-[11px] font-medium uppercase tracking-wide">
+              {t('finance.depositModal.filteredTotal')}
+            </p>
+            <p className="text-nex-success text-base font-bold">
+              {formatCurrency(filteredSummary.total)}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="nex-card divide-nex-border divide-y">
         {deposits.length === 0 ? (
           <EmptyState
@@ -172,8 +267,14 @@ export default function DepositTab({
             title={t('finance.depositModal.empty')}
             description={t('finance.depositModal.emptyDesc')}
           />
+        ) : filteredDeposits.length === 0 ? (
+          <EmptyState
+            icon={PiggyBank}
+            title={t('finance.depositModal.emptyFiltered')}
+            description={t('finance.depositModal.emptyFilteredDesc')}
+          />
         ) : (
-          deposits.map((dep) => (
+          filteredDeposits.map((dep) => (
             <div
               key={dep.id}
               className="hover:bg-nex-hover flex items-center justify-between px-5 py-3 transition-colors"
@@ -184,7 +285,7 @@ export default function DepositTab({
                 </div>
                 <div>
                   <p className="text-nex-text text-sm font-medium">
-                    {(dep as any).profiles?.username}
+                    {extractMemberUsername(dep, t('common.member'))}
                   </p>
                   <p className="text-nex-muted text-xs">
                     {formatLocalizedDate(dep.date, 'MMM d')} {dep.note && `· ${dep.note}`}
