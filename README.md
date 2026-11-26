@@ -6,14 +6,15 @@
 
 ### 📖 [Read the NexMess Project Showcase Report (PDF)](./docs/NexMess_Report/NexMess_Report.pdf) | [Interactive HTML Guide](./docs/NexMess_Report/NexMess_Report.html)
 
-[![Live Web Application](https://img.shields.io/badge/Live_App-nexmess.shop-10B981?style=for-the-badge&logo=googlechrome&logoColor=white)](https://nexmess.shop/)
+[![Live Web Application](https://img.shields.io/badge/Live_App-nexmess.shop-10B981?style=for-the-badge&logo=googlechrome&logoColor=white)](https://www.nexmess.shop/)
+[![App Version](https://img.shields.io/badge/Version-2.9.3-3A5643?style=for-the-badge)](./package.json)
 [![Project Showcase Report PDF](https://img.shields.io/badge/Project_Report-PDF-red?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](./docs/NexMess_Report/NexMess_Report.pdf)
-[![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![React 19](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Supabase Cloud](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Gemini 3.6 Flash](https://img.shields.io/badge/Gemini_AI-3.6_Flash-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
+[![Gemini AI](https://img.shields.io/badge/Gemini_AI-Market_Assistant-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-CSS_v4-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Vitest](https://img.shields.io/badge/Vitest-Unit_Tests-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Vitest-54_Unit_Tests-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
 [![CI Pipeline](https://github.com/KMSiam/NexMess/actions/workflows/ci.yml/badge.svg)](https://github.com/KMSiam/NexMess/actions/workflows/ci.yml)
 
 ---
@@ -38,21 +39,22 @@ NexMess is designed as a cloud-native 3-tier application:
 
 ## ✨ Core Features & Technical Highlights
 
-- 🍽️ **Daily Meal Tracker & Cut-Off Engine** — Log daily meals (breakfast, lunch, dinner) and guest meals. Features timezone-aware automatic cut-off locks (10:00 AM for lunch / 4:00 PM for dinner in Asia/Dhaka UTC+6) to prevent food waste and Manager Override RPCs for historical updates.
-- 💰 **Dynamic Meal Rate & 5-Tab Finance Suite**:
-  - **Expenses Tab**: Itemized daily grocery costs with receipt photo uploads.
-  - **Deposits Tab**: Member payments with Manager verification workflows.
-  - **Fixed Costs Tab**: Shared utility expenses (apartment rent, Wi-Fi, cook salary) split evenly.
-  - **Summary Tab**: Live member balances with greedy debt settlement recommendations.
-  - **History Tab**: Automated monthly ledger archives with one-click **vector PDF downloads** powered by `jsPDF` & `jspdf-autotable`.
-- 🤖 **NexMess AI Market Assistant** — Integrated with **Google Gemini 3.6 Flash AI** with web search grounding to provide daily local market price estimations, budget calculations for roommates, and automated grocery shopping lists.
-- 🛒 **Marketplace & Rotating Bazaar Roster** — Shared household shopping list combined with an automated 7-day round-robin bazaar duty rotation calendar.
-- 🍲 **Meal Routines & Weekly Preferences** — Day-by-day weekly menu planner mapped to dish categories and ingredient presets with food emojis.
-- 💬 **Real-Time Roommate Chat & Notice Board** — Instant group messaging room with photo receipt attachments, pinned announcement headers, and emoji reactions powered by Supabase Realtime WebSockets.
-- 🔑 **Multi-Tenant Workspaces & RBAC** — Create or join private mess apartments via 8-character codes (`NEX-XXXX`) with strict Manager vs Member role-based access control.
-- 📲 **Installable PWA & Web Push Notifications** — Progressive Web App with offline schedule caching and automated background Web Push alerts.
-- 🛡️ **Row Level Security (RLS) & Audit Log** — Full PostgreSQL database isolation ensuring member data privacy alongside an immutable activity audit log timeline.
-- 📊 **Production Observability & Telemetry (Phase 1)** — Real-time crash monitoring and error boundaries powered by **Sentry**, combined with privacy-friendly product analytics and conversion funnels powered by **PostHog**.
+- 🍽️ **Daily Meal Tracker & Live Cut-Off Countdown** — Log daily meals (lunch, dinner) and guest meals with timezone-aware (`Asia/Dhaka`, UTC+6) automatic cut-off locks (10:00 AM lunch / 4:00 PM dinner), live remaining countdown pills (`MealSelector` & `MealsPage`) with `<60m` urgency alerts, and Manager Override RPCs for historical edits.
+- 💰 **Dynamic Meal Rate, 5-Tab Finance Suite & Spending Breakdown**:
+  - **Expenses Tab**: Itemized daily grocery/bill costs with client-side compressed receipt photo uploads.
+  - **Deposits Tab**: Member payments with dual-sided Member Confirmation & Manager verification workflows.
+  - **Fixed Costs Tab**: Shared utility expenses (apartment rent, Wi-Fi, maid/cook, gas) split evenly across active members in the month.
+  - **Summary Tab**: Dependency-free **Visual Spending Breakdown** (category shares, variable vs. fixed bills, deposit utilization meter), live member balances, and greedy debt settlement recommendations.
+  - **History Tab**: Automated monthly ledger archives (retaining `left` members for accurate historical accounting) with one-click **vector PDF downloads** powered by `jsPDF` & `jspdf-autotable`.
+- 🤖 **NexMessAI Market Assistant** — Mobile- and desktop-optimized chatbox (`AIMarketAssistant`) powered by **Google Gemini AI** with location-aware local grocery price reports, responsive markdown tables, and automated daily shopping lists.
+- 🛒 **Marketplace & Rotating Bazaar Roster** — Shared household shopping workflow combined with an automated 7-day round-robin bazaar duty calendar and timezone-accurate Today/Tomorrow dashboard badges.
+- 🍲 **Meal Routines & Weekly Preferences** — Day-by-day weekly menu planner mapped to localized food names and category emojis.
+- 💬 **Real-Time Roommate Chat & Notice Board** — Instant group messaging room with compressed photo attachments, pinned announcements, and emoji reactions powered by Supabase Realtime WebSockets.
+- 🔗 **One-Tap Invite Links (`/join/:code`) & Multi-Tenant RBAC** — Create a mess with optional location (`CreateMessPage`) or invite roommates via code (`NEX-XXXX`), clickable `/join/:code` invite links preserved across sign-up/OAuth/onboarding, and a native OS **Share** sheet (`navigator.share` with clipboard fallback).
+- 🌐 **Full Bilingual EN/BN Localization & Localized Notifications** — Seamless English and Bengali UI switching (`en.json` / `bn.json`), localized digits (`toBengaliDigits`), self-hosted **Inter**, **Hind Siliguri**, and **Noto Sans Bengali** fonts, dynamically localized notification alerts (`notifications.ts`), and synchronized light/dark themes.
+- 🗜️ **Automatic Client-Side Image Compression** — Lightweight HTML5 Canvas resizing/WebP compression (`fileValidator.ts`) before uploads across profile avatars, mess avatars, expense receipts, and chat images to save mobile bandwidth and storage.
+- 📲 **Installable PWA & Web Push Notifications** — Progressive Web App with Workbox service worker caching and automated background Web Push alerts.
+- 🛡️ **Hardened RLS, Security Headers & Observability** — Multi-tenant PostgreSQL Row Level Security (`security_hardening_v2_9_0.sql`: `find_mess_by_code` RPC, scoped `profiles`/`messes`/`notifications`/`deposits`/`mess_members` RLS, `meals` delete cut-off guard, `is_verified` trigger protection, pinned `search_path`, and `5 MB` chat-media limits), strict CSP & security headers in `vercel.json`, SEO/LLM metadata (`public/llms.txt`), **Sentry** error tracking, and **PostHog** analytics.
 
 ---
 
@@ -60,15 +62,16 @@ NexMess is designed as a cloud-native 3-tier application:
 
 | Architecture Layer | Technology / Framework | Role & Key Benefit |
 | :--- | :--- | :--- |
-| **Frontend UI** | **React 19 & TypeScript 5.7** | Fast responsive UI updates, robust type safety, zero compile bugs |
-| **Styling & Icons** | **Tailwind CSS v4 & Lucide Icons** | Modern Sage Green theme, glassmorphic layout, crisp vector iconography |
-| **State Management** | **Zustand 5 (Persisted)** | Lightweight reactive state management with localStorage persistence |
-| **Backend & Database**| **Supabase Cloud PostgreSQL** | Multi-tenant Row Level Security (RLS), Realtime Channels, and Storage |
-| **AI Infrastructure** | **Google Gemini 3.6 Flash AI** | Real-time local grocery price reports with Google Search grounding |
+| **Frontend UI** | **React 19 & TypeScript 5.7** | Fast responsive UI updates, strict type checking, clean modular components |
+| **Styling & Typography** | **Tailwind CSS v4, Lucide & Fontsource** | Sage Green design system, dark/light themes, self-hosted Inter & Hind Siliguri fonts |
+| **State & Validation** | **Zustand 5 & Zod 4** | Persisted client state stores and strict client-side schema validation |
+| **Localization** | **i18next & react-i18next** | Complete English/Bengali UI, date/number formatting, and notification localization |
+| **Backend & Database**| **Supabase Cloud PostgreSQL** | Hardened RLS policies, `SECURITY DEFINER` RPCs, triggers, Realtime, and Storage |
+| **AI Infrastructure** | **Google Gemini AI** | Location-aware bazaar briefings, budget analysis, and quantity estimation |
 | **Document Engine** | **jsPDF & AutoTable** | Client-side vector PDF statement compilation and instant downloads |
-| **PWA & Offline** | **Vite PWA Plugin & Workbox** | Installable home-screen web app with offline timetable caching |
-| **Routing & Motion** | **React Router DOM 7 & Framer Motion** | Smooth page transitions, animated modals, and nested sub-routes |
-| **Observability** | **Sentry 11 & PostHog** | Automated client crash reporting, error boundaries, and funnel analytics |
+| **PWA & Offline** | **Vite PWA Plugin & Workbox** | Installable home-screen web app with custom service worker caching |
+| **Routing & Motion** | **React Router DOM 7 & Framer Motion** | Smooth page transitions, animated modals, public `/join/:code` invite route, and guards |
+| **Observability** | **Sentry 11 & PostHog** | Automated client crash reporting with PII masking and product analytics |
 
 ---
 
@@ -99,6 +102,7 @@ NexMess enforces strict permission boundaries between **Mess Managers** and **Me
 NexMess/
 ├── .env.example             # Environment variable template for new setups
 ├── .github/workflows/       # GitHub Actions CI pipeline (lint, type-check, test, build)
+├── AGENTS.md                # Workspace release, version-bump, and verification rules
 ├── docs/                    # Project documentation, management & showcase reports
 │   ├── NexMess_Report/      # Complete Showcase Report & Media Assets
 │   │   ├── NexMess_Report.pdf   # Complete Project Showcase PDF Report
@@ -110,35 +114,36 @@ NexMess/
 │   ├── ROADMAP.md           # Commercialization & production scale roadmap
 │   └── SECURITY.md          # Security policy & vulnerability reporting
 ├── e2e/                     # Playwright end-to-end smoke tests
-├── public/                  # Static assets, PWA icons, favicon, robots.txt, sitemap.xml
+├── public/                  # Static assets, PWA icons, OG image, robots.txt, sitemap.xml, llms.txt
 ├── scripts/                 # Utility scripts (e.g. generate-vapid-keys.mjs)
-├── sql/                     # PostgreSQL database schemas, triggers & RLS policies
+├── sql/                     # PostgreSQL database schemas, triggers & RLS migrations
 │   ├── market_ai_assistant.sql      # AI chat table & triggers
 │   ├── meal_cutoff_trigger.sql      # Automated cut-off enforcement
 │   ├── monthly_reports.sql          # Monthly report calculation functions
 │   ├── push_subscriptions.sql       # Web Push subscriptions table
 │   ├── rls_audit.sql                # RLS security verification audit
-│   └── secure_polish_migrations.sql # Storage buckets & verification policies
+│   ├── secure_polish_migrations.sql # Storage buckets & verification policies
+│   └── security_hardening_v2_9_0.sql # Hardened RLS policies, invite RPC, search_path & guards
 ├── src/
 │   ├── assets/              # Brand logo & icon SVGs
-│   ├── components/          # Reusable UI components (AppLayout, Modals, NotificationBell, etc.)
-│   ├── guards/              # Route protection guards (AuthGuard)
+│   ├── components/          # Reusable UI components (AppLayout, PublicHeader, Modals, etc.)
+│   ├── guards/              # Route protection guards (AuthGuard, GuestGuard, OnboardingGuard)
 │   ├── hooks/               # Custom React hooks (useDashboardData, useFinanceData, useSEO, etc.)
-│   ├── lib/                 # Supabase client, PDF generator, push, validation & unit tests
+│   ├── lib/                 # Supabase client, canvas compression, invite/spending helpers, PDF, i18n & 10 unit test suites
 │   ├── locales/             # i18n translation dictionaries (en.json, bn.json)
-│   ├── pages/               # Application pages (auth, dashboard, meals, finance, market, chat, settings, etc.)
+│   ├── pages/               # App pages (landing, auth, dashboard, meals, finance, market, chat, mess, settings, etc.)
 │   ├── stores/              # Zustand stores (authStore, messStore, themeStore)
 │   └── types/               # TypeScript interfaces & database definitions
 ├── supabase/
 │   └── functions/           # Supabase Deno Edge Functions
-│       ├── market-assistant/        # Gemini 3.6 Flash AI assistant endpoint
+│       ├── market-assistant/        # Gemini AI bazaar assistant endpoint
 │       ├── send-push/               # Web Push dispatcher
 │       ├── send-feedback-email/     # User feedback email delivery via Resend
 │       └── morning-reminder/        # Automated morning meal reminder cron
 ├── index.html               # Main HTML entry point
 ├── package.json             # NPM dependencies and project scripts
 ├── README.md                # Main repository guide & setup instructions
-├── vercel.json              # Vercel SPA rewrites and cache headers
+├── vercel.json              # Vercel SPA rewrites, security headers, CSP & cache rules
 └── vite.config.ts           # Vite build configuration with PWA plugin
 ```
 
@@ -225,6 +230,7 @@ NexMess uses PostgreSQL with Row Level Security (RLS). Run the provided SQL scri
    - `sql/push_subscriptions.sql`: Creates the push notification subscription table.
    - `sql/monthly_reports.sql`: Adds calculation routines for monthly ledger statements.
    - `sql/chat_reactions.sql`: Adds emoji reactions for group chat messages.
+   - `sql/security_hardening_v2_9_0.sql`: Adds `find_mess_by_code` & `has_mess_capacity` RPCs, hardens RLS (`messes`, `profiles`, `meals` delete cut-off, `deposits`, `mess_members`, `notifications`), pins `search_path`, adds financial CHECK constraints, and tightens RPC permissions.
 
 #### 4. Configure Authentication & Redirect URLs
 1. In the Supabase Dashboard, go to **Authentication** -> **URL Configuration**.
@@ -238,10 +244,10 @@ NexMess uses PostgreSQL with Row Level Security (RLS). Run the provided SQL scri
 
 #### 5. Verify Storage Buckets
 Ensure the following storage buckets exist under **Storage** in Supabase:
-- `avatars` (Public: **Yes**) — User and mess profile photos.
-- `chat-media` (Public: **Yes**) — Group chat image attachments.
-- `receipts` (Public: **No**, protected by RLS) — Expense bill receipts.
-- `verifications` (Public: **No**, protected by RLS) — Member identity verification documents.
+- `avatars` (Public: **Yes**, max 2 MB, image MIME types) — User and mess profile photos.
+- `chat-media` (Public: **Yes**, max 5 MB, image MIME types, protected by RLS) — Group chat image attachments.
+- `receipts` (Public: **Yes**, max 5 MB, image MIME types, protected by RLS) — Expense bill receipts.
+- `verifications` (Public: **No**, max 2 MB, image MIME types, signed URLs protected by RLS) — Member identity verification documents.
 
 ---
 
@@ -260,7 +266,7 @@ If you wish to enable browser Web Push notifications:
 ### Step 6: Supabase Edge Functions & AI Assistant (Optional)
 
 NexMess includes edge functions in `supabase/functions/`:
-- `market-assistant`: Powers the NexMess AI Market Assistant with **Google Gemini 3.6 Flash**.
+- `market-assistant`: Powers the NexMessAI Market Assistant with **Google Gemini AI**.
 - `send-push`: Sends Web Push notifications to subscribed devices.
 - `send-feedback-email`: Sends user feedback emails via **Resend**.
 - `morning-reminder`: Cron worker for morning meal reminders.
@@ -343,7 +349,7 @@ npm run preview
 | :--- | :--- | :--- |
 | `npm run dev` | `vite` | Starts local hot-reloading dev server at `http://localhost:5173` |
 | `npm run build` | `tsc -b && vite build` | Type-checks codebase and builds minified production bundle in `dist/` |
-| `npm test` | `vitest run` | Runs all 38 unit tests for finance, cutoff, validation, version, security & analytics |
+| `npm test` | `vitest run` | Runs all 54 unit tests across 10 suites (finance, cutoff, invite, i18n, compression, notifications, version, security & analytics) |
 | `npm run test:watch` | `vitest` | Runs Vitest in interactive watch mode for live test-driven development |
 | `npm run test:coverage`| `vitest run --coverage` | Generates detailed code test coverage reports |
 | `npm run test:e2e` | `playwright test` | Runs Playwright browser end-to-end smoke & navigation test suite |
