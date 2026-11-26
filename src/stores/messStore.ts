@@ -3,6 +3,16 @@ import { persist } from 'zustand/middleware'
 import { supabase } from '../lib/supabase'
 import { Mess, MessMember } from '../types/database'
 
+export interface MessInvitePreview {
+  id: string
+  name: string
+  location: string | null
+  avatar_url: string | null
+  is_active: boolean
+  max_members: number
+  is_full: boolean
+}
+
 interface MessState {
   currentMess: Mess | null
   messes: Mess[]
@@ -13,8 +23,9 @@ interface MessState {
   fetchUserMesses: (userId: string) => Promise<void>
   setCurrentMess: (mess: Mess) => void
   fetchMembers: (messId: string) => Promise<void>
-  createMess: (name: string, userId: string) => Promise<Mess | null>
+  createMess: (name: string, userId: string, location?: string | null) => Promise<Mess | null>
   updateMess: (messId: string, updates: Partial<Mess>) => Promise<void>
+  findMessByCode: (code: string) => Promise<MessInvitePreview | null>
   joinMess: (code: string, userId: string) => Promise<{ success: boolean; error?: string }>
   cancelJoinRequest: (messId: string, userId: string) => Promise<void>
   reset: () => void
@@ -83,10 +94,11 @@ export const useMessStore = create<MessState>()(
         }
       },
 
-      createMess: async (name, userId) => {
+      createMess: async (name, userId, location) => {
+        const cleanLocation = location?.trim() || null
         const { data: mess, error } = await supabase
           .from('messes')
-          .insert({ name, manager_id: userId })
+          .insert({ name, manager_id: userId, location: cleanLocation })
           .select()
           .single()
 
@@ -121,15 +133,24 @@ export const useMessStore = create<MessState>()(
         }
       },
 
+      findMessByCode: async (code) => {
+        const cleanCode = code.toUpperCase().trim()
+        if (!cleanCode) return null
+
+        const { data, error } = await supabase.rpc('find_mess_by_code', { p_code: cleanCode })
+        if (error || !data) return null
+
+        const row = Array.isArray(data) ? data[0] : data
+        return (row as MessInvitePreview) || null
+      },
+
       joinMess: async (code, userId) => {
-        const { data: mess } = await supabase
-          .from('messes')
-          .select('*')
-          .eq('unique_code', code.toUpperCase().trim())
-          .eq('is_active', true)
-          .single()
+        const mess = await get().findMessByCode(code)
 
         if (!mess) return { success: false, error: 'Mess not found. Check the code and try again.' }
+        if (mess.is_full) {
+          return { success: false, error: 'This mess has reached its maximum member capacity.' }
+        }
 
         const { data: allPending } = await supabase
           .from('mess_members')
@@ -149,7 +170,7 @@ export const useMessStore = create<MessState>()(
           .select('status')
           .eq('mess_id', mess.id)
           .eq('user_id', userId)
-          .single()
+          .maybeSingle()
 
         if (existing && existing.status === 'approved') {
           return { success: false, error: 'You are already a member.' }
@@ -160,6 +181,7 @@ export const useMessStore = create<MessState>()(
           user_id: userId,
           status: 'pending',
           role: 'member',
+          left_at: null,
         })
 
         if (error) return { success: false, error: 'Failed to join. Try again.' }

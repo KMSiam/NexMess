@@ -4,7 +4,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { Meal } from '../../types/database'
-import { Utensils, ChevronLeft, ChevronRight, Sun, Moon, ShieldCheck, X } from 'lucide-react'
+import { Utensils, ChevronLeft, ChevronRight, Sun, Moon, ShieldCheck, X, Clock } from 'lucide-react'
 import {
   format,
   startOfMonth,
@@ -20,7 +20,15 @@ import {
   startOfDay,
 } from 'date-fns'
 import toast from 'react-hot-toast'
-import { isMealCutoffPassed, mealCutoffLabel, formatNumber, formatLocalizedDate } from '../../lib/utils'
+import {
+  isMealCutoffPassed,
+  mealCutoffLabel,
+  mealCutoffCountdown,
+  formatCountdownDuration,
+  dhakaToday,
+  formatNumber,
+  formatLocalizedDate,
+} from '../../lib/utils'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { useRealtimeTable } from '../../hooks/useRealtimeTable'
 import { sanitizeAppError } from '../../lib/errorHandler'
@@ -490,14 +498,35 @@ export default function MealsPage() {
         {/* Legend & Cutoff Info Bar */}
         <div className="border-nex-border mt-4 flex flex-wrap items-center justify-between gap-2 border-t pt-3 text-[11px] text-nex-muted">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
-              {t('meals.lunch')}: {mealCutoffLabel('lunch')}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-full bg-indigo-500" />
-              {t('meals.dinner')}: {mealCutoffLabel('dinner')}
-            </span>
+            {(['lunch', 'dinner'] as const).map((mealType) => {
+              const countdown = mealCutoffCountdown(dhakaToday(), mealType)
+              return (
+                <span key={mealType} className="inline-flex items-center gap-1.5">
+                  <span
+                    className={`inline-block h-2 w-2 rounded-full ${
+                      mealType === 'lunch' ? 'bg-amber-500' : 'bg-indigo-500'
+                    }`}
+                  />
+                  <span>
+                    {t(`meals.${mealType}`)}: {mealCutoffLabel(mealType)}
+                  </span>
+                  {countdown.status === 'open' && (
+                    <span
+                      className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums ${
+                        countdown.isUrgent
+                          ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
+                          : 'bg-nex-elevated text-nex-muted'
+                      }`}
+                    >
+                      <Clock className="h-2.5 w-2.5" />
+                      {t('meals.locksIn', {
+                        time: formatCountdownDuration(countdown.hoursLeft, countdown.minutesLeft),
+                      })}
+                    </span>
+                  )}
+                </span>
+              )
+            })}
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <span>{t('meals.legendGuest')}</span>

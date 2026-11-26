@@ -139,8 +139,10 @@ export const createMessSchema = z.object({
   location: z
     .string()
     .trim()
-    .min(2, 'Location must be at least 2 characters')
-    .max(120, 'Location cannot exceed 120 characters'),
+    .max(120, 'Location cannot exceed 120 characters')
+    .refine((val) => val.length === 0 || val.length >= 2, 'Location must be at least 2 characters')
+    .optional()
+    .nullable(),
 })
 
 export const updateMessDetailsSchema = z.object({

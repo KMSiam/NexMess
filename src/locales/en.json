@@ -170,6 +170,7 @@
     "addGuest": "Add Guest",
     "removeGuest": "Remove Guest",
     "cutoffCountdown": "Cut-off in",
+    "locksIn": "Locks in {{time}}",
     "cutoffPassed": "Cut-off time has passed for this meal",
     "monthlyLog": "Monthly Meal Log",
     "member": "Member",
@@ -293,6 +294,14 @@
       "owes": "owes",
       "to": "to",
       "allSettled": "All accounts are balanced! No pending debts."
+    },
+    "breakdown": {
+      "title": "Spending Breakdown",
+      "totalSpent": "Total Outflow",
+      "empty": "No expenses or fixed costs recorded for this month yet.",
+      "budgetUsage": "Deposits Used",
+      "variableExpenses": "Bazaar & Other",
+      "fixedBills": "Fixed Bills"
     },
     "history": {
       "monthSelect": "Select Month",
@@ -470,6 +479,9 @@
       "name": "Mess Name",
       "code": "Unique Invite Code",
       "copy": "Copy Code",
+      "copyLink": "Copy Link",
+      "linkCopied": "Invite link copied!",
+      "shareWhatsApp": "WhatsApp",
       "address": "Address / Location",
       "rules": "Rules & Information",
       "save": "Save Mess Details"
@@ -681,6 +693,9 @@
       "subtitle": "Start managing your shared living space",
       "nameLabel": "Mess Name",
       "namePlaceholder": "e.g., Sunrise Mess",
+      "locationLabel": "Mess Location (Optional)",
+      "locationPlaceholder": "e.g., Dhanmondi, Dhaka",
+      "locationHint": "Helps NexMessAI estimate local bazaar prices right away.",
       "submit": "Create & Continue",
       "creating": "Creating..."
     },
@@ -695,6 +710,25 @@
       "pendingDesc": "You already have a pending request to join this mess. You must cancel it before you can join a different mess.",
       "waitingApproval": "Waiting for manager approval...",
       "cancelRequest": "Cancel Request"
+    },
+    "invite": {
+      "pageTitle": "Mess Invitation",
+      "invalidTitle": "Invalid Invite Link",
+      "invalidDesc": "This invite link doesn't contain a valid mess code. Ask your manager for a fresh link or enter the code manually.",
+      "goHome": "Go to Home",
+      "guestTitle": "You're Invited to a Mess",
+      "guestDesc": "Sign in or create an account to send your join request with one click.",
+      "createAccount": "Create Account to Join",
+      "signIn": "Sign In to Join",
+      "lookingUp": "Checking invite details...",
+      "notFoundTitle": "Mess Not Found",
+      "notFoundDesc": "No active mess matches code {{code}}. Check with your manager to confirm the code.",
+      "enterCodeManually": "Enter Code Manually",
+      "alreadyMember": "You are already an approved member of this mess.",
+      "managePending": "View Pending Request",
+      "messFull": "This mess has reached its maximum member limit.",
+      "requestSentToast": "Join request sent! Waiting for manager approval.",
+      "joinFailed": "Failed to send join request"
     }
   },
   "activity": {

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
-import { ArrowRight, Home } from 'lucide-react'
+import { ArrowRight, Home, MapPin } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { createMessSchema, validateForm } from '../../lib/validation/schemas'
 import { sanitizeAppError } from '../../lib/errorHandler'
@@ -14,6 +14,7 @@ export default function CreateMessPage() {
   const { user } = useAuthStore()
   const { createMess } = useMessStore()
   const [name, setName] = useState('')
+  const [location, setLocation] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -23,7 +24,7 @@ export default function CreateMessPage() {
     // 1. Strict Schema Validation
     const validation = validateForm(createMessSchema, {
       name,
-      location: 'Default Location',
+      location: location.trim() || undefined,
     })
 
     if (!validation.success) {
@@ -33,7 +34,7 @@ export default function CreateMessPage() {
 
     setLoading(true)
     try {
-      const mess = await createMess(validation.data.name, user.id)
+      const mess = await createMess(validation.data.name, user.id, validation.data.location)
       if (mess) {
         toast.success(`"${mess.name}" created! Code: ${mess.unique_code}`)
         navigate('/dashboard')
@@ -69,6 +70,22 @@ export default function CreateMessPage() {
               maxLength={60}
               id="mess-name-input"
             />
+          </div>
+          <div>
+            <label className="text-nex-text mb-1.5 flex items-center gap-1.5 text-sm font-medium">
+              <MapPin className="text-nex-muted h-3.5 w-3.5" />
+              {t('mess.create.locationLabel')}
+            </label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="nex-input"
+              placeholder={t('mess.create.locationPlaceholder')}
+              maxLength={120}
+              id="mess-location-input"
+            />
+            <p className="text-nex-muted mt-1 text-xs">{t('mess.create.locationHint')}</p>
           </div>
           <button
             type="submit"

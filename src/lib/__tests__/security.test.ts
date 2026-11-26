@@ -7,7 +7,7 @@ import {
 } from '../utils'
 import { generateSafeFileName } from '../fileValidator'
 import { sanitizeAppError } from '../errorHandler'
-import { expenseSchema, profileUpdateSchema, validateForm } from '../validation/schemas'
+import { expenseSchema, createMessSchema, profileUpdateSchema, validateForm } from '../validation/schemas'
 
 describe('Security Hardening Helpers', () => {
   describe('URL & XSS Validation', () => {
@@ -92,6 +92,16 @@ describe('Security Hardening Helpers', () => {
         verificationDocNo: '199912345678',
       })
       expect(profRes.success).toBe(true)
+    })
+
+    it('accepts optional mess location on createMessSchema while rejecting 1-char values', () => {
+      expect(validateForm(createMessSchema, { name: 'Sunrise Mess' }).success).toBe(true)
+      expect(
+        validateForm(createMessSchema, { name: 'Sunrise Mess', location: 'Dhanmondi, Dhaka' }).success
+      ).toBe(true)
+      expect(
+        validateForm(createMessSchema, { name: 'Sunrise Mess', location: 'A' }).success
+      ).toBe(false)
     })
   })
 })

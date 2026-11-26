@@ -1,19 +1,38 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { Users, ArrowRight, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import {
+  clearPendingInviteCode,
+  getPendingInviteCode,
+  normalizeInviteCode,
+} from '../../lib/invite'
 
 export default function JoinMessPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { user } = useAuthStore()
   const { joinMess, pendingRequests, cancelJoinRequest } = useMessStore()
-  const [code, setCode] = useState('')
+  const [code, setCode] = useState(() => {
+    const fromParam = normalizeInviteCode(searchParams.get('code'))
+    return fromParam || getPendingInviteCode()
+  })
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const fromParam = normalizeInviteCode(searchParams.get('code'))
+    if (fromParam) {
+      setCode(fromParam)
+      clearPendingInviteCode()
+    } else if (getPendingInviteCode()) {
+      clearPendingInviteCode()
+    }
+  }, [searchParams])
 
   const handleJoin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -21,7 +40,7 @@ export default function JoinMessPage() {
 
     if (!cleanCode || !user) return
 
-    if (cleanCode.length < 4 || cleanCode.length > 12) {
+    if (cleanCode.length < 4 || cleanCode.length > 20) {
       toast.error('Please enter a valid mess code')
       return
     }
@@ -30,6 +49,7 @@ export default function JoinMessPage() {
     try {
       const result = await joinMess(cleanCode, user.id)
       if (result.success) {
+        clearPendingInviteCode()
         toast.success('Join request sent! Waiting for manager approval.')
         navigate('/dashboard')
       } else {

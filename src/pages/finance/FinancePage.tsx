@@ -24,6 +24,7 @@ import DepositTab from './components/DepositTab'
 import FixedCostTab from './components/FixedCostTab'
 import SummaryTab from './components/SummaryTab'
 import SettleUpSheet from './components/SettleUpSheet'
+import SpendingBreakdown from './components/SpendingBreakdown'
 import HistoryTab from './components/HistoryTab'
 
 type Tab = 'expenses' | 'deposits' | 'fixed' | 'summary' | 'history'
@@ -632,6 +633,11 @@ export default function FinancePage() {
 
       {activeTab === 'summary' && (
         <div className="space-y-4">
+          <SpendingBreakdown
+            expenses={expenses.filter((e) => e.date.startsWith(currentMonth))}
+            fixedCosts={fixedCosts}
+            totalDeposits={totalDeposits}
+          />
           <SummaryTab financeMembers={financeMembers} balances={balances} totalFixed={totalFixed} />
           <SettleUpSheet settlements={settlements} />
         </div>

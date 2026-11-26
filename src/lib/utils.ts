@@ -166,6 +166,58 @@ export function mealCutoffApproaching(type: 'lunch' | 'dinner', windowMinutes = 
   return left
 }
 
+export interface CutoffCountdown {
+  status: 'past' | 'passed' | 'open' | 'future'
+  hoursLeft: number
+  minutesLeft: number
+  totalMinutesLeft: number
+  isUrgent: boolean
+}
+
+export function mealCutoffCountdown(
+  dateStr: string,
+  type: 'lunch' | 'dinner',
+  now: Date = new Date()
+): CutoffCountdown {
+  const todayDhaka = dhakaParts(now).dateStr
+  if (dateStr < todayDhaka) {
+    return { status: 'past', hoursLeft: 0, minutesLeft: 0, totalMinutesLeft: 0, isUrgent: false }
+  }
+  if (dateStr > todayDhaka) {
+    return { status: 'future', hoursLeft: 0, minutesLeft: 0, totalMinutesLeft: 0, isUrgent: false }
+  }
+
+  const { hour, minute } = dhakaParts(now)
+  const minutesNow = hour * 60 + minute
+  const minutesCutoff = MEAL_CUTOFF_HOURS[type] * 60
+  const totalMinutesLeft = minutesCutoff - minutesNow
+
+  if (totalMinutesLeft <= 0) {
+    return { status: 'passed', hoursLeft: 0, minutesLeft: 0, totalMinutesLeft: 0, isUrgent: false }
+  }
+
+  return {
+    status: 'open',
+    hoursLeft: Math.floor(totalMinutesLeft / 60),
+    minutesLeft: totalMinutesLeft % 60,
+    totalMinutesLeft,
+    isUrgent: totalMinutesLeft <= 60,
+  }
+}
+
+export function formatCountdownDuration(hoursLeft: number, minutesLeft: number): string {
+  const h = formatNumber(hoursLeft)
+  const m = formatNumber(minutesLeft)
+  if (isBanglaLang()) {
+    if (hoursLeft > 0 && minutesLeft > 0) return `${h} ঘঃ ${m} মিঃ`
+    if (hoursLeft > 0) return `${h} ঘঃ`
+    return `${m} মিঃ`
+  }
+  if (hoursLeft > 0 && minutesLeft > 0) return `${h}h ${m}m`
+  if (hoursLeft > 0) return `${h}h`
+  return `${m}m`
+}
+
 export function dhakaToday(): string {
   return dhakaParts().dateStr
 }

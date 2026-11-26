@@ -9,6 +9,7 @@ import toast from 'react-hot-toast'
 import { onboardingSchema, validateForm } from '../../lib/validation/schemas'
 import { prepareImageForUpload, generateSafeFileName } from '../../lib/fileValidator'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import { getPendingInviteCode } from '../../lib/invite'
 
 export default function OnboardingPage() {
   const { t } = useTranslation()
@@ -77,7 +78,12 @@ export default function OnboardingPage() {
       })
 
       toast.success("Profile set up! Let's go 🚀")
-      navigate('/dashboard')
+      const pendingInvite = getPendingInviteCode()
+      if (pendingInvite) {
+        navigate(`/join/${encodeURIComponent(pendingInvite)}`, { replace: true })
+      } else {
+        navigate('/dashboard')
+      }
     } catch (err: unknown) {
       toast.error(sanitizeAppError(err, 'Something went wrong while setting up profile.'))
     } finally {

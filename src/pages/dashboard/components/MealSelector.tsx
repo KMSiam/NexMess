@@ -1,9 +1,11 @@
-import { useState } from 'react'
-import { UtensilsCrossed, Check, Lock } from 'lucide-react'
+import { useState, useEffect, useReducer } from 'react'
+import { UtensilsCrossed, Check, Lock, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   isMealCutoffPassed,
   mealCutoffLabel,
+  mealCutoffCountdown,
+  formatCountdownDuration,
   getFoodEmoji,
   formatFoodName,
   formatNumber,
@@ -29,6 +31,13 @@ export default function MealSelector({
 }: MealSelectorProps) {
   const { t } = useTranslation()
   const [mealTab, setMealTab] = useState<'today' | 'tomorrow'>('today')
+  const [, tick] = useReducer((n: number) => n + 1, 0)
+
+  useEffect(() => {
+    const id = setInterval(tick, 60_000)
+    return () => clearInterval(id)
+  }, [tick])
+
   const today = dhakaToday()
   const tomorrow = dhakaTomorrow()
   const currentMData = mealsData[mealTab]
@@ -92,6 +101,7 @@ export default function MealSelector({
         ].map(({ type, emoji, on, label, guests }) => {
           const targetDate = mealTab === 'today' ? today : tomorrow
           const locked = isMealCutoffPassed(targetDate, type)
+          const countdown = mealCutoffCountdown(targetDate, type)
           const lockTitle = locked
             ? t('meals.cutoffTooltip', { meal: label, time: mealCutoffLabel(type) })
             : ''
@@ -144,21 +154,37 @@ export default function MealSelector({
                     </span>
                   </button>
                 </div>
-                <p
-                  className={`flex items-center gap-1 pl-7 text-[11px] font-medium whitespace-nowrap ${
-                    locked
-                      ? 'text-nex-muted'
+                <div className="flex flex-wrap items-center justify-between gap-1.5 pl-7">
+                  <p
+                    className={`flex items-center gap-1 text-[11px] font-medium whitespace-nowrap ${
+                      locked
+                        ? 'text-nex-muted'
+                        : on
+                          ? 'font-semibold text-[#3a5643] dark:text-emerald-400'
+                          : 'text-nex-muted'
+                    }`}
+                  >
+                    {locked
+                      ? `${t('dashboard.locked')} · ${mealCutoffLabel(type)}`
                       : on
-                        ? 'font-semibold text-[#3a5643] dark:text-emerald-400'
-                        : 'text-nex-muted'
-                  }`}
-                >
-                  {locked
-                    ? `${t('dashboard.locked')} · ${mealCutoffLabel(type)}`
-                    : on
-                      ? t('common.eating')
-                      : t('common.skipping')}
-                </p>
+                        ? t('common.eating')
+                        : t('common.skipping')}
+                  </p>
+                  {countdown.status === 'open' && (
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums ${
+                        countdown.isUrgent
+                          ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
+                          : 'bg-nex-surface/80 text-nex-muted dark:bg-white/5'
+                      }`}
+                    >
+                      <Clock className="h-2.5 w-2.5 shrink-0" />
+                      {t('meals.locksIn', {
+                        time: formatCountdownDuration(countdown.hoursLeft, countdown.minutesLeft),
+                      })}
+                    </span>
+                  )}
+                </div>
               </div>
               <div
                 className={`flex items-center justify-between border-t pt-3 ${

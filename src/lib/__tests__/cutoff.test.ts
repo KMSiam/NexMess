@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { isMealCutoffPassed, mealCutoffLabel, MEAL_CUTOFF_HOURS } from '../utils'
+import {
+  isMealCutoffPassed,
+  mealCutoffLabel,
+  mealCutoffCountdown,
+  formatCountdownDuration,
+  MEAL_CUTOFF_HOURS,
+} from '../utils'
+import { changeLanguage } from '../i18n'
 
 describe('Timezone-Aware Meal Cut-Off Engine', () => {
   afterEach(() => {
@@ -60,5 +67,38 @@ describe('Timezone-Aware Meal Cut-Off Engine', () => {
     const todayDateStr = '2026-06-15'
     expect(isMealCutoffPassed(todayDateStr, 'lunch')).toBe(true)
     expect(isMealCutoffPassed(todayDateStr, 'dinner')).toBe(true)
+  })
+
+  it('computes accurate live countdown status and urgent threshold in Asia/Dhaka', async () => {
+    // 09:15 AM BST = 03:15 AM UTC (45m to Lunch, 6h 45m to Dinner)
+    const mockNow = new Date('2026-06-15T03:15:00.000Z')
+    const lunchCd = mealCutoffCountdown('2026-06-15', 'lunch', mockNow)
+    expect(lunchCd).toEqual({
+      status: 'open',
+      hoursLeft: 0,
+      minutesLeft: 45,
+      totalMinutesLeft: 45,
+      isUrgent: true,
+    })
+
+    const dinnerCd = mealCutoffCountdown('2026-06-15', 'dinner', mockNow)
+    expect(dinnerCd).toEqual({
+      status: 'open',
+      hoursLeft: 6,
+      minutesLeft: 45,
+      totalMinutesLeft: 405,
+      isUrgent: false,
+    })
+
+    expect(mealCutoffCountdown('2026-06-14', 'lunch', mockNow).status).toBe('past')
+    expect(mealCutoffCountdown('2026-06-16', 'lunch', mockNow).status).toBe('future')
+
+    await changeLanguage('en')
+    expect(formatCountdownDuration(2, 15)).toBe('2h 15m')
+    expect(formatCountdownDuration(0, 45)).toBe('45m')
+
+    await changeLanguage('bn')
+    expect(formatCountdownDuration(2, 15)).toBe('২ ঘঃ ১৫ মিঃ')
+    await changeLanguage('en')
   })
 })

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { computeSettlements, ReportMemberRow } from '../reportPdf'
+import { computeSpendingBreakdown, normalizeSpendingCategory } from '../spending'
 
 describe('Finance & Settlement Calculation Engine', () => {
   describe('computeSettlements (Debt Clearing Algorithm)', () => {
@@ -134,6 +135,44 @@ describe('Finance & Settlement Calculation Engine', () => {
       const netBalance = deposit - totalExpense // 1250
 
       expect(netBalance).toBe(1250)
+    })
+  })
+
+  describe('Spending Breakdown Engine', () => {
+    it('normalizes legacy category aliases cleanly', () => {
+      expect(normalizeSpendingCategory('utility')).toBe('utilities')
+      expect(normalizeSpendingCategory('WIFI')).toBe('internet')
+      expect(normalizeSpendingCategory('unknown-tag')).toBe('other')
+    })
+
+    it('aggregates expenses and fixed costs across categories and flags over-budget spend', () => {
+      const result = computeSpendingBreakdown(
+        [
+          { amount: 3000, category: 'bazaar' },
+          { amount: 500, category: 'utility' },
+        ],
+        [
+          { amount: 4500, category: 'rent' },
+          { amount: 2000, category: 'maid' },
+        ],
+        8000
+      )
+
+      expect(result.totalVariable).toBe(3500)
+      expect(result.totalFixed).toBe(6500)
+      expect(result.totalOutflow).toBe(10000)
+      expect(result.depositUtilizationPercent).toBe(125)
+      expect(result.isOverBudget).toBe(true)
+      expect(result.slices.map((s) => s.category)).toEqual(['rent', 'bazaar', 'maid', 'utilities'])
+      expect(result.slices[0].percent).toBe(45)
+    })
+
+    it('handles empty inputs gracefully without NaN or divide-by-zero', () => {
+      const empty = computeSpendingBreakdown([], [], 0)
+      expect(empty.totalOutflow).toBe(0)
+      expect(empty.depositUtilizationPercent).toBe(0)
+      expect(empty.isOverBudget).toBe(false)
+      expect(empty.slices).toEqual([])
     })
   })
 })

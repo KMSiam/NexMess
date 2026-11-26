@@ -32,6 +32,7 @@ const AIMarketAssistant = lazy(() => import('./pages/market/components/AIMarketA
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'))
 const CreateMessPage = lazy(() => import('./pages/mess/CreateMessPage'))
 const JoinMessPage = lazy(() => import('./pages/mess/JoinMessPage'))
+const InviteJoinPage = lazy(() => import('./pages/mess/InviteJoinPage'))
 const ActivityLogPage = lazy(() => import('./pages/activity/ActivityLogPage'))
 const NotFoundPage = lazy(() => import('./pages/not-found/NotFoundPage'))
 const PrivacyPage = lazy(() => import('./pages/privacy/PrivacyPage'))
@@ -122,8 +123,9 @@ function App() {
       <AppInitializer>
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* Public Landing Page */}
+            {/* Public Landing & Info Pages */}
             <Route path="/" element={<LandingPage />} />
+            <Route path="/join/:code" element={<InviteJoinPage />} />
             <Route path="/privacy-policy" element={<PrivacyPage />} />
             <Route path="/terms-of-service" element={<TermsPage />} />
             <Route path="/faq" element={<FAQPage />} />

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Copy, CheckCircle2, Save, MapPin, Info, Camera } from 'lucide-react'
+import { Copy, CheckCircle2, Save, MapPin, Info, Camera, Link2, Share2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import type { Mess } from '../../../types/database'
 import { useMessStore } from '../../../stores/messStore'
 import { supabase } from '../../../lib/supabase'
 import { getInitials } from '../../../lib/utils'
+import { buildInviteUrl, buildWhatsAppInviteUrl } from '../../../lib/invite'
 import { updateMessDetailsSchema, validateForm } from '../../../lib/validation/schemas'
 import { prepareImageForUpload, generateSafeFileName } from '../../../lib/fileValidator'
 import { sanitizeAppError } from '../../../lib/errorHandler'
@@ -21,6 +22,7 @@ export default function MessDetailsSection({
 }: MessDetailsSectionProps) {
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [location, setLocation] = useState(currentMess?.location || '')
   const [rules, setRules] = useState(currentMess?.rules_and_info || '')
@@ -81,6 +83,20 @@ export default function MessDetailsSection({
       setTimeout(() => setCopied(false), 2000)
     }
   }
+
+  const copyInviteLink = () => {
+    if (!currentMess?.unique_code) return
+    const url = buildInviteUrl(currentMess.unique_code)
+    if (!url) return
+    navigator.clipboard.writeText(url)
+    setCopiedLink(true)
+    toast.success(t('settings.messSection.linkCopied'))
+    setTimeout(() => setCopiedLink(false), 2000)
+  }
+
+  const whatsappShareUrl = currentMess?.unique_code
+    ? buildWhatsAppInviteUrl(currentMess.name, currentMess.unique_code)
+    : ''
 
   const handleSave = async () => {
     if (!currentMess?.id) return
@@ -156,14 +172,35 @@ export default function MessDetailsSection({
             <p className="text-nex-muted mt-0.5 font-mono text-xs">{currentMess.unique_code}</p>
           </div>
         </div>
-        <button onClick={copyCode} className="nex-btn-secondary text-xs self-start sm:self-center">
-          {copied ? (
-            <CheckCircle2 className="text-nex-success h-4 w-4" />
-          ) : (
-            <Copy className="h-4 w-4" />
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+          <button type="button" onClick={copyCode} className="nex-btn-secondary text-xs">
+            {copied ? (
+              <CheckCircle2 className="text-nex-success h-4 w-4" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+            {copied ? t('common.copied') : t('settings.messSection.copy')}
+          </button>
+          <button type="button" onClick={copyInviteLink} className="nex-btn-secondary text-xs">
+            {copiedLink ? (
+              <CheckCircle2 className="text-nex-success h-4 w-4" />
+            ) : (
+              <Link2 className="h-4 w-4" />
+            )}
+            {copiedLink ? t('common.copied') : t('settings.messSection.copyLink')}
+          </button>
+          {whatsappShareUrl && (
+            <a
+              href={whatsappShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nex-btn-primary text-xs"
+            >
+              <Share2 className="h-4 w-4" />
+              {t('settings.messSection.shareWhatsApp')}
+            </a>
           )}
-          {copied ? t('common.copied') : t('settings.messSection.copy')}
-        </button>
+        </div>
       </div>
 
       <div className="space-y-4">

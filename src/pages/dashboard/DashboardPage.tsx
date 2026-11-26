@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Plus, Users } from 'lucide-react'
 import { isMealCutoffPassed, dhakaToday, dhakaTomorrow, isApprovedManager } from '../../lib/utils'
+import { getPendingInviteCode } from '../../lib/invite'
 import { sendPushToUsers } from '../../lib/push'
 import { sanitizeAppError } from '../../lib/errorHandler'
 import toast from 'react-hot-toast'
@@ -32,7 +33,16 @@ export default function DashboardPage() {
   usePageTitle(t('nav.dashboard'))
 
   const { profile } = useAuthStore()
-  const { currentMess, members, pendingRequests, cancelJoinRequest } = useMessStore()
+  const navigate = useNavigate()
+  const { currentMess, messes, loading: messLoading, members, pendingRequests, cancelJoinRequest } = useMessStore()
+
+  useEffect(() => {
+    if (messLoading || currentMess || messes.length > 0 || pendingRequests.length > 0) return
+    const pendingInvite = getPendingInviteCode()
+    if (pendingInvite) {
+      navigate(`/join/${encodeURIComponent(pendingInvite)}`, { replace: true })
+    }
+  }, [messLoading, currentMess, messes.length, pendingRequests.length, navigate])
 
   const [mealLoading, setMealLoading] = useState(false)
 
