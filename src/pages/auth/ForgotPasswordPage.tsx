@@ -109,7 +109,7 @@ export default function ForgotPasswordPage() {
             </div>
             <span className="text-3xl font-bold">NexMess</span>
           </div>
-          <p className="mb-4 text-4xl leading-tight font-bold">{t('auth.forgotPassword.heroTitle')}</p>
+          <p className="mb-4 text-4xl leading-tight font-bold text-white">{t('auth.forgotPassword.heroTitle')}</p>
           <p className="text-lg leading-relaxed text-[#EDF2EE]">
             {t('auth.forgotPassword.heroDesc')}
           </p>
