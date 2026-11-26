@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { Notification } from '../types/database'
 import { Bell, CheckCheck, Trash2, X } from 'lucide-react'
 import { formatNumber, formatLocalizedDistance } from '../lib/utils'
+import { localizeNotification } from '../lib/notifications'
 
 interface NotificationBellProps {
   className?: string
@@ -95,6 +96,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
       join_rejected: '❌',
       member_removed: '❌',
       expense_added: '💰',
+      deposit_recorded: '💰',
       balance_due: '⚠️',
       meal_reminder: '🍽️',
       deposit_verified: '💳',
@@ -155,9 +157,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
             ) : (
               notifications.map((n) => {
                 const icon = getIcon(n.type)
-                const cleanTitle = n.title.startsWith(icon)
-                  ? n.title.slice(icon.length).trim()
-                  : n.title
+                const localized = localizeNotification(n, t)
                 return (
                 <div
                   key={n.id}
@@ -172,10 +172,12 @@ export default function NotificationBell({ className }: NotificationBellProps) {
                       <p
                         className={`text-sm ${!n.is_read ? 'text-nex-text font-semibold' : 'text-nex-text'}`}
                       >
-                        {cleanTitle}
+                        {localized.title}
                       </p>
-                      {n.body && (
-                        <p className="text-nex-muted mt-0.5 line-clamp-2 text-xs">{n.body}</p>
+                      {localized.body && (
+                        <p className="text-nex-muted mt-0.5 line-clamp-2 text-xs">
+                          {localized.body}
+                        </p>
                       )}
                       <p className="text-nex-muted mt-1 text-[10px]">
                         {formatLocalizedDistance(n.created_at)}
