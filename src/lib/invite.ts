@@ -22,16 +22,29 @@ export function buildInviteUrl(code: string, origin?: string): string {
   return `${base.replace(/\/+$/, '')}/join/${encodeURIComponent(clean)}`
 }
 
+export interface InviteShareData {
+  title: string
+  text: string
+  url: string
+}
+
 /**
- * Builds a WhatsApp share deep-link containing the mess name, code, and invite URL.
+ * Builds Web Share API payload containing the mess name, code, and invite URL.
  */
-export function buildWhatsAppInviteUrl(messName: string, code: string, origin?: string): string {
+export function buildInviteShareData(
+  messName: string,
+  code: string,
+  origin?: string
+): InviteShareData | null {
   const cleanCode = normalizeInviteCode(code)
-  const link = buildInviteUrl(cleanCode, origin)
-  if (!link) return ''
+  const url = buildInviteUrl(cleanCode, origin)
+  if (!url) return null
   const cleanName = (messName || 'our mess').trim()
-  const message = `Join "${cleanName}" on NexMess using code ${cleanCode}:\n${link}`
-  return `https://wa.me/?text=${encodeURIComponent(message)}`
+  return {
+    title: `Join ${cleanName} on NexMess`,
+    text: `Join "${cleanName}" on NexMess using code ${cleanCode}:`,
+    url,
+  }
 }
 
 export function savePendingInviteCode(raw: string | null | undefined): string {

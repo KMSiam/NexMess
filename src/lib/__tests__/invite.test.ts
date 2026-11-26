@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import {
   normalizeInviteCode,
   buildInviteUrl,
-  buildWhatsAppInviteUrl,
+  buildInviteShareData,
   savePendingInviteCode,
   getPendingInviteCode,
   clearPendingInviteCode,
@@ -21,16 +21,19 @@ describe('Mess Invite Helper', () => {
     expect(normalizeInviteCode('<script>alert(1)</script>')).toBe('')
   })
 
-  it('builds safe shareable invite and WhatsApp URLs', () => {
+  it('builds safe shareable invite URL and Web Share payload', () => {
     expect(buildInviteUrl('nex-41b3', 'https://www.nexmess.shop/')).toBe(
       'https://www.nexmess.shop/join/NEX-41B3'
     )
     expect(buildInviteUrl('invalid/code', 'https://www.nexmess.shop')).toBe('')
 
-    const wa = buildWhatsAppInviteUrl('BachelorPoint', 'nex-41b3', 'https://www.nexmess.shop')
-    expect(wa).toContain('https://wa.me/?text=')
-    expect(decodeURIComponent(wa)).toContain('BachelorPoint')
-    expect(decodeURIComponent(wa)).toContain('https://www.nexmess.shop/join/NEX-41B3')
+    const shareData = buildInviteShareData('BachelorPoint', 'nex-41b3', 'https://www.nexmess.shop')
+    expect(shareData).toEqual({
+      title: 'Join BachelorPoint on NexMess',
+      text: 'Join "BachelorPoint" on NexMess using code NEX-41B3:',
+      url: 'https://www.nexmess.shop/join/NEX-41B3',
+    })
+    expect(buildInviteShareData('BachelorPoint', 'bad/code', 'https://www.nexmess.shop')).toBeNull()
   })
 
   it('persists and clears pending invite code safely in storage', () => {

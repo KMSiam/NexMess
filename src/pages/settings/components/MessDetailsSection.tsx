@@ -6,7 +6,7 @@ import type { Mess } from '../../../types/database'
 import { useMessStore } from '../../../stores/messStore'
 import { supabase } from '../../../lib/supabase'
 import { getInitials } from '../../../lib/utils'
-import { buildInviteUrl, buildWhatsAppInviteUrl } from '../../../lib/invite'
+import { buildInviteUrl, buildInviteShareData } from '../../../lib/invite'
 import { updateMessDetailsSchema, validateForm } from '../../../lib/validation/schemas'
 import { prepareImageForUpload, generateSafeFileName } from '../../../lib/fileValidator'
 import { sanitizeAppError } from '../../../lib/errorHandler'
@@ -94,9 +94,22 @@ export default function MessDetailsSection({
     setTimeout(() => setCopiedLink(false), 2000)
   }
 
-  const whatsappShareUrl = currentMess?.unique_code
-    ? buildWhatsAppInviteUrl(currentMess.name, currentMess.unique_code)
-    : ''
+  const shareInvite = async () => {
+    if (!currentMess?.unique_code) return
+    const shareData = buildInviteShareData(currentMess.name, currentMess.unique_code)
+    if (!shareData) return
+
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share(shareData)
+        return
+      } catch (err: unknown) {
+        if (err instanceof DOMException && err.name === 'AbortError') return
+      }
+    }
+
+    copyInviteLink()
+  }
 
   const handleSave = async () => {
     if (!currentMess?.id) return
@@ -189,16 +202,11 @@ export default function MessDetailsSection({
             )}
             {copiedLink ? t('common.copied') : t('settings.messSection.copyLink')}
           </button>
-          {whatsappShareUrl && (
-            <a
-              href={whatsappShareUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="nex-btn-primary text-xs"
-            >
+          {currentMess.unique_code && (
+            <button type="button" onClick={shareInvite} className="nex-btn-primary text-xs">
               <Share2 className="h-4 w-4" />
-              {t('settings.messSection.shareWhatsApp')}
-            </a>
+              {t('settings.messSection.share')}
+            </button>
           )}
         </div>
       </div>
