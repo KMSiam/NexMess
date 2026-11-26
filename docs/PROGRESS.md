@@ -2,7 +2,7 @@
 
 > **Current Version:** `2.4.0` (`package.json` single source of truth via `APP_VERSION`)  
 > **Repository:** `KMSiam/NexMess` (`main`) · **Live App:** `https://www.nexmess.shop`  
-> **Companion Docs:** [ROADMAP.md](./ROADMAP.md) · [README.md](./README.md) · [SECURITY.md](./SECURITY.md)
+> **Companion Docs:** [ROADMAP.md](./ROADMAP.md) · [README.md](../README.md) · [SECURITY.md](./SECURITY.md)
 
 ---
 

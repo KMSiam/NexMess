@@ -4,10 +4,10 @@
 
 ---
 
-### 📖 [Read the NexMess Project Showcase Report (PDF)](./NexMess_Report/NexMess_Report.pdf) | [Interactive HTML Guide](./NexMess_Report/NexMess_Report.html)
+### 📖 [Read the NexMess Project Showcase Report (PDF)](./docs/NexMess_Report/NexMess_Report.pdf) | [Interactive HTML Guide](./docs/NexMess_Report/NexMess_Report.html)
 
 [![Live Web Application](https://img.shields.io/badge/Live_App-nexmess.shop-10B981?style=for-the-badge&logo=googlechrome&logoColor=white)](https://nexmess.shop/)
-[![Project Showcase Report PDF](https://img.shields.io/badge/Project_Report-PDF-red?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](./NexMess_Report/NexMess_Report.pdf)
+[![Project Showcase Report PDF](https://img.shields.io/badge/Project_Report-PDF-red?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](./docs/NexMess_Report/NexMess_Report.pdf)
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Supabase Cloud](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
@@ -20,7 +20,7 @@
 
 ## 📸 Website Landing Page Preview
 
-![NexMess Public Landing Page Preview](NexMess_Report/01_landing.png)
+![NexMess Public Landing Page Preview](docs/NexMess_Report/01_landing.png)
 
 ---
 
@@ -32,7 +32,7 @@ NexMess is designed as a cloud-native 3-tier application:
 2. **Backend-as-a-Service Tier (Supabase BaaS & Edge Functions)**: Supabase Authentication (OAuth & PKCE), Realtime WebSocket channels, Storage buckets, and Deno Edge Functions (Google Gemini 3.6 Flash AI, Web Push, and Resend email).
 3. **Database Tier (Managed PostgreSQL)**: Row Level Security (RLS) policies per mess workspace, automated SQL cut-off triggers, and ACID-compliant transactional accounting ledgers.
 
-![NexMess 3-Tier System Architecture Diagram](NexMess_Report/system_architecture.png)
+![NexMess 3-Tier System Architecture Diagram](docs/NexMess_Report/system_architecture.png)
 
 ---
 
@@ -98,12 +98,19 @@ NexMess enforces strict permission boundaries between **Mess Managers** and **Me
 ```
 NexMess/
 ├── .env.example             # Environment variable template for new setups
-├── NexMess_Report/          # Complete Showcase Report & Media Assets
-│   ├── NexMess_Report.pdf   # Complete Project Showcase PDF Report
-│   ├── NexMess_Report.html  # Standalone Interactive Web Showcase Report
-│   ├── 01_landing.png ... 14_404_page.png
-│   └── system_architecture.png
-├── public/                  # Static assets, PWA icons, favicon, robots.txt
+├── .github/workflows/       # GitHub Actions CI pipeline (lint, type-check, test, build)
+├── docs/                    # Project documentation, management & showcase reports
+│   ├── NexMess_Report/      # Complete Showcase Report & Media Assets
+│   │   ├── NexMess_Report.pdf   # Complete Project Showcase PDF Report
+│   │   ├── NexMess_Report.html  # Standalone Interactive Web Showcase Report
+│   │   ├── 01_landing.png ... 14_terms_of_service.png
+│   │   └── system_architecture.png
+│   ├── NexMess_Project_Report_seu.pdf # Full Project Report PDF
+│   ├── PROGRESS.md          # Development progress log & pending rollout checklist
+│   ├── ROADMAP.md           # Commercialization & production scale roadmap
+│   └── SECURITY.md          # Security policy & vulnerability reporting
+├── e2e/                     # Playwright end-to-end smoke tests
+├── public/                  # Static assets, PWA icons, favicon, robots.txt, sitemap.xml
 ├── scripts/                 # Utility scripts (e.g. generate-vapid-keys.mjs)
 ├── sql/                     # PostgreSQL database schemas, triggers & RLS policies
 │   ├── market_ai_assistant.sql      # AI chat table & triggers
@@ -113,11 +120,14 @@ NexMess/
 │   ├── rls_audit.sql                # RLS security verification audit
 │   └── secure_polish_migrations.sql # Storage buckets & verification policies
 ├── src/
-│   ├── components/          # Reusable UI components (Navbar, Modal, Button, etc.)
-│   ├── guards/              # Route protection guards (AuthGuard, ManagerGuard)
-│   ├── lib/                 # Supabase client, PDF generator & push notification helpers
-│   ├── pages/               # Application pages (auth, dashboard, meals, finance, market, nexmess-ai, chat, settings)
-│   ├── stores/              # Zustand stores (authStore, messStore, mealStore, financeStore)
+│   ├── assets/              # Brand logo & icon SVGs
+│   ├── components/          # Reusable UI components (AppLayout, Modals, NotificationBell, etc.)
+│   ├── guards/              # Route protection guards (AuthGuard)
+│   ├── hooks/               # Custom React hooks (useDashboardData, useFinanceData, useSEO, etc.)
+│   ├── lib/                 # Supabase client, PDF generator, push, validation & unit tests
+│   ├── locales/             # i18n translation dictionaries (en.json, bn.json)
+│   ├── pages/               # Application pages (auth, dashboard, meals, finance, market, chat, settings, etc.)
+│   ├── stores/              # Zustand stores (authStore, messStore, themeStore)
 │   └── types/               # TypeScript interfaces & database definitions
 ├── supabase/
 │   └── functions/           # Supabase Deno Edge Functions
@@ -127,6 +137,8 @@ NexMess/
 │       └── morning-reminder/        # Automated morning meal reminder cron
 ├── index.html               # Main HTML entry point
 ├── package.json             # NPM dependencies and project scripts
+├── README.md                # Main repository guide & setup instructions
+├── vercel.json              # Vercel SPA rewrites and cache headers
 └── vite.config.ts           # Vite build configuration with PWA plugin
 ```
 
@@ -344,11 +356,16 @@ npm run preview
 
 ---
 
-## 📖 Complete Project Showcase Report
+## 📖 Documentation & Project Showcase Reports
 
-For an exhaustive, module-by-module architectural breakdown, user flow diagrams, and a 10-scenario manual test matrix:
-- **Download / View PDF Report**: **[NexMess_Report/NexMess_Report.pdf](./NexMess_Report/NexMess_Report.pdf)**
-- **Interactive Web Showcase Guide**: **[NexMess_Report/NexMess_Report.html](./NexMess_Report/NexMess_Report.html)**
+All project management notes, security documentation, and showcase reports are organized inside [`docs/`](./docs/):
+
+- **Download / View Showcase Report (PDF)**: **[docs/NexMess_Report/NexMess_Report.pdf](./docs/NexMess_Report/NexMess_Report.pdf)**
+- **Interactive Web Showcase Guide**: **[docs/NexMess_Report/NexMess_Report.html](./docs/NexMess_Report/NexMess_Report.html)**
+- **Full Project Report (PDF)**: **[docs/NexMess_Project_Report_seu.pdf](./docs/NexMess_Project_Report_seu.pdf)**
+- **Development Progress Log**: **[docs/PROGRESS.md](./docs/PROGRESS.md)**
+- **Commercialization & Production Roadmap**: **[docs/ROADMAP.md](./docs/ROADMAP.md)**
+- **Security Policy**: **[docs/SECURITY.md](./docs/SECURITY.md)**
 
 ---
 
