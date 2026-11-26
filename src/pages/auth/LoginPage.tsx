@@ -159,19 +159,19 @@ export default function LoginPage() {
 
       <div className="relative flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
-          <div className="mb-8 flex items-center justify-between lg:justify-end">
+          <div className="mb-8 flex items-center justify-between gap-2 lg:justify-end">
             <Link
               to="/"
-              className="flex items-center gap-2.5 transition-opacity hover:opacity-85 lg:hidden"
+              className="flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-85 lg:hidden"
             >
               <div className="h-9 w-9 overflow-hidden rounded-xl">
                 <img src={logoIcon} alt={brandName} className="h-full w-full" />
               </div>
-              <span className="text-nex-text text-xl font-bold">{brandName}</span>
+              <span className="text-nex-text text-xl font-bold whitespace-nowrap">{brandName}</span>
             </Link>
 
-            <div className="flex items-center gap-2">
-              <LanguageSwitcher variant="pill" />
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+              <LanguageSwitcher />
               <button
                 type="button"
                 onClick={toggleTheme}
@@ -180,12 +180,12 @@ export default function LoginPage() {
                 aria-label={t('settings.theme.toggle')}
               >
                 <Sun
-                  className={`h-4.5 w-4.5 text-amber-400 transition-all duration-300 ${
+                  className={`h-5 w-5 text-amber-400 transition-all duration-300 ${
                     isDark ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-90 opacity-0'
                   }`}
                 />
                 <Moon
-                  className={`absolute h-4.5 w-4.5 transition-all duration-300 ${
+                  className={`absolute h-5 w-5 transition-all duration-300 ${
                     isDark ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'
                   }`}
                 />

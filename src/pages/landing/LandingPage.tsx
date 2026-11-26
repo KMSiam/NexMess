@@ -94,31 +94,31 @@ export default function LandingPage() {
       }`}
     >
       {/* Header / Nav */}
-      <header className="nex-glass border-nex-border/50 sticky top-0 z-40 flex w-full items-center justify-between border-b px-4 py-3.5 sm:px-6">
+      <header className="nex-glass border-nex-border/50 sticky top-0 z-40 flex w-full items-center justify-between gap-2 border-b px-4 py-3 md:px-6">
         <div className="flex shrink-0 items-center gap-2">
           <img src={logoIcon} alt="NexMess" className="h-8 w-8 rounded-lg" />
-          <span className="text-nex-text text-base font-bold tracking-tight sm:text-lg">
+          <span className="text-nex-text text-base font-bold tracking-tight whitespace-nowrap sm:text-lg">
             {isBangla ? t('common.appName') : 'NexMess'}
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2.5">
-          <LanguageSwitcher variant="pill" />
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <LanguageSwitcher />
 
           <button
             type="button"
             onClick={toggleTheme}
-            className="rounded-btn hover:bg-nex-hover text-nex-muted hover:text-nex-text relative flex h-8 w-8 items-center justify-center transition-colors active:scale-95 sm:h-9 sm:w-9"
+            className="rounded-btn hover:bg-nex-hover text-nex-muted hover:text-nex-text relative flex h-9 w-9 items-center justify-center transition-colors active:scale-95"
             title={isDark ? t('common.light') : t('common.dark')}
             aria-label={t('settings.theme.toggle')}
           >
             <Sun
-              className={`h-4.5 w-4.5 text-amber-400 transition-all duration-300 sm:h-5 sm:w-5 ${
+              className={`h-5 w-5 text-amber-400 transition-all duration-300 ${
                 isDark ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-90 opacity-0'
               }`}
             />
             <Moon
-              className={`absolute h-4.5 w-4.5 transition-all duration-300 sm:h-5 sm:w-5 ${
+              className={`absolute h-5 w-5 transition-all duration-300 ${
                 isDark ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'
               }`}
             />
@@ -126,13 +126,13 @@ export default function LandingPage() {
 
           <Link
             to="/login"
-            className="nex-btn-secondary hidden px-3.5 py-2 text-xs font-semibold sm:inline-flex"
+            className="nex-btn-secondary hidden shrink-0 whitespace-nowrap px-3.5 py-2 text-xs font-semibold sm:inline-flex"
           >
             {isBangla ? 'লগইন' : 'Sign In'}
           </Link>
           <Link
             to="/register"
-            className="nex-btn-primary px-3 py-1.5 text-xs font-semibold sm:px-3.5 sm:py-2"
+            className="nex-btn-primary shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-semibold sm:px-3.5 sm:py-2"
           >
             {isBangla ? 'শুরু করুন' : 'Get Started'}
           </Link>

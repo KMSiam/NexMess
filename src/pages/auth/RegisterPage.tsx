@@ -2,17 +2,21 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
-import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldAlert } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldAlert, Sun, Moon } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 import { useSEO } from '../../hooks/useSEO'
 import { registerSchema, validateForm } from '../../lib/validation/schemas'
 import { checkRateLimit, recordRateLimitAttempt } from '../../lib/rateLimiter'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import { useThemeStore } from '../../stores/themeStore'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
 
 export default function RegisterPage() {
   const { t, i18n } = useTranslation()
   const isBangla = (i18n.language || 'en').startsWith('bn')
+  const { isDark, toggleTheme } = useThemeStore()
+  const brandName = isBangla ? t('common.appName') : 'NexMess'
   useSEO({
     title: isBangla ? 'শুরু করুন | নতুন মেস তৈরি করুন' : 'Get Started | Create Your Mess',
     description: isBangla
@@ -128,17 +132,41 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      <div className="flex flex-1 items-center justify-center p-6">
+      <div className="relative flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
-          <Link
-            to="/"
-            className="mb-8 flex items-center gap-3 transition-opacity hover:opacity-85 lg:hidden"
-          >
-            <div className="h-10 w-10 overflow-hidden rounded-xl">
-              <img src={logoIcon} alt="NexMess" className="h-full w-full" />
+          <div className="mb-8 flex items-center justify-between gap-2 lg:justify-end">
+            <Link
+              to="/"
+              className="flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-85 lg:hidden"
+            >
+              <div className="h-9 w-9 overflow-hidden rounded-xl">
+                <img src={logoIcon} alt={brandName} className="h-full w-full" />
+              </div>
+              <span className="text-nex-text text-xl font-bold whitespace-nowrap">{brandName}</span>
+            </Link>
+
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+              <LanguageSwitcher />
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="rounded-btn hover:bg-nex-hover text-nex-muted hover:text-nex-text relative flex h-9 w-9 items-center justify-center transition-colors active:scale-95"
+                title={isDark ? t('common.light') : t('common.dark')}
+                aria-label={t('settings.theme.toggle')}
+              >
+                <Sun
+                  className={`h-5 w-5 text-amber-400 transition-all duration-300 ${
+                    isDark ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-90 opacity-0'
+                  }`}
+                />
+                <Moon
+                  className={`absolute h-5 w-5 transition-all duration-300 ${
+                    isDark ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'
+                  }`}
+                />
+              </button>
             </div>
-            <span className="text-nex-text text-2xl font-bold">NexMess</span>
-          </Link>
+          </div>
 
           <h1 className="text-nex-text mb-1 text-2xl font-bold">{t('auth.register.title')}</h1>
           <p className="text-nex-muted mb-8">{t('auth.register.subtitle')}</p>
