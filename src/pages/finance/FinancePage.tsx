@@ -5,7 +5,7 @@ import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { Wallet, Receipt, PiggyBank, DollarSign, TrendingUp, Download, History } from 'lucide-react'
 import { format, endOfMonth } from 'date-fns'
-import { buildReportPdf } from '../../lib/reportPdf'
+import { computeSettlements, type ReportMemberRow } from '../../lib/reportSettlements'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 import ConfirmDialog from '../../components/ConfirmDialog'
@@ -67,6 +67,7 @@ export default function FinancePage() {
   const [paidFixedCostId, setPaidFixedCostId] = useState<string | null>(null)
   const [deleteDepositId, setDeleteDepositId] = useState<string | null>(null)
   const [deleteFixedCostId, setDeleteFixedCostId] = useState<string | null>(null)
+  const [exportingPdf, setExportingPdf] = useState(false)
 
   const totalExpenses = expenses
     .filter((e) => e.date.startsWith(currentMonth))
@@ -78,44 +79,23 @@ export default function FinancePage() {
   const paidFixed = fixedCosts.filter((f) => f.is_paid).reduce((s, f) => s + Number(f.amount), 0)
   const messBalance = totalDeposits - totalExpenses - paidFixed
 
+  const reportMembers: ReportMemberRow[] = financeMembers.map((m) => {
+    const p = m.profiles as { username?: string } | null
+    const b = balances[m.user_id] || {}
+    return {
+      user_id: m.user_id,
+      username: p?.username || 'Member',
+      status: m.status,
+      meals: Number(b.personal_meals || 0),
+      mealCost: Number(b.individual_cost || 0),
+      deposited: Number(b.total_deposits || 0),
+    }
+  })
+
   // Calculations for settlement transfers (Centralized Clearing via Mess Treasury)
   const settlements = (() => {
     const perPersonFixed = financeMembers.length > 0 ? totalFixed / financeMembers.length : 0
-    const creditors: { name: string; amount: number }[] = []
-    const debtors: { name: string; amount: number }[] = []
-
-    financeMembers.forEach((m) => {
-      const p = m.profiles as { username?: string } | null
-      const b = balances[m.user_id] || {}
-      const mealCost = Number(b.individual_cost || 0)
-      const deposited = Number(b.total_deposits || 0)
-      const realBalance = deposited - (mealCost + perPersonFixed)
-      const name = p?.username || 'Member'
-      if (realBalance > 0.5) creditors.push({ name, amount: realBalance })
-      else if (realBalance < -0.5) debtors.push({ name, amount: -realBalance })
-    })
-
-    const transfers: { from: string; to: string; amount: number }[] = []
-
-    // 1. Debtors pay to Mess Treasury/Manager
-    debtors.forEach((d) => {
-      transfers.push({
-        from: d.name,
-        to: 'Mess Treasury/Manager',
-        amount: Math.round(d.amount),
-      })
-    })
-
-    // 2. Mess Treasury/Manager pays to Creditors
-    creditors.forEach((c) => {
-      transfers.push({
-        from: 'Mess Treasury/Manager',
-        to: c.name,
-        amount: Math.round(c.amount),
-      })
-    })
-
-    return transfers
+    return computeSettlements(reportMembers, perPersonFixed)
   })()
 
   const handleAddExpense = async (
@@ -428,89 +408,93 @@ export default function FinancePage() {
   }
 
   const handleDownloadPDF = async () => {
-    if (!currentMess) return
+    if (!currentMess || exportingPdf) return
+    setExportingPdf(true)
 
-    const reportMembers = financeMembers.map((m) => {
-      const p = m.profiles as { username?: string } | null
-      const b = balances[m.user_id] || {}
-      return {
+    try {
+      const totalMessMeals = reportMembers.reduce((sum, m) => sum + m.meals, 0)
+      const rateFromBalance = Object.values(balances).find((b) => Number(b?.meal_rate || 0) > 0)
+      const mealRate =
+        Number(rateFromBalance?.meal_rate || 0) ||
+        (totalMessMeals > 0 ? totalExpenses / totalMessMeals : 0)
+
+      const [yy, mm] = currentMonth.split('-').map(Number)
+      const monthDate = new Date(yy, (mm || 1) - 1, 1)
+      const monthStartStr = format(monthDate, 'yyyy-MM-dd')
+      const monthEndStr = format(endOfMonth(monthDate), 'yyyy-MM-dd')
+
+      const [{ data: rawMeals, error: mealsError }, { buildReportPdf }] = await Promise.all([
+        supabase
+          .from('meals')
+          .select('date, user_id, lunch, dinner, guest_lunch, guest_dinner, profiles(username)')
+          .eq('mess_id', currentMess.id)
+          .gte('date', monthStartStr)
+          .lte('date', monthEndStr),
+        import('../../lib/reportPdf'),
+      ])
+
+      if (mealsError) throw mealsError
+
+      const dailyMeals = (rawMeals || []).map((m) => ({
+        date: m.date,
+        username: (m.profiles as { username?: string } | null)?.username || 'Member',
         user_id: m.user_id,
-        username: p?.username || 'Unknown',
-        status: m.status,
-        meals: Number(b.personal_meals || 0),
-        mealCost: Number(b.individual_cost || 0),
-        deposited: Number(b.total_deposits || 0),
-      }
-    })
-
-    const anyB = Object.values(balances)[0]
-    const mealRate = Number(anyB?.meal_rate || 0)
-    const totalMessMeals = Object.values(balances).reduce(
-      (sum, b) => sum + Number(b?.personal_meals || 0),
-      0
-    )
-
-    const monthStartStr = `${currentMonth}-01`
-    const monthEndStr = format(endOfMonth(new Date(monthStartStr)), 'yyyy-MM-dd')
-
-    const { data: rawMeals } = await supabase
-      .from('meals')
-      .select('date, user_id, lunch, dinner, guest_lunch, guest_dinner, profiles(username)')
-      .eq('mess_id', currentMess.id)
-      .gte('date', monthStartStr)
-      .lte('date', monthEndStr)
-
-    const dailyMeals = (rawMeals || []).map((m) => ({
-      date: m.date,
-      username: (m.profiles as any)?.username || 'Member',
-      user_id: m.user_id,
-      lunch: m.lunch,
-      dinner: m.dinner,
-      guest_lunch: m.guest_lunch || 0,
-      guest_dinner: m.guest_dinner || 0,
-    }))
-
-    const dailyExpenses = expenses
-      .filter((e) => e.date.startsWith(currentMonth))
-      .map((e) => ({
-        date: e.date,
-        category: e.category || '',
-        description: e.description || '',
-        amount: Number(e.amount),
-        logged_by: (e as any).profiles?.username || 'Unknown',
+        lunch: m.lunch,
+        dinner: m.dinner,
+        guest_lunch: m.guest_lunch || 0,
+        guest_dinner: m.guest_dinner || 0,
       }))
 
-    const dailyDeposits = deposits
-      .filter((d) => d.date.startsWith(currentMonth) && d.verified)
-      .map((d) => ({
-        date: d.date,
-        username: (d as any).profiles?.username || 'Member',
-        amount: Number(d.amount),
-        note: d.note || '',
-      }))
+      const dailyExpenses = expenses
+        .filter((e) => e.date.startsWith(currentMonth))
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map((e) => ({
+          date: e.date,
+          category: e.category || '',
+          description: e.description || '',
+          amount: Number(e.amount),
+          logged_by:
+            (e as { profiles?: { username?: string } | null }).profiles?.username || 'Unknown',
+        }))
 
-    buildReportPdf({
-      messName: currentMess.name,
-      messLocation: currentMess.location,
-      month: currentMonth,
-      generatedBy: profile?.username || 'Manager',
-      totalExpenses: Number(totalExpenses || 0),
-      totalDeposits: Number(totalDeposits || 0),
-      totalFixed,
-      mealRate,
-      totalMeals: totalMessMeals,
-      financeMembersCount: financeMembers.length,
-      members: reportMembers,
-      fixedCosts: fixedCosts.map((fc) => ({
-        description: fc.category + (fc.label ? ` (${fc.label})` : ''),
-        amount: fc.amount,
-      })),
-      settlements,
-      dailyExpenses,
-      dailyMeals,
-      dailyDeposits,
-    })
-    toast.success('PDF Report Downloaded!')
+      const dailyDeposits = deposits
+        .filter((d) => d.date.startsWith(currentMonth) && d.verified)
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map((d) => ({
+          date: d.date,
+          username:
+            (d as { profiles?: { username?: string } | null }).profiles?.username || 'Member',
+          amount: Number(d.amount),
+          note: d.note || '',
+        }))
+
+      buildReportPdf({
+        messName: currentMess.name,
+        messLocation: currentMess.location,
+        month: currentMonth,
+        generatedBy: profile?.username || 'Manager',
+        totalExpenses: Number(totalExpenses || 0),
+        totalDeposits: Number(totalDeposits || 0),
+        totalFixed,
+        mealRate,
+        totalMeals: totalMessMeals,
+        financeMembersCount: financeMembers.length,
+        members: reportMembers,
+        fixedCosts: fixedCosts.map((fc) => ({
+          description: fc.category + (fc.label ? ` (${fc.label})` : ''),
+          amount: fc.amount,
+        })),
+        settlements,
+        dailyExpenses,
+        dailyMeals,
+        dailyDeposits,
+      })
+      toast.success(t('finance.history.downloadedToast'))
+    } catch (err) {
+      toast.error(sanitizeAppError(err, 'Failed to generate PDF report'))
+    } finally {
+      setExportingPdf(false)
+    }
   }
 
   const tabs: { key: Tab; label: string; icon: any }[] = [
@@ -560,10 +544,13 @@ export default function FinancePage() {
         <div className="flex flex-wrap gap-2">
           {(activeTab === 'summary' || activeTab === 'history') && isManager && (
             <button
+              type="button"
               onClick={handleDownloadPDF}
-              className="nex-btn-primary flex items-center gap-1.5 px-3 py-2 text-xs"
+              disabled={exportingPdf}
+              className="nex-btn-primary flex items-center gap-1.5 px-3 py-2 text-xs disabled:opacity-60"
             >
-              <Download className="h-4 w-4" /> {t('finance.actions.downloadPdf')}
+              <Download className={`h-4 w-4 ${exportingPdf ? 'animate-pulse' : ''}`} />{' '}
+              {exportingPdf ? t('finance.actions.downloadingPdf') : t('finance.actions.downloadPdf')}
             </button>
           )}
         </div>

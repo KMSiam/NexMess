@@ -222,6 +222,7 @@
       "addExpense": "Add Bazaar Expense",
       "addFixedCost": "Add Fixed Cost",
       "downloadPdf": "Download PDF Report",
+      "downloadingPdf": "Generating PDF...",
       "settleAll": "Clear All Settlements",
       "editExpense": "Edit Expense",
       "editFixedCost": "Edit Fixed Cost",

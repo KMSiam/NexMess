@@ -222,6 +222,7 @@
       "addExpense": "বাজার খরচ যোগ করুন",
       "addFixedCost": "নির্দিষ্ট খরচ যোগ করুন",
       "downloadPdf": "রিপোর্ট ডাউনলোড (PDF)",
+      "downloadingPdf": "পিডিএফ তৈরি হচ্ছে...",
       "settleAll": "সব লেনদেন ক্লিয়ার করুন",
       "editExpense": "খরচ সম্পাদনা",
       "editFixedCost": "ফিক্সড খরচ সম্পাদনা",

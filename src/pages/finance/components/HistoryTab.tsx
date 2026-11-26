@@ -6,7 +6,7 @@ import { supabase } from '../../../lib/supabase'
 import { History, Plus, Download, RefreshCw, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 import { formatCurrency, formatNumber, formatLocalizedDate } from '../../../lib/utils'
-import { buildReportPdf, computeSettlements, ReportData } from '../../../lib/reportPdf'
+import { computeSettlements, type ReportData } from '../../../lib/reportSettlements'
 import { sanitizeAppError } from '../../../lib/errorHandler'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton } from '../../../components/Skeleton'
@@ -84,6 +84,7 @@ export default function HistoryTab() {
   const [reports, setReports] = useState<MonthlyReport[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
+  const [downloadingMonth, setDownloadingMonth] = useState<string | null>(null)
   // Default month picker to last month — the most likely report a manager wants.
   const [genMonth, setGenMonth] = useState(() => {
     const d = new Date()
@@ -159,9 +160,9 @@ export default function HistoryTab() {
       members,
       fixedCosts: s.fixedCosts || [],
       settlements: computeSettlements(members, perPersonFixed),
-      dailyExpenses: s.dailyExpenses || [],
+      dailyExpenses: [...(s.dailyExpenses || [])].sort((a, b) => a.date.localeCompare(b.date)),
       dailyMeals: s.dailyMeals || [],
-      dailyDeposits: s.dailyDeposits || [],
+      dailyDeposits: [...(s.dailyDeposits || [])].sort((a, b) => a.date.localeCompare(b.date)),
     }
   }
 
@@ -199,9 +200,18 @@ export default function HistoryTab() {
     }
   }
 
-  const handleDownload = (report: MonthlyReport) => {
-    buildReportPdf(buildData(report))
-    toast.success(t('finance.history.downloadedToast'))
+  const handleDownload = async (report: MonthlyReport) => {
+    if (downloadingMonth) return
+    setDownloadingMonth(report.month)
+    try {
+      const { buildReportPdf } = await import('../../../lib/reportPdf')
+      buildReportPdf(buildData(report))
+      toast.success(t('finance.history.downloadedToast'))
+    } catch (err) {
+      toast.error(sanitizeAppError(err, 'Failed to generate PDF report'))
+    } finally {
+      setDownloadingMonth(null)
+    }
   }
 
   const monthLabel = (m: string) => formatLocalizedDate(m + '-01', 'MMMM yyyy')
@@ -288,10 +298,17 @@ export default function HistoryTab() {
                     </button>
                   )}
                   <button
+                    type="button"
                     onClick={() => handleDownload(r)}
-                    className="nex-btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs"
+                    disabled={downloadingMonth !== null}
+                    className="nex-btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs disabled:opacity-60"
                   >
-                    <Download className="h-3.5 w-3.5" /> {t('finance.history.pdf')}
+                    <Download
+                      className={`h-3.5 w-3.5 ${downloadingMonth === r.month ? 'animate-pulse' : ''}`}
+                    />{' '}
+                    {downloadingMonth === r.month
+                      ? t('finance.actions.downloadingPdf')
+                      : t('finance.history.pdf')}
                   </button>
                 </div>
               </div>
