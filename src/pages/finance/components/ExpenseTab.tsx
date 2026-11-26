@@ -177,7 +177,7 @@ export default function ExpenseTab({
                     </span>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/webp"
                       onChange={(e) => setExpFile(e.target.files?.[0] || null)}
                       className="hidden"
                     />

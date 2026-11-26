@@ -7,7 +7,7 @@ import { useMessStore } from '../../../stores/messStore'
 import { supabase } from '../../../lib/supabase'
 import { getInitials } from '../../../lib/utils'
 import { updateMessDetailsSchema, validateForm } from '../../../lib/validation/schemas'
-import { validateUploadedFile, generateSafeFileName, optimizeAvatarImage } from '../../../lib/fileValidator'
+import { prepareImageForUpload, generateSafeFileName } from '../../../lib/fileValidator'
 import { sanitizeAppError } from '../../../lib/errorHandler'
 
 interface MessDetailsSectionProps {
@@ -39,31 +39,24 @@ export default function MessDetailsSection({
   }, [currentMess])
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const input = e.target
+    const file = input.files?.[0]
     if (!file || !currentMess?.id) return
 
-    const validation = await validateUploadedFile(file, {
-      category: 'image',
-      maxSizeInBytes: 2 * 1024 * 1024,
-    })
-
-    if (!validation.valid) {
-      toast.error(validation.error || 'Invalid image file')
-      return
-    }
-
     setUploading(true)
-    const { file: uploadFile, ext } = await optimizeAvatarImage(
-      file,
-      validation.sanitizedExt || 'jpg'
-    )
-    const safeFileName = generateSafeFileName('mess-avatar', ext)
-    const path = `mess-${currentMess.id}/${safeFileName}`
-
     try {
+      const prepared = await prepareImageForUpload(file, 'avatar')
+      if (!prepared.valid) {
+        toast.error(prepared.error)
+        return
+      }
+
+      const safeFileName = generateSafeFileName('mess-avatar', prepared.ext)
+      const path = `mess-${currentMess.id}/${safeFileName}`
+
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(path, uploadFile, { upsert: true })
+        .upload(path, prepared.file, { contentType: prepared.file.type, upsert: true })
 
       if (uploadError) {
         toast.error(sanitizeAppError(uploadError, 'Failed to upload avatar'))
@@ -76,6 +69,7 @@ export default function MessDetailsSection({
       toast.error(sanitizeAppError(err, 'Failed to upload avatar'))
     } finally {
       setUploading(false)
+      input.value = ''
     }
   }
 

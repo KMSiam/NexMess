@@ -7,7 +7,7 @@ import { Camera, ArrowRight } from 'lucide-react'
 import logoIcon from '../../assets/logo-icon.svg'
 import toast from 'react-hot-toast'
 import { onboardingSchema, validateForm } from '../../lib/validation/schemas'
-import { validateUploadedFile, generateSafeFileName } from '../../lib/fileValidator'
+import { prepareImageForUpload, generateSafeFileName } from '../../lib/fileValidator'
 import { sanitizeAppError } from '../../lib/errorHandler'
 
 export default function OnboardingPage() {
@@ -16,6 +16,7 @@ export default function OnboardingPage() {
   const { user, updateProfile } = useAuthStore()
   const [username, setUsername] = useState('')
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarExt, setAvatarExt] = useState<string>('webp')
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -24,19 +25,17 @@ export default function OnboardingPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    const validation = await validateUploadedFile(file, {
-      category: 'image',
-      maxSizeInBytes: 2 * 1024 * 1024,
-    })
-
-    if (!validation.valid) {
-      toast.error(validation.error || 'Invalid image file')
+    const prepared = await prepareImageForUpload(file, 'avatar')
+    if (!prepared.valid) {
+      toast.error(prepared.error)
       if (fileRef.current) fileRef.current.value = ''
       return
     }
 
-    setAvatarFile(file)
-    setAvatarPreview(URL.createObjectURL(file))
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview)
+    setAvatarFile(prepared.file)
+    setAvatarExt(prepared.ext)
+    setAvatarPreview(URL.createObjectURL(prepared.file))
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -53,25 +52,14 @@ export default function OnboardingPage() {
     try {
       let avatar_url: string | null = null
 
-      // Upload avatar to public storage under the user's folder
+      // Upload pre-compressed avatar to public storage under the user's folder
       if (avatarFile && user) {
-        const fileValidation = await validateUploadedFile(avatarFile, {
-          category: 'image',
-          maxSizeInBytes: 2 * 1024 * 1024,
-        })
-
-        if (!fileValidation.valid) {
-          toast.error(fileValidation.error || 'Invalid avatar file')
-          setLoading(false)
-          return
-        }
-
-        const safeFileName = generateSafeFileName('avatar', fileValidation.sanitizedExt || 'jpg')
+        const safeFileName = generateSafeFileName('avatar', avatarExt)
         const path = `${user.id}/${safeFileName}`
 
         const { error: uploadError } = await supabase.storage
           .from('avatars')
-          .upload(path, avatarFile, { upsert: true })
+          .upload(path, avatarFile, { contentType: avatarFile.type, upsert: true })
 
         if (!uploadError) {
           const {

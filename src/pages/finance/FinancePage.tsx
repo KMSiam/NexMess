@@ -11,7 +11,7 @@ import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { sendPushToUser } from '../../lib/push'
 import { expenseSchema, depositSchema, validateForm } from '../../lib/validation/schemas'
-import { validateUploadedFile, generateSafeFileName } from '../../lib/fileValidator'
+import { prepareImageForUpload, generateSafeFileName } from '../../lib/fileValidator'
 import { sanitizeAppError } from '../../lib/errorHandler'
 import { isApprovedManager, isSafeHttpUrl } from '../../lib/utils'
 
@@ -139,21 +139,20 @@ export default function FinancePage() {
 
     let receiptUrl = null
     if (file) {
-      const fileValidation = await validateUploadedFile(file, {
-        category: 'image',
-        maxSizeInBytes: 5 * 1024 * 1024,
-      })
+      const prepared = await prepareImageForUpload(file, 'receipt')
 
-      if (!fileValidation.valid) {
-        toast.error(fileValidation.error || 'Invalid receipt image')
+      if (!prepared.valid) {
+        toast.error(prepared.error)
         return
       }
 
-      const safeName = generateSafeFileName('receipt', fileValidation.sanitizedExt || 'jpg')
+      const safeName = generateSafeFileName('receipt', prepared.ext)
       const fileName = `${currentMess.id}/${safeName}`
 
       try {
-        const { error: uploadError } = await supabase.storage.from('receipts').upload(fileName, file)
+        const { error: uploadError } = await supabase.storage
+          .from('receipts')
+          .upload(fileName, prepared.file, { contentType: prepared.file.type })
         if (uploadError) {
           toast.error(sanitizeAppError(uploadError, 'Failed to upload receipt'))
           return

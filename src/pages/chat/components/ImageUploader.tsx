@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { Image, Loader2 } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
 import toast from 'react-hot-toast'
-import { validateUploadedFile, generateSafeFileName } from '../../../lib/fileValidator'
+import { prepareImageForUpload, generateSafeFileName } from '../../../lib/fileValidator'
 import { sanitizeAppError } from '../../../lib/errorHandler'
 
 interface ImageUploaderProps {
@@ -18,26 +18,20 @@ export default function ImageUploader({ messId, onUploadComplete }: ImageUploade
     const file = e.target.files?.[0]
     if (!file) return
 
-    // 1. Binary Magic Number & Safe File Validation
-    const validation = await validateUploadedFile(file, {
-      category: 'image',
-      maxSizeInBytes: 5 * 1024 * 1024,
-    })
-
-    if (!validation.valid) {
-      toast.error(validation.error || 'Invalid image')
-      if (fileInputRef.current) fileInputRef.current.value = ''
-      return
-    }
-
     setUploading(true)
-    const safeName = generateSafeFileName('chat', validation.sanitizedExt || 'jpg')
-    const fileName = `${messId}/${safeName}`
-
     try {
+      const prepared = await prepareImageForUpload(file, 'chat')
+      if (!prepared.valid) {
+        toast.error(prepared.error)
+        return
+      }
+
+      const safeName = generateSafeFileName('chat', prepared.ext)
+      const fileName = `${messId}/${safeName}`
+
       const { error: uploadError } = await supabase.storage
         .from('chat-media')
-        .upload(fileName, file)
+        .upload(fileName, prepared.file, { contentType: prepared.file.type })
 
       if (uploadError) {
         throw uploadError

@@ -6,7 +6,7 @@ import { Camera } from 'lucide-react'
 import toast from 'react-hot-toast'
 import type { Profile } from '../../../types/database'
 import { profileUpdateSchema, validateForm } from '../../../lib/validation/schemas'
-import { validateUploadedFile, generateSafeFileName, optimizeAvatarImage } from '../../../lib/fileValidator'
+import { prepareImageForUpload, generateSafeFileName } from '../../../lib/fileValidator'
 import { sanitizeAppError } from '../../../lib/errorHandler'
 
 interface ProfileSectionProps {
@@ -95,33 +95,26 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
     })
   }
 
-  // Upload avatar image to Supabase storage with binary magic bytes validation
+  // Validate, compress, and upload avatar image to Supabase storage
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const input = e.target
+    const file = input.files?.[0]
     if (!file || !profile?.id) return
 
-    const validation = await validateUploadedFile(file, {
-      category: 'image',
-      maxSizeInBytes: 2 * 1024 * 1024,
-    })
-
-    if (!validation.valid) {
-      toast.error(validation.error || 'Invalid image')
-      return
-    }
-
     setUploading(true)
-    const { file: uploadFile, ext } = await optimizeAvatarImage(
-      file,
-      validation.sanitizedExt || 'jpg'
-    )
-    const safeFileName = generateSafeFileName('avatar', ext)
-    const path = `${profile.id}/${safeFileName}`
-
     try {
+      const prepared = await prepareImageForUpload(file, 'avatar')
+      if (!prepared.valid) {
+        toast.error(prepared.error)
+        return
+      }
+
+      const safeFileName = generateSafeFileName('avatar', prepared.ext)
+      const path = `${profile.id}/${safeFileName}`
+
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(path, uploadFile, { upsert: true })
+        .upload(path, prepared.file, { contentType: prepared.file.type, upsert: true })
 
       if (uploadError) {
         toast.error(sanitizeAppError(uploadError, 'Failed to upload image'))
@@ -134,32 +127,30 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
       toast.error(sanitizeAppError(err, 'Failed to upload image'))
     } finally {
       setUploading(false)
+      input.value = ''
     }
   }
 
-  // Upload verification document with magic number verification
+  // Validate, compress, and upload verification document while keeping text legible
   const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const input = e.target
+    const file = input.files?.[0]
     if (!file || !profile?.id) return
 
-    const validation = await validateUploadedFile(file, {
-      category: 'image',
-      maxSizeInBytes: 2 * 1024 * 1024,
-    })
-
-    if (!validation.valid) {
-      toast.error(validation.error || 'Invalid document file')
-      return
-    }
-
     setUploadingDoc(true)
-    const safeFileName = generateSafeFileName('verification', validation.sanitizedExt || 'jpg')
-    const path = `${profile.id}/${safeFileName}`
-
     try {
+      const prepared = await prepareImageForUpload(file, 'verification')
+      if (!prepared.valid) {
+        toast.error(prepared.error)
+        return
+      }
+
+      const safeFileName = generateSafeFileName('verification', prepared.ext)
+      const path = `${profile.id}/${safeFileName}`
+
       const { error: uploadError } = await supabase.storage
         .from('verifications')
-        .upload(path, file, { upsert: true })
+        .upload(path, prepared.file, { contentType: prepared.file.type, upsert: true })
 
       if (uploadError) {
         toast.error(sanitizeAppError(uploadError, 'Failed to upload document'))
@@ -171,6 +162,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
       toast.error(sanitizeAppError(err, 'Failed to upload document'))
     } finally {
       setUploadingDoc(false)
+      input.value = ''
     }
   }
 

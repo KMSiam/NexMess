@@ -183,17 +183,77 @@ export function generateSafeFileName(prefix: string, ext: string): string {
 }
 
 /**
- * Resizes and compresses an uploaded avatar image client-side so small UI avatars
- * do not download multi-megabyte raw photos. Falls back safely to the original file
- * if canvas encoding is unavailable or does not shrink the file.
+ * Resizes and compresses any uploaded image client-side via native HTML5 <canvas>
+ * before uploading to Supabase Storage (WebP first, JPEG fallback, zero external deps).
+ * Falls back safely to the original file if canvas encoding is unavailable or larger.
  */
-export async function optimizeAvatarImage(
+export type ImageUploadPreset = 'avatar' | 'chat' | 'receipt' | 'verification'
+
+export interface ImageCompressionOptions {
+  maxDimension?: number
+  quality?: number
+  outputName?: string
+  skipBelowBytes?: number
+}
+
+const MAX_RAW_IMAGE_INPUT_BYTES = 15 * 1024 * 1024 // 15MB safety limit before client resize
+
+export const IMAGE_UPLOAD_PRESETS: Record<
+  ImageUploadPreset,
+  { maxDimension: number; quality: number; maxOutputBytes: number; outputName: string }
+> = {
+  avatar: {
+    maxDimension: 256,
+    quality: 0.82,
+    maxOutputBytes: 2 * 1024 * 1024,
+    outputName: 'avatar',
+  },
+  chat: {
+    maxDimension: 1280,
+    quality: 0.78,
+    maxOutputBytes: 5 * 1024 * 1024,
+    outputName: 'chat',
+  },
+  receipt: {
+    maxDimension: 1440,
+    quality: 0.8,
+    maxOutputBytes: 5 * 1024 * 1024,
+    outputName: 'receipt',
+  },
+  verification: {
+    maxDimension: 1600,
+    quality: 0.84,
+    maxOutputBytes: 2 * 1024 * 1024,
+    outputName: 'verification',
+  },
+}
+
+function encodeCanvas(
+  canvas: HTMLCanvasElement,
+  mimeType: string,
+  quality: number
+): Promise<Blob | null> {
+  return new Promise((resolve) => canvas.toBlob(resolve, mimeType, quality))
+}
+
+export async function compressImage(
   file: File,
   fallbackExt: string,
-  maxDimension = 256,
-  quality = 0.84
+  options: ImageCompressionOptions = {}
 ): Promise<{ file: File; ext: string }> {
-  if (typeof document === 'undefined' || typeof URL === 'undefined' || !file.type.startsWith('image/')) {
+  const {
+    maxDimension = 1280,
+    quality = 0.8,
+    outputName = 'image',
+    skipBelowBytes = 0,
+  } = options
+
+  if (
+    typeof document === 'undefined' ||
+    typeof URL === 'undefined' ||
+    typeof URL.createObjectURL !== 'function' ||
+    !file.type.startsWith('image/')
+  ) {
     return { file, ext: fallbackExt }
   }
 
@@ -211,7 +271,12 @@ export async function optimizeAvatarImage(
     const height = img.naturalHeight || img.height
     if (!width || !height) return { file, ext: fallbackExt }
 
-    const scale = Math.min(1, maxDimension / Math.max(width, height))
+    const maxSide = Math.max(width, height)
+    if (skipBelowBytes > 0 && file.size <= skipBelowBytes && maxSide <= maxDimension) {
+      return { file, ext: fallbackExt }
+    }
+
+    const scale = Math.min(1, maxDimension / maxSide)
     const targetW = Math.max(1, Math.round(width * scale))
     const targetH = Math.max(1, Math.round(height * scale))
 
@@ -223,22 +288,75 @@ export async function optimizeAvatarImage(
 
     ctx.drawImage(img, 0, 0, targetW, targetH)
 
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, 'image/webp', quality)
-    )
-    if (!blob || blob.size === 0 || (scale === 1 && blob.size >= file.size)) {
+    let blob = await encodeCanvas(canvas, 'image/webp', quality)
+    // Fall back to JPEG if the browser doesn't support WebP canvas export
+    if ((!blob || blob.type !== 'image/webp') && (file.type === 'image/jpeg' || scale < 1)) {
+      blob = await encodeCanvas(canvas, 'image/jpeg', quality)
+    }
+
+    if (!blob || blob.size === 0 || blob.size >= file.size) {
       return { file, ext: fallbackExt }
     }
 
     const outExt =
       blob.type === 'image/webp' ? 'webp' : blob.type === 'image/png' ? 'png' : 'jpg'
-    const optimized = new File([blob], `avatar.${outExt}`, {
+    const compressed = new File([blob], `${outputName}.${outExt}`, {
       type: blob.type || 'image/webp',
     })
-    return { file: optimized, ext: outExt }
+    return { file: compressed, ext: outExt }
   } catch {
     return { file, ext: fallbackExt }
   } finally {
     if (objectUrl) URL.revokeObjectURL(objectUrl)
   }
+}
+
+/**
+ * Validates an uploaded image (magic bytes & extension) and compresses it
+ * using the target bucket preset before enforcing the storage bucket limit.
+ */
+export async function prepareImageForUpload(
+  file: File,
+  presetKey: ImageUploadPreset
+): Promise<{ valid: true; file: File; ext: string } | { valid: false; error: string }> {
+  const preset = IMAGE_UPLOAD_PRESETS[presetKey]
+  const validation = await validateUploadedFile(file, {
+    category: 'image',
+    maxSizeInBytes: MAX_RAW_IMAGE_INPUT_BYTES,
+  })
+
+  if (!validation.valid) {
+    return { valid: false, error: validation.error || 'Invalid image file.' }
+  }
+
+  const fallbackExt = validation.sanitizedExt || 'jpg'
+  const { file: compressedFile, ext } = await compressImage(file, fallbackExt, {
+    maxDimension: preset.maxDimension,
+    quality: preset.quality,
+    outputName: preset.outputName,
+    skipBelowBytes: 40 * 1024,
+  })
+
+  if (compressedFile.size > preset.maxOutputBytes) {
+    const sizeInMb = (preset.maxOutputBytes / (1024 * 1024)).toFixed(0)
+    return { valid: false, error: `Compressed image still exceeds the ${sizeInMb}MB limit.` }
+  }
+
+  return { valid: true, file: compressedFile, ext }
+}
+
+/**
+ * Backward-compatible avatar optimizer wrapper around compressImage.
+ */
+export async function optimizeAvatarImage(
+  file: File,
+  fallbackExt: string,
+  maxDimension = IMAGE_UPLOAD_PRESETS.avatar.maxDimension,
+  quality = IMAGE_UPLOAD_PRESETS.avatar.quality
+): Promise<{ file: File; ext: string }> {
+  return compressImage(file, fallbackExt, {
+    maxDimension,
+    quality,
+    outputName: 'avatar',
+  })
 }
