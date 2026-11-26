@@ -499,7 +499,7 @@
     "shell": {
       "brandTagline": "SMART LIVING BD",
       "audienceBadge": "Made for Bachelor & Student Mess",
-      "copyright": "© {{year}} NexMess Technologies Ltd.",
+      "copyright": "© {{year}} NexMess",
       "versionLocation": "Version {{version}} • Dhaka, BD",
       "pwaReady": "PWA Mobile Ready",
       "faqHelp": "FAQ & Help Center",
