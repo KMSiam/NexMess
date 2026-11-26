@@ -56,7 +56,7 @@ export default function AlertBanners({
           </div>
           <button
             onClick={() => onQuickMealToggle('today', b.type)}
-            className="shrink-0 rounded-md bg-amber-500/10 px-2 py-1 text-[10px] font-bold tracking-wider text-amber-600 uppercase hover:bg-amber-500/20 dark:text-amber-400"
+            className="shrink-0 rounded-md bg-amber-500/10 px-2 py-1 text-[10px] font-bold tracking-wider text-amber-700 uppercase hover:bg-amber-500/20 dark:text-amber-400"
           >
             {t('alerts.markOn')}
           </button>
@@ -125,9 +125,9 @@ export default function AlertBanners({
       <div>
         <div className="mb-3 flex shrink-0 items-center gap-2">
           <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500" />
-          <h4 className="text-nex-text text-xs font-bold tracking-wider uppercase">
+          <h2 className="text-nex-text text-xs font-bold tracking-wider uppercase">
             {t('alerts.title')}
-          </h4>
+          </h2>
         </div>
 
         {alertsList.length === 0 ? (

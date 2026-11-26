@@ -129,7 +129,7 @@ export default function AppLayout() {
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <div className="border-nex-border/50 flex h-[65px] shrink-0 items-center gap-3 border-b px-[18px]">
             <img src={logoIcon} alt="NexMess" className="rounded-card h-9 w-9 shrink-0" />
-            <h1
+            <span
               className={`text-nex-text overflow-hidden text-lg font-bold tracking-tight whitespace-nowrap transition-[opacity,transform] duration-200 ease-out ${
                 sidebarCollapsed
                   ? 'pointer-events-none -translate-x-2 opacity-0'
@@ -138,7 +138,7 @@ export default function AppLayout() {
               aria-hidden={sidebarCollapsed}
             >
               NexMess
-            </h1>
+            </span>
           </div>
 
           <nav className="flex-1 space-y-1 overflow-x-hidden overflow-y-auto px-3 py-3">
@@ -175,6 +175,7 @@ export default function AppLayout() {
                     <img
                       src={profile.avatar_url}
                       alt=""
+                      decoding="async"
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -233,12 +234,14 @@ export default function AppLayout() {
               {currentMess ? (
                 <>
                   <button
+                    type="button"
                     onClick={() => setShowMessDropdown(!showMessDropdown)}
+                    aria-expanded={messes.length > 1 ? showMessDropdown : undefined}
                     className="bg-nex-elevated hover:bg-nex-hover border-nex-border/50 flex items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left transition-colors"
                   >
                     <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 text-xs font-bold text-white">
                       {currentMess.avatar_url ? (
-                        <img src={currentMess.avatar_url} alt="" className="h-full w-full object-cover" />
+                        <img src={currentMess.avatar_url} alt="" decoding="async" className="h-full w-full object-cover" />
                       ) : (
                         currentMess.name[0]
                       )}

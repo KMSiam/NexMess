@@ -15,9 +15,9 @@ export default function BazaarScheduleCard({ schedule }: BazaarScheduleCardProps
     <div className="nex-card p-5">
       <div className="mb-4 flex items-center gap-2">
         <CalendarDays className="text-nex-primary h-4 w-4" />
-        <h4 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
+        <h2 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
           {t('dashboard.bazaarSchedule')}
-        </h4>
+        </h2>
       </div>
       <div className="divide-nex-border space-y-3 divide-y">
         {schedule.length === 0 ? (

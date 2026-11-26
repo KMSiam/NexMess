@@ -35,9 +35,9 @@ export default function EmergencyContacts({
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ShieldAlert className="h-5 w-5 text-red-500" />
-          <h4 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
+          <h2 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
             {t('dashboard.emergencyContacts')}
-          </h4>
+          </h2>
         </div>
         {isManager && (
           <button
@@ -101,8 +101,10 @@ export default function EmergencyContacts({
               </div>
               {isManager && (
                 <button
+                  type="button"
                   onClick={() => onDelete(ec.id)}
-                  className="shrink-0 p-1.5 text-slate-400 transition-colors hover:text-red-500"
+                  aria-label={t('common.delete')}
+                  className="text-nex-muted shrink-0 p-1.5 transition-colors hover:text-red-500"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

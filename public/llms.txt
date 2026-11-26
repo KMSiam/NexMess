@@ -1,0 +1,22 @@
+# NexMess
+
+> Cloud-based smart mess management platform for shared living, bachelor messes, and student hostels in English and Bengali.
+
+NexMess helps roommates and mess managers track daily lunch and dinner meals with automatic cut-off locks, split bazaar and fixed utility bills, rotate shopping duties, export monthly PDF financial archives, and coordinate in real time.
+
+## Public Pages
+
+- [Home](https://www.nexmess.shop/): Overview of NexMess features and interactive meal/cost preview.
+- [FAQ](https://www.nexmess.shop/faq): Frequently asked questions about meal cut-offs, meal rate calculation, deposits, and privacy.
+- [Privacy Policy](https://www.nexmess.shop/privacy-policy): Data collection, storage, and security practices.
+- [Terms of Service](https://www.nexmess.shop/terms-of-service): Platform usage terms and responsibilities.
+- [Sign In](https://www.nexmess.shop/login): Access an existing NexMess account.
+- [Create Account](https://www.nexmess.shop/register): Register a new account to create or join a mess.
+
+## Core Capabilities
+
+- Daily meal toggles (Lunch & Dinner) with automatic 10:00 AM and 4:00 PM (UTC+6) cut-off timers and guest meal tracking.
+- Automated meal rate calculation, fixed utility splitting, and peer-to-peer settlement summaries.
+- Weekly bazaar duty rotation and meal menu schedule.
+- Real-time group chat, pinned notice board, and monthly PDF financial reports.
+- Full English and Bengali (বাংলা) localization with offline-ready PWA support.

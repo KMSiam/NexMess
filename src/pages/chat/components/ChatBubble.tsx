@@ -105,9 +105,11 @@ export default function ChatBubble({
             }`}
           >
             <button
+              type="button"
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               className="text-nex-muted hover:text-nex-text hover:bg-nex-hover rounded-full p-1 transition-colors"
               title="Add reaction"
+              aria-label="Add reaction"
             >
               <Smile className="h-3.5 w-3.5" />
             </button>

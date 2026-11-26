@@ -208,9 +208,11 @@ export default function FixedCostTab({
                   </p>
                   {isManager && (
                     <button
+                      type="button"
                       onClick={() => onDeleteFixedCost(fc.id)}
                       className="p-1 text-red-500 transition-colors hover:text-red-700"
                       title={t('common.delete')}
+                      aria-label={t('common.delete')}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

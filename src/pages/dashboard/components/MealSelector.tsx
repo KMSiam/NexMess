@@ -37,9 +37,9 @@ export default function MealSelector({
     <div className="nex-card h-full p-5">
       <div className="mb-4 space-y-2.5">
         <div className="flex items-center justify-between gap-3">
-          <h4 className="text-nex-text shrink-0 text-xs font-bold tracking-wider whitespace-nowrap uppercase sm:text-sm sm:font-semibold">
+          <h2 className="text-nex-text shrink-0 text-xs font-bold tracking-wider whitespace-nowrap uppercase sm:text-sm sm:font-semibold">
             {t('dashboard.myMealsTitle')}
-          </h4>
+          </h2>
           <div className="bg-nex-elevated rounded-btn flex shrink-0 gap-1 p-1">
             <button
               type="button"
@@ -59,8 +59,8 @@ export default function MealSelector({
         </div>
         {(routines[mealTab].lunch || routines[mealTab].dinner) && (
           <div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1">
-            <UtensilsCrossed className="h-3 w-3 shrink-0 text-amber-500" />
-            <span className="truncate text-xs font-medium text-amber-500">
+            <UtensilsCrossed className="h-3 w-3 shrink-0 text-amber-700 dark:text-amber-400" />
+            <span className="truncate text-xs font-medium text-amber-700 dark:text-amber-400">
               {mealTab === 'today' ? t('common.today') : t('common.tomorrow')}:{' '}
               {routines[mealTab].lunch
                 ? `${getFoodEmoji(routines[mealTab].lunch)} ${formatFoodName(routines[mealTab].lunch)} (${t('meals.lunchShort')})`
@@ -170,9 +170,11 @@ export default function MealSelector({
                 <p className="text-nex-muted text-xs font-medium">{t('dashboard.guests')}</p>
                 <div className="flex items-center gap-3">
                   <button
+                    type="button"
                     onClick={() => onUpdateGuest(mealTab, type, -1)}
                     disabled={mealLoading || locked || guests === 0}
                     title={lockTitle}
+                    aria-label={`${label}: -1 ${t('dashboard.guests')}`}
                     className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-6 w-6 items-center justify-center rounded-md border transition-colors disabled:opacity-45 dark:bg-[#161618] dark:hover:bg-[#26262b]"
                   >
                     -
@@ -181,9 +183,11 @@ export default function MealSelector({
                     {formatNumber(guests)}
                   </span>
                   <button
+                    type="button"
                     onClick={() => onUpdateGuest(mealTab, type, 1)}
                     disabled={mealLoading || locked}
                     title={lockTitle}
+                    aria-label={`${label}: +1 ${t('dashboard.guests')}`}
                     className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-6 w-6 items-center justify-center rounded-md border transition-colors disabled:opacity-45 dark:bg-[#161618] dark:hover:bg-[#26262b]"
                   >
                     +

@@ -39,9 +39,9 @@ export default function NoticeBoard({
         <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Pin className="h-4 w-4 shrink-0 rotate-45 text-indigo-500" />
-            <h4 className="text-nex-text text-xs font-bold tracking-wider uppercase">
+            <h2 className="text-nex-text text-xs font-bold tracking-wider uppercase">
               {t('dashboard.noticeBoard')}
-            </h4>
+            </h2>
           </div>
           {isManager && !showInput && (
             <button

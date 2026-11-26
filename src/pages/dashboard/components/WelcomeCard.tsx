@@ -21,6 +21,7 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
             <img
               src={profile.avatar_url}
               alt=""
+              decoding="async"
               className="h-full w-full rounded-full object-cover"
             />
           ) : (
@@ -29,9 +30,9 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
         </div>
 
         <div>
-          <h3 className="text-nex-text flex items-center gap-2 text-xl font-bold tracking-tight">
+          <h1 className="text-nex-text flex items-center gap-2 text-xl font-bold tracking-tight">
             {getGreeting()}, {username || t('common.member')} 👋
-          </h3>
+          </h1>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="text-nex-muted flex items-center gap-1 text-xs">
               <Calendar className="h-3.5 w-3.5" />
@@ -42,7 +43,7 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
               className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${
                 isManager
                   ? 'bg-nex-primary-light text-nex-primary border-nex-primary/10 dark:bg-nex-primary/10 dark:text-nex-primary dark:border-nex-primary/20'
-                  : 'bg-nex-success-light text-nex-success border-nex-success/10 dark:bg-nex-success/10 dark:text-nex-success dark:border-nex-success/20'
+                  : 'bg-nex-success-light border-nex-success/10 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400'
               }`}
             >
               {isManager ? (

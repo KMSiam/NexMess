@@ -181,3 +181,64 @@ export function generateSafeFileName(prefix: string, ext: string): string {
   const cleanExt = ext.replace(/[^a-zA-Z0-9]/g, '')
   return `${cleanPrefix}-${Date.now()}-${randomSuffix}.${cleanExt}`
 }
+
+/**
+ * Resizes and compresses an uploaded avatar image client-side so small UI avatars
+ * do not download multi-megabyte raw photos. Falls back safely to the original file
+ * if canvas encoding is unavailable or does not shrink the file.
+ */
+export async function optimizeAvatarImage(
+  file: File,
+  fallbackExt: string,
+  maxDimension = 256,
+  quality = 0.84
+): Promise<{ file: File; ext: string }> {
+  if (typeof document === 'undefined' || typeof URL === 'undefined' || !file.type.startsWith('image/')) {
+    return { file, ext: fallbackExt }
+  }
+
+  let objectUrl: string | null = null
+  try {
+    objectUrl = URL.createObjectURL(file)
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image()
+      el.onload = () => resolve(el)
+      el.onerror = () => reject(new Error('Image decode failed'))
+      el.src = objectUrl!
+    })
+
+    const width = img.naturalWidth || img.width
+    const height = img.naturalHeight || img.height
+    if (!width || !height) return { file, ext: fallbackExt }
+
+    const scale = Math.min(1, maxDimension / Math.max(width, height))
+    const targetW = Math.max(1, Math.round(width * scale))
+    const targetH = Math.max(1, Math.round(height * scale))
+
+    const canvas = document.createElement('canvas')
+    canvas.width = targetW
+    canvas.height = targetH
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return { file, ext: fallbackExt }
+
+    ctx.drawImage(img, 0, 0, targetW, targetH)
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/webp', quality)
+    )
+    if (!blob || blob.size === 0 || (scale === 1 && blob.size >= file.size)) {
+      return { file, ext: fallbackExt }
+    }
+
+    const outExt =
+      blob.type === 'image/webp' ? 'webp' : blob.type === 'image/png' ? 'png' : 'jpg'
+    const optimized = new File([blob], `avatar.${outExt}`, {
+      type: blob.type || 'image/webp',
+    })
+    return { file: optimized, ext: outExt }
+  } catch {
+    return { file, ext: fallbackExt }
+  } finally {
+    if (objectUrl) URL.revokeObjectURL(objectUrl)
+  }
+}

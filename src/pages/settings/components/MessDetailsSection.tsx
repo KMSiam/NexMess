@@ -7,7 +7,7 @@ import { useMessStore } from '../../../stores/messStore'
 import { supabase } from '../../../lib/supabase'
 import { getInitials } from '../../../lib/utils'
 import { updateMessDetailsSchema, validateForm } from '../../../lib/validation/schemas'
-import { validateUploadedFile, generateSafeFileName } from '../../../lib/fileValidator'
+import { validateUploadedFile, generateSafeFileName, optimizeAvatarImage } from '../../../lib/fileValidator'
 import { sanitizeAppError } from '../../../lib/errorHandler'
 
 interface MessDetailsSectionProps {
@@ -53,13 +53,17 @@ export default function MessDetailsSection({
     }
 
     setUploading(true)
-    const safeFileName = generateSafeFileName('mess-avatar', validation.sanitizedExt || 'jpg')
+    const { file: uploadFile, ext } = await optimizeAvatarImage(
+      file,
+      validation.sanitizedExt || 'jpg'
+    )
+    const safeFileName = generateSafeFileName('mess-avatar', ext)
     const path = `mess-${currentMess.id}/${safeFileName}`
 
     try {
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(path, file, { upsert: true })
+        .upload(path, uploadFile, { upsert: true })
 
       if (uploadError) {
         toast.error(sanitizeAppError(uploadError, 'Failed to upload avatar'))

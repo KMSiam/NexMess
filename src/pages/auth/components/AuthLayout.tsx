@@ -165,7 +165,7 @@ export default function AuthLayout({
             <span>{heroBadge}</span>
           </div>
 
-          <h2 className="text-4xl leading-[1.14] font-extrabold tracking-tight text-white xl:text-[2.75rem]">
+          <p className="text-4xl leading-[1.14] font-extrabold tracking-tight text-white xl:text-[2.75rem]">
             {heroTitleLine1}
             <br />
             {heroUnderlineSecondLine ? (
@@ -189,7 +189,7 @@ export default function AuthLayout({
             ) : (
               heroTitleLine2
             )}
-          </h2>
+          </p>
 
           <p className="mt-5 max-w-md text-[15px] leading-relaxed text-[#D8E5DC]">{heroDesc}</p>
 

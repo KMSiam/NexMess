@@ -114,7 +114,9 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
                 <h3 className="text-nex-text text-sm font-bold">{t('support.title')}</h3>
               </div>
               <button
+                type="button"
                 onClick={onClose}
+                aria-label={t('common.close')}
                 className="text-nex-muted hover:text-nex-text hover:bg-nex-border/50 rounded-lg p-1.5 transition-colors"
               >
                 <X className="h-4 w-4" />

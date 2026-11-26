@@ -160,7 +160,7 @@ export default function UpdatePasswordPage() {
             </div>
             <span className="text-3xl font-bold">NexMess</span>
           </div>
-          <h2 className="mb-4 text-4xl leading-tight font-bold">{t('auth.updatePassword.heroTitle')}</h2>
+          <p className="mb-4 text-4xl leading-tight font-bold">{t('auth.updatePassword.heroTitle')}</p>
           <p className="text-lg leading-relaxed text-[#EDF2EE]">
             {t('auth.updatePassword.heroDesc')}
           </p>

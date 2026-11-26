@@ -263,16 +263,20 @@ export default function ExpenseTab({
                 {isManager && (
                   <div className="border-nex-border ml-2 flex items-center gap-1.5 border-l pl-3">
                     <button
+                      type="button"
                       onClick={() => startEdit(exp)}
                       className="rounded-btn text-nex-muted hover:text-nex-primary hover:bg-nex-hover p-1 transition-colors"
                       title={t('common.edit')}
+                      aria-label={t('common.edit')}
                     >
                       <Edit2 className="h-3.5 w-3.5" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => setDeleteExpenseId(exp.id)}
                       className="rounded-btn text-nex-muted hover:text-nex-danger hover:bg-nex-hover p-1 transition-colors"
                       title={t('common.delete')}
+                      aria-label={t('common.delete')}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>

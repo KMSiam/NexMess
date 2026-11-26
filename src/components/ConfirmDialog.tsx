@@ -100,7 +100,9 @@ export default function ConfirmDialog({
                   <p className="text-nex-muted mt-1 text-sm leading-relaxed">{message}</p>
                 </div>
                 <button
+                  type="button"
                   onClick={handleCancel}
+                  aria-label={displayCancelText}
                   className="rounded-btn text-nex-muted hover:bg-nex-hover shrink-0 p-1 transition-colors"
                 >
                   <X className="h-4 w-4" />

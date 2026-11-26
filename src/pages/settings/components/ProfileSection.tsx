@@ -6,7 +6,7 @@ import { Camera } from 'lucide-react'
 import toast from 'react-hot-toast'
 import type { Profile } from '../../../types/database'
 import { profileUpdateSchema, validateForm } from '../../../lib/validation/schemas'
-import { validateUploadedFile, generateSafeFileName } from '../../../lib/fileValidator'
+import { validateUploadedFile, generateSafeFileName, optimizeAvatarImage } from '../../../lib/fileValidator'
 import { sanitizeAppError } from '../../../lib/errorHandler'
 
 interface ProfileSectionProps {
@@ -111,13 +111,17 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
     }
 
     setUploading(true)
-    const safeFileName = generateSafeFileName('avatar', validation.sanitizedExt || 'jpg')
+    const { file: uploadFile, ext } = await optimizeAvatarImage(
+      file,
+      validation.sanitizedExt || 'jpg'
+    )
+    const safeFileName = generateSafeFileName('avatar', ext)
     const path = `${profile.id}/${safeFileName}`
 
     try {
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(path, file, { upsert: true })
+        .upload(path, uploadFile, { upsert: true })
 
       if (uploadError) {
         toast.error(sanitizeAppError(uploadError, 'Failed to upload image'))

@@ -200,7 +200,7 @@ export default function LandingPage() {
               </span>
               <div className="flex items-center gap-1">
                 <span className="h-2 w-2 animate-ping rounded-full bg-emerald-500" />
-                <span className="text-[10px] font-bold text-emerald-500">
+                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
                   {isBangla ? 'লাইভ' : 'LIVE'}
                 </span>
               </div>
@@ -231,8 +231,8 @@ export default function LandingPage() {
                   animate={{ scale: 1 }}
                   className={`mt-0.5 text-sm font-bold ${
                     balance >= 0
-                      ? 'text-emerald-600 dark:text-emerald-400'
-                      : 'text-rose-600 dark:text-rose-400'
+                      ? 'text-emerald-700 dark:text-emerald-400'
+                      : 'text-rose-700 dark:text-rose-400'
                   }`}
                 >
                   {formatCurrency(Math.round(balance))}
@@ -248,7 +248,7 @@ export default function LandingPage() {
                 <p className="text-nex-muted text-[9px] font-medium tracking-wider uppercase">
                   {isBangla ? 'মেসের খরচ' : 'Mess Spent'}
                 </p>
-                <p className="mt-0.5 text-sm font-bold text-amber-600 dark:text-amber-400">
+                <p className="mt-0.5 text-sm font-bold text-amber-700 dark:text-amber-400">
                   {formatCurrency(messTotalSpent)}
                 </p>
               </div>
@@ -257,9 +257,9 @@ export default function LandingPage() {
             {/* Meal Selector Preview */}
             <div className="border-nex-border bg-nex-bg/60 rounded-xl border p-3.5 sm:p-4">
               <div className="mb-3 flex items-center justify-between">
-                <h4 className="text-nex-text text-xs font-semibold tracking-wider uppercase">
+                <p className="text-nex-text text-xs font-semibold tracking-wider uppercase">
                   {isBangla ? 'আমার মিল' : 'My Meals'}
-                </h4>
+                </p>
                 <div className="bg-nex-elevated border-nex-border/60 flex rounded-md border p-0.5">
                   <button
                     type="button"
@@ -323,6 +323,7 @@ export default function LandingPage() {
                       type="button"
                       role="switch"
                       aria-checked={lunchActive}
+                      aria-label={isBangla ? 'দুপুর' : 'Lunch'}
                       onClick={toggleLunch}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full p-0.5 transition-all duration-300 active:scale-95 ${
                         lunchActive
@@ -350,6 +351,7 @@ export default function LandingPage() {
                         type="button"
                         onClick={() => updateLunchGuests(-1)}
                         disabled={lunchGuests === 0}
+                        aria-label={isBangla ? 'দুপুরের মেহমান কমান' : 'Decrease lunch guests'}
                         className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-5 w-5 cursor-pointer items-center justify-center rounded border text-[10px] font-bold disabled:opacity-45 dark:bg-[#161618]"
                       >
                         -
@@ -360,6 +362,7 @@ export default function LandingPage() {
                       <button
                         type="button"
                         onClick={() => updateLunchGuests(1)}
+                        aria-label={isBangla ? 'দুপুরের মেহমান বাড়ান' : 'Increase lunch guests'}
                         className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-5 w-5 cursor-pointer items-center justify-center rounded border text-[10px] font-bold dark:bg-[#161618]"
                       >
                         +
@@ -404,6 +407,7 @@ export default function LandingPage() {
                       type="button"
                       role="switch"
                       aria-checked={dinnerActive}
+                      aria-label={isBangla ? 'রাত' : 'Dinner'}
                       onClick={toggleDinner}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full p-0.5 transition-all duration-300 active:scale-95 ${
                         dinnerActive
@@ -431,6 +435,7 @@ export default function LandingPage() {
                         type="button"
                         onClick={() => updateDinnerGuests(-1)}
                         disabled={dinnerGuests === 0}
+                        aria-label={isBangla ? 'রাতের মেহমান কমান' : 'Decrease dinner guests'}
                         className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-5 w-5 cursor-pointer items-center justify-center rounded border text-[10px] font-bold disabled:opacity-45 dark:bg-[#161618]"
                       >
                         -
@@ -441,6 +446,7 @@ export default function LandingPage() {
                       <button
                         type="button"
                         onClick={() => updateDinnerGuests(1)}
+                        aria-label={isBangla ? 'রাতের মেহমান বাড়ান' : 'Increase dinner guests'}
                         className="bg-nex-surface border-nex-border text-nex-muted hover:bg-nex-hover flex h-5 w-5 cursor-pointer items-center justify-center rounded border text-[10px] font-bold dark:bg-[#161618]"
                       >
                         +
@@ -453,9 +459,9 @@ export default function LandingPage() {
 
             {/* Simulated Live Activity Log */}
             <div className="border-nex-border bg-nex-bg/30 mt-4 rounded-xl border p-3.5 sm:p-4">
-              <h4 className="text-nex-text mb-2 text-[10px] font-bold tracking-wider uppercase">
+              <p className="text-nex-text mb-2 text-[10px] font-bold tracking-wider uppercase">
                 {isBangla ? 'সাম্প্রতিক কার্যক্রম' : 'Recent Activity'}
-              </h4>
+              </p>
               <div className="flex min-h-[90px] flex-col gap-2">
                 {activities.map((act) => (
                   <div

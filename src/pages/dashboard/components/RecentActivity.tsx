@@ -37,9 +37,9 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Activity className="text-nex-primary h-4 w-4" />
-          <h4 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
+          <h2 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
             {t('dashboard.recentActivity')}
-          </h4>
+          </h2>
         </div>
         {activities.length > 0 && (
           <Link to="/activity" className="text-nex-primary text-xs font-semibold hover:underline">

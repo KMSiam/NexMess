@@ -343,7 +343,9 @@ export default function MemberManagement({
             onClick={(e) => e.stopPropagation()}
           >
             <button
+              type="button"
               onClick={() => setSelectedDocUrl(null)}
+              aria-label={t('common.close')}
               className="absolute top-4 right-4 z-10 rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
             >
               <X className="h-5 w-5" />

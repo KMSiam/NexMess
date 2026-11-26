@@ -318,7 +318,9 @@ export default function BazaarSchedule() {
       <div className="nex-card p-5">
         <div className="mb-5 flex items-center justify-between">
           <button
+            type="button"
             onClick={() => setCurrentWeek(subWeeks(currentWeek, 1))}
+            aria-label="Previous week"
             className="rounded-btn hover:bg-nex-hover text-nex-muted p-2 transition-colors"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -327,7 +329,9 @@ export default function BazaarSchedule() {
             {formatLocalizedDate(weekStart, 'MMM d')} – {formatLocalizedDate(weekEnd, 'MMM d, yyyy')}
           </h2>
           <button
+            type="button"
             onClick={() => setCurrentWeek(addWeeks(currentWeek, 1))}
+            aria-label="Next week"
             className="rounded-btn hover:bg-nex-hover text-nex-muted p-2 transition-colors"
           >
             <ChevronRight className="h-5 w-5" />
@@ -401,7 +405,9 @@ export default function BazaarSchedule() {
                               </p>
                               {isManager && (
                                 <button
+                                  type="button"
                                   onClick={() => handleDelete(ds.id)}
+                                  aria-label={t('common.delete')}
                                   className="text-nex-muted hover:text-nex-danger transition-colors"
                                 >
                                   <Trash2 className="mx-auto h-3 w-3" />
@@ -494,7 +500,9 @@ export default function BazaarSchedule() {
                               </div>
                               {isManager && (
                                 <button
+                                  type="button"
                                   onClick={() => handleDelete(ds.id)}
+                                  aria-label={t('common.delete')}
                                   className="text-nex-muted hover:text-nex-danger p-1.5 transition-colors"
                                 >
                                   <Trash2 className="h-4 w-4" />

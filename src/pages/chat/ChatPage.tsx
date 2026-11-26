@@ -344,6 +344,7 @@ export default function ChatPage() {
         <button
           type="submit"
           disabled={sending || !newMessage.trim()}
+          aria-label={t('chat.send', { defaultValue: 'Send message' })}
           className="nex-btn-primary px-4 disabled:opacity-50"
           id="chat-send"
         >

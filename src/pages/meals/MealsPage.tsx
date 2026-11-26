@@ -297,7 +297,9 @@ export default function MealsPage() {
       <div className="nex-card p-5">
         <div className="mb-4 flex items-center justify-between">
           <button
+            type="button"
             onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+            aria-label="Previous month"
             className="rounded-btn hover:bg-nex-hover text-nex-muted p-2 transition-colors"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -306,7 +308,9 @@ export default function MealsPage() {
             {formatLocalizedDate(currentDate, 'MMMM yyyy')}
           </h2>
           <button
+            type="button"
             onClick={() => setCurrentDate(addMonths(currentDate, 1))}
+            aria-label="Next month"
             className="rounded-btn hover:bg-nex-hover text-nex-muted p-2 transition-colors"
           >
             <ChevronRight className="h-5 w-5" />
@@ -599,6 +603,7 @@ export default function MealsPage() {
               <button
                 type="button"
                 onClick={() => setOverrideOpen(false)}
+                aria-label={t('common.close')}
                 className="hover:bg-nex-hover text-nex-muted rounded p-1"
               >
                 <X className="h-4 w-4" />

@@ -215,9 +215,9 @@ export default function DashboardPage() {
           <div className="bg-nex-primary-light mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full">
             <Users className="text-nex-primary h-8 w-8" />
           </div>
-          <h2 className="text-nex-text mb-2 text-2xl font-bold">
+          <h1 className="text-nex-text mb-2 text-2xl font-bold">
             {t('dashboard.noMess.title')}
-          </h2>
+          </h1>
           <p className="text-nex-muted mb-6">
             {t('dashboard.noMess.description')}
           </p>
@@ -233,9 +233,9 @@ export default function DashboardPage() {
 
         {pendingRequests && pendingRequests.length > 0 && (
           <div className="space-y-3">
-            <h3 className="text-nex-muted text-center text-xs font-bold tracking-wider uppercase">
+            <h2 className="text-nex-muted text-center text-xs font-bold tracking-wider uppercase">
               {t('dashboard.noMess.pendingRequests')}
-            </h3>
+            </h2>
             {pendingRequests.map((req) => (
               <div
                 key={req.mess_id}
@@ -244,15 +244,15 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white shadow-inner">
                     {req.messes?.avatar_url ? (
-                      <img src={req.messes.avatar_url} alt="" className="h-full w-full object-cover" />
+                      <img src={req.messes.avatar_url} alt="" decoding="async" className="h-full w-full object-cover" />
                     ) : (
                       req.messes?.name?.[0] || '?'
                     )}
                   </div>
                   <div>
-                    <h4 className="text-nex-text font-semibold">
+                    <h3 className="text-nex-text font-semibold">
                       {req.messes?.name || 'Unknown Mess'}
-                    </h4>
+                    </h3>
                     <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-amber-500">
                       <span className="relative flex h-2 w-2">
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
