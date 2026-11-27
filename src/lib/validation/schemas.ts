@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod'
+import { FIXED_COST_CATEGORIES } from '../spending'
 
 // ─── Common Regex Patterns ───
 const PHONE_REGEX = /^[+]?[0-9\s()-]{7,20}$/
@@ -172,11 +173,38 @@ export const expenseSchema = z.object({
     .number()
     .positive('Amount must be greater than 0')
     .max(1000000, 'Amount exceeds maximum allowed limit (1,000,000)'),
-  category: z.enum(['bazaar', 'utilities', 'utility', 'maid', 'wifi', 'rent', 'other']),
+  category: z.enum([
+    'bazaar',
+    'utilities',
+    'utility',
+    'maid',
+    'wifi',
+    'internet',
+    'gas',
+    'electricity',
+    'water',
+    'waste',
+    'rent',
+    'other',
+  ]),
   description: z
     .string()
     .trim()
     .max(500, 'Description cannot exceed 500 characters')
+    .optional()
+    .nullable(),
+})
+
+export const fixedCostSchema = z.object({
+  category: z.enum(FIXED_COST_CATEGORIES),
+  amount: z
+    .number()
+    .positive('Amount must be greater than 0')
+    .max(1000000, 'Amount exceeds maximum allowed limit (1,000,000)'),
+  label: z
+    .string()
+    .trim()
+    .max(120, 'Label cannot exceed 120 characters')
     .optional()
     .nullable(),
 })

@@ -1,11 +1,18 @@
-export type SpendingCategoryKey =
-  | 'bazaar'
-  | 'rent'
-  | 'utilities'
-  | 'maid'
-  | 'gas'
-  | 'internet'
-  | 'other'
+export const FIXED_COST_CATEGORIES = [
+  'rent',
+  'utilities',
+  'electricity',
+  'water',
+  'gas',
+  'internet',
+  'maid',
+  'waste',
+  'other',
+] as const
+
+export type FixedCostCategory = (typeof FIXED_COST_CATEGORIES)[number]
+
+export type SpendingCategoryKey = 'bazaar' | FixedCostCategory
 
 export interface SpendingCategorySlice {
   category: SpendingCategoryKey
@@ -30,10 +37,17 @@ const CATEGORY_ALIAS: Record<string, SpendingCategoryKey> = {
   rent: 'rent',
   utilities: 'utilities',
   utility: 'utilities',
-  maid: 'maid',
+  electricity: 'electricity',
+  electric: 'electricity',
+  water: 'water',
+  pani: 'water',
   gas: 'gas',
   internet: 'internet',
   wifi: 'internet',
+  maid: 'maid',
+  waste: 'waste',
+  moyla: 'waste',
+  garbage: 'waste',
   other: 'other',
 }
 
@@ -41,9 +55,12 @@ const CATEGORY_STYLES: Record<SpendingCategoryKey, { colorClass: string; dotClas
   bazaar: { colorClass: 'bg-emerald-500', dotClass: 'bg-emerald-500' },
   rent: { colorClass: 'bg-blue-500', dotClass: 'bg-blue-500' },
   utilities: { colorClass: 'bg-amber-500', dotClass: 'bg-amber-500' },
-  maid: { colorClass: 'bg-violet-500', dotClass: 'bg-violet-500' },
+  electricity: { colorClass: 'bg-yellow-500', dotClass: 'bg-yellow-500' },
+  water: { colorClass: 'bg-sky-500', dotClass: 'bg-sky-500' },
   gas: { colorClass: 'bg-orange-500', dotClass: 'bg-orange-500' },
   internet: { colorClass: 'bg-cyan-500', dotClass: 'bg-cyan-500' },
+  maid: { colorClass: 'bg-violet-500', dotClass: 'bg-violet-500' },
+  waste: { colorClass: 'bg-teal-500', dotClass: 'bg-teal-500' },
   other: { colorClass: 'bg-slate-400 dark:bg-slate-500', dotClass: 'bg-slate-400 dark:bg-slate-500' },
 }
 
@@ -61,9 +78,12 @@ export function computeSpendingBreakdown(
     bazaar: 0,
     rent: 0,
     utilities: 0,
-    maid: 0,
+    electricity: 0,
+    water: 0,
     gas: 0,
     internet: 0,
+    maid: 0,
+    waste: 0,
     other: 0,
   }
 

@@ -23,6 +23,12 @@ describe('i18n Localization Engine', () => {
     expect(Object.keys(bn.finance.tabs).sort()).toEqual(Object.keys(en.finance.tabs).sort())
     expect(Object.keys(bn.finance.actions).sort()).toEqual(Object.keys(en.finance.actions).sort())
     expect(Object.keys(bn.finance.cards).sort()).toEqual(Object.keys(en.finance.cards).sort())
+    expect(Object.keys(bn.finance.categories).sort()).toEqual(
+      Object.keys(en.finance.categories).sort(),
+    )
+    expect(Object.keys(bn.finance.fixedModal).sort()).toEqual(
+      Object.keys(en.finance.fixedModal).sort(),
+    )
     expect(Object.keys(bn.finance.breakdown).sort()).toEqual(Object.keys(en.finance.breakdown).sort())
     expect(Object.keys(bn.finance.depositModal).sort()).toEqual(
       Object.keys(en.finance.depositModal).sort(),
@@ -42,6 +48,12 @@ describe('i18n Localization Engine', () => {
     expect(bn.dashboard.stats.mealRate).toBe('মিল রেট')
     expect(bn.dashboard.stats.messBalance).toBe('মেস তহবিল')
     expect(bn.finance.tabs.settleUp).toBe('লেনদেন নিষ্পত্তি')
+    expect(bn.finance.categories.electricity).toBe('বিদ্যুৎ বিল')
+    expect(bn.finance.categories.water).toBe('পানির বিল')
+    expect(bn.finance.categories.waste).toBe('ময়লা বিল')
+    expect(en.finance.categories.electricity).toBe('Electricity Bill')
+    expect(en.finance.categories.water).toBe('Water Bill')
+    expect(en.finance.categories.waste).toBe('Waste / Moyla Bill')
   })
 
   it('switches language and persists to localStorage and document.documentElement', async () => {

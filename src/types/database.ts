@@ -1,3 +1,7 @@
+import type { FixedCostCategory } from '../lib/spending'
+
+export type { FixedCostCategory }
+
 export interface Profile {
   id: string
   username: string | null
@@ -77,7 +81,7 @@ export interface Deposit {
 export interface FixedCost {
   id: string
   mess_id: string
-  category: 'rent' | 'utilities' | 'maid' | 'internet' | 'gas' | 'other'
+  category: FixedCostCategory
   label: string | null
   amount: number
   month: string

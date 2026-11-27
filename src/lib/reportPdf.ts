@@ -110,6 +110,34 @@ function capitalizeWords(text: string): string {
   return clean.replace(/\b[a-z]/g, (ch) => ch.toUpperCase())
 }
 
+const FIXED_COST_PDF_LABELS: Record<string, string> = {
+  rent: 'House Rent',
+  utilities: 'Utilities',
+  electricity: 'Electricity Bill',
+  water: 'Water Bill',
+  gas: 'Gas Bill',
+  internet: 'Internet Bill',
+  maid: 'Cook / Maid',
+  waste: 'Waste / Moyla Bill',
+  other: 'Other',
+}
+
+/**
+ * Formats archived or live fixed-cost descriptions (e.g. `waste (April)` -> `Waste / Moyla Bill (April)`).
+ */
+export function formatFixedCostDescription(description: string): string {
+  const clean = sanitizePdfText(description)
+  if (!clean) return '-'
+  const match = /^([a-zA-Z]+)(?:\s*\((.+)\))?$/.exec(clean)
+  if (match) {
+    const mapped = FIXED_COST_PDF_LABELS[match[1].toLowerCase()]
+    if (mapped) {
+      return match[2] ? `${mapped} (${capitalizeWords(match[2])})` : mapped
+    }
+  }
+  return capitalizeWords(clean)
+}
+
 function pluralize(count: number, singular: string, plural: string): string {
   return `${count} ${count === 1 ? singular : plural}`
 }
@@ -606,7 +634,7 @@ export function buildReportPdf(
       showHead: 'everyPage',
       showFoot: 'lastPage',
       head: [['Fixed Cost Category / Description', 'Amount']],
-      body: data.fixedCosts.map((fc) => [capitalizeWords(fc.description), formatTk(fc.amount)]),
+      body: data.fixedCosts.map((fc) => [formatFixedCostDescription(fc.description), formatTk(fc.amount)]),
       foot: [['Total Fixed Costs', formatTk(data.totalFixed)]],
       theme: 'grid',
       headStyles: { fillColor: SLATE_ACCENT, textColor: WHITE, fontSize: 8, fontStyle: 'bold' },

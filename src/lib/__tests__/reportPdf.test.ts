@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   buildMealMatrixData,
   buildReportPdf,
+  formatFixedCostDescription,
   formatMealValue,
   formatTk,
   parseLocalDateStr,
@@ -37,6 +38,11 @@ describe('PDF Report Generation Utilities', () => {
       'NexMess_Bachelor_Point_Mess_1_Financial_Record_2026-11.pdf',
     )
     expect(sanitizePdfFilename('   ', '2026-11')).toBe('NexMess_Mess_Financial_Record_2026-11.pdf')
+    expect(formatFixedCostDescription('waste')).toBe('Waste / Moyla Bill')
+    expect(formatFixedCostDescription('waste (City Corp)')).toBe('Waste / Moyla Bill (City Corp)')
+    expect(formatFixedCostDescription('water (WASA)')).toBe('Water Bill (WASA)')
+    expect(formatFixedCostDescription('electricity')).toBe('Electricity Bill')
+    expect(formatFixedCostDescription('rent (House)')).toBe('House Rent (House)')
   })
 
   it('builds the meal history matrix in O(N) time with accurate totals', () => {

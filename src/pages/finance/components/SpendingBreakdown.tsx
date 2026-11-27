@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { computeSpendingBreakdown } from '../../../lib/spending'
 import { formatCurrency, formatNumber } from '../../../lib/utils'
 import type { Expense, FixedCost } from '../../../types/database'
+import { getFinanceCategoryMeta } from './financeCategories'
 
 interface SpendingBreakdownProps {
   expenses: Expense[]
@@ -68,25 +69,30 @@ export default function SpendingBreakdown({
 
           {/* Category Breakdown List */}
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {breakdown.slices.map((slice) => (
-              <div
-                key={slice.category}
-                className="bg-nex-elevated/60 border-nex-border/60 flex items-center justify-between rounded-xl border px-3 py-2 text-xs"
-              >
-                <div className="flex min-w-0 items-center gap-2">
-                  <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${slice.dotClass}`} />
-                  <span className="text-nex-text truncate font-medium">
-                    {t(`finance.categories.${slice.category}`)}
-                  </span>
+            {breakdown.slices.map((slice) => {
+              const meta = getFinanceCategoryMeta(slice.category)
+              const CategoryIcon = meta.icon
+              return (
+                <div
+                  key={slice.category}
+                  className="bg-nex-elevated/60 border-nex-border/60 flex items-center justify-between rounded-xl border px-3 py-2 text-xs"
+                >
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${slice.dotClass}`} />
+                    <CategoryIcon className={`h-3.5 w-3.5 shrink-0 ${meta.textClass}`} />
+                    <span className="text-nex-text truncate font-medium">
+                      {t(`finance.categories.${slice.category}`)}
+                    </span>
+                  </div>
+                  <div className="ml-2 flex shrink-0 items-baseline gap-1.5 tabular-nums">
+                    <span className="text-nex-text font-semibold">{formatCurrency(slice.amount)}</span>
+                    <span className="text-nex-muted text-[11px]">
+                      ({formatNumber(slice.percent)}%)
+                    </span>
+                  </div>
                 </div>
-                <div className="ml-2 flex shrink-0 items-baseline gap-1.5 tabular-nums">
-                  <span className="text-nex-text font-semibold">{formatCurrency(slice.amount)}</span>
-                  <span className="text-nex-muted text-[11px]">
-                    ({formatNumber(slice.percent)}%)
-                  </span>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           {/* Deposit Pool Utilization & Variable vs Fixed Comparison */}

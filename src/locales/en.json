@@ -230,11 +230,14 @@
     },
     "categories": {
       "bazaar": "Bazaar",
-      "utilities": "Utilities",
       "rent": "House Rent",
-      "maid": "Cook / Maid",
+      "utilities": "Utilities",
+      "electricity": "Electricity Bill",
+      "water": "Water Bill",
       "gas": "Gas Bill",
       "internet": "Internet Bill",
+      "maid": "Cook / Maid",
+      "waste": "Waste / Moyla Bill",
       "other": "Other"
     },
     "expenseModal": {
@@ -277,14 +280,14 @@
       "editTitle": "Edit Fixed Cost",
       "categoryLabel": "Category",
       "labelLabel": "Label / Description",
-      "labelPlaceholder": "e.g. May House Rent, Internet Bill...",
+      "labelPlaceholder": "e.g. May House Rent, Electricity Bill...",
       "amountLabel": "Total Amount (৳)",
       "paid": "Paid",
       "unpaid": "Pending",
       "markPaid": "Mark Paid",
       "deleteConfirm": "Are you sure you want to delete this fixed cost?",
       "empty": "No fixed costs added",
-      "emptyDesc": "Add regular shared mess bills like rent, cook, and electricity.",
+      "emptyDesc": "Add regular shared mess bills like rent, cook, water, waste, and electricity.",
       "markPaidTitle": "Mark Fixed Cost as Paid",
       "markPaidConfirm": "Are you sure you want to mark this fixed cost as paid? You won't be able to edit it afterward."
     },

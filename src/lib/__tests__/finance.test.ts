@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { computeSettlements, ReportMemberRow } from '../reportPdf'
-import { computeSpendingBreakdown, normalizeSpendingCategory } from '../spending'
+import {
+  computeSpendingBreakdown,
+  FIXED_COST_CATEGORIES,
+  normalizeSpendingCategory,
+} from '../spending'
+import { getFinanceCategoryMeta } from '../../pages/finance/components/financeCategories'
 
 describe('Finance & Settlement Calculation Engine', () => {
   describe('computeSettlements (Debt Clearing Algorithm)', () => {
@@ -139,13 +144,17 @@ describe('Finance & Settlement Calculation Engine', () => {
   })
 
   describe('Spending Breakdown Engine', () => {
-    it('normalizes legacy category aliases cleanly', () => {
+    it('normalizes legacy and new category aliases cleanly', () => {
       expect(normalizeSpendingCategory('utility')).toBe('utilities')
       expect(normalizeSpendingCategory('WIFI')).toBe('internet')
+      expect(normalizeSpendingCategory('electric')).toBe('electricity')
+      expect(normalizeSpendingCategory('pani')).toBe('water')
+      expect(normalizeSpendingCategory('moyla')).toBe('waste')
+      expect(normalizeSpendingCategory('garbage')).toBe('waste')
       expect(normalizeSpendingCategory('unknown-tag')).toBe('other')
     })
 
-    it('aggregates expenses and fixed costs across categories and flags over-budget spend', () => {
+    it('aggregates expenses and fixed costs including electricity, water, and waste', () => {
       const result = computeSpendingBreakdown(
         [
           { amount: 3000, category: 'bazaar' },
@@ -154,17 +163,42 @@ describe('Finance & Settlement Calculation Engine', () => {
         [
           { amount: 4500, category: 'rent' },
           { amount: 2000, category: 'maid' },
+          { amount: 1200, category: 'electricity' },
+          { amount: 600, category: 'water' },
+          { amount: 200, category: 'waste' },
         ],
-        8000
+        10000
       )
 
       expect(result.totalVariable).toBe(3500)
-      expect(result.totalFixed).toBe(6500)
-      expect(result.totalOutflow).toBe(10000)
-      expect(result.depositUtilizationPercent).toBe(125)
+      expect(result.totalFixed).toBe(8500)
+      expect(result.totalOutflow).toBe(12000)
+      expect(result.depositUtilizationPercent).toBe(120)
       expect(result.isOverBudget).toBe(true)
-      expect(result.slices.map((s) => s.category)).toEqual(['rent', 'bazaar', 'maid', 'utilities'])
-      expect(result.slices[0].percent).toBe(45)
+      expect(result.slices.map((s) => s.category)).toEqual([
+        'rent',
+        'bazaar',
+        'maid',
+        'electricity',
+        'water',
+        'utilities',
+        'waste',
+      ])
+      expect(result.slices[0].percent).toBe(37.5)
+    })
+
+    it('provides Lucide icon metadata for every fixed cost category', () => {
+      expect(FIXED_COST_CATEGORIES).toContain('electricity')
+      expect(FIXED_COST_CATEGORIES).toContain('water')
+      expect(FIXED_COST_CATEGORIES).toContain('waste')
+
+      for (const cat of FIXED_COST_CATEGORIES) {
+        const meta = getFinanceCategoryMeta(cat)
+        expect(meta.key).toBe(cat)
+        expect(meta.icon).toBeDefined()
+        expect(meta.bgClass).toMatch(/^bg-/)
+        expect(meta.textClass).toMatch(/text-/)
+      }
     })
 
     it('handles empty inputs gracefully without NaN or divide-by-zero', () => {

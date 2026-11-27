@@ -5,6 +5,7 @@ import { formatCurrency, formatLocalizedDate, isSafeHttpUrl } from '../../../lib
 import EmptyState from '../../../components/EmptyState'
 import ConfirmDialog from '../../../components/ConfirmDialog'
 import type { Expense } from '../../../types/database'
+import { getFinanceCategoryMeta } from './financeCategories'
 
 interface ExpenseTabProps {
   expenses: Expense[]
@@ -198,29 +199,20 @@ export default function ExpenseTab({
             description={t('finance.expenseModal.emptyDesc')}
           />
         ) : (
-          expenses.map((exp) => (
-            <div
-              key={exp.id}
-              className="hover:bg-nex-hover flex items-center justify-between px-5 py-3 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`flex h-9 w-9 items-center justify-center rounded-lg text-lg ${
-                    exp.category === 'bazaar'
-                      ? 'bg-emerald-500/10'
-                      : exp.category === 'rent'
-                        ? 'bg-blue-500/10'
-                        : 'bg-amber-500/10'
-                  }`}
-                >
-                  {exp.category === 'bazaar'
-                    ? '🛒'
-                    : exp.category === 'rent'
-                      ? '🏠'
-                      : exp.category === 'utilities'
-                        ? '💡'
-                        : '📋'}
-                </div>
+          expenses.map((exp) => {
+            const meta = getFinanceCategoryMeta(exp.category)
+            const CategoryIcon = meta.icon
+            return (
+              <div
+                key={exp.id}
+                className="hover:bg-nex-hover flex items-center justify-between px-5 py-3 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${meta.bgClass}`}
+                  >
+                    <CategoryIcon className={`h-4 w-4 ${meta.textClass}`} />
+                  </div>
                 <div>
                   <p className="text-nex-text flex items-center gap-2 text-sm font-medium">
                     {exp.description || t(`finance.categories.${exp.category}`, { defaultValue: exp.category })}
@@ -269,7 +261,8 @@ export default function ExpenseTab({
                 )}
               </div>
             </div>
-          ))
+            )
+          })
         )}
       </div>
 

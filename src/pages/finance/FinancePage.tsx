@@ -10,7 +10,7 @@ import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { sendPushToUser } from '../../lib/push'
-import { expenseSchema, depositSchema, validateForm } from '../../lib/validation/schemas'
+import { expenseSchema, depositSchema, fixedCostSchema, validateForm } from '../../lib/validation/schemas'
 import { prepareImageForUpload, generateSafeFileName } from '../../lib/fileValidator'
 import { sanitizeAppError } from '../../lib/errorHandler'
 import { isApprovedManager, isSafeHttpUrl } from '../../lib/utils'
@@ -362,23 +362,34 @@ export default function FinancePage() {
   ) => {
     if (!currentMess?.id || !user?.id) return
 
+    const validation = validateForm(fixedCostSchema, {
+      category,
+      amount: Number(amount),
+      label: label ? label.trim() : null,
+    })
+
+    if (!validation.success) {
+      toast.error(validation.error)
+      return
+    }
+
     let error
     if (editId) {
       const res = await supabase
         .from('fixed_costs')
         .update({
-          category,
-          amount,
-          label: label.trim() || null,
+          category: validation.data.category,
+          amount: validation.data.amount,
+          label: validation.data.label || null,
         })
         .eq('id', editId)
       error = res.error
     } else {
       const res = await supabase.from('fixed_costs').insert({
         mess_id: currentMess.id,
-        category,
-        amount,
-        label: label.trim() || null,
+        category: validation.data.category,
+        amount: validation.data.amount,
+        label: validation.data.label || null,
         month: currentMonth,
         created_by: user.id,
       })
