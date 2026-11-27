@@ -8,6 +8,7 @@ import type { Profile } from '../../../types/database'
 import { profileUpdateSchema, validateForm } from '../../../lib/validation/schemas'
 import { prepareImageForUpload, generateSafeFileName } from '../../../lib/fileValidator'
 import { sanitizeAppError } from '../../../lib/errorHandler'
+import SelectDropdown from '../../../components/SelectDropdown'
 
 interface ProfileSectionProps {
   profile: Profile | null
@@ -243,19 +244,26 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
               </div>
 
               <div>
-                <label className="text-nex-text mb-1 block text-sm font-medium">
+                <label
+                  htmlFor="profile-verification-doc-type"
+                  className="text-nex-text mb-1 block text-sm font-medium"
+                >
                   {t('settings.profileSection.docType')}
                 </label>
-                <select
+                <SelectDropdown
+                  id="profile-verification-doc-type"
                   value={verificationDocType}
-                  onChange={(e) => setVerificationDocType(e.target.value as any)}
-                  className="nex-input bg-nex-elevated text-sm"
-                >
-                  <option value="none">{t('settings.profileSection.noneDoc')}</option>
-                  <option value="nid">{t('settings.profileSection.nid')}</option>
-                  <option value="birth_certificate">{t('settings.profileSection.birthCert')}</option>
-                  <option value="other">{t('settings.profileSection.otherDoc')}</option>
-                </select>
+                  onChange={(val) =>
+                    setVerificationDocType(val as 'nid' | 'birth_certificate' | 'other' | 'none')
+                  }
+                  size="sm"
+                  options={[
+                    { value: 'none', label: t('settings.profileSection.noneDoc') },
+                    { value: 'nid', label: t('settings.profileSection.nid') },
+                    { value: 'birth_certificate', label: t('settings.profileSection.birthCert') },
+                    { value: 'other', label: t('settings.profileSection.otherDoc') },
+                  ]}
+                />
               </div>
 
               {verificationDocType !== 'none' && (

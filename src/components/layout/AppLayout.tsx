@@ -255,35 +255,47 @@ export default function AppLayout() {
                       </p>
                     </div>
                     {messes.length > 1 && (
-                      <ChevronDown className="text-nex-muted ml-0.5 h-3.5 w-3.5 shrink-0" />
+                      <ChevronDown
+                        className={`text-nex-muted ml-0.5 h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${
+                          showMessDropdown ? 'rotate-180' : ''
+                        }`}
+                      />
                     )}
                   </button>
 
-                  {showMessDropdown && messes.length > 1 && (
-                    <div className="bg-nex-bg border-nex-border animate-slide-down absolute top-full left-0 z-20 mt-1.5 w-48 space-y-0.5 rounded-xl border p-1 shadow-xl">
-                      {messes
-                        .filter((m) => m.id !== currentMess.id)
-                        .map((mess) => (
-                          <button
-                            key={mess.id}
-                            onClick={() => {
-                              setCurrentMess(mess)
-                              setShowMessDropdown(false)
-                            }}
-                            className="hover:bg-nex-hover text-nex-text flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs transition-colors"
-                          >
-                            <div className="bg-nex-elevated text-nex-muted flex h-5.5 w-5.5 items-center justify-center overflow-hidden rounded text-[10px] font-bold">
-                              {mess.avatar_url ? (
-                                <img src={mess.avatar_url} alt="" className="h-full w-full object-cover" />
-                              ) : (
-                                mess.name[0]
-                              )}
-                            </div>
-                            <span className="truncate">{mess.name}</span>
-                          </button>
-                        ))}
-                    </div>
-                  )}
+                  <AnimatePresence>
+                    {showMessDropdown && messes.length > 1 && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.98, y: -6 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.98, y: -4 }}
+                        transition={{ duration: 0.16, ease: 'easeOut' }}
+                        className="bg-nex-surface border-nex-border absolute top-full left-0 z-20 mt-1.5 w-52 space-y-0.5 rounded-xl border p-1.5 shadow-xl shadow-black/10 dark:border-[#323238] dark:bg-[#1b1b1f] dark:shadow-black/50"
+                      >
+                        {messes
+                          .filter((m) => m.id !== currentMess.id)
+                          .map((mess) => (
+                            <button
+                              key={mess.id}
+                              onClick={() => {
+                                setCurrentMess(mess)
+                                setShowMessDropdown(false)
+                              }}
+                              className="hover:bg-nex-hover text-nex-text flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium transition-colors"
+                            >
+                              <div className="bg-nex-elevated text-nex-muted flex h-5.5 w-5.5 items-center justify-center overflow-hidden rounded text-[10px] font-bold">
+                                {mess.avatar_url ? (
+                                  <img src={mess.avatar_url} alt="" className="h-full w-full object-cover" />
+                                ) : (
+                                  mess.name[0]
+                                )}
+                              </div>
+                              <span className="truncate">{mess.name}</span>
+                            </button>
+                          ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </>
               ) : (
                 <div className="flex items-center gap-2">

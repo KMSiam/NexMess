@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase'
 import { Meal } from '../../types/database'
 import { Utensils, ChevronLeft, ChevronRight, Sun, Moon, ShieldCheck, X, Clock } from 'lucide-react'
 import SlidingTabs from '../../components/SlidingTabs'
+import SelectDropdown from '../../components/SelectDropdown'
 import {
   format,
   startOfMonth,
@@ -633,25 +634,27 @@ export default function MealsPage() {
             </p>
 
             <div>
-              <label className="text-nex-text mb-1 block text-xs font-medium">{t('common.member')}</label>
-              <select
-                value={ovUserId}
-                onChange={(e) => setOvUserId(e.target.value)}
-                className="nex-input w-full"
-                required
+              <label
+                htmlFor="override-member-select"
+                className="text-nex-text mb-1 block text-xs font-medium"
               >
-                <option value="" disabled>
-                  {t('finance.depositModal.selectMember')}
-                </option>
-                {members
+                {t('common.member')}
+              </label>
+              <SelectDropdown
+                id="override-member-select"
+                value={ovUserId}
+                onChange={setOvUserId}
+                placeholder={t('finance.depositModal.selectMember')}
+                required
+                options={members
                   .filter((m) => m.status === 'approved')
-                  .map((m) => (
-                    <option key={m.user_id} value={m.user_id}>
-                      {m.profiles?.username || m.user_id.slice(0, 8)}
-                      {m.user_id === user?.id ? ` ${t('meals.you')}` : ''}
-                    </option>
-                  ))}
-              </select>
+                  .map((m) => ({
+                    value: m.user_id,
+                    label: `${m.profiles?.username || m.user_id.slice(0, 8)}${
+                      m.user_id === user?.id ? ` ${t('meals.you')}` : ''
+                    }`,
+                  }))}
+              />
             </div>
 
             <div>

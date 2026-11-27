@@ -30,6 +30,7 @@ import { sanitizeAppError } from '../../../lib/errorHandler'
 import toast from 'react-hot-toast'
 import { Skeleton } from '../../../components/Skeleton'
 import ConfirmDialog from '../../../components/ConfirmDialog'
+import SelectDropdown from '../../../components/SelectDropdown'
 
 export default function BazaarSchedule() {
   const { t } = useTranslation()
@@ -229,23 +230,22 @@ export default function BazaarSchedule() {
             </div>
             <form onSubmit={handleAssign} className="space-y-4">
               <div className="flex flex-col gap-3 sm:flex-row">
-                <select
-                  value={selectedUser}
-                  onChange={(e) => setSelectedUser(e.target.value)}
-                  className="nex-input flex-1"
-                  required
+                <SelectDropdown
                   id="schedule-member"
-                >
-                  <option value="">{t('market.schedule.selectMember')}</option>
-                  {approvedMembers.map((m) => {
-                    const p = m.profiles as any
-                    return (
-                      <option key={m.user_id} value={m.user_id}>
-                        {p?.username || t('common.member')}
-                      </option>
-                    )
+                  value={selectedUser}
+                  onChange={setSelectedUser}
+                  placeholder={t('market.schedule.selectMember')}
+                  ariaLabel={t('market.schedule.selectMember')}
+                  className="flex-1"
+                  required
+                  options={approvedMembers.map((m) => {
+                    const p = m.profiles as { username?: string } | undefined
+                    return {
+                      value: m.user_id,
+                      label: p?.username || t('common.member'),
+                    }
                   })}
-                </select>
+                />
                 <button type="button" onClick={clearDates} className="nex-btn-secondary text-xs">
                   {t('market.schedule.clearDates')}
                 </button>

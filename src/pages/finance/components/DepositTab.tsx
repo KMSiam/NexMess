@@ -3,6 +3,7 @@ import { Plus, PiggyBank, CheckCircle2, Trash2, Clock, X, Filter } from 'lucide-
 import { useTranslation } from 'react-i18next'
 import { formatCurrency, formatLocalizedDate, formatNumber } from '../../../lib/utils'
 import EmptyState from '../../../components/EmptyState'
+import SelectDropdown from '../../../components/SelectDropdown'
 import type { Deposit, MessMember } from '../../../types/database'
 import {
   buildDepositMemberOptions,
@@ -107,22 +108,21 @@ export default function DepositTab({
         <div
           className={`flex flex-wrap items-center gap-2 ${isManager ? '' : 'sm:ml-auto'}`}
         >
-          <div className="relative flex-1 sm:w-56 sm:flex-initial">
-            <Filter className="text-nex-muted pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-            <select
-              value={activeMemberId}
-              onChange={(e) => setSelectedMemberId(e.target.value)}
-              aria-label={t('finance.depositModal.filterByMember')}
-              className="nex-input py-2 pr-8 pl-9 text-sm"
-            >
-              <option value="all">{t('finance.depositModal.allMembers')}</option>
-              {filterMembers.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <SelectDropdown
+            value={activeMemberId}
+            onChange={setSelectedMemberId}
+            leadingIcon={Filter}
+            size="sm"
+            ariaLabel={t('finance.depositModal.filterByMember')}
+            className="flex-1 sm:w-56 sm:flex-initial"
+            options={[
+              { value: 'all', label: t('finance.depositModal.allMembers') },
+              ...filterMembers.map((member) => ({
+                value: member.id,
+                label: member.name,
+              })),
+            ]}
+          />
           {activeMemberId !== 'all' && (
             <button
               type="button"
@@ -162,25 +162,26 @@ export default function DepositTab({
             <form onSubmit={handleSubmit} className="space-y-3">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="text-nex-text mb-1 block text-sm font-medium">
+                  <label
+                    htmlFor="deposit-member-select"
+                    className="text-nex-text mb-1 block text-sm font-medium"
+                  >
                     {t('finance.depositModal.memberLabel')}
                   </label>
-                  <select
+                  <SelectDropdown
+                    id="deposit-member-select"
                     value={depUserId}
-                    onChange={(e) => setDepUserId(e.target.value)}
-                    className="nex-input"
+                    onChange={setDepUserId}
+                    placeholder={t('finance.depositModal.selectMember')}
                     required
-                  >
-                    <option value="">{t('finance.depositModal.selectMember')}</option>
-                    {approvedMembers.map((m) => {
-                      const p = m.profiles as any
-                      return (
-                        <option key={m.user_id} value={m.user_id}>
-                          {p?.username || t('common.member')}
-                        </option>
-                      )
+                    options={approvedMembers.map((m) => {
+                      const p = m.profiles as { username?: string } | undefined
+                      return {
+                        value: m.user_id,
+                        label: p?.username || t('common.member'),
+                      }
                     })}
-                  </select>
+                  />
                 </div>
                 <div>
                   <label className="text-nex-text mb-1 block text-sm font-medium">
