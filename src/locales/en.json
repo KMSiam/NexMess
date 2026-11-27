@@ -412,6 +412,8 @@
     "liveBadge": "New alert",
     "openPage": "Open",
     "manageSettings": "Push settings",
+    "seeMore": "See more",
+    "loadingMore": "Loading...",
     "destinations": {
       "dashboard": "Dashboard",
       "expenses": "Finance · Expenses",

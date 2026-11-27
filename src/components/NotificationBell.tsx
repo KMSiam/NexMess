@@ -12,6 +12,8 @@ import {
   Bell,
   Check,
   CheckCheck,
+  ChevronDown,
+  Loader2,
   Settings,
   Trash2,
   X,
@@ -27,6 +29,23 @@ interface NotificationBellProps {
   className?: string
 }
 
+const INITIAL_PAGE_SIZE = 6
+const LOAD_MORE_SIZE = 8
+const NOTIFICATION_COLUMNS =
+  'id, user_id, mess_id, type, title, body, url, is_read, metadata, created_at'
+
+function mergeUniqueById(existing: Notification[], incoming: Notification[]): Notification[] {
+  const seen = new Set(existing.map((item) => item.id))
+  const merged = [...existing]
+  for (const item of incoming) {
+    if (!seen.has(item.id)) {
+      seen.add(item.id)
+      merged.push(item)
+    }
+  }
+  return merged
+}
+
 export default function NotificationBell({ className }: NotificationBellProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -34,37 +53,162 @@ export default function NotificationBell({ className }: NotificationBellProps) {
   const { messes, currentMess, setCurrentMess } = useMessStore()
 
   const [notifications, setNotifications] = useState<Notification[]>([])
+  const [unreadItems, setUnreadItems] = useState<Notification[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [hasMoreAll, setHasMoreAll] = useState(false)
+  const [hasMoreUnread, setHasMoreUnread] = useState(false)
+  const [unreadLoaded, setUnreadLoaded] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [loadingUnread, setLoadingUnread] = useState(false)
   const [showPanel, setShowPanel] = useState(false)
   const [filterMode, setFilterMode] = useState<'all' | 'unread'>('all')
   const panelRef = useRef<HTMLDivElement>(null)
   const seenToastIdsRef = useRef<Set<string>>(new Set())
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length
-  const visibleNotifications =
-    filterMode === 'unread' ? notifications.filter((n) => !n.is_read) : notifications
+  const visibleNotifications = filterMode === 'unread' ? unreadItems : notifications
+  const hasMore = filterMode === 'unread' ? hasMoreUnread : hasMoreAll
 
-  const fetchNotifications = useCallback(async () => {
+  const fetchUnreadCount = useCallback(async () => {
     if (!user?.id) return
-    const { data } = await supabase
+    const { count } = await supabase
       .from('notifications')
-      .select('*')
+      .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(30)
-    if (data) {
-      const list = data as Notification[]
-      setNotifications(list)
-      list.forEach((n) => seenToastIdsRef.current.add(n.id))
+      .eq('is_read', false)
+    if (typeof count === 'number') {
+      setUnreadCount(count)
     }
   }, [user?.id])
+
+  const fetchInitialNotifications = useCallback(async () => {
+    if (!user?.id) return
+    const [{ data }, countRes] = await Promise.all([
+      supabase
+        .from('notifications')
+        .select(NOTIFICATION_COLUMNS)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .range(0, INITIAL_PAGE_SIZE),
+      supabase
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false),
+    ])
+
+    if (data) {
+      const rows = data as Notification[]
+      const page = rows.slice(0, INITIAL_PAGE_SIZE)
+      setNotifications(page)
+      setHasMoreAll(rows.length > INITIAL_PAGE_SIZE)
+      page.forEach((n) => seenToastIdsRef.current.add(n.id))
+    }
+
+    if (typeof countRes.count === 'number') {
+      setUnreadCount(countRes.count)
+    }
+  }, [user?.id])
+
+  const fetchUnreadInitial = useCallback(async () => {
+    if (!user?.id) return
+    setLoadingUnread(true)
+    const { data } = await supabase
+      .from('notifications')
+      .select(NOTIFICATION_COLUMNS)
+      .eq('user_id', user.id)
+      .eq('is_read', false)
+      .order('created_at', { ascending: false })
+      .range(0, INITIAL_PAGE_SIZE)
+
+    if (data) {
+      const rows = data as Notification[]
+      setUnreadItems(rows.slice(0, INITIAL_PAGE_SIZE))
+      setHasMoreUnread(rows.length > INITIAL_PAGE_SIZE)
+      setUnreadLoaded(true)
+    }
+    setLoadingUnread(false)
+  }, [user?.id])
+
+  const handleFilterChange = (nextMode: 'all' | 'unread') => {
+    setFilterMode(nextMode)
+    if (nextMode === 'unread' && !unreadLoaded && unreadCount > 0) {
+      void fetchUnreadInitial()
+    }
+  }
+
+  const handleLoadMore = async () => {
+    if (!user?.id || loadingMore || !hasMore) return
+    setLoadingMore(true)
+
+    try {
+      if (filterMode === 'unread') {
+        const offset = unreadItems.length
+        const { data } = await supabase
+          .from('notifications')
+          .select(NOTIFICATION_COLUMNS)
+          .eq('user_id', user.id)
+          .eq('is_read', false)
+          .order('created_at', { ascending: false })
+          .range(offset, offset + LOAD_MORE_SIZE)
+
+        if (data) {
+          const rows = data as Notification[]
+          setUnreadItems((prev) => mergeUniqueById(prev, rows.slice(0, LOAD_MORE_SIZE)))
+          setHasMoreUnread(rows.length > LOAD_MORE_SIZE)
+        }
+      } else {
+        const offset = notifications.length
+        const { data } = await supabase
+          .from('notifications')
+          .select(NOTIFICATION_COLUMNS)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .range(offset, offset + LOAD_MORE_SIZE)
+
+        if (data) {
+          const rows = data as Notification[]
+          const slice = rows.slice(0, LOAD_MORE_SIZE)
+          slice.forEach((n) => seenToastIdsRef.current.add(n.id))
+          setNotifications((prev) => mergeUniqueById(prev, slice))
+          setHasMoreAll(rows.length > LOAD_MORE_SIZE)
+        }
+      }
+    } finally {
+      setLoadingMore(false)
+    }
+  }
+
+  const applyReadLocally = useCallback((id: string) => {
+    let wasUnread = false
+    setNotifications((prev) =>
+      prev.map((n) => {
+        if (n.id === id) {
+          if (!n.is_read) wasUnread = true
+          return { ...n, is_read: true }
+        }
+        return n
+      })
+    )
+    setUnreadItems((prev) => {
+      if (prev.some((n) => n.id === id)) wasUnread = true
+      return prev.filter((n) => n.id !== id)
+    })
+    if (wasUnread) {
+      setUnreadCount((prev) => Math.max(0, prev - 1))
+    }
+  }, [])
 
   const markRead = useCallback(
     async (id: string) => {
       if (!user?.id) return
-      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
-      await supabase.from('notifications').update({ is_read: true }).eq('id', id).eq('user_id', user.id)
+      applyReadLocally(id)
+      await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', id)
+        .eq('user_id', user.id)
     },
-    [user?.id]
+    [user?.id, applyReadLocally]
   )
 
   const handleNotificationOpen = useCallback(
@@ -166,7 +310,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
 
   useEffect(() => {
     if (!user?.id) return
-    void fetchNotifications()
+    void fetchInitialNotifications()
 
     // Real-time subscription for new notifications, read-state updates, and deletions
     const channel = supabase
@@ -183,8 +327,15 @@ export default function NotificationBell({ className }: NotificationBellProps) {
           const incoming = payload.new as Notification
           setNotifications((prev) => {
             if (prev.some((n) => n.id === incoming.id)) return prev
-            return [incoming, ...prev].slice(0, 30)
+            return [incoming, ...prev]
           })
+          if (!incoming.is_read) {
+            setUnreadCount((prev) => prev + 1)
+            setUnreadItems((prev) => {
+              if (prev.some((n) => n.id === incoming.id)) return prev
+              return [incoming, ...prev]
+            })
+          }
           showLiveNotificationToast(incoming)
         }
       )
@@ -199,6 +350,12 @@ export default function NotificationBell({ className }: NotificationBellProps) {
         (payload) => {
           const updated = payload.new as Notification
           setNotifications((prev) => prev.map((n) => (n.id === updated.id ? updated : n)))
+          setUnreadItems((prev) =>
+            updated.is_read
+              ? prev.filter((n) => n.id !== updated.id)
+              : prev.map((n) => (n.id === updated.id ? updated : n))
+          )
+          void fetchUnreadCount()
         }
       )
       .on(
@@ -213,7 +370,9 @@ export default function NotificationBell({ className }: NotificationBellProps) {
           const deletedId = (payload.old as { id?: string })?.id
           if (deletedId) {
             setNotifications((prev) => prev.filter((n) => n.id !== deletedId))
+            setUnreadItems((prev) => prev.filter((n) => n.id !== deletedId))
           }
+          void fetchUnreadCount()
         }
       )
       .subscribe()
@@ -221,20 +380,19 @@ export default function NotificationBell({ className }: NotificationBellProps) {
     return () => {
       void supabase.removeChannel(channel)
     }
-  }, [user?.id, fetchNotifications, showLiveNotificationToast])
+  }, [user?.id, fetchInitialNotifications, fetchUnreadCount, showLiveNotificationToast])
 
   // Sync read state immediately if a push click marks a notification read via AppInitializer
   useEffect(() => {
     const onExternalRead = (event: Event) => {
       const notifId = (event as CustomEvent<{ id?: string }>).detail?.id
       if (!notifId) return
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notifId ? { ...n, is_read: true } : n))
-      )
+      applyReadLocally(notifId)
+      void fetchUnreadCount()
     }
     window.addEventListener('nexmess:notification-read', onExternalRead)
     return () => window.removeEventListener('nexmess:notification-read', onExternalRead)
-  }, [])
+  }, [applyReadLocally, fetchUnreadCount])
 
   // Close on click outside or Escape
   useEffect(() => {
@@ -258,6 +416,9 @@ export default function NotificationBell({ className }: NotificationBellProps) {
   const markAllRead = async () => {
     if (!user?.id || unreadCount === 0) return
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
+    setUnreadItems([])
+    setHasMoreUnread(false)
+    setUnreadCount(0)
     await supabase
       .from('notifications')
       .update({ is_read: true })
@@ -267,13 +428,33 @@ export default function NotificationBell({ className }: NotificationBellProps) {
 
   const deleteNotification = async (id: string) => {
     if (!user?.id) return
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
+    let removedUnread = false
+    setNotifications((prev) =>
+      prev.filter((n) => {
+        if (n.id === id) {
+          if (!n.is_read) removedUnread = true
+          return false
+        }
+        return true
+      })
+    )
+    setUnreadItems((prev) => {
+      if (prev.some((n) => n.id === id)) removedUnread = true
+      return prev.filter((n) => n.id !== id)
+    })
+    if (removedUnread) {
+      setUnreadCount((prev) => Math.max(0, prev - 1))
+    }
     await supabase.from('notifications').delete().eq('id', id).eq('user_id', user.id)
   }
 
   const clearAllNotifications = async () => {
-    if (!user?.id || notifications.length === 0) return
+    if (!user?.id || (notifications.length === 0 && unreadCount === 0)) return
     setNotifications([])
+    setUnreadItems([])
+    setHasMoreAll(false)
+    setHasMoreUnread(false)
+    setUnreadCount(0)
     await supabase.from('notifications').delete().eq('user_id', user.id)
   }
 
@@ -345,23 +526,23 @@ export default function NotificationBell({ className }: NotificationBellProps) {
                 </div>
               </div>
 
-              {notifications.length > 0 && (
+              {(notifications.length > 0 || unreadCount > 0) && (
                 <div className="mt-2.5 flex items-center justify-between gap-2">
                   <div className="bg-nex-elevated border-nex-border/60 inline-flex rounded-lg border p-0.5">
                     <button
                       type="button"
-                      onClick={() => setFilterMode('all')}
+                      onClick={() => handleFilterChange('all')}
                       className={`cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
                         filterMode === 'all'
                           ? 'bg-nex-surface text-nex-text shadow-2xs'
                           : 'text-nex-muted hover:text-nex-text'
                       }`}
                     >
-                      {t('notifications.filterAll')} ({formatNumber(notifications.length)})
+                      {t('notifications.filterAll')}
                     </button>
                     <button
                       type="button"
-                      onClick={() => setFilterMode('unread')}
+                      onClick={() => handleFilterChange('unread')}
                       className={`cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
                         filterMode === 'unread'
                           ? 'bg-nex-surface text-nex-text shadow-2xs'
@@ -385,7 +566,12 @@ export default function NotificationBell({ className }: NotificationBellProps) {
 
             {/* Notification List */}
             <div className="divide-nex-border/70 flex-1 divide-y overflow-y-auto">
-              {visibleNotifications.length === 0 ? (
+              {filterMode === 'unread' && loadingUnread ? (
+                <div className="flex items-center justify-center gap-2 py-10 text-xs">
+                  <Loader2 className="text-nex-primary h-4 w-4 animate-spin" />
+                  <span className="text-nex-muted">{t('notifications.loadingMore')}</span>
+                </div>
+              ) : visibleNotifications.length === 0 ? (
                 <div className="px-6 py-10 text-center">
                   <div className="bg-nex-elevated mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl">
                     <Bell className="text-nex-muted/60 h-5 w-5" />
@@ -402,122 +588,149 @@ export default function NotificationBell({ className }: NotificationBellProps) {
                   </p>
                 </div>
               ) : (
-                visibleNotifications.map((n) => {
-                  const meta = getNotificationVisualMeta(n)
-                  const Icon = meta.icon
-                  const localized = localizeNotification(n, t)
-                  const messName =
-                    messes.length > 1 && n.mess_id
-                      ? messes.find((m) => m.id === n.mess_id)?.name
-                      : null
+                <>
+                  {visibleNotifications.map((n) => {
+                    const meta = getNotificationVisualMeta(n)
+                    const Icon = meta.icon
+                    const localized = localizeNotification(n, t)
+                    const messName =
+                      messes.length > 1 && n.mess_id
+                        ? messes.find((m) => m.id === n.mess_id)?.name
+                        : null
 
-                  return (
-                    <div
-                      key={n.id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => handleNotificationOpen(n)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          handleNotificationOpen(n)
-                        }
-                      }}
-                      className={`group relative cursor-pointer px-4 py-3.5 transition-colors focus:outline-none ${
-                        !n.is_read
-                          ? 'bg-nex-primary-light/55 hover:bg-nex-primary-light/85'
-                          : 'hover:bg-nex-hover/70'
-                      }`}
-                    >
-                      {!n.is_read && (
-                        <span
-                          className="bg-nex-primary absolute inset-y-2 left-0 w-1 rounded-r-full"
-                          aria-hidden="true"
-                        />
-                      )}
+                    return (
+                      <div
+                        key={n.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleNotificationOpen(n)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            handleNotificationOpen(n)
+                          }
+                        }}
+                        className={`group relative cursor-pointer px-4 py-3.5 transition-colors focus:outline-none ${
+                          !n.is_read
+                            ? 'bg-nex-primary-light/55 hover:bg-nex-primary-light/85'
+                            : 'hover:bg-nex-hover/70'
+                        }`}
+                      >
+                        {!n.is_read && (
+                          <span
+                            className="bg-nex-primary absolute inset-y-2 left-0 w-1 rounded-r-full"
+                            aria-hidden="true"
+                          />
+                        )}
 
-                      <div className="flex items-start gap-3">
-                        <div
-                          className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${meta.bgClass}`}
-                        >
-                          <Icon className={`h-4 w-4 ${meta.textClass}`} />
-                        </div>
+                        <div className="flex items-start gap-3">
+                          <div
+                            className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${meta.bgClass}`}
+                          >
+                            <Icon className={`h-4 w-4 ${meta.textClass}`} />
+                          </div>
 
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-start justify-between gap-2">
-                            <p
-                              className={`text-sm leading-snug ${
-                                !n.is_read ? 'text-nex-text font-semibold' : 'text-nex-text font-medium'
-                              }`}
-                            >
-                              {localized.title}
-                            </p>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <p
+                                className={`text-sm leading-snug ${
+                                  !n.is_read
+                                    ? 'text-nex-text font-semibold'
+                                    : 'text-nex-text font-medium'
+                                }`}
+                              >
+                                {localized.title}
+                              </p>
+                              {!n.is_read && (
+                                <span
+                                  className="bg-nex-primary mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                                  aria-hidden="true"
+                                />
+                              )}
+                            </div>
+
+                            {localized.body && (
+                              <p className="text-nex-muted mt-1 line-clamp-2 text-xs leading-relaxed">
+                                {localized.body}
+                              </p>
+                            )}
+
+                            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px]">
+                              <span className="text-nex-muted">
+                                {formatLocalizedDistance(n.created_at)}
+                              </span>
+                              {messName && (
+                                <>
+                                  <span className="text-nex-muted/40">·</span>
+                                  <span className="bg-nex-elevated text-nex-text max-w-[110px] truncate rounded px-1.5 py-0.5 font-medium">
+                                    {messName}
+                                  </span>
+                                </>
+                              )}
+                              <span className="text-nex-muted/40">·</span>
+                              <span className="text-nex-primary-ink inline-flex items-center gap-0.5 font-semibold">
+                                <span>{t(meta.destinationKey)}</span>
+                                <ArrowUpRight className="h-2.5 w-2.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex shrink-0 items-center gap-0.5">
                             {!n.is_read && (
-                              <span
-                                className="bg-nex-primary mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                                aria-hidden="true"
-                              />
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  void markRead(n.id)
+                                }}
+                                title={t('notifications.markRead')}
+                                aria-label={t('notifications.markRead')}
+                                className="text-nex-muted hover:text-nex-primary-ink hover:bg-nex-surface cursor-pointer rounded-lg p-1.5 opacity-80 transition-colors sm:opacity-0 sm:group-hover:opacity-100"
+                              >
+                                <Check className="h-3.5 w-3.5" />
+                              </button>
                             )}
-                          </div>
-
-                          {localized.body && (
-                            <p className="text-nex-muted mt-1 line-clamp-2 text-xs leading-relaxed">
-                              {localized.body}
-                            </p>
-                          )}
-
-                          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px]">
-                            <span className="text-nex-muted">
-                              {formatLocalizedDistance(n.created_at)}
-                            </span>
-                            {messName && (
-                              <>
-                                <span className="text-nex-muted/40">·</span>
-                                <span className="bg-nex-elevated text-nex-text max-w-[110px] truncate rounded px-1.5 py-0.5 font-medium">
-                                  {messName}
-                                </span>
-                              </>
-                            )}
-                            <span className="text-nex-muted/40">·</span>
-                            <span className="text-nex-primary-ink inline-flex items-center gap-0.5 font-semibold">
-                              <span>{t(meta.destinationKey)}</span>
-                              <ArrowUpRight className="h-2.5 w-2.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex shrink-0 items-center gap-0.5">
-                          {!n.is_read && (
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                void markRead(n.id)
+                                void deleteNotification(n.id)
                               }}
-                              title={t('notifications.markRead')}
-                              aria-label={t('notifications.markRead')}
-                              className="text-nex-muted hover:text-nex-primary-ink hover:bg-nex-surface cursor-pointer rounded-lg p-1.5 opacity-80 transition-colors sm:opacity-0 sm:group-hover:opacity-100"
+                              title={t('common.delete')}
+                              aria-label={t('common.delete')}
+                              className="text-nex-muted/70 hover:text-nex-danger hover:bg-nex-surface cursor-pointer rounded-lg p-1.5 transition-colors sm:opacity-0 sm:group-hover:opacity-100"
                             >
-                              <Check className="h-3.5 w-3.5" />
+                              <Trash2 className="h-3.5 w-3.5" />
                             </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              void deleteNotification(n.id)
-                            }}
-                            title={t('common.delete')}
-                            aria-label={t('common.delete')}
-                            className="text-nex-muted/70 hover:text-nex-danger hover:bg-nex-surface cursor-pointer rounded-lg p-1.5 transition-colors sm:opacity-0 sm:group-hover:opacity-100"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          </div>
                         </div>
                       </div>
+                    )
+                  })}
+
+                  {hasMore && (
+                    <div className="p-2.5 text-center">
+                      <button
+                        type="button"
+                        onClick={() => void handleLoadMore()}
+                        disabled={loadingMore}
+                        className="bg-nex-elevated/70 hover:bg-nex-hover border-nex-border/70 text-nex-primary-ink inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors disabled:cursor-wait disabled:opacity-60"
+                      >
+                        {loadingMore ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            <span>{t('notifications.loadingMore')}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>{t('notifications.seeMore')}</span>
+                            <ChevronDown className="h-3.5 w-3.5" />
+                          </>
+                        )}
+                      </button>
                     </div>
-                  )
-                })
+                  )}
+                </>
               )}
             </div>
 
