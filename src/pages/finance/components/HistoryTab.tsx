@@ -10,6 +10,7 @@ import { computeSettlements, type ReportData } from '../../../lib/reportSettleme
 import { sanitizeAppError } from '../../../lib/errorHandler'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton } from '../../../components/Skeleton'
+import { createRealtimeChannelName } from '../../../hooks/useRealtimeTable'
 
 // Shape of a monthly_reports row (RLS-scoped: managers only see their mess's rows)
 interface MonthlyReport {
@@ -114,7 +115,7 @@ export default function HistoryTab() {
 
     // Realtime: auto-generated (cron) reports appear without a manual refresh.
     const channel = supabase
-      .channel('history-realtime')
+      .channel(createRealtimeChannelName(`history-realtime-${currentMess.id}`))
       .on(
         'postgres_changes',
         {

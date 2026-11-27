@@ -32,7 +32,7 @@ export default function DashboardPage() {
   const { t } = useTranslation()
   usePageTitle(t('nav.dashboard'))
 
-  const { profile } = useAuthStore()
+  const { user, profile } = useAuthStore()
   const navigate = useNavigate()
   const { currentMess, messes, loading: messLoading, members, pendingRequests, cancelJoinRequest } = useMessStore()
 
@@ -62,7 +62,7 @@ export default function DashboardPage() {
     setMealsData,
     setNotice,
     setEmergencyContacts,
-  } = useDashboardData(profile?.id, profile?.username || undefined, currentMess?.id)
+  } = useDashboardData(user?.id || profile?.id, profile?.username || undefined, currentMess?.id)
 
   // Emergency Contact Delete Dialog State
   const [deleteEcId, setDeleteEcId] = useState<string | null>(null)

@@ -15,6 +15,7 @@ import {
 import { sanitizeAppError } from '../../../lib/errorHandler'
 import toast from 'react-hot-toast'
 import { getFoodIconMeta } from './foodIcons'
+import { createRealtimeChannelName } from '../../../hooks/useRealtimeTable'
 
 const DAYS_EN = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 const DAYS_BN = ['শনিবার', 'রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার']
@@ -60,27 +61,30 @@ export default function MealRoutine() {
   const fetchRoutines = useCallback(async () => {
     if (!currentMess?.id) return
     setLoadingRoutines(true)
-    const { data } = await supabase
-      .from('meal_routines')
-      .select('day_of_week, lunch, dinner')
-      .eq('mess_id', currentMess.id)
-      .order('day_of_week', { ascending: true })
+    try {
+      const { data } = await supabase
+        .from('meal_routines')
+        .select('day_of_week, lunch, dinner')
+        .eq('mess_id', currentMess.id)
+        .order('day_of_week', { ascending: true })
 
-    const full: RoutineRow[] = Array.from({ length: 7 }, (_, i) => {
-      const found = data?.find((d) => d.day_of_week === i)
-      return found || { day_of_week: i, lunch: '', dinner: '' }
-    })
-    setRoutines(full)
-    setLoadingRoutines(false)
+      const full: RoutineRow[] = Array.from({ length: 7 }, (_, i) => {
+        const found = data?.find((d) => d.day_of_week === i)
+        return found || { day_of_week: i, lunch: '', dinner: '' }
+      })
+      setRoutines(full)
+    } finally {
+      setLoadingRoutines(false)
+    }
   }, [currentMess?.id])
 
   useEffect(() => {
     if (!currentMess?.id) return
-    fetchRoutines()
+    void fetchRoutines()
 
     // Real-time subscription for routine
     const channel = supabase
-      .channel('routine-realtime')
+      .channel(createRealtimeChannelName(`routine-realtime-${currentMess.id}`))
       .on(
         'postgres_changes',
         {

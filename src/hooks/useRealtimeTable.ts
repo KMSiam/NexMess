@@ -21,6 +21,15 @@ interface TableSubscription {
   event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*'
 }
 
+/** Builds a collision-free Supabase Realtime channel name per mounted subscription. */
+export function createRealtimeChannelName(prefix: string): string {
+  const uniqueSuffix =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  return `${prefix}-${uniqueSuffix}`
+}
+
 export function useRealtimeTable(
   tables: string | TableSubscription | TableSubscription[],
   filterOrCallback: string | (() => void),
@@ -57,7 +66,7 @@ export function useRealtimeTable(
       debounceTimer = setTimeout(() => callbackRef.current(), debounceMs)
     }
 
-    const channelName = `rt-${subs.map((s) => s.table).join('-')}-${Date.now()}`
+    const channelName = createRealtimeChannelName(`rt-${subs.map((s) => s.table).join('-')}`)
     let channel = supabase.channel(channelName)
 
     for (const sub of subs) {

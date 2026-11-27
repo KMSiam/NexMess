@@ -27,6 +27,7 @@ import {
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { usePageTitle } from '../../../hooks/usePageTitle'
+import { createRealtimeChannelName } from '../../../hooks/useRealtimeTable'
 import MarkdownRenderer from '../../../components/MarkdownRenderer'
 import { sanitizeAppError } from '../../../lib/errorHandler'
 import { formatLocalizedDate, getInitials, isSafeHttpUrl } from '../../../lib/utils'
@@ -97,10 +98,10 @@ export default function AIMarketAssistant() {
   useEffect(() => {
     if (!currentMess?.id) return
 
-    fetchMessages()
+    void fetchMessages()
 
     const channel = supabase
-      .channel(`market-chat-${currentMess.id}`)
+      .channel(createRealtimeChannelName(`market-chat-${currentMess.id}`))
       .on(
         'postgres_changes',
         {

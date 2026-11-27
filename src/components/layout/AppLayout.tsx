@@ -331,26 +331,23 @@ export default function AppLayout() {
 
         <main className="min-w-0 flex-1 overflow-x-clip p-4 md:p-6">
           <GlobalErrorBoundary>
-            <Suspense
-              fallback={
-                <div className="flex h-[50vh] items-center justify-center">
-                  <div className="border-nex-primary h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
-                </div>
-              }
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="h-full w-full"
             >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={location.pathname}
-                  initial={{ opacity: 0, y: 12, scale: 0.99 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -12, scale: 0.99 }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="h-full w-full"
-                >
-                  <Outlet />
-                </motion.div>
-              </AnimatePresence>
-            </Suspense>
+              <Suspense
+                fallback={
+                  <div className="flex h-[50vh] items-center justify-center">
+                    <div className="border-nex-primary h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
+                  </div>
+                }
+              >
+                <Outlet />
+              </Suspense>
+            </motion.div>
           </GlobalErrorBoundary>
         </main>
       </div>

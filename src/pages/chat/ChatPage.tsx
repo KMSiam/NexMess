@@ -8,6 +8,7 @@ import { Send, MessageSquare, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 import { usePageTitle } from '../../hooks/usePageTitle'
+import { createRealtimeChannelName } from '../../hooks/useRealtimeTable'
 import ChatBubble from './components/ChatBubble'
 import ImageUploader from './components/ImageUploader'
 
@@ -114,6 +115,8 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (currentMess?.id) {
+      setMessages([])
+      setReactions([])
       setHasMore(true)
       fetchMessagesAndReactions(PAGE_SIZE)
     }
@@ -136,7 +139,7 @@ export default function ChatPage() {
     if (!currentMess?.id) return
 
     const channel = supabase
-      .channel('chat-realtime-custom')
+      .channel(createRealtimeChannelName(`chat-realtime-${currentMess.id}`))
       .on(
         'postgres_changes',
         {

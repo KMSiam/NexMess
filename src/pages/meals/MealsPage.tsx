@@ -78,6 +78,7 @@ export default function MealsPage() {
 
   const fetchMeals = useCallback(async () => {
     if (!currentMess?.id) return
+    if (viewMode === 'personal' && !user?.id) return
 
     let query = supabase
       .from('meals')
@@ -86,13 +87,13 @@ export default function MealsPage() {
       .gte('date', calendarStartStr)
       .lte('date', calendarEndStr)
 
-    if (viewMode === 'personal') {
-      query = query.eq('user_id', user!.id)
+    if (viewMode === 'personal' && user?.id) {
+      query = query.eq('user_id', user.id)
     }
 
     const { data } = await query
     if (data) setMeals(data as Meal[])
-  }, [currentMess?.id, user, calendarStartStr, calendarEndStr, viewMode])
+  }, [currentMess?.id, user?.id, calendarStartStr, calendarEndStr, viewMode])
 
   useEffect(() => {
     fetchMeals()

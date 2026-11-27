@@ -32,110 +32,115 @@ export default function ActivityLogPage() {
   const [visibleCount, setVisibleCount] = useState(PAGE_STEP)
 
   const fetchActivityLogs = useCallback(async () => {
-    if (!currentMess?.id) return
+    if (!currentMess?.id) {
+      setLoading(false)
+      return
+    }
     setLoading(true)
+    try {
+      const [expRes, depRes, noticeRes, memberRes] = await Promise.all([
+        supabase
+          .from('expenses')
+          .select('id, amount, description, category, created_at, profiles(username)')
+          .eq('mess_id', currentMess.id)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabase
+          .from('deposits')
+          .select('id, amount, note, created_at, profiles!deposits_user_id_fkey(username)')
+          .eq('mess_id', currentMess.id)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabase
+          .from('notices')
+          .select('id, message, created_at, created_by, profiles(username)')
+          .eq('mess_id', currentMess.id)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabase
+          .from('mess_members')
+          .select('joined_at, role, status, profiles(username)')
+          .eq('mess_id', currentMess.id)
+          .order('joined_at', { ascending: false })
+          .limit(20),
+      ])
 
-    const [expRes, depRes, noticeRes, memberRes] = await Promise.all([
-      supabase
-        .from('expenses')
-        .select('id, amount, description, category, created_at, profiles(username)')
-        .eq('mess_id', currentMess.id)
-        .order('created_at', { ascending: false })
-        .limit(20),
-      supabase
-        .from('deposits')
-        .select('id, amount, note, created_at, profiles!deposits_user_id_fkey(username)')
-        .eq('mess_id', currentMess.id)
-        .order('created_at', { ascending: false })
-        .limit(20),
-      supabase
-        .from('notices')
-        .select('id, message, created_at, created_by, profiles(username)')
-        .eq('mess_id', currentMess.id)
-        .order('created_at', { ascending: false })
-        .limit(20),
-      supabase
-        .from('mess_members')
-        .select('joined_at, role, status, profiles(username)')
-        .eq('mess_id', currentMess.id)
-        .order('joined_at', { ascending: false })
-        .limit(20),
-    ])
+      const compiledLogs: LogItem[] = []
 
-    const compiledLogs: LogItem[] = []
-
-    // Expenses
-    expRes.data?.forEach((e: any) => {
-      const catLabel = t(`finance.categories.${e.category || 'other'}`, {
-        defaultValue: e.category || 'other',
-      })
-      compiledLogs.push({
-        id: `exp-${e.id}`,
-        type: 'expense',
-        title: t('activity.expense'),
-        description: t('activity.addedExpenseDetail', {
-          user: e.profiles?.username || t('common.member'),
-          category: catLabel,
-          desc: e.description || catLabel,
-        }),
-        amount: Number(e.amount),
-        created_at: e.created_at,
-        user: e.profiles?.username,
-      })
-    })
-
-    // Deposits
-    depRes.data?.forEach((d: any) => {
-      compiledLogs.push({
-        id: `dep-${d.id}`,
-        type: 'deposit',
-        title: t('activity.deposit'),
-        description: t('activity.depositedFundsDetail', {
-          user: d.profiles?.username || t('common.member'),
-          note: d.note || t('activity.regularDeposit'),
-        }),
-        amount: Number(d.amount),
-        created_at: d.created_at,
-        user: d.profiles?.username,
-      })
-    })
-
-    // Notices
-    noticeRes.data?.forEach((n: any) => {
-      compiledLogs.push({
-        id: `not-${n.id}`,
-        type: 'notice',
-        title: t('activity.notice'),
-        description: t('activity.postedNotice', {
-          user: n.profiles?.username || t('common.manager'),
-          msg: n.message,
-        }),
-        created_at: n.created_at,
-        user: n.profiles?.username,
-      })
-    })
-
-    // Members
-    memberRes.data?.forEach((m: any) => {
-      if (m.status === 'approved') {
-        const roleLabel = t(`common.${m.role || 'member'}`, { defaultValue: m.role })
-        compiledLogs.push({
-          id: `mem-${m.joined_at}`,
-          type: 'member',
-          title: t('activity.member'),
-          description: t('activity.joinedMess', {
-            user: m.profiles?.username || t('common.member'),
-            role: roleLabel,
-          }),
-          created_at: m.joined_at,
-          user: m.profiles?.username,
+      // Expenses
+      expRes.data?.forEach((e: any) => {
+        const catLabel = t(`finance.categories.${e.category || 'other'}`, {
+          defaultValue: e.category || 'other',
         })
-      }
-    })
+        compiledLogs.push({
+          id: `exp-${e.id}`,
+          type: 'expense',
+          title: t('activity.expense'),
+          description: t('activity.addedExpenseDetail', {
+            user: e.profiles?.username || t('common.member'),
+            category: catLabel,
+            desc: e.description || catLabel,
+          }),
+          amount: Number(e.amount),
+          created_at: e.created_at,
+          user: e.profiles?.username,
+        })
+      })
 
-    compiledLogs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    setLogs(compiledLogs.slice(0, 50)) // Display top 50 logs
-    setLoading(false)
+      // Deposits
+      depRes.data?.forEach((d: any) => {
+        compiledLogs.push({
+          id: `dep-${d.id}`,
+          type: 'deposit',
+          title: t('activity.deposit'),
+          description: t('activity.depositedFundsDetail', {
+            user: d.profiles?.username || t('common.member'),
+            note: d.note || t('activity.regularDeposit'),
+          }),
+          amount: Number(d.amount),
+          created_at: d.created_at,
+          user: d.profiles?.username,
+        })
+      })
+
+      // Notices
+      noticeRes.data?.forEach((n: any) => {
+        compiledLogs.push({
+          id: `not-${n.id}`,
+          type: 'notice',
+          title: t('activity.notice'),
+          description: t('activity.postedNotice', {
+            user: n.profiles?.username || t('common.manager'),
+            msg: n.message,
+          }),
+          created_at: n.created_at,
+          user: n.profiles?.username,
+        })
+      })
+
+      // Members
+      memberRes.data?.forEach((m: any) => {
+        if (m.status === 'approved') {
+          const roleLabel = t(`common.${m.role || 'member'}`, { defaultValue: m.role })
+          compiledLogs.push({
+            id: `mem-${m.joined_at}`,
+            type: 'member',
+            title: t('activity.member'),
+            description: t('activity.joinedMess', {
+              user: m.profiles?.username || t('common.member'),
+              role: roleLabel,
+            }),
+            created_at: m.joined_at,
+            user: m.profiles?.username,
+          })
+        }
+      })
+
+      compiledLogs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      setLogs(compiledLogs.slice(0, 50)) // Display top 50 logs
+    } finally {
+      setLoading(false)
+    }
   }, [currentMess?.id, t])
 
   useEffect(() => {

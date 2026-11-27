@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { dhakaToday, dhakaTomorrow, getMealRoutineDow } from '../lib/utils'
 import { useRealtimeTable } from './useRealtimeTable'
@@ -101,6 +101,7 @@ export function useDashboardData(
   const [notice, setNotice] = useState<DashboardNotice | null>(null)
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([])
   const [dataLoaded, setDataLoaded] = useState(false)
+  const requestIdRef = useRef(0)
 
   const today = dhakaToday()
   const tomorrow = dhakaTomorrow()
@@ -108,218 +109,233 @@ export function useDashboardData(
 
   const fetchDashboardData = useCallback(async () => {
     if (!userId || !messId) return
+    const requestId = ++requestIdRef.current
 
-    // Batch all independent queries with Promise.all instead of sequential awaits
-    const [
-      myMealsRes,
-      allMealsRes,
-      marketRes,
-      fixedRes,
-      expRes,
-      depRes,
-      balRes,
-      noticeRes,
-      routineRes,
-      ecRes,
-    ] = await Promise.all([
-      // 1. Personal Meals
-      supabase
-        .from('meals')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('mess_id', messId)
-        .in('date', [today, tomorrow]),
-      // 2. All Meals (cook summary)
-      supabase.from('meals').select('*').eq('mess_id', messId).in('date', [today, tomorrow]),
-      // 3. Upcoming Bazaar
-      supabase
-        .from('market_schedules')
-        .select('assigned_date, user_id, profiles(username)')
-        .eq('mess_id', messId)
-        .gte('assigned_date', today)
-        .order('assigned_date', { ascending: true })
-        .limit(3),
-      // 4. Unpaid Fixed Costs
-      supabase
-        .from('fixed_costs')
-        .select('*', { count: 'exact', head: true })
-        .eq('mess_id', messId)
-        .eq('month', currentMonth)
-        .eq('is_paid', false),
-      // 5. Recent Expenses
-      supabase
-        .from('expenses')
-        .select('id, amount, category, created_at, profiles(username)')
-        .eq('mess_id', messId)
-        .order('created_at', { ascending: false })
-        .limit(3),
-      // 6. Recent Deposits
-      supabase
-        .from('deposits')
-        .select('id, amount, created_at, profiles!deposits_user_id_fkey(username)')
-        .eq('mess_id', messId)
-        .order('created_at', { ascending: false })
-        .limit(3),
-      // 7. Balance & Stats
-      supabase.rpc('calculate_member_balance', {
-        p_user_id: userId,
-        p_mess_id: messId,
-        p_month: currentMonth,
-      }),
-      // 8. Active Notice
-      supabase
-        .from('notices')
-        .select('id, message')
-        .eq('mess_id', messId)
-        .eq('is_active', true)
-        .single(),
-      // 9. Meal Routine
-      (() => {
+    try {
+      // Batch all independent queries with Promise.all instead of sequential awaits
+      const [
+        myMealsRes,
+        allMealsRes,
+        marketRes,
+        fixedRes,
+        expRes,
+        depRes,
+        balRes,
+        noticeRes,
+        routineRes,
+        ecRes,
+      ] = await Promise.all([
+        // 1. Personal Meals
+        supabase
+          .from('meals')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('mess_id', messId)
+          .in('date', [today, tomorrow]),
+        // 2. All Meals (cook summary)
+        supabase.from('meals').select('*').eq('mess_id', messId).in('date', [today, tomorrow]),
+        // 3. Upcoming Bazaar
+        supabase
+          .from('market_schedules')
+          .select('assigned_date, user_id, profiles(username)')
+          .eq('mess_id', messId)
+          .gte('assigned_date', today)
+          .order('assigned_date', { ascending: true })
+          .limit(3),
+        // 4. Unpaid Fixed Costs
+        supabase
+          .from('fixed_costs')
+          .select('*', { count: 'exact', head: true })
+          .eq('mess_id', messId)
+          .eq('month', currentMonth)
+          .eq('is_paid', false),
+        // 5. Recent Expenses
+        supabase
+          .from('expenses')
+          .select('id, amount, category, created_at, profiles(username)')
+          .eq('mess_id', messId)
+          .order('created_at', { ascending: false })
+          .limit(3),
+        // 6. Recent Deposits
+        supabase
+          .from('deposits')
+          .select('id, amount, created_at, profiles!deposits_user_id_fkey(username)')
+          .eq('mess_id', messId)
+          .order('created_at', { ascending: false })
+          .limit(3),
+        // 7. Balance & Stats
+        supabase.rpc('calculate_member_balance', {
+          p_user_id: userId,
+          p_mess_id: messId,
+          p_month: currentMonth,
+        }),
+        // 8. Active Notice
+        supabase
+          .from('notices')
+          .select('id, message')
+          .eq('mess_id', messId)
+          .eq('is_active', true)
+          .maybeSingle(),
+        // 9. Meal Routine
+        (() => {
+          const todayDow = getMealRoutineDow(today)
+          const tomorrowDow = getMealRoutineDow(tomorrow)
+          return supabase
+            .from('meal_routines')
+            .select('day_of_week, lunch, dinner')
+            .eq('mess_id', messId)
+            .in('day_of_week', [todayDow, tomorrowDow])
+        })(),
+        // 10. Emergency Contacts
+        supabase
+          .from('emergency_contacts')
+          .select('id, name, phone')
+          .eq('mess_id', messId)
+          .order('created_at', { ascending: true }),
+      ])
+
+      if (requestId !== requestIdRef.current) return
+
+      // Process Personal Meals
+      const newMeals = { ...defaultMeals }
+      myMealsRes.data?.forEach((m: Record<string, unknown>) => {
+        const key = m.date === today ? 'today' : 'tomorrow'
+        newMeals[key] = {
+          lunch: m.lunch as boolean,
+          dinner: m.dinner as boolean,
+          gl: (m.guest_lunch as number) || 0,
+          gd: (m.guest_dinner as number) || 0,
+        }
+      })
+      setMealsData(newMeals)
+
+      // Process Cook Summary
+      const cook = { todayL: 0, todayD: 0, tomorrowL: 0, tomorrowD: 0 }
+      allMealsRes.data?.forEach((m: Record<string, unknown>) => {
+        if (m.date === today) {
+          cook.todayL += (m.lunch ? 1 : 0) + ((m.guest_lunch as number) || 0)
+          cook.todayD += (m.dinner ? 1 : 0) + ((m.guest_dinner as number) || 0)
+        } else {
+          cook.tomorrowL += (m.lunch ? 1 : 0) + ((m.guest_lunch as number) || 0)
+          cook.tomorrowD += (m.dinner ? 1 : 0) + ((m.guest_dinner as number) || 0)
+        }
+      })
+      setCookSummary(cook)
+
+      // Process Market
+      if (marketRes.data) {
+        setIsBazaarMan(
+          marketRes.data.some(
+            (m: Record<string, unknown>) =>
+              m.assigned_date === today &&
+              (m.user_id
+                ? m.user_id === userId
+                : (m.profiles as Record<string, unknown>)?.username?.toString().toLowerCase() ===
+                  username?.toLowerCase())
+          )
+        )
+        setUpcomingBazaar(
+          marketRes.data.map((m: Record<string, unknown>) => ({
+            date: m.assigned_date as string,
+            username: ((m.profiles as Record<string, unknown>)?.username as string) || 'Unknown',
+          }))
+        )
+      }
+
+      // Unpaid Fixed Costs
+      setUnpaidFixed(fixedRes.count || 0)
+
+      // Recent Activity
+      const acts = [
+        ...(expRes.data || []).map((e: Record<string, unknown>) => ({
+          id: e.id as string,
+          text: `${(e.profiles as Record<string, unknown>)?.username} added ${e.category} expense of ৳${e.amount}`,
+          type: 'expense',
+          time: e.created_at as string,
+          username: ((e.profiles as Record<string, unknown>)?.username as string) || 'Member',
+          category: (e.category as string) || 'other',
+          amount: Number(e.amount || 0),
+        })),
+        ...(depRes.data || []).map((d: Record<string, unknown>) => ({
+          id: d.id as string,
+          text: `${(d.profiles as Record<string, unknown>)?.username} deposited ৳${d.amount}`,
+          type: 'deposit',
+          time: d.created_at as string,
+          username: ((d.profiles as Record<string, unknown>)?.username as string) || 'Member',
+          amount: Number(d.amount || 0),
+        })),
+      ]
+        .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+        .slice(0, 4)
+      setRecentActs(acts)
+
+      // Balance & Stats
+      if (balRes.data) {
+        const b = Array.isArray(balRes.data) ? balRes.data[0] : balRes.data
+        if (b) {
+          setStats({
+            totalMeals: b.personal_meals || 0,
+            balance: b.balance || 0,
+            mealRate: b.meal_rate || 0,
+            messTotalSpent: b.total_mess_bazaar || 0,
+          })
+        }
+      }
+
+      // Notice
+      if (noticeRes.data) setNotice(noticeRes.data)
+      else setNotice(null)
+
+      // Meal Routine
+      if (routineRes.data) {
         const todayDow = getMealRoutineDow(today)
         const tomorrowDow = getMealRoutineDow(tomorrow)
-        return supabase
-          .from('meal_routines')
-          .select('day_of_week, lunch, dinner')
-          .eq('mess_id', messId)
-          .in('day_of_week', [todayDow, tomorrowDow])
-      })(),
-      // 10. Emergency Contacts
-      supabase
-        .from('emergency_contacts')
-        .select('id, name, phone')
-        .eq('mess_id', messId)
-        .order('created_at', { ascending: true }),
-    ])
-
-    // Process Personal Meals
-    const newMeals = { ...defaultMeals }
-    myMealsRes.data?.forEach((m: Record<string, unknown>) => {
-      const key = m.date === today ? 'today' : 'tomorrow'
-      newMeals[key] = {
-        lunch: m.lunch as boolean,
-        dinner: m.dinner as boolean,
-        gl: (m.guest_lunch as number) || 0,
-        gd: (m.guest_dinner as number) || 0,
-      }
-    })
-    setMealsData(newMeals)
-
-    // Process Cook Summary
-    const cook = { todayL: 0, todayD: 0, tomorrowL: 0, tomorrowD: 0 }
-    allMealsRes.data?.forEach((m: Record<string, unknown>) => {
-      if (m.date === today) {
-        cook.todayL += (m.lunch ? 1 : 0) + ((m.guest_lunch as number) || 0)
-        cook.todayD += (m.dinner ? 1 : 0) + ((m.guest_dinner as number) || 0)
-      } else {
-        cook.tomorrowL += (m.lunch ? 1 : 0) + ((m.guest_lunch as number) || 0)
-        cook.tomorrowD += (m.dinner ? 1 : 0) + ((m.guest_dinner as number) || 0)
-      }
-    })
-    setCookSummary(cook)
-
-    // Process Market
-    if (marketRes.data) {
-      setIsBazaarMan(
-        marketRes.data.some(
-          (m: Record<string, unknown>) =>
-            m.assigned_date === today &&
-            (m.user_id
-              ? m.user_id === userId
-              : (m.profiles as Record<string, unknown>)?.username?.toString().toLowerCase() ===
-                username?.toLowerCase())
+        const todayR = routineRes.data.find(
+          (r: Record<string, unknown>) => r.day_of_week === todayDow
         )
-      )
-      setUpcomingBazaar(
-        marketRes.data.map((m: Record<string, unknown>) => ({
-          date: m.assigned_date as string,
-          username: ((m.profiles as Record<string, unknown>)?.username as string) || 'Unknown',
-        }))
-      )
-    }
-
-    // Unpaid Fixed Costs
-    setUnpaidFixed(fixedRes.count || 0)
-
-    // Recent Activity
-    const acts = [
-      ...(expRes.data || []).map((e: Record<string, unknown>) => ({
-        id: e.id as string,
-        text: `${(e.profiles as Record<string, unknown>)?.username} added ${e.category} expense of ৳${e.amount}`,
-        type: 'expense',
-        time: e.created_at as string,
-        username: ((e.profiles as Record<string, unknown>)?.username as string) || 'Member',
-        category: (e.category as string) || 'other',
-        amount: Number(e.amount || 0),
-      })),
-      ...(depRes.data || []).map((d: Record<string, unknown>) => ({
-        id: d.id as string,
-        text: `${(d.profiles as Record<string, unknown>)?.username} deposited ৳${d.amount}`,
-        type: 'deposit',
-        time: d.created_at as string,
-        username: ((d.profiles as Record<string, unknown>)?.username as string) || 'Member',
-        amount: Number(d.amount || 0),
-      })),
-    ]
-      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
-      .slice(0, 4)
-    setRecentActs(acts)
-
-    // Balance & Stats
-    if (balRes.data) {
-      const b = Array.isArray(balRes.data) ? balRes.data[0] : balRes.data
-      if (b) {
-        setStats({
-          totalMeals: b.personal_meals || 0,
-          balance: b.balance || 0,
-          mealRate: b.meal_rate || 0,
-          messTotalSpent: b.total_mess_bazaar || 0,
+        const tomorrowR = routineRes.data.find(
+          (r: Record<string, unknown>) => r.day_of_week === tomorrowDow
+        )
+        setRoutines({
+          today: { lunch: (todayR?.lunch as string) || '', dinner: (todayR?.dinner as string) || '' },
+          tomorrow: {
+            lunch: (tomorrowR?.lunch as string) || '',
+            dinner: (tomorrowR?.dinner as string) || '',
+          },
         })
       }
+
+      // Emergency Contacts
+      if (ecRes.data) setEmergencyContacts(ecRes.data)
+    } catch (err) {
+      console.error('[useDashboardData] Failed to load dashboard data:', err)
+    } finally {
+      if (requestId === requestIdRef.current) {
+        setDataLoaded(true)
+      }
     }
-
-    // Notice
-    if (noticeRes.data) setNotice(noticeRes.data)
-    else setNotice(null)
-
-    // Meal Routine
-    if (routineRes.data) {
-      const todayDow = getMealRoutineDow(today)
-      const tomorrowDow = getMealRoutineDow(tomorrow)
-      const todayR = routineRes.data.find(
-        (r: Record<string, unknown>) => r.day_of_week === todayDow
-      )
-      const tomorrowR = routineRes.data.find(
-        (r: Record<string, unknown>) => r.day_of_week === tomorrowDow
-      )
-      setRoutines({
-        today: { lunch: (todayR?.lunch as string) || '', dinner: (todayR?.dinner as string) || '' },
-        tomorrow: {
-          lunch: (tomorrowR?.lunch as string) || '',
-          dinner: (tomorrowR?.dinner as string) || '',
-        },
-      })
-    }
-
-    // Emergency Contacts
-    if (ecRes.data) setEmergencyContacts(ecRes.data)
-
-    setDataLoaded(true)
   }, [userId, username, messId, today, tomorrow, currentMonth])
 
   useEffect(() => {
-    if (!userId || !messId) return
-    fetchDashboardData()
+    if (!userId || !messId) {
+      setDataLoaded(false)
+      return
+    }
+    setDataLoaded(false)
+    void fetchDashboardData()
   }, [userId, messId, fetchDashboardData])
 
   // Realtime subscriptions
   useRealtimeTable(
-    [
-      { table: 'meals', filter: `mess_id=eq.${messId}` },
-      { table: 'notices', filter: `mess_id=eq.${messId}` },
-      { table: 'expenses', filter: `mess_id=eq.${messId}` },
-      { table: 'deposits', filter: `mess_id=eq.${messId}` },
-      { table: 'fixed_costs', filter: `mess_id=eq.${messId}` },
-    ],
+    messId
+      ? [
+          { table: 'meals', filter: `mess_id=eq.${messId}` },
+          { table: 'notices', filter: `mess_id=eq.${messId}` },
+          { table: 'expenses', filter: `mess_id=eq.${messId}` },
+          { table: 'deposits', filter: `mess_id=eq.${messId}` },
+          { table: 'fixed_costs', filter: `mess_id=eq.${messId}` },
+        ]
+      : [],
     fetchDashboardData,
     undefined,
     500 // debounce 500ms

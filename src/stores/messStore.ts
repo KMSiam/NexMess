@@ -42,39 +42,42 @@ export const useMessStore = create<MessState>()(
 
       fetchUserMesses: async (userId: string) => {
         set({ loading: true })
-        const { data: memberships } = await supabase
-          .from('mess_members')
-          .select('mess_id, status, role, messes(*)')
-          .eq('user_id', userId)
-          .in('status', ['approved', 'pending'])
+        try {
+          const { data: memberships } = await supabase
+            .from('mess_members')
+            .select('mess_id, status, role, messes(*)')
+            .eq('user_id', userId)
+            .in('status', ['approved', 'pending'])
 
-        if (memberships) {
-          const approved = memberships.filter((m: any) => m.status === 'approved')
-          const pending = memberships.filter((m: any) => m.status === 'pending')
+          if (memberships) {
+            const approved = memberships.filter((m: any) => m.status === 'approved')
+            const pending = memberships.filter((m: any) => m.status === 'pending')
 
-          const messes = approved.map((m: any) => m.messes).filter(Boolean) as Mess[]
-          const pendingRequests = pending
-            .map((m: any) => ({ mess_id: m.mess_id, messes: m.messes }))
-            .filter((m) => m.messes)
+            const messes = approved.map((m: any) => m.messes).filter(Boolean) as Mess[]
+            const pendingRequests = pending
+              .map((m: any) => ({ mess_id: m.mess_id, messes: m.messes }))
+              .filter((m) => m.messes)
 
-          set({ messes, pendingRequests })
+            set({ messes, pendingRequests })
 
-          const current = get().currentMess
-          if (current) {
-            const stillMember = messes.find((m) => m.id === current.id)
-            if (stillMember) {
-              set({ currentMess: stillMember })
-              void get().fetchMembers(stillMember.id)
+            const current = get().currentMess
+            if (current) {
+              const stillMember = messes.find((m) => m.id === current.id)
+              if (stillMember) {
+                set({ currentMess: stillMember })
+                void get().fetchMembers(stillMember.id)
+              } else if (messes.length > 0) {
+                void get().setCurrentMess(messes[0])
+              } else {
+                set({ currentMess: null, members: [] })
+              }
             } else if (messes.length > 0) {
               void get().setCurrentMess(messes[0])
-            } else {
-              set({ currentMess: null, members: [] })
             }
-          } else if (messes.length > 0) {
-            void get().setCurrentMess(messes[0])
           }
+        } finally {
+          set({ loading: false })
         }
-        set({ loading: false })
       },
 
       setCurrentMess: (mess) => {

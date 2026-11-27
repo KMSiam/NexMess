@@ -26,6 +26,7 @@ import { sanitizeAppError } from '../../lib/errorHandler'
 import { formatNumber, isApprovedManager } from '../../lib/utils'
 
 import { usePageTitle } from '../../hooks/usePageTitle'
+import { createRealtimeChannelName } from '../../hooks/useRealtimeTable'
 import ProfileSection from './components/ProfileSection'
 import PushNotificationSection from './components/PushNotificationSection'
 import MessDetailsSection from './components/MessDetailsSection'
@@ -107,7 +108,7 @@ export default function SettingsPage() {
 
       // Real-time listener for member status changes
       const channel = supabase
-        .channel(`members-${currentMess.id}`)
+        .channel(createRealtimeChannelName(`members-${currentMess.id}`))
         .on(
           'postgres_changes',
           {

@@ -31,6 +31,7 @@ import toast from 'react-hot-toast'
 import { Skeleton } from '../../../components/Skeleton'
 import ConfirmDialog from '../../../components/ConfirmDialog'
 import SelectDropdown from '../../../components/SelectDropdown'
+import { createRealtimeChannelName } from '../../../hooks/useRealtimeTable'
 
 export default function BazaarSchedule() {
   const { t } = useTranslation()
@@ -57,25 +58,28 @@ export default function BazaarSchedule() {
   const fetchSchedules = useCallback(async () => {
     if (!currentMess?.id) return
     setLoadingSchedules(true)
-    const { data } = await supabase
-      .from('market_schedules')
-      .select('*, profiles(username, avatar_url)')
-      .eq('mess_id', currentMess.id)
-      .gte('assigned_date', weekStartStr)
-      .lte('assigned_date', weekEndStr)
-      .order('assigned_date', { ascending: true })
+    try {
+      const { data } = await supabase
+        .from('market_schedules')
+        .select('*, profiles(username, avatar_url)')
+        .eq('mess_id', currentMess.id)
+        .gte('assigned_date', weekStartStr)
+        .lte('assigned_date', weekEndStr)
+        .order('assigned_date', { ascending: true })
 
-    if (data) setSchedules(data as MarketSchedule[])
-    setLoadingSchedules(false)
+      if (data) setSchedules(data as MarketSchedule[])
+    } finally {
+      setLoadingSchedules(false)
+    }
   }, [currentMess?.id, weekStartStr, weekEndStr])
 
   useEffect(() => {
     if (!currentMess?.id) return
-    fetchSchedules()
+    void fetchSchedules()
 
     // Real-time subscription for schedules
     const channel = supabase
-      .channel('market-realtime')
+      .channel(createRealtimeChannelName(`market-realtime-${currentMess.id}`))
       .on(
         'postgres_changes',
         {
