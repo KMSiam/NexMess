@@ -3,27 +3,34 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../../stores/authStore'
 import { useMessStore } from '../../../stores/messStore'
 import { supabase } from '../../../lib/supabase'
-import { CalendarClock, Pencil, Save, X } from 'lucide-react'
+import { CalendarClock, Moon, Pencil, Plus, Save, Sun, X } from 'lucide-react'
 import EmptyState from '../../../components/EmptyState'
 import { Skeleton } from '../../../components/Skeleton'
-import { getFoodEmoji, formatFoodName, getMealRoutineDow, dhakaToday, isApprovedManager } from '../../../lib/utils'
+import {
+  formatFoodName,
+  getMealRoutineDow,
+  dhakaToday,
+  isApprovedManager,
+} from '../../../lib/utils'
+import { sanitizeAppError } from '../../../lib/errorHandler'
 import toast from 'react-hot-toast'
+import { getFoodIconMeta } from './foodIcons'
 
 const DAYS_EN = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 const DAYS_BN = ['শনিবার', 'রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার']
 
 const PRESET_ITEMS = [
-  { label: 'Chicken', emoji: '🍗' },
-  { label: 'Fish', emoji: '🐟' },
-  { label: 'Egg', emoji: '🥚' },
-  { label: 'Vegetables', emoji: '🥬' },
-  { label: 'Beef', emoji: '🍖' },
-  { label: 'Mutton', emoji: '🍖' },
-  { label: 'Dal', emoji: '🫘' },
-  { label: 'Shrimp', emoji: '🍤' },
-  { label: 'Rice', emoji: '🍚' },
-  { label: 'Khichuri', emoji: '🍚' },
-]
+  'Chicken',
+  'Fish',
+  'Egg',
+  'Vegetables',
+  'Beef',
+  'Mutton',
+  'Dal',
+  'Shrimp',
+  'Rice',
+  'Khichuri',
+] as const
 
 interface RoutineRow {
   day_of_week: number
@@ -94,7 +101,7 @@ export default function MealRoutine() {
   const startEditing = () => {
     setEditData(routines.map((r) => ({ ...r })))
     setEditing(true)
-    setActiveEditCell(null)
+    setActiveEditCell({ day: todayDow, type: 'lunch' })
   }
 
   const cancelEditing = () => {
@@ -130,7 +137,7 @@ export default function MealRoutine() {
       .from('meal_routines')
       .upsert(upserts, { onConflict: 'mess_id,day_of_week' })
 
-    if (error) toast.error('Failed to save routine')
+    if (error) toast.error(sanitizeAppError(error, 'Failed to save routine'))
     else {
       toast.success('Meal routine saved!')
       setEditing(false)
@@ -145,13 +152,63 @@ export default function MealRoutine() {
   const displayData = editing ? editData : routines
   const hasAnyData = routines.some((r) => r.lunch || r.dinner)
 
+  const renderDishContent = (rawValue: string) => {
+    const dishes = rawValue
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean)
+
+    if (dishes.length === 0) {
+      return <p className="text-nex-muted/75 text-xs">{t('market.routine.notSet')}</p>
+    }
+
+    if (dishes.length === 1) {
+      const meta = getFoodIconMeta(dishes[0])
+      const DishIcon = meta.icon
+      return (
+        <div className="flex items-center gap-2.5">
+          <div
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${meta.bgClass}`}
+          >
+            <DishIcon className={`h-4 w-4 ${meta.textClass}`} />
+          </div>
+          <span className="text-nex-text min-w-0 truncate text-sm font-semibold">
+            {formatFoodName(dishes[0])}
+          </span>
+        </div>
+      )
+    }
+
+    return (
+      <div className="flex flex-wrap gap-1.5">
+        {dishes.map((dish, idx) => {
+          const meta = getFoodIconMeta(dish)
+          const DishIcon = meta.icon
+          return (
+            <span
+              key={`${dish}-${idx}`}
+              className="border-nex-border/80 bg-nex-surface inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs font-medium text-nex-text"
+            >
+              <DishIcon className={`h-3.5 w-3.5 shrink-0 ${meta.textClass}`} />
+              <span>{formatFoodName(dish)}</span>
+            </span>
+          )
+        })}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-5">
       {/* Header Controls */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <CalendarClock className="text-nex-primary h-6 w-6" />
-          <h2 className="text-nex-text text-xl font-bold">{t('market.routine.title')}</h2>
+          <div className="bg-nex-primary/10 text-nex-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
+            <CalendarClock className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="text-nex-text text-xl font-bold">{t('market.routine.title')}</h2>
+          </div>
         </div>
         {isManager && (
           <div className="flex gap-2">
@@ -185,17 +242,14 @@ export default function MealRoutine() {
 
       {/* Loading Skeletons */}
       {loadingRoutines && (
-        <div className="nex-card space-y-4 p-5">
-          <Skeleton className="h-6 w-32" />
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-7">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <div key={i} className="border-nex-border space-y-2 rounded-xl border p-3">
-                <Skeleton className="mx-auto h-4 w-12" />
-                <Skeleton className="mx-auto h-3 w-16" />
-                <Skeleton className="mx-auto h-3 w-16" />
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="nex-card space-y-3 p-4">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-14 w-full rounded-xl" />
+              <Skeleton className="h-14 w-full rounded-xl" />
+            </div>
+          ))}
         </div>
       )}
 
@@ -216,137 +270,125 @@ export default function MealRoutine() {
 
       {/* Preset Chips (only in edit mode) */}
       {editing && activeEditCell && (
-        <div className="nex-card animate-slide-up p-4">
-          <p className="text-nex-muted mb-2 text-xs font-medium">
-            {t('market.routine.quickAdd')}{' '}
-            <span className="text-nex-text font-bold">{DAYS[activeEditCell.day]}</span>{' '}
-            {activeEditCell.type === 'lunch' ? t('dashboard.lunch') : t('dashboard.dinner')}:
+        <div className="nex-card animate-slide-up border-nex-primary/25 bg-nex-surface/95 sticky top-[70px] z-20 p-4 backdrop-blur-md">
+          <p className="text-nex-muted mb-2.5 flex items-center gap-1.5 text-xs font-medium">
+            <Plus className="text-nex-primary h-3.5 w-3.5" />
+            <span>{t('market.routine.quickAdd')}</span>
+            <span className="text-nex-text font-bold">{DAYS[activeEditCell.day]}</span>
+            <span>·</span>
+            <span className="inline-flex items-center gap-1 font-semibold">
+              {activeEditCell.type === 'lunch' ? (
+                <>
+                  <Sun className="h-3.5 w-3.5 text-amber-500" />
+                  {t('dashboard.lunch')}
+                </>
+              ) : (
+                <>
+                  <Moon className="h-3.5 w-3.5 text-indigo-500" />
+                  {t('dashboard.dinner')}
+                </>
+              )}
+            </span>
           </p>
           <div className="flex flex-wrap gap-2">
-            {PRESET_ITEMS.map((item) => (
-              <button
-                key={item.label}
-                onClick={() => addPresetToCell(activeEditCell.day, activeEditCell.type, item.label)}
-                className="bg-nex-elevated hover:bg-nex-hover text-nex-text rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
-              >
-                {item.emoji} {formatFoodName(item.label)}
-              </button>
-            ))}
+            {PRESET_ITEMS.map((label) => {
+              const meta = getFoodIconMeta(label)
+              const PresetIcon = meta.icon
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => addPresetToCell(activeEditCell.day, activeEditCell.type, label)}
+                  className="bg-nex-elevated hover:bg-nex-hover border-nex-border/70 text-nex-text inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors active:scale-95"
+                >
+                  <PresetIcon className={`h-3.5 w-3.5 ${meta.textClass}`} />
+                  <span>{formatFoodName(label)}</span>
+                </button>
+              )
+            })}
           </div>
         </div>
       )}
 
-      {/* Desktop Table View */}
+      {/* Responsive 7-Day Card Grid */}
       {!loadingRoutines && (hasAnyData || editing) && (
-        <div className="nex-card hidden overflow-x-auto sm:block">
-          <table className="w-full min-w-[560px]">
-            <thead>
-              <tr className="bg-nex-elevated border-nex-border border-b">
-                <th className="text-nex-muted w-20 px-4 py-3 text-left text-xs font-semibold tracking-wider uppercase"></th>
-                {DAYS.map((day, i) => (
-                  <th
-                    key={day}
-                    className={`px-3 py-3 text-center text-xs font-semibold tracking-wider uppercase ${todayDow === i ? 'text-nex-primary bg-nex-primary-light' : 'text-nex-muted'}`}
-                  >
-                    {day}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(['lunch', 'dinner'] as const).map((type) => (
-                <tr key={type} className="border-nex-border border-b last:border-0">
-                  <td className="text-nex-muted px-4 py-4 text-xs font-semibold uppercase">
-                    {type === 'lunch' ? `☀️ ${t('dashboard.lunch')}` : `🌙 ${t('dashboard.dinner')}`}
-                  </td>
-                  {displayData.map((r) => {
-                    const value = r[type]
-                    const isToday = todayDow === r.day_of_week
-                    const isActive =
-                      activeEditCell?.day === r.day_of_week && activeEditCell?.type === type
-
-                    return (
-                      <td
-                        key={r.day_of_week}
-                        className={`px-2 py-3 text-center ${isToday ? 'bg-nex-primary-light' : ''}`}
-                      >
-                        {editing ? (
-                          <input
-                            type="text"
-                            value={value}
-                            onChange={(e) => updateEditCell(r.day_of_week, type, e.target.value)}
-                            onFocus={() => setActiveEditCell({ day: r.day_of_week, type })}
-                            className={`w-full rounded-lg border px-2 py-2 text-center text-xs transition-colors ${isActive ? 'border-nex-primary bg-nex-primary-light' : 'border-nex-border bg-nex-surface'} focus:border-nex-primary focus:outline-none`}
-                            placeholder="—"
-                          />
-                        ) : value ? (
-                          <div className="flex flex-col items-center gap-0.5">
-                            <span className="text-base">{getFoodEmoji(value)}</span>
-                            <span className="text-nex-text text-xs font-medium">{formatFoodName(value)}</span>
-                          </div>
-                        ) : (
-                          <span className="text-nex-muted/70 text-xs">—</span>
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Mobile Card View */}
-      {!loadingRoutines && (hasAnyData || editing) && (
-        <div className="space-y-2 sm:hidden">
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {displayData.map((r) => {
             const isToday = todayDow === r.day_of_week
             return (
               <div
                 key={r.day_of_week}
-                className={`nex-card p-4 ${isToday ? 'border-nex-primary border-2' : ''}`}
+                className={`nex-card flex flex-col justify-between p-4 transition-all ${
+                  isToday
+                    ? 'border-nex-primary/60 bg-nex-primary-light/30 ring-nex-primary/15 ring-1'
+                    : ''
+                }`}
               >
-                <div className="mb-3 flex items-center justify-between">
-                  <p
-                    className={`text-sm font-bold ${isToday ? 'text-nex-primary' : 'text-nex-text'}`}
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <h3
+                    className={`text-sm font-bold tracking-tight ${
+                      isToday ? 'text-nex-primary' : 'text-nex-text'
+                    }`}
                   >
                     {DAYS[r.day_of_week]}
-                    {isToday && (
-                      <span className="bg-nex-primary ml-2 rounded-full px-2 py-0.5 text-xs font-medium text-white">
-                        {t('common.today')}
-                      </span>
-                    )}
-                  </p>
+                  </h3>
+                  {isToday && (
+                    <span className="bg-nex-primary rounded-full px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-white uppercase">
+                      {t('common.today')}
+                    </span>
+                  )}
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+
+                <div className="space-y-2.5">
                   {(['lunch', 'dinner'] as const).map((type) => {
                     const value = r[type]
+                    const isLunch = type === 'lunch'
                     const isActive =
                       activeEditCell?.day === r.day_of_week && activeEditCell?.type === type
+                    const SlotIcon = isLunch ? Sun : Moon
+
                     return (
                       <div
                         key={type}
-                        className={`rounded-xl p-3 ${type === 'lunch' ? 'border border-amber-500/20 bg-amber-500/10' : 'border border-indigo-500/20 bg-indigo-500/10'}`}
+                        className={`rounded-xl border p-3 transition-colors ${
+                          isActive
+                            ? 'border-nex-primary bg-nex-primary-light/50 ring-nex-primary/20 ring-1'
+                            : isLunch
+                              ? 'border-amber-500/15 bg-amber-500/[0.05] dark:bg-amber-500/[0.07]'
+                              : 'border-indigo-500/15 bg-indigo-500/[0.05] dark:bg-indigo-500/[0.07]'
+                        }`}
                       >
-                        <p
-                          className={`mb-1.5 text-xs font-semibold tracking-wider uppercase ${type === 'lunch' ? 'text-amber-600' : 'text-indigo-600'}`}
-                        >
-                          {type === 'lunch' ? `☀️ ${t('dashboard.lunch')}` : `🌙 ${t('dashboard.dinner')}`}
-                        </p>
+                        <div className="mb-2 flex items-center gap-1.5">
+                          <SlotIcon
+                            className={`h-3.5 w-3.5 shrink-0 ${
+                              isLunch
+                                ? 'text-amber-600 dark:text-amber-400'
+                                : 'text-indigo-600 dark:text-indigo-400'
+                            }`}
+                          />
+                          <span
+                            className={`text-[11px] font-semibold tracking-wider uppercase ${
+                              isLunch
+                                ? 'text-amber-700 dark:text-amber-400'
+                                : 'text-indigo-700 dark:text-indigo-400'
+                            }`}
+                          >
+                            {isLunch ? t('dashboard.lunch') : t('dashboard.dinner')}
+                          </span>
+                        </div>
+
                         {editing ? (
                           <input
                             type="text"
                             value={value}
                             onChange={(e) => updateEditCell(r.day_of_week, type, e.target.value)}
                             onFocus={() => setActiveEditCell({ day: r.day_of_week, type })}
-                            className={`bg-nex-surface w-full rounded-lg border px-2 py-1.5 text-sm transition-colors ${isActive ? 'border-nex-primary' : 'border-transparent'} focus:border-nex-primary focus:outline-none`}
+                            className="bg-nex-surface border-nex-border text-nex-text focus:border-nex-primary w-full rounded-lg border px-2.5 py-1.5 text-sm transition-colors focus:outline-none"
                             placeholder={t('market.routine.placeholder')}
                           />
                         ) : value ? (
-                          <p className="text-nex-text text-sm font-medium">
-                            {getFoodEmoji(value)} {formatFoodName(value)}
-                          </p>
+                          renderDishContent(value)
                         ) : (
                           <p className="text-nex-muted/75 text-xs">{t('market.routine.notSet')}</p>
                         )}
