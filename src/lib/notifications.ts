@@ -3,8 +3,10 @@ import type { LucideIcon } from 'lucide-react'
 import {
   AlertTriangle,
   Bell,
+  CalendarCheck,
   CheckCircle2,
   DollarSign,
+  FileBarChart2,
   Megaphone,
   PiggyBank,
   Receipt,
@@ -12,6 +14,7 @@ import {
   ShoppingBag,
   Trash2,
   UserCheck,
+  UserMinus,
   UserPlus,
   UserX,
   Utensils,
@@ -69,9 +72,13 @@ export function resolveNotificationUrl(
   switch (notification.type) {
     case 'bazaar_reminder':
       return cleanTitle.includes('today') ? '/nexmess-ai' : '/market?tab=bazaar'
+    case 'bazaar_removed':
+      return '/market?tab=bazaar'
     case 'market_reminder':
       return '/nexmess-ai'
     case 'expense_added':
+    case 'expense_updated':
+    case 'expense_deleted':
       return '/finance?tab=expenses'
     case 'deposit_recorded':
     case 'deposit_verified':
@@ -80,11 +87,14 @@ export function resolveNotificationUrl(
     case 'fixed_cost_added':
     case 'fixed_cost_paid':
       return '/finance?tab=fixed'
+    case 'monthly_report':
+      return '/finance?tab=history'
     case 'balance_due':
       return '/finance?tab=summary'
     case 'notice_posted':
       return '/dashboard'
     case 'join_request':
+    case 'member_left':
       return '/settings?tab=members'
     case 'join_approved':
       return '/dashboard'
@@ -152,12 +162,41 @@ export function getNotificationVisualMeta(
         textClass: 'text-nex-primary-ink',
         destinationKey: 'notifications.destinations.ai',
       }
+    case 'bazaar_removed':
+      return {
+        icon: CalendarCheck,
+        bgClass: 'bg-nex-warning-light',
+        textClass: 'text-nex-warning',
+        destinationKey: 'notifications.destinations.market',
+      }
     case 'expense_added':
+    case 'expense_updated':
       return {
         icon: Receipt,
         bgClass: 'bg-nex-warning-light',
         textClass: 'text-nex-warning',
         destinationKey: 'notifications.destinations.expenses',
+      }
+    case 'expense_deleted':
+      return {
+        icon: Trash2,
+        bgClass: 'bg-nex-danger-light',
+        textClass: 'text-nex-danger',
+        destinationKey: 'notifications.destinations.expenses',
+      }
+    case 'monthly_report':
+      return {
+        icon: FileBarChart2,
+        bgClass: 'bg-nex-secondary-light',
+        textClass: 'text-nex-secondary',
+        destinationKey: 'notifications.destinations.history',
+      }
+    case 'member_left':
+      return {
+        icon: UserMinus,
+        bgClass: 'bg-nex-warning-light',
+        textClass: 'text-nex-warning',
+        destinationKey: 'notifications.destinations.members',
       }
     case 'deposit_recorded':
       return {
@@ -508,6 +547,78 @@ export function localizeNotification(
             date: formatNotifDate(match[2]),
           })
         : body,
+    }
+  }
+
+  // 16. Bazaar duty removed (DB trigger: notify_bazaar_removed)
+  if (notification.type === 'bazaar_removed') {
+    const match = body?.match(
+      /^Your bazaar assignment on (\d{4}-\d{2}-\d{2}) in (.+?) was removed\.$/
+    )
+    return {
+      title: t('notifications.items.bazaarRemovedTitle'),
+      body: match
+        ? t('notifications.items.bazaarRemovedBody', {
+            date: formatNotifDate(match[1]),
+            mess: match[2],
+          })
+        : body,
+    }
+  }
+
+  // 17. Expense updated / deleted by manager (FinancePage)
+  if (notification.type === 'expense_updated') {
+    const match = body?.match(/^(.+?) updated your expense to ৳\s*([\d.,]+)\.$/)
+    return {
+      title: t('notifications.items.expenseUpdatedTitle'),
+      body: match
+        ? t('notifications.items.expenseUpdatedBody', {
+            user: match[1],
+            amount: formatNotifAmount(match[2]),
+          })
+        : body,
+    }
+  }
+
+  if (notification.type === 'expense_deleted') {
+    const match = body?.match(/^(.+?) removed your expense of ৳\s*([\d.,]+)\.$/)
+    return {
+      title: t('notifications.items.expenseDeletedTitle'),
+      body: match
+        ? t('notifications.items.expenseDeletedBody', {
+            user: match[1],
+            amount: formatNotifAmount(match[2]),
+          })
+        : body,
+    }
+  }
+
+  // 18. Member left mess (SettingsPage)
+  if (notification.type === 'member_left') {
+    const match = body?.match(/^(.+?) left (.+)\.$/)
+    return {
+      title: t('notifications.items.memberLeftTitle'),
+      body: match
+        ? t('notifications.items.memberLeftBody', { user: match[1], mess: match[2] })
+        : body,
+    }
+  }
+
+  // 19. Monthly archive report ready (DB cron: cron_archive_previous_month)
+  if (notification.type === 'monthly_report') {
+    const match = body?.match(/^Monthly financial archive for (\d{4}-\d{2}) in (.+?) is ready\.$/)
+    const formattedMonth = match
+      ? formatLocalizedDate(`${match[1]}-01T12:00:00Z`, 'MMMM yyyy') || match[1]
+      : null
+    return {
+      title: t('notifications.items.monthlyReportTitle'),
+      body:
+        match && formattedMonth
+          ? t('notifications.items.monthlyReportBody', {
+              month: formattedMonth,
+              mess: match[2],
+            })
+          : body,
     }
   }
 

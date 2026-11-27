@@ -160,6 +160,61 @@ describe('Notification Localization', () => {
     })
   })
 
+  it('localizes selective high-signal notifications (bazaar removed, expense edits, member left, monthly report)', async () => {
+    const bazaarRemoved = {
+      type: 'bazaar_removed',
+      title: 'Bazaar duty removed',
+      body: 'Your bazaar assignment on 2026-11-29 in BachelorPoint was removed.',
+    }
+    const expenseUpdated = {
+      type: 'expense_updated',
+      title: 'Expense Updated',
+      body: 'Siam updated your expense to ৳750.',
+    }
+    const expenseDeleted = {
+      type: 'expense_deleted',
+      title: 'Expense Removed',
+      body: 'Siam removed your expense of ৳320.',
+    }
+    const memberLeft = {
+      type: 'member_left',
+      title: 'Member Left Mess',
+      body: 'Rafi left BachelorPoint.',
+    }
+    const monthlyReport = {
+      type: 'monthly_report',
+      title: 'Monthly report ready',
+      body: 'Monthly financial archive for 2026-10 in BachelorPoint is ready.',
+    }
+
+    expect(localizeNotification(bazaarRemoved, i18n.t)).toEqual({
+      title: 'Bazaar duty removed',
+      body: 'Your bazaar assignment on 2026-11-29 in BachelorPoint was removed.',
+    })
+    expect(localizeNotification(monthlyReport, i18n.t)).toEqual({
+      title: 'Monthly Report Ready',
+      body: 'Monthly financial archive for October 2026 in BachelorPoint is ready.',
+    })
+
+    await changeLanguage('bn')
+    expect(localizeNotification(bazaarRemoved, i18n.t)).toEqual({
+      title: 'বাজারের দায়িত্ব বাতিল হয়েছে',
+      body: 'BachelorPoint মেসে আগামী ২৯ নভেম্বর ২০২৬ তারিখের আপনার বাজারের দায়িত্ব বাতিল করা হয়েছে।',
+    })
+    expect(localizeNotification(expenseUpdated, i18n.t)).toEqual({
+      title: 'খরচ আপডেট করা হয়েছে',
+      body: 'Siam আপনার যোগ করা খরচটি পরিবর্তন করে ৳ ৭৫০ করেছেন।',
+    })
+    expect(localizeNotification(expenseDeleted, i18n.t)).toEqual({
+      title: 'খরচ মুছে ফেলা হয়েছে',
+      body: 'Siam আপনার ৳ ৩২০ টাকার খরচটি মুছে ফেলেছেন।',
+    })
+    expect(localizeNotification(memberLeft, i18n.t)).toEqual({
+      title: 'সদস্য মেস ছেড়েছেন',
+      body: 'Rafi BachelorPoint মেস ছেড়ে চলে গেছেন।',
+    })
+  })
+
   it('gracefully strips leading emojis on unknown notification types', async () => {
     await changeLanguage('bn')
     expect(
@@ -269,6 +324,38 @@ describe('Notification Routing & Visual Metadata', () => {
         url: null,
       })
     ).toBe('/settings?tab=profile')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'bazaar_removed',
+        title: 'Bazaar duty removed',
+        url: null,
+      })
+    ).toBe('/market?tab=bazaar')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'expense_deleted',
+        title: 'Expense Removed',
+        url: null,
+      })
+    ).toBe('/finance?tab=expenses')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'member_left',
+        title: 'Member Left Mess',
+        url: null,
+      })
+    ).toBe('/settings?tab=members')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'monthly_report',
+        title: 'Monthly report ready',
+        url: null,
+      })
+    ).toBe('/finance?tab=history')
   })
 
   it('maps visual metadata with semantic theme tokens and destination keys', () => {

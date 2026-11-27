@@ -378,6 +378,23 @@ export default function SettingsPage() {
       return
     }
 
+    const managerIds = approvedMembers
+      .filter((m) => m.role === 'manager' && m.user_id !== user.id)
+      .map((m) => m.user_id)
+    if (managerIds.length > 0 && currentMess.name) {
+      await createNotifications(
+        managerIds.map((managerId) => ({
+          user_id: managerId,
+          mess_id: currentMess.id,
+          type: 'member_left',
+          title: 'Member Left Mess',
+          body: `${profile?.username || 'A member'} left ${currentMess.name}.`,
+          url: '/settings?tab=members',
+          metadata: { mess_name: currentMess.name, user_id: user.id },
+        }))
+      )
+    }
+
     const { error } = await supabase
       .from('mess_members')
       .update({ status: 'left', left_at: new Date().toISOString() })

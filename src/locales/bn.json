@@ -418,6 +418,7 @@
       "deposits": "হিসাব · জমা",
       "fixed": "হিসাব · ফিক্সড বিল",
       "summary": "হিসাব · সারসংক্ষেপ",
+      "history": "হিসাব · ইতিহাস",
       "market": "বাজার · শিডিউল",
       "ai": "নেক্সমেস এআই",
       "members": "সেটিংস · সদস্যবৃন্দ",
@@ -465,7 +466,17 @@
       "profileUnverifiedTitle": "ভেরিফিকেশন সরানো হয়েছে",
       "profileUnverifiedBody": "{{mess}} মেসের ম্যানেজার আপনার ভেরিফিকেশন ব্যাজ সরিয়ে দিয়েছেন।",
       "mealUpdatedTitle": "মিলের হিসাব আপডেট হয়েছে",
-      "mealUpdatedBody": "{{user}} {{date}} তারিখের আপনার মিলের হিসাব আপডেট করেছেন।"
+      "mealUpdatedBody": "{{user}} {{date}} তারিখের আপনার মিলের হিসাব আপডেট করেছেন।",
+      "bazaarRemovedTitle": "বাজারের দায়িত্ব বাতিল হয়েছে",
+      "bazaarRemovedBody": "{{mess}} মেসে আগামী {{date}} তারিখের আপনার বাজারের দায়িত্ব বাতিল করা হয়েছে।",
+      "expenseUpdatedTitle": "খরচ আপডেট করা হয়েছে",
+      "expenseUpdatedBody": "{{user}} আপনার যোগ করা খরচটি পরিবর্তন করে {{amount}} করেছেন।",
+      "expenseDeletedTitle": "খরচ মুছে ফেলা হয়েছে",
+      "expenseDeletedBody": "{{user}} আপনার {{amount}} টাকার খরচটি মুছে ফেলেছেন।",
+      "memberLeftTitle": "সদস্য মেস ছেড়েছেন",
+      "memberLeftBody": "{{user}} {{mess}} মেস ছেড়ে চলে গেছেন।",
+      "monthlyReportTitle": "মাসিক রিপোর্ট প্রস্তুত",
+      "monthlyReportBody": "{{mess}} মেসের {{month}} মাসের আর্থিক রিপোর্ট সংরক্ষিত হয়েছে।"
     }
   },
   "settings": {

@@ -205,6 +205,7 @@ export default function FinancePage() {
     }
 
     try {
+      const targetExpense = expenses.find((e) => e.id === id)
       const { error } = await supabase
         .from('expenses')
         .update({
@@ -220,6 +221,24 @@ export default function FinancePage() {
       } else {
         toast.success('Expense updated!')
         refetch()
+        if (
+          targetExpense?.created_by &&
+          targetExpense.created_by !== user?.id &&
+          currentMess?.id
+        ) {
+          void createNotifications({
+            user_id: targetExpense.created_by,
+            mess_id: currentMess.id,
+            type: 'expense_updated',
+            title: 'Expense Updated',
+            body: `${profile?.username || 'A manager'} updated your expense to ৳${validation.data.amount}.`,
+            url: '/finance?tab=expenses',
+            metadata: {
+              expense_id: id,
+              amount: validation.data.amount,
+            },
+          })
+        }
       }
     } catch (err: unknown) {
       toast.error(sanitizeAppError(err, 'Failed to update expense'))
@@ -228,12 +247,31 @@ export default function FinancePage() {
 
   const handleDeleteExpense = async (id: string) => {
     try {
+      const targetExpense = expenses.find((e) => e.id === id)
       const { error } = await supabase.from('expenses').delete().eq('id', id)
       if (error) {
         toast.error(sanitizeAppError(error, 'Failed to delete expense'))
       } else {
         toast.success('Expense deleted!')
         refetch()
+        if (
+          targetExpense?.created_by &&
+          targetExpense.created_by !== user?.id &&
+          currentMess?.id
+        ) {
+          void createNotifications({
+            user_id: targetExpense.created_by,
+            mess_id: currentMess.id,
+            type: 'expense_deleted',
+            title: 'Expense Removed',
+            body: `${profile?.username || 'A manager'} removed your expense of ৳${targetExpense.amount}.`,
+            url: '/finance?tab=expenses',
+            metadata: {
+              expense_id: id,
+              amount: targetExpense.amount,
+            },
+          })
+        }
       }
     } catch (err: unknown) {
       toast.error(sanitizeAppError(err, 'Failed to delete expense'))
