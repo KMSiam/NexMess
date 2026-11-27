@@ -14,12 +14,20 @@ BEGIN
   ) THEN
     ALTER TABLE public.notifications ADD COLUMN url text DEFAULT NULL;
   END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'notifications' AND column_name = 'push_dispatched_at'
+  ) THEN
+    ALTER TABLE public.notifications ADD COLUMN push_dispatched_at timestamptz DEFAULT NULL;
+  END IF;
 END $$;
 
 CREATE OR REPLACE FUNCTION public.tr_send_push_notification()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   v_apikey TEXT := '<YOUR_SUPABASE_ANON_KEY>';
@@ -32,11 +40,15 @@ BEGIN
       'Authorization', 'Bearer ' || v_apikey
     ),
     body := jsonb_build_object(
+      'notification_id', NEW.id,
       'user_id', NEW.user_id,
+      'mess_id', NEW.mess_id,
+      'type', NEW.type,
       'title', NEW.title,
       'body', COALESCE(NEW.body, ''),
       'url', COALESCE(NEW.url, '/dashboard')
-    )
+    ),
+    timeout_milliseconds := 5000
   );
   RETURN NEW;
 END;

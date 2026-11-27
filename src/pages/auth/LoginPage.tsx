@@ -34,6 +34,9 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const urlErrorParam = searchParams.get('error')
+  const rawRedirectParam = searchParams.get('redirect')?.trim()
+  const safeRedirectPath =
+    rawRedirectParam && /^\/(?!\/)/.test(rawRedirectParam) ? rawRedirectParam : '/dashboard'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -98,7 +101,7 @@ export default function LoginPage() {
             await useAuthStore.getState().fetchProfile()
           }
           toast.success(t('auth.login.welcomeToast'))
-          navigate('/dashboard')
+          navigate(safeRedirectPath, { replace: true })
         }
       } catch (err: unknown) {
         recordRateLimitAttempt(rateLimitKey, false)
@@ -111,6 +114,11 @@ export default function LoginPage() {
     startGoogleTransition(async () => {
       try {
         setRememberMePreference(rememberMe)
+        if (safeRedirectPath !== '/dashboard') {
+          sessionStorage.setItem('nexmess-post-login-redirect', safeRedirectPath)
+        } else {
+          sessionStorage.removeItem('nexmess-post-login-redirect')
+        }
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: { redirectTo: `${window.location.origin}/dashboard` },

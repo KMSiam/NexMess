@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { Toaster } from 'react-hot-toast'
 import { useAuthStore } from './stores/authStore'
 import { useMessStore } from './stores/messStore'
+import { supabase } from './lib/supabase'
 import { trackPageView, identifyUser, resetUser } from './lib/analytics'
 import { setUserContext, clearUserContext } from './lib/sentry'
 
@@ -48,8 +49,9 @@ function PageLoader() {
 }
 
 function AppInitializer({ children }: { children: React.ReactNode }) {
-  const { initialize, user } = useAuthStore()
-  const { fetchUserMesses } = useMessStore()
+  const { initialize, user, profile } = useAuthStore()
+  const { fetchUserMesses, messes, currentMess, setCurrentMess, loading: messLoading } =
+    useMessStore()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -62,6 +64,115 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     trackPageView(location.pathname + location.search)
   }, [location])
+
+  // Handle Service Worker notification click messages in already-open tabs/PWAs
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return
+
+    const handleSwMessage = (event: MessageEvent) => {
+      const data = event.data as
+        | { type?: string; url?: string; messId?: string | null; notificationId?: string | null }
+        | undefined
+      if (!data || data.type !== 'NEXMESS_NOTIFICATION_CLICK') return
+
+      event.ports?.[0]?.postMessage({ ack: true })
+
+      const targetUrl =
+        typeof data.url === 'string' && /^\/(?!\/)/.test(data.url.trim())
+          ? data.url.trim()
+          : '/dashboard'
+
+      if (data.messId) {
+        const messState = useMessStore.getState()
+        const targetMess = messState.messes.find((m) => m.id === data.messId)
+        if (targetMess && messState.currentMess?.id !== targetMess.id) {
+          messState.setCurrentMess(targetMess)
+        }
+      }
+
+      if (data.notificationId && user?.id) {
+        void supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('id', data.notificationId)
+          .eq('user_id', user.id)
+          .then(({ error }) => {
+            if (!error) {
+              window.dispatchEvent(
+                new CustomEvent('nexmess:notification-read', {
+                  detail: { id: data.notificationId },
+                })
+              )
+            }
+          })
+      }
+
+      navigate(targetUrl)
+    }
+
+    navigator.serviceWorker.addEventListener('message', handleSwMessage)
+    return () => {
+      navigator.serviceWorker.removeEventListener('message', handleSwMessage)
+    }
+  }, [navigate, user?.id])
+
+  // Apply post-OAuth notification redirect if preserved in sessionStorage
+  useEffect(() => {
+    if (!user?.id || !profile?.username) return
+    const pendingRedirect = sessionStorage.getItem('nexmess-post-login-redirect')
+    if (pendingRedirect && /^\/(?!\/)/.test(pendingRedirect)) {
+      sessionStorage.removeItem('nexmess-post-login-redirect')
+      navigate(pendingRedirect, { replace: true })
+    }
+  }, [user?.id, profile?.username, navigate])
+
+  // Handle cold-start notification query params (?mess=...&notif=...)
+  useEffect(() => {
+    if (!user?.id || !location.search) return
+    const params = new URLSearchParams(location.search)
+    const messParam = params.get('mess')
+    const notifParam = params.get('notif')
+    if (!messParam && !notifParam) return
+
+    // Wait for messes list before consuming ?mess= so multi-mess users switch properly
+    if (messParam && messLoading && messes.length === 0) return
+
+    if (messParam) {
+      const targetMess = messes.find((m) => m.id === messParam)
+      if (targetMess && currentMess?.id !== targetMess.id) {
+        setCurrentMess(targetMess)
+      }
+    }
+
+    if (notifParam) {
+      void supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notifParam)
+        .eq('user_id', user.id)
+        .then(({ error }) => {
+          if (!error) {
+            window.dispatchEvent(
+              new CustomEvent('nexmess:notification-read', { detail: { id: notifParam } })
+            )
+          }
+        })
+    }
+
+    params.delete('mess')
+    params.delete('notif')
+    const nextSearch = params.toString()
+    navigate(`${location.pathname}${nextSearch ? `?${nextSearch}` : ''}`, { replace: true })
+  }, [
+    user?.id,
+    location.pathname,
+    location.search,
+    messes,
+    messLoading,
+    currentMess?.id,
+    setCurrentMess,
+    navigate,
+  ])
 
   // Synchronize authenticated user identity with telemetry & crash reporting (pseudonymous ID only)
   useEffect(() => {

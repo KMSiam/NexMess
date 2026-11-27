@@ -34,11 +34,12 @@ import {
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { useRealtimeTable } from '../../hooks/useRealtimeTable'
 import { sanitizeAppError } from '../../lib/errorHandler'
+import { createNotifications } from '../../lib/notifications'
 
 export default function MealsPage() {
   const { t } = useTranslation()
   usePageTitle(t('nav.meals'))
-  const { user } = useAuthStore()
+  const { user, profile } = useAuthStore()
   const { currentMess, members } = useMessStore()
 
   const [meals, setMeals] = useState<Meal[]>([])
@@ -229,6 +230,17 @@ export default function MealsPage() {
       return
     }
     toast.success(t('meals.mealUpdated'))
+    if (ovUserId !== user?.id) {
+      void createNotifications({
+        user_id: ovUserId,
+        mess_id: currentMess.id,
+        type: 'meal_updated',
+        title: '🍽️ Meal Record Updated',
+        body: `${profile?.username || 'A manager'} updated your meal record for ${ovDate}.`,
+        url: '/meals',
+        metadata: { date: ovDate },
+      })
+    }
     setOverrideOpen(false)
     fetchMeals()
   }

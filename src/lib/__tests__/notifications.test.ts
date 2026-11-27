@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import i18n, { changeLanguage } from '../i18n'
-import { localizeNotification } from '../notifications'
+import {
+  getNotificationVisualMeta,
+  localizeNotification,
+  resolveNotificationUrl,
+} from '../notifications'
 
 describe('Notification Localization', () => {
   beforeEach(async () => {
@@ -109,6 +113,53 @@ describe('Notification Localization', () => {
     })
   })
 
+  it('localizes notices, fixed bills, role updates, verification, and meal overrides', async () => {
+    const notice = {
+      type: 'notice_posted',
+      title: '📢 BachelorPoint',
+      body: 'Gas bill due tomorrow.',
+      metadata: { mess_name: 'BachelorPoint' },
+    }
+    const fixedPaid = {
+      type: 'fixed_cost_paid',
+      title: '✅ Fixed Bill Paid',
+      body: 'Fixed bill (WiFi) of ৳1200 was marked as paid.',
+    }
+    const roleChanged = {
+      type: 'role_changed',
+      title: '🛡️ Promoted to Manager',
+      body: 'You were promoted to manager in BachelorPoint.',
+    }
+    const mealUpdated = {
+      type: 'meal_updated',
+      title: '🍽️ Meal Record Updated',
+      body: 'Siam updated your meal record for 2026-11-28.',
+    }
+
+    expect(localizeNotification(notice, i18n.t)).toEqual({
+      title: 'Notice · BachelorPoint',
+      body: 'Gas bill due tomorrow.',
+    })
+    expect(localizeNotification(fixedPaid, i18n.t)).toEqual({
+      title: 'Fixed Bill Paid',
+      body: 'Fixed bill (WiFi) of ৳ 1,200 was marked as paid.',
+    })
+    expect(localizeNotification(roleChanged, i18n.t)).toEqual({
+      title: 'Promoted to Manager',
+      body: 'You were promoted to manager in BachelorPoint.',
+    })
+
+    await changeLanguage('bn')
+    expect(localizeNotification(notice, i18n.t)).toEqual({
+      title: 'নোটিশ · BachelorPoint',
+      body: 'Gas bill due tomorrow.',
+    })
+    expect(localizeNotification(mealUpdated, i18n.t)).toEqual({
+      title: 'মিলের হিসাব আপডেট হয়েছে',
+      body: 'Siam ২৮ নভেম্বর ২০২৬ তারিখের আপনার মিলের হিসাব আপডেট করেছেন।',
+    })
+  })
+
   it('gracefully strips leading emojis on unknown notification types', async () => {
     await changeLanguage('bn')
     expect(
@@ -124,5 +175,115 @@ describe('Notification Localization', () => {
       title: 'Custom maintenance alert',
       body: 'Scheduled tonight.',
     })
+  })
+})
+
+describe('Notification Routing & Visual Metadata', () => {
+  it('prefers valid stored relative or trusted origin URLs and rejects unsafe URLs', () => {
+    expect(
+      resolveNotificationUrl({
+        type: 'expense_added',
+        title: 'New expense',
+        url: '/finance?tab=expenses',
+      })
+    ).toBe('/finance?tab=expenses')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'bazaar_reminder',
+        title: 'Bazaar Duty Today!',
+        url: 'https://www.nexmess.shop/nexmess-ai',
+      })
+    ).toBe('/nexmess-ai')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'expense_added',
+        title: 'New expense',
+        url: '//evil.com/phish',
+      })
+    ).toBe('/finance?tab=expenses')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'join_request',
+        title: 'New join request',
+        url: 'javascript:alert(1)',
+      })
+    ).toBe('/settings?tab=members')
+  })
+
+  it('infers exact page and tab routes for legacy notifications without url', () => {
+    expect(
+      resolveNotificationUrl({
+        type: 'bazaar_reminder',
+        title: '🛒 Bazaar duty assigned!',
+        url: null,
+      })
+    ).toBe('/market?tab=bazaar')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'bazaar_reminder',
+        title: '🛒 Bazaar Duty Today!',
+        url: null,
+      })
+    ).toBe('/nexmess-ai')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'deposit_recorded',
+        title: '💰 Deposit Recorded',
+        url: null,
+      })
+    ).toBe('/finance?tab=deposits')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'system',
+        title: 'Deposit Deleted',
+        url: null,
+      })
+    ).toBe('/finance?tab=deposits')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'fixed_cost_added',
+        title: 'New fixed bill',
+        url: null,
+      })
+    ).toBe('/finance?tab=fixed')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'join_rejected',
+        title: 'Request rejected',
+        url: null,
+      })
+    ).toBe('/mess/join')
+
+    expect(
+      resolveNotificationUrl({
+        type: 'profile_verified',
+        title: 'Profile Verified',
+        url: null,
+      })
+    ).toBe('/settings?tab=profile')
+  })
+
+  it('maps visual metadata with semantic theme tokens and destination keys', () => {
+    const expenseMeta = getNotificationVisualMeta({
+      type: 'expense_added',
+      title: 'New expense',
+    })
+    expect(expenseMeta.destinationKey).toBe('notifications.destinations.expenses')
+    expect(expenseMeta.bgClass).toBe('bg-nex-warning-light')
+
+    const depositMeta = getNotificationVisualMeta({
+      type: 'deposit_verified',
+      title: 'Deposit Verified',
+    })
+    expect(depositMeta.destinationKey).toBe('notifications.destinations.deposits')
+    expect(depositMeta.bgClass).toBe('bg-nex-success-light')
   })
 })

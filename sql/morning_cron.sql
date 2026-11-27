@@ -31,7 +31,8 @@ SELECT cron.schedule(
       'apikey', '<YOUR_SUPABASE_ANON_KEY>',
       'Authorization', 'Bearer <YOUR_SUPABASE_ANON_KEY>'
     ),
-    body := '{}'::jsonb
+    body := '{}'::jsonb,
+    timeout_milliseconds := 60000
   );
   $$
 );

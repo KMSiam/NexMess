@@ -101,31 +101,47 @@ export async function isSubscribed(): Promise<boolean> {
   }
 }
 
+export interface SendPushOptions {
+  messId?: string | null
+  notificationId?: string | null
+  type?: string
+}
+
 export async function sendPushToUser(
   userId: string,
   title: string,
   body: string,
-  url = '/dashboard'
-): Promise<void> {
-  const { error } = await supabase.functions.invoke('send-push', {
-    body: { user_id: userId, title, body, url },
+  url = '/dashboard',
+  options: SendPushOptions = {}
+): Promise<{ sent: number; total?: number; skipped?: string }> {
+  const { data, error } = await supabase.functions.invoke('send-push', {
+    body: {
+      user_id: userId,
+      title,
+      body,
+      url,
+      mess_id: options.messId ?? null,
+      notification_id: options.notificationId ?? null,
+      type: options.type ?? 'system',
+    },
   })
   if (error) {
     console.error('sendPushToUser failed:', error)
     if (error.context) {
       const bodyText = await error.context.text()
       console.error('sendPushToUser error body:', bodyText)
-      // Try parsing as JSON to get the nested error message
+      let parsedMessage: string | null = null
       try {
-        const parsed = JSON.parse(bodyText)
-        if (parsed.error) throw new Error(parsed.error)
+        const parsed = JSON.parse(bodyText) as { error?: string }
+        if (parsed.error) parsedMessage = parsed.error
       } catch {
-        // If not JSON or doesn't have error key, throw the raw text
-        throw new Error(bodyText || error.message)
+        // Ignore JSON parse failure and fall back to raw body text
       }
+      throw new Error(parsedMessage || bodyText || error.message)
     }
     throw error
   }
+  return (data as { sent: number; total?: number; skipped?: string }) ?? { sent: 0 }
 }
 
 // Send push to multiple users
@@ -133,7 +149,8 @@ export async function sendPushToUsers(
   userIds: string[],
   title: string,
   body: string,
-  url = '/dashboard'
+  url = '/dashboard',
+  options: SendPushOptions = {}
 ): Promise<void> {
-  await Promise.allSettled(userIds.map((uid) => sendPushToUser(uid, title, body, url)))
+  await Promise.allSettled(userIds.map((uid) => sendPushToUser(uid, title, body, url, options)))
 }

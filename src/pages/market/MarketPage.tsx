@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { ShoppingBag, CalendarClock, Sparkles } from 'lucide-react'
@@ -6,13 +5,24 @@ import { motion } from 'framer-motion'
 import SlidingTabs from '../../components/SlidingTabs'
 import BazaarSchedule from './components/BazaarSchedule'
 import MealRoutine from './components/MealRoutine'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+
+type MarketTab = 'bazaar' | 'routine'
 
 export default function MarketPage() {
   const { t } = useTranslation()
   usePageTitle(t('market.title'))
-  const [activeTab, setActiveTab] = useState<'bazaar' | 'routine'>('bazaar')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tabParam = searchParams.get('tab')
+  const activeTab: MarketTab = tabParam === 'routine' ? 'routine' : 'bazaar'
   const navigate = useNavigate()
+
+  const handleTabChange = (nextTab: MarketTab) => {
+    const next = new URLSearchParams(searchParams)
+    if (nextTab === 'bazaar') next.delete('tab')
+    else next.set('tab', nextTab)
+    setSearchParams(next, { replace: true })
+  }
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -26,7 +36,7 @@ export default function MarketPage() {
             { key: 'routine', label: t('market.tabs.routine'), icon: CalendarClock },
           ]}
           activeTab={activeTab}
-          onChange={setActiveTab}
+          onChange={handleTabChange}
           className="min-w-0"
         />
 

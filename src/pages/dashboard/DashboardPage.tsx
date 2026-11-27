@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Plus, Users } from 'lucide-react'
 import { isMealCutoffPassed, dhakaToday, dhakaTomorrow, isApprovedManager } from '../../lib/utils'
 import { getPendingInviteCode } from '../../lib/invite'
-import { sendPushToUsers } from '../../lib/push'
+import { createNotifications } from '../../lib/notifications'
 import { sanitizeAppError } from '../../lib/errorHandler'
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
@@ -92,11 +92,26 @@ export default function DashboardPage() {
     } else {
       toast.success('Notice posted!')
       setNotice(data)
-      // Push notification to all mess members (fire-and-forget)
+      // Create in-app + push notifications for all approved mess members
       const memberIds = members
         .filter((m) => m.status === 'approved' && m.user_id !== profile.id)
         .map((m) => m.user_id)
-      sendPushToUsers(memberIds, `📢 ${currentMess.name}`, text, '/dashboard')
+      if (memberIds.length > 0) {
+        void createNotifications(
+          memberIds.map((uid) => ({
+            user_id: uid,
+            mess_id: currentMess.id,
+            type: 'notice_posted',
+            title: `📢 ${currentMess.name}`,
+            body: text,
+            url: '/dashboard',
+            metadata: {
+              mess_name: currentMess.name,
+              notice_id: data.id,
+            },
+          }))
+        )
+      }
     }
   }
 

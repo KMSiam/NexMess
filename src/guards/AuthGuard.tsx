@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { useMessStore } from '../stores/messStore'
 import { supabase } from '../lib/supabase'
@@ -9,6 +9,7 @@ import { sanitizeAppError } from '../lib/errorHandler'
 
 export function AuthGuard() {
   const { session, loading, initialized, profile, signOut } = useAuthStore()
+  const location = useLocation()
   const [reactivating, setReactivating] = useState(false)
 
   if (!initialized || loading) {
@@ -22,7 +23,14 @@ export function AuthGuard() {
     )
   }
 
-  if (!session) return <Navigate to="/login" replace />
+  if (!session) {
+    const requestedPath = `${location.pathname}${location.search}${location.hash}`
+    const loginTarget =
+      requestedPath && requestedPath !== '/dashboard' && /^\/(?!\/)/.test(requestedPath)
+        ? `/login?redirect=${encodeURIComponent(requestedPath)}`
+        : '/login'
+    return <Navigate to={loginTarget} replace />
+  }
 
   // Reactivate Account UI
   if (profile && profile.deleted_at) {
@@ -105,6 +113,7 @@ export function OnboardingGuard() {
 
 export function GuestGuard() {
   const { session, loading, initialized } = useAuthStore()
+  const [searchParams] = useSearchParams()
 
   if (!initialized || loading) {
     return (
@@ -115,7 +124,10 @@ export function GuestGuard() {
   }
 
   if (session) {
-    return <Navigate to="/dashboard" replace />
+    const rawRedirect = searchParams.get('redirect')?.trim()
+    const safeRedirect =
+      rawRedirect && /^\/(?!\/)/.test(rawRedirect) ? rawRedirect : '/dashboard'
+    return <Navigate to={safeRedirect} replace />
   }
 
   return <Outlet />

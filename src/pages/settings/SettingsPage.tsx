@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Settings,
   User,
@@ -16,7 +16,8 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import SlidingTabs from '../../components/SlidingTabs'
-import { isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
+import { isSubscribed, sendPushToUser, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
+import { createNotifications } from '../../lib/notifications'
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import SupportModal from '../../components/SupportModal'
@@ -32,19 +33,38 @@ import MemberManagement from './components/MemberManagement'
 import PreferencesSection from './components/PreferencesSection'
 import DangerZone from './components/DangerZone'
 
+type SettingsTab = 'profile' | 'members' | 'mess' | 'notifications' | 'preferences' | 'danger'
+const VALID_SETTINGS_TABS = new Set<SettingsTab>([
+  'profile',
+  'members',
+  'mess',
+  'notifications',
+  'preferences',
+  'danger',
+])
+
 export default function SettingsPage() {
   const { t } = useTranslation()
   usePageTitle(t('settings.title'))
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { profile, user, updateProfile } = useAuthStore()
   const { currentMess, members, fetchMembers, fetchUserMesses } = useMessStore()
 
   const [pushEnabled, setPushEnabled] = useState(false)
   const [pushLoading, setPushLoading] = useState(false)
+  const [testPushLoading, setTestPushLoading] = useState(false)
 
-  const [activeTab, setActiveTab] = useState<
-    'profile' | 'members' | 'mess' | 'notifications' | 'preferences' | 'danger'
-  >('profile')
+  const tabParam = searchParams.get('tab') as SettingsTab | null
+  const activeTab: SettingsTab =
+    tabParam && VALID_SETTINGS_TABS.has(tabParam) ? tabParam : 'profile'
+
+  const handleTabChange = (nextTab: SettingsTab) => {
+    const next = new URLSearchParams(searchParams)
+    if (nextTab === 'profile') next.delete('tab')
+    else next.set('tab', nextTab)
+    setSearchParams(next, { replace: true })
+  }
   const [isSupportOpen, setIsSupportOpen] = useState(false)
 
   const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false)
@@ -113,22 +133,41 @@ export default function SettingsPage() {
       const ok = await unsubscribeFromPush(user.id)
       if (ok) {
         setPushEnabled(false)
-        toast.success('Push notifications disabled')
+        toast.success(t('settings.pushSection.disabledToast'))
       } else {
-        toast.error('Failed to disable push notifications')
+        toast.error(t('settings.pushSection.disableErrorToast'))
       }
     } else {
       const ok = await subscribeToPush(user.id)
       if (ok) {
         setPushEnabled(true)
-        toast.success('Push notifications enabled!')
+        toast.success(t('settings.pushSection.enabledToast'))
       } else if (Notification.permission === 'denied') {
-        toast.error('Notifications blocked. Enable them in your browser settings.')
+        toast.error(t('settings.pushSection.blockedToast'))
       } else {
-        toast.error('Failed to enable push notifications')
+        toast.error(t('settings.pushSection.enableErrorToast'))
       }
     }
     setPushLoading(false)
+  }
+
+  const handleSendTestPush = async () => {
+    if (!user?.id) return
+    setTestPushLoading(true)
+    try {
+      await sendPushToUser(
+        user.id,
+        t('settings.pushSection.testNotifTitle'),
+        t('settings.pushSection.testNotifBody'),
+        '/settings?tab=notifications',
+        { messId: currentMess?.id ?? null, type: 'system' }
+      )
+      toast.success(t('settings.pushSection.testSent'))
+    } catch (err: unknown) {
+      toast.error(sanitizeAppError(err, t('settings.pushSection.testFailed')))
+    } finally {
+      setTestPushLoading(false)
+    }
   }
 
   const handleProfileUpdate = async (
@@ -175,6 +214,19 @@ export default function SettingsPage() {
       toast.error(sanitizeAppError(error, 'Failed to update verification status'))
     } else {
       toast.success(isVerified ? 'Profile verified!' : 'Profile unverified')
+      if (userId !== user?.id && currentMess.name) {
+        void createNotifications({
+          user_id: userId,
+          mess_id: currentMess.id,
+          type: 'profile_verified',
+          title: isVerified ? '🛡️ Profile Verified' : '🛡️ Verification Removed',
+          body: isVerified
+            ? `A manager verified your profile in ${currentMess.name}.`
+            : `A manager removed your verification badge in ${currentMess.name}.`,
+          url: '/settings?tab=profile',
+          metadata: { mess_name: currentMess.name, is_verified: isVerified },
+        })
+      }
       fetchMembers(currentMess.id)
     }
   }
@@ -183,12 +235,14 @@ export default function SettingsPage() {
     if (!currentMess?.id) return
 
     if (currentMess.name) {
-      await supabase.from('notifications').insert({
+      await createNotifications({
         user_id: userId,
         mess_id: currentMess.id,
         type: 'join_rejected',
         title: 'Request rejected',
         body: `Your request to join ${currentMess.name} has been declined.`,
+        url: '/mess/join',
+        metadata: { mess_name: currentMess.name },
       })
     }
 
@@ -231,12 +285,14 @@ export default function SettingsPage() {
         navigate('/')
       } else {
         if (currentMess.name) {
-          await supabase.from('notifications').insert({
+          void createNotifications({
             user_id: removeMemberId,
             mess_id: currentMess.id,
             type: 'member_removed',
             title: 'Removed from mess',
             body: `You have been removed from ${currentMess.name} by the manager.`,
+            url: '/dashboard',
+            metadata: { mess_name: currentMess.name },
           })
         }
         fetchMembers(currentMess.id)
@@ -259,6 +315,17 @@ export default function SettingsPage() {
       .eq('mess_id', currentMess.id)
       .eq('user_id', promoteMemberId)
     toast.success('Member promoted to manager')
+    if (promoteMemberId !== user?.id && currentMess.name) {
+      void createNotifications({
+        user_id: promoteMemberId,
+        mess_id: currentMess.id,
+        type: 'role_changed',
+        title: '🛡️ Promoted to Manager',
+        body: `You were promoted to manager in ${currentMess.name}.`,
+        url: '/settings?tab=members',
+        metadata: { mess_name: currentMess.name, role: 'manager' },
+      })
+    }
     setPromoteMemberId(null)
     fetchMembers(currentMess.id)
   }
@@ -284,6 +351,17 @@ export default function SettingsPage() {
     if (demoteMemberId === user?.id) {
       navigate('/dashboard')
     } else {
+      if (currentMess.name) {
+        void createNotifications({
+          user_id: demoteMemberId,
+          mess_id: currentMess.id,
+          type: 'role_changed',
+          title: 'Role Updated',
+          body: `Your role in ${currentMess.name} was changed to member.`,
+          url: '/settings?tab=members',
+          metadata: { mess_name: currentMess.name, role: 'member' },
+        })
+      }
       fetchMembers(currentMess.id)
     }
     setDemoteMemberId(null)
@@ -372,7 +450,7 @@ export default function SettingsPage() {
         ariaLabel={t('settings.title')}
         tabs={settingsTabs}
         activeTab={activeTab}
-        onChange={setActiveTab}
+        onChange={handleTabChange}
         fullWidth
         showScrollArrows
       />
@@ -412,6 +490,8 @@ export default function SettingsPage() {
               pushEnabled={pushEnabled}
               pushLoading={pushLoading}
               onToggle={handlePushToggle}
+              onSendTestPush={handleSendTestPush}
+              testLoading={testPushLoading}
             />
           )}
 

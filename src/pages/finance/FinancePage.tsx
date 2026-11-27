@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
@@ -9,7 +10,7 @@ import { computeSettlements, type ReportMemberRow } from '../../lib/reportSettle
 import toast from 'react-hot-toast'
 import { CardSkeleton, ListSkeleton, Skeleton } from '../../components/Skeleton'
 import ConfirmDialog from '../../components/ConfirmDialog'
-import { sendPushToUser } from '../../lib/push'
+import { createNotifications } from '../../lib/notifications'
 import { expenseSchema, depositSchema, fixedCostSchema, validateForm } from '../../lib/validation/schemas'
 import { prepareImageForUpload, generateSafeFileName } from '../../lib/fileValidator'
 import { sanitizeAppError } from '../../lib/errorHandler'
@@ -30,6 +31,7 @@ import SpendingBreakdown from './components/SpendingBreakdown'
 import HistoryTab from './components/HistoryTab'
 
 type Tab = 'expenses' | 'deposits' | 'fixed' | 'summary' | 'history'
+const VALID_FINANCE_TABS = new Set<Tab>(['expenses', 'deposits', 'fixed', 'summary', 'history'])
 
 export default function FinancePage() {
   const { t } = useTranslation()
@@ -37,7 +39,16 @@ export default function FinancePage() {
 
   const { user, profile } = useAuthStore()
   const { currentMess, members, fetchMembers } = useMessStore()
-  const [activeTab, setActiveTab] = useState<Tab>('expenses')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tabParam = searchParams.get('tab') as Tab | null
+  const activeTab: Tab = tabParam && VALID_FINANCE_TABS.has(tabParam) ? tabParam : 'expenses'
+
+  const handleTabChange = (nextTab: Tab) => {
+    const next = new URLSearchParams(searchParams)
+    if (nextTab === 'expenses') next.delete('tab')
+    else next.set('tab', nextTab)
+    setSearchParams(next, { replace: true })
+  }
 
   useEffect(() => {
     if (currentMess?.id) {
@@ -259,19 +270,19 @@ export default function FinancePage() {
       } else {
         toast.success('Deposit recorded!')
         refetch()
-        await supabase.from('notifications').insert({
+        const bodyText = `Your manager recorded a pending deposit of ৳${validation.data.amount}${validation.data.description ? ` (${validation.data.description})` : ''}.`
+        void createNotifications({
           user_id: userId,
           mess_id: currentMess.id,
           type: 'deposit_recorded',
           title: '💰 Deposit Recorded',
-          body: `Your manager recorded a pending deposit of ৳${validation.data.amount}${validation.data.description ? ` (${validation.data.description})` : ''}.`,
+          body: bodyText,
+          url: '/finance?tab=deposits',
+          metadata: {
+            amount: validation.data.amount,
+            note: validation.data.description || null,
+          },
         })
-        try {
-          const bodyText = `Your manager recorded a pending deposit of ৳${validation.data.amount}${validation.data.description ? ` (${validation.data.description})` : ''}.`
-          sendPushToUser(userId, `💰 Deposit Recorded`, bodyText, '/finance')
-        } catch (err) {
-          console.error('Failed to send deposit push:', err)
-        }
       }
     } catch (err: unknown) {
       toast.error(sanitizeAppError(err, 'Failed to add deposit'))
@@ -296,39 +307,38 @@ export default function FinancePage() {
       toast.success('Deposit verified!')
       refetch()
       if (dep && currentMess?.id) {
-        try {
-          const isOwnDeposit = dep.user_id === user.id
-          if (isOwnDeposit && currentMess?.manager_id) {
-            await supabase.from('notifications').insert({
-              user_id: currentMess.manager_id,
-              mess_id: currentMess.id,
-              type: 'deposit_verified',
-              title: '✅ Deposit Confirmed',
-              body: `${profile?.username || 'A member'} confirmed the deposit of ৳${dep.amount}.`,
-            })
-            sendPushToUser(
-              currentMess.manager_id,
-              `✅ Deposit Confirmed by Member`,
-              `${profile?.username || 'A member'} confirmed the deposit of ৳${dep.amount}.`,
-              '/finance'
-            )
-          } else if (!isOwnDeposit) {
-            await supabase.from('notifications').insert({
-              user_id: dep.user_id,
-              mess_id: currentMess.id,
-              type: 'deposit_verified',
-              title: '✅ Deposit Verified',
-              body: `Your deposit of ৳${dep.amount} has been verified by the manager.`,
-            })
-            sendPushToUser(
-              dep.user_id,
-              `✅ Deposit Verified`,
-              `Your deposit of ৳${dep.amount} has been verified by the manager.`,
-              '/finance'
+        const isOwnDeposit = dep.user_id === user.id
+        if (isOwnDeposit) {
+          const managerIds = approvedMembers
+            .filter((m) => m.role === 'manager' && m.user_id !== user.id)
+            .map((m) => m.user_id)
+          if (managerIds.length === 0 && currentMess.manager_id && currentMess.manager_id !== user.id) {
+            managerIds.push(currentMess.manager_id)
+          }
+          if (managerIds.length > 0) {
+            const bodyText = `${profile?.username || 'A member'} confirmed the deposit of ৳${dep.amount}.`
+            void createNotifications(
+              managerIds.map((managerId) => ({
+                user_id: managerId,
+                mess_id: currentMess.id,
+                type: 'deposit_verified',
+                title: '✅ Deposit Confirmed',
+                body: bodyText,
+                url: '/finance?tab=deposits',
+                metadata: { amount: dep.amount, member_id: dep.user_id },
+              }))
             )
           }
-        } catch (err) {
-          console.error('Failed to send deposit verification push:', err)
+        } else {
+          void createNotifications({
+            user_id: dep.user_id,
+            mess_id: currentMess.id,
+            type: 'deposit_verified',
+            title: '✅ Deposit Verified',
+            body: `Your deposit of ৳${dep.amount} has been verified by the manager.`,
+            url: '/finance?tab=deposits',
+            metadata: { amount: dep.amount },
+          })
         }
       }
     }
@@ -402,11 +412,35 @@ export default function FinancePage() {
     else {
       toast.success('Fixed cost saved!')
       refetch()
+      if (!editId) {
+        const recipientIds = approvedMembers
+          .filter((m) => m.user_id !== user.id)
+          .map((m) => m.user_id)
+        if (recipientIds.length > 0) {
+          const billLabel = validation.data.label || validation.data.category
+          void createNotifications(
+            recipientIds.map((uid) => ({
+              user_id: uid,
+              mess_id: currentMess.id,
+              type: 'fixed_cost_added',
+              title: `💰 New fixed bill: ৳${validation.data.amount}`,
+              body: `${profile?.username || 'Manager'} added a fixed bill: ${billLabel}.`,
+              url: '/finance?tab=fixed',
+              metadata: {
+                amount: validation.data.amount,
+                category: validation.data.category,
+                label: billLabel,
+              },
+            }))
+          )
+        }
+      }
     }
   }
 
   const handleConfirmMarkPaid = async () => {
     if (!paidFixedCostId) return
+    const targetBill = fixedCosts.find((fc) => fc.id === paidFixedCostId)
     const { error } = await supabase
       .from('fixed_costs')
       .update({ is_paid: true })
@@ -416,6 +450,29 @@ export default function FinancePage() {
     } else {
       toast.success('Marked as paid!')
       refetch()
+      if (targetBill && currentMess?.id && user?.id) {
+        const recipientIds = approvedMembers
+          .filter((m) => m.user_id !== user.id)
+          .map((m) => m.user_id)
+        if (recipientIds.length > 0) {
+          const billLabel = targetBill.label || targetBill.category
+          void createNotifications(
+            recipientIds.map((uid) => ({
+              user_id: uid,
+              mess_id: currentMess.id,
+              type: 'fixed_cost_paid',
+              title: '✅ Fixed Bill Paid',
+              body: `Fixed bill (${billLabel}) of ৳${targetBill.amount} was marked as paid.`,
+              url: '/finance?tab=fixed',
+              metadata: {
+                amount: targetBill.amount,
+                category: targetBill.category,
+                label: billLabel,
+              },
+            }))
+          )
+        }
+      }
     }
     setPaidFixedCostId(null)
   }
@@ -580,7 +637,7 @@ export default function FinancePage() {
         layoutId="finance-tabs"
         tabs={tabs}
         activeTab={activeTab}
-        onChange={setActiveTab}
+        onChange={handleTabChange}
         fullWidth
       />
 

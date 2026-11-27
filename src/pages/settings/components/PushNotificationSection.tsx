@@ -1,17 +1,33 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, BellOff, AlertTriangle, HelpCircle, ShieldAlert, Loader2 } from 'lucide-react'
+import {
+  AlertTriangle,
+  Bell,
+  BellOff,
+  HelpCircle,
+  Loader2,
+  Megaphone,
+  Receipt,
+  Send,
+  ShieldAlert,
+  ShoppingBag,
+  Users,
+} from 'lucide-react'
 
 interface PushNotificationSectionProps {
   pushEnabled: boolean
   pushLoading: boolean
   onToggle: () => void
+  onSendTestPush?: () => Promise<void>
+  testLoading?: boolean
 }
 
 export default function PushNotificationSection({
   pushEnabled,
   pushLoading,
   onToggle,
+  onSendTestPush,
+  testLoading = false,
 }: PushNotificationSectionProps) {
   const { t } = useTranslation()
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('default')
@@ -19,15 +35,12 @@ export default function PushNotificationSection({
   const [isStandalone, setIsStandalone] = useState(true)
 
   useEffect(() => {
-    // Detect iOS
     const userAgent = window.navigator.userAgent.toLowerCase()
-    const ios = /iphone|ipad|ipod/.test(userAgent)
-    setIsIOS(ios)
+    setIsIOS(/iphone|ipad|ipod/.test(userAgent))
 
-    // Detect standalone mode (Added to Home Screen)
     const standalone =
       window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as any).standalone === true
+      (window.navigator as { standalone?: boolean }).standalone === true
     setIsStandalone(standalone)
 
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
@@ -38,7 +51,6 @@ export default function PushNotificationSection({
     setPermission(Notification.permission)
   }, [pushEnabled])
 
-  // Determine the status text and color
   let statusText = t('settings.pushSection.disabled')
   let statusColor = 'text-nex-muted bg-nex-elevated border-nex-border'
 
@@ -52,6 +64,37 @@ export default function PushNotificationSection({
     statusText = t('settings.pushSection.active')
     statusColor = 'text-nex-primary-ink bg-nex-primary-light border-nex-primary/25'
   }
+
+  const alertCategories = [
+    {
+      icon: ShoppingBag,
+      bgClass: 'bg-nex-primary-light',
+      textClass: 'text-nex-primary-ink',
+      title: t('settings.pushSection.catBazaarTitle'),
+      desc: t('settings.pushSection.catBazaarDesc'),
+    },
+    {
+      icon: Receipt,
+      bgClass: 'bg-nex-warning-light',
+      textClass: 'text-nex-warning',
+      title: t('settings.pushSection.catFinanceTitle'),
+      desc: t('settings.pushSection.catFinanceDesc'),
+    },
+    {
+      icon: Megaphone,
+      bgClass: 'bg-nex-secondary-light',
+      textClass: 'text-nex-secondary',
+      title: t('settings.pushSection.catNoticeTitle'),
+      desc: t('settings.pushSection.catNoticeDesc'),
+    },
+    {
+      icon: Users,
+      bgClass: 'bg-nex-success-light',
+      textClass: 'text-nex-success',
+      title: t('settings.pushSection.catMemberTitle'),
+      desc: t('settings.pushSection.catMemberDesc'),
+    },
+  ]
 
   return (
     <div className="nex-card border-nex-border/70 relative overflow-hidden border p-6">
@@ -73,35 +116,55 @@ export default function PushNotificationSection({
           <p className="text-nex-muted text-xs">{t('settings.pushSection.desc')}</p>
         </div>
 
-        {permission !== 'unsupported' && (
-          <button
-            type="button"
-            role="switch"
-            aria-checked={pushEnabled}
-            aria-label={t('settings.pushSection.title')}
-            onClick={onToggle}
-            disabled={pushLoading}
-            className={`group focus-visible:ring-nex-primary/50 relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full p-1 transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 active:scale-[0.97] disabled:cursor-wait disabled:opacity-70 ${
-              pushEnabled
-                ? 'bg-gradient-to-r from-[#3a5643] to-[#4a6d56] shadow-inner shadow-black/15 dark:from-emerald-600 dark:to-emerald-500 dark:shadow-[0_0_14px_rgba(16,185,129,0.28)]'
-                : 'border border-[#d8cfc4] bg-[#e6dfd5] hover:bg-[#ddd4c8] dark:border-[#34343d] dark:bg-[#27272d] dark:hover:bg-[#313138]'
-            }`}
-          >
-            <span
-              className={`pointer-events-none flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                pushEnabled ? 'translate-x-6' : 'translate-x-0'
+        <div className="flex flex-wrap items-center gap-3">
+          {pushEnabled && onSendTestPush && (
+            <button
+              type="button"
+              onClick={() => void onSendTestPush()}
+              disabled={testLoading}
+              className="nex-btn-secondary px-3 py-1.5 text-xs disabled:opacity-60"
+            >
+              {testLoading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Send className="h-3.5 w-3.5" />
+              )}
+              <span>
+                {testLoading ? t('settings.pushSection.testSending') : t('settings.pushSection.testBtn')}
+              </span>
+            </button>
+          )}
+
+          {permission !== 'unsupported' && (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={pushEnabled}
+              aria-label={t('settings.pushSection.title')}
+              onClick={onToggle}
+              disabled={pushLoading}
+              className={`group focus-visible:ring-nex-primary/50 relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full p-1 transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 active:scale-[0.97] disabled:cursor-wait disabled:opacity-70 ${
+                pushEnabled
+                  ? 'bg-gradient-to-r from-[#3a5643] to-[#4a6d56] shadow-inner shadow-black/15 dark:from-emerald-600 dark:to-emerald-500 dark:shadow-[0_0_14px_rgba(16,185,129,0.28)]'
+                  : 'border border-[#d8cfc4] bg-[#e6dfd5] hover:bg-[#ddd4c8] dark:border-[#34343d] dark:bg-[#27272d] dark:hover:bg-[#313138]'
               }`}
             >
-              {pushLoading ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-[#4a6d56] dark:text-emerald-600" />
-              ) : pushEnabled ? (
-                <Bell className="h-3.5 w-3.5 text-[#3a5643] transition-transform duration-300 group-hover:scale-110 dark:text-emerald-600" />
-              ) : (
-                <BellOff className="text-nex-muted h-3.5 w-3.5 transition-transform duration-300" />
-              )}
-            </span>
-          </button>
-        )}
+              <span
+                className={`pointer-events-none flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-black/5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                  pushEnabled ? 'translate-x-6' : 'translate-x-0'
+                }`}
+              >
+                {pushLoading ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-[#4a6d56] dark:text-emerald-600" />
+                ) : pushEnabled ? (
+                  <Bell className="h-3.5 w-3.5 text-[#3a5643] transition-transform duration-300 group-hover:scale-110 dark:text-emerald-600" />
+                ) : (
+                  <BellOff className="text-nex-muted h-3.5 w-3.5 transition-transform duration-300" />
+                )}
+              </span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Main notification state section */}
@@ -132,12 +195,38 @@ export default function PushNotificationSection({
           </div>
         )}
 
+        {/* Alert Categories & Redirect Info */}
+        <div className="border-nex-border/60 border-t pt-4">
+          <p className="text-nex-muted mb-3 text-[11px] font-semibold tracking-wider uppercase">
+            {t('settings.pushSection.categoriesTitle')}
+          </p>
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {alertCategories.map((cat) => {
+              const Icon = cat.icon
+              return (
+                <div
+                  key={cat.title}
+                  className="bg-nex-elevated/60 border-nex-border/60 flex items-start gap-3 rounded-xl border p-3"
+                >
+                  <div
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${cat.bgClass}`}
+                  >
+                    <Icon className={`h-4 w-4 ${cat.textClass}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-nex-text text-xs font-semibold">{cat.title}</p>
+                    <p className="text-nex-muted mt-0.5 text-[11px] leading-snug">{cat.desc}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
         {/* Informative Status Footer */}
         <div className="text-nex-muted flex items-center gap-1.5 px-1 text-[10px]">
-          <HelpCircle className="h-3.5 w-3.5" />
-          <span>
-            {t('settings.pushSection.deviceNote')}
-          </span>
+          <HelpCircle className="h-3.5 w-3.5 shrink-0" />
+          <span>{t('settings.pushSection.deviceNote')}</span>
         </div>
       </div>
     </div>
