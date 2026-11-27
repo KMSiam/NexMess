@@ -1,17 +1,17 @@
 import { useState, useEffect, useReducer } from 'react'
-import { UtensilsCrossed, Check, Lock, Clock } from 'lucide-react'
+import { UtensilsCrossed, Check, Lock, Clock, Sun, Moon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   isMealCutoffPassed,
   mealCutoffLabel,
   mealCutoffCountdown,
   formatCountdownDuration,
-  getFoodEmoji,
   formatFoodName,
   formatNumber,
   dhakaToday,
   dhakaTomorrow,
 } from '../../../lib/utils'
+import { getFoodIconMeta } from '../../market/components/foodIcons'
 import type { DashboardMeals, DashboardRoutines } from '../../../hooks/useDashboardData'
 import SlidingTabs from '../../../components/SlidingTabs'
 
@@ -43,6 +43,34 @@ export default function MealSelector({
   const tomorrow = dhakaTomorrow()
   const currentMData = mealsData[mealTab]
 
+  const renderRoutineSlot = (rawDish: string, shortLabel: string) => {
+    const dishes = rawDish
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean)
+
+    return (
+      <span className="inline-flex flex-wrap items-center gap-1">
+        {dishes.map((dish, index) => {
+          const meta = getFoodIconMeta(dish)
+          const DishIcon = meta.icon
+          return (
+            <span key={`${dish}-${index}`} className="inline-flex items-center gap-1">
+              {index > 0 && <span className="text-nex-muted">,</span>}
+              <span
+                className={`inline-flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-md ${meta.bgClass}`}
+              >
+                <DishIcon className={`h-3 w-3 ${meta.textClass}`} />
+              </span>
+              <span>{formatFoodName(dish)}</span>
+            </span>
+          )
+        })}
+        <span className="opacity-80">({shortLabel})</span>
+      </span>
+    )
+  }
+
   return (
     <div className="nex-card h-full p-5">
       <div className="mb-4 space-y-2.5">
@@ -62,18 +90,18 @@ export default function MealSelector({
           />
         </div>
         {(routines[mealTab].lunch || routines[mealTab].dinner) && (
-          <div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1">
+          <div className="inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-800 dark:text-amber-300">
             <UtensilsCrossed className="h-3 w-3 shrink-0 text-amber-700 dark:text-amber-400" />
-            <span className="truncate text-xs font-medium text-amber-700 dark:text-amber-400">
-              {mealTab === 'today' ? t('common.today') : t('common.tomorrow')}:{' '}
-              {routines[mealTab].lunch
-                ? `${getFoodEmoji(routines[mealTab].lunch)} ${formatFoodName(routines[mealTab].lunch)} (${t('meals.lunchShort')})`
-                : ''}
-              {routines[mealTab].lunch && routines[mealTab].dinner ? ' · ' : ''}
-              {routines[mealTab].dinner
-                ? `${getFoodEmoji(routines[mealTab].dinner)} ${formatFoodName(routines[mealTab].dinner)} (${t('meals.dinnerShort')})`
-                : ''}
-            </span>
+            <span>{mealTab === 'today' ? t('common.today') : t('common.tomorrow')}:</span>
+            {routines[mealTab].lunch &&
+              renderRoutineSlot(routines[mealTab].lunch, t('meals.lunchShort'))}
+            {routines[mealTab].lunch && routines[mealTab].dinner && (
+              <span aria-hidden="true" className="opacity-60">
+                ·
+              </span>
+            )}
+            {routines[mealTab].dinner &&
+              renderRoutineSlot(routines[mealTab].dinner, t('meals.dinnerShort'))}
           </div>
         )}
       </div>
@@ -81,19 +109,23 @@ export default function MealSelector({
         {[
           {
             type: 'lunch' as const,
-            emoji: '☀️',
+            Icon: Sun,
+            iconBgClass: 'bg-amber-500/12 dark:bg-amber-400/15',
+            iconTextClass: 'text-amber-700 dark:text-amber-400',
             on: currentMData.lunch,
             label: t('dashboard.lunch'),
             guests: currentMData.gl,
           },
           {
             type: 'dinner' as const,
-            emoji: '🌙',
+            Icon: Moon,
+            iconBgClass: 'bg-nex-secondary-light',
+            iconTextClass: 'text-nex-secondary',
             on: currentMData.dinner,
             label: t('dashboard.dinner'),
             guests: currentMData.gd,
           },
-        ].map(({ type, emoji, on, label, guests }) => {
+        ].map(({ type, Icon, iconBgClass, iconTextClass, on, label, guests }) => {
           const targetDate = mealTab === 'today' ? today : tomorrow
           const locked = isMealCutoffPassed(targetDate, type)
           const countdown = mealCutoffCountdown(targetDate, type)
@@ -113,7 +145,12 @@ export default function MealSelector({
               <div className="mb-3 space-y-1.5">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex min-w-0 items-center gap-2">
-                    <span className="shrink-0 text-xl">{emoji}</span>
+                    <span
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${iconBgClass}`}
+                      aria-hidden="true"
+                    >
+                      <Icon className={`h-4 w-4 ${iconTextClass}`} />
+                    </span>
                     <p className="text-nex-text truncate text-sm font-semibold">{label}</p>
                   </div>
                   <button
@@ -149,7 +186,7 @@ export default function MealSelector({
                     </span>
                   </button>
                 </div>
-                <div className="flex flex-wrap items-center justify-between gap-1.5 pl-7">
+                <div className="flex flex-wrap items-center justify-between gap-1.5 pl-9">
                   <p
                     className={`flex items-center gap-1 text-[11px] font-medium whitespace-nowrap ${
                       locked

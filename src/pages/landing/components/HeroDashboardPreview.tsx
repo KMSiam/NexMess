@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check } from 'lucide-react'
+import { Check, Moon, Sun, type LucideIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { formatCurrency, formatNumber } from '../../../lib/utils'
 
@@ -11,7 +11,9 @@ interface MealDayState {
 }
 
 interface MealSlotProps {
-  emoji: string
+  icon: LucideIcon
+  iconBgClass: string
+  iconTextClass: string
   title: string
   active: boolean
   guests: number
@@ -23,7 +25,9 @@ interface MealSlotProps {
 }
 
 function MealSlotCard({
-  emoji,
+  icon: SlotIcon,
+  iconBgClass,
+  iconTextClass,
   title,
   active,
   guests,
@@ -46,8 +50,11 @@ function MealSlotCard({
     >
       <div className="mb-2.5 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-lg" aria-hidden="true">
-            {emoji}
+          <span
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${iconBgClass}`}
+            aria-hidden="true"
+          >
+            <SlotIcon className={`h-4 w-4 ${iconTextClass}`} />
           </span>
           <div>
             <p className="text-nex-text text-xs font-semibold">{title}</p>
@@ -304,7 +311,9 @@ export default function HeroDashboardPreview({ isBangla }: HeroDashboardPreviewP
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <MealSlotCard
-              emoji="☀️"
+              icon={Sun}
+              iconBgClass="bg-amber-500/12 dark:bg-amber-400/15"
+              iconTextClass="text-amber-700 dark:text-amber-400"
               title={isBangla ? 'দুপুর' : 'Lunch'}
               active={currentDay.lunchActive}
               guests={currentDay.lunchGuests}
@@ -315,7 +324,9 @@ export default function HeroDashboardPreview({ isBangla }: HeroDashboardPreviewP
               onUpdateGuests={(delta) => updateGuests('lunchGuests', delta)}
             />
             <MealSlotCard
-              emoji="🌙"
+              icon={Moon}
+              iconBgClass="bg-nex-secondary-light"
+              iconTextClass="text-nex-secondary"
               title={isBangla ? 'রাত' : 'Dinner'}
               active={currentDay.dinnerActive}
               guests={currentDay.dinnerGuests}
