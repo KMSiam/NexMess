@@ -102,6 +102,11 @@ export function useDashboardData(
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([])
   const [dataLoaded, setDataLoaded] = useState(false)
   const requestIdRef = useRef(0)
+  const loadedKeyRef = useRef<string | null>(null)
+  const usernameRef = useRef(username)
+  useEffect(() => {
+    usernameRef.current = username
+  }, [username])
 
   const today = dhakaToday()
   const tomorrow = dhakaTomorrow()
@@ -231,7 +236,7 @@ export function useDashboardData(
               (m.user_id
                 ? m.user_id === userId
                 : (m.profiles as Record<string, unknown>)?.username?.toString().toLowerCase() ===
-                  username?.toLowerCase())
+                  usernameRef.current?.toLowerCase())
           )
         )
         setUpcomingBazaar(
@@ -311,17 +316,22 @@ export function useDashboardData(
       console.error('[useDashboardData] Failed to load dashboard data:', err)
     } finally {
       if (requestId === requestIdRef.current) {
+        loadedKeyRef.current = `${userId}:${messId}`
         setDataLoaded(true)
       }
     }
-  }, [userId, username, messId, today, tomorrow, currentMonth])
+  }, [userId, messId, today, tomorrow, currentMonth])
 
   useEffect(() => {
     if (!userId || !messId) {
+      loadedKeyRef.current = null
       setDataLoaded(false)
       return
     }
-    setDataLoaded(false)
+    const nextKey = `${userId}:${messId}`
+    if (loadedKeyRef.current !== nextKey) {
+      setDataLoaded(false)
+    }
     void fetchDashboardData()
   }, [userId, messId, fetchDashboardData])
 

@@ -40,12 +40,6 @@ function createChain(result: { data?: unknown; count?: number | null; error?: un
   return chain
 }
 
-async function flushPromises() {
-  await act(async () => {
-    await new Promise((r) => setTimeout(r, 0))
-  })
-}
-
 describe('Navigation Data Loading Hooks', () => {
   let container: HTMLDivElement
   let root: Root
@@ -106,8 +100,9 @@ describe('Navigation Data Loading Hooks', () => {
       root.render(<Probe uid="u1" mid="m1" />)
     })
 
-    await flushPromises()
-    expect(latestState!.dataLoaded).toBe(true)
+    await vi.waitFor(() => {
+      expect(latestState!.dataLoaded).toBe(true)
+    })
   })
 
   it('keeps Finance loaded without re-flashing loading skeleton when members hydrate asynchronously', async () => {
@@ -133,8 +128,9 @@ describe('Navigation Data Loading Hooks', () => {
       root.render(<Probe mid="m1" members={[]} />)
     })
 
-    await flushPromises()
-    expect(latestState!.loading).toBe(false)
+    await vi.waitFor(() => {
+      expect(latestState!.loading).toBe(false)
+    })
     loadingHistory.length = 0
 
     // Asynchronous member store hydration updates membersList without flashing loading=true
@@ -142,9 +138,10 @@ describe('Navigation Data Loading Hooks', () => {
       root.render(<Probe mid="m1" members={[{ user_id: 'u1', status: 'approved' }]} />)
     })
 
-    await flushPromises()
+    await vi.waitFor(() => {
+      expect(latestState!.balances['u1']).toEqual({ personal_meals: 10, balance: 500, meal_rate: 70 })
+    })
     expect(loadingHistory).not.toContain(true)
     expect(latestState!.loading).toBe(false)
-    expect(latestState!.balances['u1']).toEqual({ personal_meals: 10, balance: 500, meal_rate: 70 })
   })
 })
