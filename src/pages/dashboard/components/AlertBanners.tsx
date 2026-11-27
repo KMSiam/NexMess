@@ -72,7 +72,7 @@ export default function AlertBanners({
       type: 'critical',
       element: (
         <div className="flex items-start gap-2.5">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+          <AlertTriangle className="text-nex-danger mt-0.5 h-4 w-4 shrink-0" />
           <div>
             <p className="text-nex-text text-xs font-semibold">
               {t('alerts.lowBalance', { amount: formatCurrency(stats.balance) })}

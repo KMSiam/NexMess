@@ -31,10 +31,10 @@ export default function EmergencyContacts({
   }
 
   return (
-    <div className="nex-card border-t-4 border-red-400 p-5">
+    <div className="nex-card border-t-nex-danger border-t-4 p-5">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ShieldAlert className="h-5 w-5 text-red-500" />
+          <ShieldAlert className="text-nex-danger h-5 w-5" />
           <h2 className="text-nex-text text-sm font-semibold tracking-wider uppercase">
             {t('dashboard.emergencyContacts')}
           </h2>
@@ -86,14 +86,14 @@ export default function EmergencyContacts({
               className="border-nex-border bg-nex-elevated hover:bg-nex-hover flex items-center justify-between rounded-xl border p-3 transition-colors"
             >
               <div className="flex items-center gap-3 overflow-hidden">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+                <div className="bg-nex-danger-light text-nex-danger flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
                   <PhoneCall className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-nex-text truncate text-sm font-medium">{ec.name}</p>
                   <a
                     href={`tel:${ec.phone}`}
-                    className="text-nex-primary text-xs font-semibold hover:underline"
+                    className="text-nex-primary-ink text-xs font-semibold hover:underline"
                   >
                     {ec.phone}
                   </a>
@@ -104,7 +104,7 @@ export default function EmergencyContacts({
                   type="button"
                   onClick={() => onDelete(ec.id)}
                   aria-label={t('common.delete')}
-                  className="text-nex-muted shrink-0 p-1.5 transition-colors hover:text-red-500"
+                  className="text-nex-muted hover:text-nex-danger shrink-0 p-1.5 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

@@ -61,7 +61,7 @@ export default function ChatBubble({
   return (
     <div className={`group/bubble relative flex gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
       {!isOwn && (
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-slate-300 to-slate-400 text-[10px] font-semibold text-white sm:h-8 sm:w-8 sm:text-xs">
+        <div className="nex-avatar-muted flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full text-[10px] font-semibold text-white sm:h-8 sm:w-8 sm:text-xs">
           {sender?.avatar_url && isSafeHttpUrl(sender.avatar_url) ? (
             <img src={sender.avatar_url} alt="" className="h-full w-full object-cover" />
           ) : (

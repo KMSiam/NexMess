@@ -327,20 +327,20 @@ export default function MealsPage() {
 
         <div className="mb-5 grid grid-cols-3 gap-2.5 sm:gap-3">
           <div className="bg-nex-primary-light rounded-xl p-3 text-center">
-            <p className="text-nex-primary text-2xl font-bold tabular-nums">{formatNumber(monthlyStats.total)}</p>
-            <p className="text-nex-primary/85 text-[11px] font-medium tracking-wider uppercase sm:text-xs">
+            <p className="text-nex-primary-ink text-2xl font-bold tabular-nums">{formatNumber(monthlyStats.total)}</p>
+            <p className="text-nex-primary-ink/85 text-[11px] font-medium tracking-wider uppercase sm:text-xs">
               {t('meals.totalMeals')}
             </p>
           </div>
-          <div className="rounded-xl bg-amber-500/10 p-3 text-center">
-            <p className="text-2xl font-bold text-amber-600 tabular-nums dark:text-amber-400">{formatNumber(monthlyStats.lunch)}</p>
-            <p className="text-[11px] font-medium tracking-wider text-amber-600 uppercase sm:text-xs dark:text-amber-400">
+          <div className="bg-nex-warning-light rounded-xl p-3 text-center">
+            <p className="text-nex-warning text-2xl font-bold tabular-nums">{formatNumber(monthlyStats.lunch)}</p>
+            <p className="text-nex-warning/90 text-[11px] font-medium tracking-wider uppercase sm:text-xs">
               {t('meals.lunch')}
             </p>
           </div>
-          <div className="rounded-xl bg-indigo-500/10 p-3 text-center">
-            <p className="text-2xl font-bold text-indigo-600 tabular-nums dark:text-indigo-400">{formatNumber(monthlyStats.dinner)}</p>
-            <p className="text-[11px] font-medium tracking-wider text-indigo-600 uppercase sm:text-xs dark:text-indigo-400">
+          <div className="bg-nex-secondary-light rounded-xl p-3 text-center">
+            <p className="text-nex-secondary text-2xl font-bold tabular-nums">{formatNumber(monthlyStats.dinner)}</p>
+            <p className="text-nex-secondary/90 text-[11px] font-medium tracking-wider uppercase sm:text-xs">
               {t('meals.dinner')}
             </p>
           </div>
@@ -434,7 +434,7 @@ export default function MealsPage() {
                             disabled={lunchLocked}
                             className={`flex w-full items-center justify-center gap-0.5 rounded px-0.5 py-1 text-[10px] font-medium transition-colors sm:px-1 ${
                               meal?.lunch || (meal?.guest_lunch || 0) > 0
-                                ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                                ? 'bg-nex-warning-light text-nex-warning'
                                 : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
                             } ${lunchLocked ? 'cursor-not-allowed opacity-70' : ''}`}
                             title={lunchTitle}
@@ -447,7 +447,7 @@ export default function MealsPage() {
                             disabled={dinnerLocked}
                             className={`flex w-full items-center justify-center gap-0.5 rounded px-0.5 py-1 text-[10px] font-medium transition-colors sm:px-1 ${
                               meal?.dinner || (meal?.guest_dinner || 0) > 0
-                                ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'
+                                ? 'bg-nex-secondary-light text-nex-secondary'
                                 : 'bg-nex-elevated text-nex-muted hover:bg-nex-hover'
                             } ${dinnerLocked ? 'cursor-not-allowed opacity-70' : ''}`}
                             title={dinnerTitle}
@@ -475,13 +475,13 @@ export default function MealsPage() {
                       return (
                         <div className="mt-1 flex flex-col items-center gap-0.5">
                           {lunchTotal > 0 && (
-                            <div className="flex w-full items-center justify-center gap-0.5 rounded bg-amber-500/15 px-1 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                            <div className="bg-nex-warning-light text-nex-warning flex w-full items-center justify-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-bold">
                               <span>{t('meals.lunchBadge')}:</span>
                               <span>{formatNumber(lunchTotal)}</span>
                             </div>
                           )}
                           {dinnerTotal > 0 && (
-                            <div className="flex w-full items-center justify-center gap-0.5 rounded bg-indigo-500/15 px-1 py-0.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                            <div className="bg-nex-secondary-light text-nex-secondary flex w-full items-center justify-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-bold">
                               <span>{t('meals.dinnerBadge')}:</span>
                               <span>{formatNumber(dinnerTotal)}</span>
                             </div>
@@ -504,7 +504,7 @@ export default function MealsPage() {
                 <span key={mealType} className="inline-flex items-center gap-1.5">
                   <span
                     className={`inline-block h-2 w-2 rounded-full ${
-                      mealType === 'lunch' ? 'bg-amber-500' : 'bg-indigo-500'
+                      mealType === 'lunch' ? 'bg-amber-500' : 'bg-nex-secondary'
                     }`}
                   />
                   <span>
@@ -575,7 +575,7 @@ export default function MealsPage() {
                         <span
                           className={`rounded px-2 py-0.5 font-medium ${
                             row?.lunch || (row?.guest_lunch || 0) > 0
-                              ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                              ? 'bg-nex-warning-light text-nex-warning'
                               : 'bg-nex-elevated text-nex-muted'
                           }`}
                         >
@@ -585,7 +585,7 @@ export default function MealsPage() {
                         <span
                           className={`rounded px-2 py-0.5 font-medium ${
                             row?.dinner || (row?.guest_dinner || 0) > 0
-                              ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'
+                              ? 'bg-nex-secondary-light text-nex-secondary'
                               : 'bg-nex-elevated text-nex-muted'
                           }`}
                         >
@@ -691,7 +691,7 @@ export default function MealsPage() {
                   checked={ovDinner}
                   onChange={(e) => setOvDinner(e.target.checked)}
                 />
-                <Moon className="h-4 w-4 text-indigo-400" />
+                <Moon className="text-nex-secondary h-4 w-4" />
                 <span className="text-nex-text text-sm">{t('dashboard.dinner')}</span>
               </label>
               <div>

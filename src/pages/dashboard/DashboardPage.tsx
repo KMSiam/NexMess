@@ -252,7 +252,7 @@ export default function DashboardPage() {
                 className="nex-card flex items-center justify-between border border-amber-500/20 bg-amber-500/5 p-4"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white shadow-inner">
+                  <div className="nex-avatar-mess flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg text-xs font-bold text-white shadow-inner">
                     {req.messes?.avatar_url ? (
                       <img src={req.messes.avatar_url} alt="" decoding="async" className="h-full w-full object-cover" />
                     ) : (
@@ -279,7 +279,7 @@ export default function DashboardPage() {
                       toast.success('Request canceled')
                     }
                   }}
-                  className="rounded-xl bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-500 hover:text-white"
+                  className="bg-nex-danger-light text-nex-danger rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 hover:bg-rose-600 hover:text-white"
                 >
                   {t('common.cancel')}
                 </button>

@@ -272,8 +272,8 @@ export default function HistoryTab() {
                 className="hover:bg-nex-hover flex flex-col justify-between gap-3 px-5 py-4 transition-colors sm:flex-row sm:items-center"
               >
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10">
-                    <Calendar className="h-4 w-4 text-blue-600" />
+                  <div className="bg-nex-secondary-light flex h-9 w-9 shrink-0 items-center justify-center rounded-lg">
+                    <Calendar className="text-nex-secondary h-4 w-4" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-nex-text text-sm font-medium">{monthLabel(r.month)}</p>

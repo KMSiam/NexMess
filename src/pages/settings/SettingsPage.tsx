@@ -439,8 +439,8 @@ export default function SettingsPage() {
                 className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 sm:text-sm ${
                   danger
                     ? isActive
-                      ? 'bg-red-500 text-white shadow-md'
-                      : 'text-nex-muted hover:bg-red-500/10 hover:text-red-500'
+                      ? 'bg-rose-600 text-white shadow-md'
+                      : 'text-nex-muted hover:bg-nex-danger-light hover:text-nex-danger'
                     : isActive
                       ? 'bg-nex-primary text-white shadow-md'
                       : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'

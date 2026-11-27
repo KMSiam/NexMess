@@ -49,8 +49,8 @@ export function AuthGuard() {
 
     return (
       <div className="bg-nex-bg flex min-h-screen items-center justify-center p-4">
-        <div className="nex-card animate-in fade-in zoom-in-95 w-full max-w-md space-y-6 border border-red-500/10 p-8 text-center shadow-xl duration-200">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+        <div className="nex-card animate-in fade-in zoom-in-95 border-nex-danger/15 w-full max-w-md space-y-6 border p-8 text-center shadow-xl duration-200">
+          <div className="bg-nex-danger-light text-nex-danger mx-auto flex h-16 w-16 items-center justify-center rounded-full">
             <ShieldAlert className="h-8 w-8" />
           </div>
           <div className="space-y-2">
@@ -77,7 +77,7 @@ export function AuthGuard() {
             <button
               onClick={handleCancel}
               disabled={reactivating}
-              className="nex-btn-secondary flex w-full items-center justify-center gap-2 border-red-500/10 py-3 text-red-500 hover:bg-red-500/10 hover:text-red-600"
+              className="nex-btn-secondary border-nex-danger/20 text-nex-danger hover:bg-nex-danger-light flex w-full items-center justify-center gap-2 py-3"
             >
               <LogOut className="h-4 w-4" /> Cancel & Sign Out
             </button>

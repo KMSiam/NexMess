@@ -41,8 +41,8 @@ const FOOD_ICON_RULES: { keywords: string[]; meta: FoodIconMeta }[] = [
     keywords: ['mutton', 'খাসি'],
     meta: {
       icon: Flame,
-      bgClass: 'bg-red-900/10 dark:bg-red-400/15',
-      textClass: 'text-red-800 dark:text-red-300',
+      bgClass: 'bg-orange-800/10 dark:bg-orange-400/15',
+      textClass: 'text-orange-900 dark:text-orange-300',
     },
   },
   {

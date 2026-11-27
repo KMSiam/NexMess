@@ -300,14 +300,14 @@ export default function FixedCostTab({
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-amber-600">
+                    <p className="text-nex-warning text-sm font-semibold">
                       {formatCurrency(Number(fc.amount))}
                     </p>
                     {isManager && (
                       <button
                         type="button"
                         onClick={() => onDeleteFixedCost(fc.id)}
-                        className="p-1 text-red-500 transition-colors hover:text-red-700"
+                        className="text-nex-muted hover:text-nex-danger p-1 transition-colors"
                         title={t('common.delete')}
                         aria-label={t('common.delete')}
                       >
@@ -325,13 +325,13 @@ export default function FixedCostTab({
                       <div className="mt-1 flex gap-2">
                         <button
                           onClick={() => startEdit(fc)}
-                          className="text-nex-primary hover:text-nex-primary-dark text-xs font-medium transition-colors"
+                          className="text-nex-primary-ink text-xs font-medium transition-colors hover:underline"
                         >
                           {t('common.edit')}
                         </button>
                         <button
                           onClick={() => onMarkPaid(fc.id)}
-                          className="flex items-center gap-0.5 text-xs font-medium text-emerald-600 transition-colors hover:text-emerald-800"
+                          className="text-nex-success flex items-center gap-0.5 text-xs font-medium transition-opacity hover:opacity-80"
                         >
                           <CheckCircle2 className="h-3 w-3" /> {t('finance.fixedModal.markPaid')}
                         </button>

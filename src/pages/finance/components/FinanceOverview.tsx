@@ -38,7 +38,7 @@ export default function FinanceOverview({
         <p className="text-nex-muted text-[11px] font-medium tracking-wider uppercase sm:text-xs">
           {t('finance.cards.totalFixed')}
         </p>
-        <p className="mt-1.5 text-lg font-bold text-amber-600 tabular-nums sm:mt-2 sm:text-2xl">
+        <p className="text-nex-warning mt-1.5 text-lg font-bold tabular-nums sm:mt-2 sm:text-2xl">
           {formatCurrency(totalFixed)}
         </p>
       </div>
@@ -47,7 +47,7 @@ export default function FinanceOverview({
           {t('finance.cards.treasuryCash')}
         </p>
         <p
-          className={`mt-1.5 text-lg font-bold tabular-nums sm:mt-2 sm:text-2xl ${messBalance >= 0 ? 'text-nex-success' : 'text-red-500'}`}
+          className={`mt-1.5 text-lg font-bold tabular-nums sm:mt-2 sm:text-2xl ${messBalance >= 0 ? 'text-nex-success' : 'text-nex-danger'}`}
         >
           {formatCurrency(messBalance)}
         </p>

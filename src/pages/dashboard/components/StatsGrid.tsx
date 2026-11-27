@@ -22,7 +22,7 @@ export default function StatsGrid({ stats }: StatsGridProps) {
           {t('dashboard.stats.balance')}
         </p>
         <p
-          className={`mt-1 text-xl font-bold ${stats.balance >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}
+          className={`mt-1 text-xl font-bold ${stats.balance >= 0 ? 'text-nex-success' : 'text-nex-danger'}`}
         >
           {formatCurrency(stats.balance)}
         </p>
@@ -37,7 +37,7 @@ export default function StatsGrid({ stats }: StatsGridProps) {
         <p className="text-nex-muted text-xs font-medium tracking-wider uppercase">
           {t('dashboard.stats.messSpent')}
         </p>
-        <p className="mt-1 text-xl font-bold text-amber-700 dark:text-amber-400">
+        <p className="text-nex-warning mt-1 text-xl font-bold">
           {formatCurrency(stats.messTotalSpent)}
         </p>
       </div>

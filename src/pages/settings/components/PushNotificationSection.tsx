@@ -40,21 +40,17 @@ export default function PushNotificationSection({
 
   // Determine the status text and color
   let statusText = t('settings.pushSection.disabled')
-  let statusColor =
-    'text-nex-muted bg-nex-elevated border-nex-border dark:bg-[#242429] dark:border-[#32323a]'
+  let statusColor = 'text-nex-muted bg-nex-elevated border-nex-border'
 
   if (permission === 'unsupported') {
     statusText = t('settings.pushSection.unsupported')
-    statusColor =
-      'text-rose-600 bg-rose-500/10 border-rose-500/20 dark:text-rose-400 dark:bg-rose-500/15 dark:border-rose-500/30'
+    statusColor = 'text-nex-danger bg-nex-danger-light border-nex-danger/25'
   } else if (permission === 'denied') {
     statusText = t('settings.pushSection.blocked')
-    statusColor =
-      'text-rose-600 bg-rose-500/10 border-rose-500/20 dark:text-rose-400 dark:bg-rose-500/15 dark:border-rose-500/30'
+    statusColor = 'text-nex-danger bg-nex-danger-light border-nex-danger/25'
   } else if (pushEnabled) {
     statusText = t('settings.pushSection.active')
-    statusColor =
-      'text-[#3a5643] bg-[#edf2ee] border-[#4a6d56]/25 dark:text-emerald-400 dark:bg-emerald-500/15 dark:border-emerald-500/30'
+    statusColor = 'text-nex-primary-ink bg-nex-primary-light border-nex-primary/25'
   }
 
   return (
@@ -112,7 +108,7 @@ export default function PushNotificationSection({
       <div className="space-y-4">
         {/* iOS Specific Warning */}
         {isIOS && !isStandalone && (
-          <div className="flex gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-amber-500">
+          <div className="border-nex-warning/25 bg-nex-warning-light/60 text-nex-warning flex gap-3 rounded-xl border p-4">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
             <div>
               <p className="text-xs font-semibold">{t('settings.pushSection.iosTitle')}</p>
@@ -125,7 +121,7 @@ export default function PushNotificationSection({
 
         {/* Troubleshooting Blocked State */}
         {permission === 'denied' && (
-          <div className="flex gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-red-500">
+          <div className="border-nex-danger/25 bg-nex-danger-light/70 text-nex-danger flex gap-3 rounded-xl border p-4">
             <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
             <div>
               <p className="text-xs font-semibold">{t('settings.pushSection.blockedTitle')}</p>

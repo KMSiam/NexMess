@@ -167,13 +167,13 @@ export default function ActivityLogPage() {
   ]
 
   const icons = {
-    expense: { element: <Receipt className="h-4 w-4 text-amber-600" />, bg: 'bg-amber-500/10' },
+    expense: { element: <Receipt className="text-nex-warning h-4 w-4" />, bg: 'bg-nex-warning-light' },
     deposit: {
-      element: <PiggyBank className="h-4 w-4 text-emerald-600" />,
-      bg: 'bg-emerald-500/10',
+      element: <PiggyBank className="text-nex-success h-4 w-4" />,
+      bg: 'bg-nex-success-light',
     },
-    notice: { element: <Megaphone className="h-4 w-4 text-blue-600" />, bg: 'bg-blue-500/10' },
-    member: { element: <UserPlus className="h-4 w-4 text-purple-600" />, bg: 'bg-purple-500/10' },
+    notice: { element: <Megaphone className="text-nex-secondary h-4 w-4" />, bg: 'bg-nex-secondary-light' },
+    member: { element: <UserPlus className="text-nex-primary-ink h-4 w-4" />, bg: 'bg-nex-primary-light' },
   }
 
   if (!currentMess) return null

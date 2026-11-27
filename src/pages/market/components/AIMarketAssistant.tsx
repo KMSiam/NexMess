@@ -211,7 +211,7 @@ export default function AIMarketAssistant() {
       text: isBangla
         ? 'এই এলাকার জন্য আজকের নিত্যপ্রয়োজনীয় পণ্যের বাজার দর রিপোর্ট তৈরি করুন'
         : 'Please generate a new daily price report for this area',
-      chipClass: 'text-blue-600 bg-blue-500/10 dark:text-blue-400',
+      chipClass: 'text-nex-secondary bg-nex-secondary-light',
     },
     {
       icon: TrendingDown,
@@ -219,7 +219,7 @@ export default function AIMarketAssistant() {
       text: isBangla
         ? 'আজকে এই এলাকার কোন বাজারে ডিম ও ব্রয়লার মুরগির দাম সবচেয়ে কম?'
         : 'Where can I find the cheapest place to buy eggs and chicken in this area today?',
-      chipClass: 'text-emerald-600 bg-emerald-500/10 dark:text-emerald-400',
+      chipClass: 'text-nex-success bg-nex-success-light',
     },
     {
       icon: ShoppingCart,
@@ -227,7 +227,7 @@ export default function AIMarketAssistant() {
       text: isBangla
         ? 'আজকের মিলের জন্য প্রয়োজনীয় উপাদান, পরিমাণ ও আনুমানিক খরচ সহ বাজারের ফর্দ বানিয়ে দিন।'
         : "Create a detailed grocery shopping list for today's meals with quantities and estimated cost.",
-      chipClass: 'text-amber-600 bg-amber-500/10 dark:text-amber-400',
+      chipClass: 'text-nex-warning bg-nex-warning-light',
     },
     {
       icon: UtensilsCrossed,
@@ -235,7 +235,7 @@ export default function AIMarketAssistant() {
       text: isBangla
         ? 'চলতি মাসে আমাদের মেসের বাজার খরচ বিশ্লেষণ করুন এবং খরচ কমানোর পরামর্শ দিন।'
         : 'Review our monthly spending so far and suggest how we can optimize our bazaar budget.',
-      chipClass: 'text-purple-600 bg-purple-500/10 dark:text-purple-400',
+      chipClass: 'text-nex-primary-ink bg-nex-primary-light',
     },
   ]
 

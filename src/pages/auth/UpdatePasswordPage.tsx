@@ -181,13 +181,13 @@ export default function UpdatePasswordPage() {
 
           {invalid ? (
             <div className="mt-4 space-y-4">
-              <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
-                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+              <div className="border-nex-danger/25 bg-nex-danger-light flex items-start gap-3 rounded-xl border p-4">
+                <AlertTriangle className="text-nex-danger mt-0.5 h-5 w-5 shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-red-800 dark:text-red-300">
+                  <p className="text-nex-danger text-sm font-medium">
                     {t('auth.updatePassword.expiredTitle')}
                   </p>
-                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  <p className="text-nex-muted mt-1 text-xs">
                     {t('auth.updatePassword.expiredDesc')}
                   </p>
                 </div>

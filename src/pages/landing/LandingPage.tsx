@@ -27,17 +27,17 @@ const ROOMMATE_CHIPS = [
   {
     initial: 'S',
     bgClass:
-      'bg-slate-200/90 text-slate-700 border-white dark:bg-slate-700 dark:text-slate-100 dark:border-nex-bg',
+      'bg-stone-200/90 text-stone-800 border-white dark:bg-stone-700 dark:text-stone-100 dark:border-nex-bg',
   },
   {
     initial: 'A',
     bgClass:
-      'bg-emerald-200/90 text-emerald-800 border-white dark:bg-emerald-800 dark:text-emerald-100 dark:border-nex-bg',
+      'bg-emerald-200/90 text-emerald-900 border-white dark:bg-emerald-800 dark:text-emerald-100 dark:border-nex-bg',
   },
   {
     initial: 'R',
     bgClass:
-      'bg-amber-200/90 text-amber-800 border-white dark:bg-amber-800 dark:text-amber-100 dark:border-nex-bg',
+      'bg-amber-200/90 text-amber-900 border-white dark:bg-amber-800 dark:text-amber-100 dark:border-nex-bg',
   },
 ]
 
@@ -76,7 +76,7 @@ export default function LandingPage() {
         ? 'মাসিক ক্যালেন্ডারে দুপুর ও রাতের মিল চালু বা বন্ধ করুন। নির্ধারিত কাট-অফ টাইমে স্বয়ংক্রিয় লক।'
         : 'Toggle daily Lunch/Dinner counts in a monthly grid layout. Features strict cut-off timers to lock menu planning.',
       icon: Calendar,
-      iconClass: 'bg-blue-500/10 text-blue-600 border-blue-500/15 dark:text-blue-400',
+      iconClass: 'bg-nex-secondary-light text-nex-secondary border-nex-secondary/20',
     },
     {
       title: isBangla ? 'মেসের হিসাব-নিকাশ' : 'Finance Tracker',
@@ -84,7 +84,7 @@ export default function LandingPage() {
         ? 'বাজার খরচ ও মেম্বারদের জমা রেকর্ড। স্বয়ংক্রিয় মিল রেট ক্যালকুলেশন ও সহজ লেনদেন নিষ্পত্তি।'
         : 'Log deposits and bazaar expenses. Auto-calculates individual meal rates, utility splits, and settlement transfers.',
       icon: Wallet,
-      iconClass: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/15 dark:text-emerald-400',
+      iconClass: 'bg-nex-success-light text-nex-success border-nex-success/20',
     },
     {
       title: isBangla ? 'বাজারের শিডিউল' : 'Bazaar Scheduler',
@@ -92,7 +92,7 @@ export default function LandingPage() {
         ? 'সাপ্তাহিক বাজার করার দায়িত্ব বণ্টন। মেম্বারদের মধ্যে স্বয়ংক্রিয় রোটেশন ও রিমাইন্ডার।'
         : 'Schedule market duties. Auto-rotates duty assignments across roommates on a weekly schedule.',
       icon: ShoppingBag,
-      iconClass: 'bg-amber-500/10 text-amber-600 border-amber-500/15 dark:text-amber-400',
+      iconClass: 'bg-nex-warning-light text-nex-warning border-nex-warning/20',
     },
     {
       title: isBangla ? 'মেস গ্রুপ চ্যাট' : 'Group Chat',
@@ -100,7 +100,8 @@ export default function LandingPage() {
         ? 'মেসের সবার সাথে যোগাযোগ, ভাউচার/মেমোর ছবি শেয়ার, রিঅ্যাকশন এবং নোটিশ ঘোষণা।'
         : 'Integrated messaging workspace with inline image sharing, reactions, and automated status logs.',
       icon: MessageSquare,
-      iconClass: 'bg-purple-500/10 text-purple-600 border-purple-500/15 dark:text-purple-400',
+      iconClass:
+        'bg-stone-500/10 text-stone-700 border-stone-500/20 dark:bg-stone-400/15 dark:text-stone-300 dark:border-stone-400/20',
     },
     {
       title: isBangla ? 'নেক্সমেস এআই' : 'NexMessAI',
@@ -108,7 +109,7 @@ export default function LandingPage() {
         ? 'দৈনিক বাজার দর যাচাই, রান্নার রেসিপি পরিকল্পনা এবং বাজেট অপ্টিমাইজেশনের স্মার্ট এআই সহকারী।'
         : 'Integrated smart AI assistant for automated grocery lists, location-aware market deals, smart pricing forecasts, and diet feedback.',
       icon: Sparkles,
-      iconClass: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/15 dark:text-indigo-400',
+      iconClass: 'bg-nex-primary-light text-nex-primary-ink border-nex-primary/25',
       pulse: true,
     },
   ]

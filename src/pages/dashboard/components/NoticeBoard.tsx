@@ -38,7 +38,7 @@ export default function NoticeBoard({
       <div>
         <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Pin className="h-4 w-4 shrink-0 rotate-45 text-indigo-500" />
+            <Pin className="text-nex-secondary h-4 w-4 shrink-0 rotate-45" />
             <h2 className="text-nex-text text-xs font-bold tracking-wider uppercase">
               {t('dashboard.noticeBoard')}
             </h2>
@@ -49,7 +49,7 @@ export default function NoticeBoard({
                 setShowInput(true)
                 setNoticeText(notice?.message || '')
               }}
-              className="flex items-center gap-1 text-[10px] font-bold tracking-wider text-indigo-600 uppercase hover:underline dark:text-indigo-400"
+              className="text-nex-primary-ink flex items-center gap-1 text-[10px] font-bold tracking-wider uppercase hover:underline"
             >
               <Plus className="h-3 w-3" /> {notice ? t('dashboard.editNotice') : t('dashboard.postNotice')}
             </button>
@@ -91,7 +91,7 @@ export default function NoticeBoard({
                     await onDismissNotice()
                     setShowInput(false)
                   }}
-                  className="nex-btn-secondary ml-auto border-red-500/20 px-3 py-1.5 text-xs !text-red-500 hover:!bg-red-500/10"
+                  className="nex-btn-secondary border-nex-danger/25 !text-nex-danger hover:!bg-nex-danger-light ml-auto px-3 py-1.5 text-xs"
                 >
                   {t('common.delete')}
                 </button>
@@ -104,7 +104,7 @@ export default function NoticeBoard({
           </p>
         ) : (
           <div className="flex shrink-0 flex-col items-center justify-center py-4 text-center">
-            <Megaphone className="mb-1 h-7 w-7 text-slate-400 dark:text-slate-600" />
+            <Megaphone className="text-nex-muted/50 mb-1 h-7 w-7" />
             <p className="text-nex-muted text-xs font-medium">{t('dashboard.noNotices')}</p>
           </div>
         )}

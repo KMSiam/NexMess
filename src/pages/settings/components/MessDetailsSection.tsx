@@ -160,7 +160,7 @@ export default function MessDetailsSection({
 
       <div className="bg-nex-elevated flex flex-col gap-4 rounded-xl p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="group relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-lg font-bold text-white shadow-inner">
+          <div className="nex-avatar-mess group relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl text-lg font-bold text-white shadow-inner">
             {avatarUrl ? (
               <img src={avatarUrl} alt="Mess Avatar" className="h-full w-full object-cover" />
             ) : (

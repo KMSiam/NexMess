@@ -24,10 +24,10 @@ initAnalytics()
 function FallbackErrorComponent({ resetError }: { error?: unknown; resetError: () => void }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#faf5f0] p-6 text-center text-[#221e1a]">
-      <div className="max-w-md rounded-2xl border border-[#e5ded5] bg-white p-8 shadow-lg">
+      <div className="max-w-md rounded-2xl border border-[#e7dfd3] bg-white p-8 shadow-lg">
         <div className="mb-4 text-4xl">⚠️</div>
         <h2 className="mb-2 text-xl font-bold text-[#3a5643]">Something went wrong</h2>
-        <p className="mb-6 text-sm text-[#8c8276]">
+        <p className="mb-6 text-sm text-[#6b6258]">
           An unexpected error occurred. Our team has been notified automatically via telemetry.
         </p>
         <div className="flex justify-center gap-3">
@@ -39,7 +39,7 @@ function FallbackErrorComponent({ resetError }: { error?: unknown; resetError: (
           </button>
           <button
             onClick={resetError}
-            className="rounded-xl border border-[#e5ded5] bg-[#faf5f0] px-4 py-2.5 text-sm font-medium text-[#221e1a] transition hover:bg-[#edf2ee]"
+            className="rounded-xl border border-[#e7dfd3] bg-[#faf5f0] px-4 py-2.5 text-sm font-medium text-[#221e1a] transition hover:bg-[#edf2ee]"
           >
             Dismiss
           </button>

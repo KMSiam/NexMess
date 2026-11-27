@@ -89,7 +89,7 @@ export default function JoinMessPage() {
             </div>
 
             <div className="nex-card border-nex-border/80 space-y-4 border p-5 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-base font-bold text-white shadow-inner">
+              <div className="nex-avatar-mess mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-base font-bold text-white shadow-inner">
                 {pendingReq?.messes?.avatar_url ? (
                   <img src={pendingReq.messes.avatar_url} alt="" className="h-full w-full object-cover" />
                 ) : (
@@ -115,7 +115,7 @@ export default function JoinMessPage() {
                     }
                   }
                 }}
-                className="nex-btn-danger w-full bg-red-500/10 py-2.5 text-red-500 hover:bg-red-500 hover:text-white"
+                className="nex-btn-danger bg-nex-danger-light text-nex-danger w-full py-2.5 hover:bg-rose-600 hover:text-white"
               >
                 {t('mess.join.cancelRequest')}
               </button>

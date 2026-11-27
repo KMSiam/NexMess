@@ -176,7 +176,7 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
       <h3 className="text-nex-text mb-4 text-lg font-semibold">{t('settings.profileSection.title')}</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <div className="group relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-2xl font-bold text-white">
+          <div className="nex-avatar group relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full text-2xl font-bold text-white">
             {avatarUrl ? (
               <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
             ) : (
@@ -289,14 +289,14 @@ export default function ProfileSection({ profile, email, onUpdate }: ProfileSect
                             href={docPreviewUrl || '#'}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-nex-primary max-w-[150px] truncate text-xs font-medium hover:underline"
+                            className="text-nex-primary-ink max-w-[150px] truncate text-xs font-medium hover:underline"
                           >
                             {t('settings.profileSection.viewDoc')}
                           </a>
                           <button
                             type="button"
                             onClick={handleRemoveDoc}
-                            className="text-nex-danger text-xs font-semibold hover:text-red-500"
+                            className="text-nex-danger text-xs font-semibold hover:opacity-80"
                           >
                             {t('common.delete')}
                           </button>

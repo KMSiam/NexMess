@@ -14,7 +14,7 @@ export default function CookSummary({ data }: CookSummaryProps) {
     <div className="nex-card flex h-full flex-col justify-between p-5">
       <div>
         <div className="mb-4 flex items-center gap-2">
-          <ChefHat className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
+          <ChefHat className="text-nex-secondary h-5 w-5" />
           <h2 className="text-nex-text text-xs font-bold tracking-wider uppercase">
             {t('dashboard.cookSummary')}
           </h2>

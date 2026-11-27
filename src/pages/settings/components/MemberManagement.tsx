@@ -111,7 +111,7 @@ export default function MemberManagement({
                     </button>
                     <button
                       onClick={() => onReject(member.user_id)}
-                      className="nex-btn-danger flex items-center gap-1.5 border-none bg-red-500/10 px-4 py-2 text-xs text-red-500 shadow-none hover:bg-red-500 hover:text-white"
+                      className="nex-btn-danger bg-nex-danger-light text-nex-danger flex items-center gap-1.5 border-none px-4 py-2 text-xs shadow-none hover:bg-rose-600 hover:text-white"
                     >
                       <UserX className="h-3.5 w-3.5" /> {t('settings.memberSection.reject')}
                     </button>
@@ -146,7 +146,7 @@ export default function MemberManagement({
                 >
                   <div className="flex items-center gap-3">
                     <div className="relative shrink-0">
-                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-semibold text-white">
+                      <div className="nex-avatar flex h-10 w-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold text-white">
                         {p?.avatar_url ? (
                           <img src={p.avatar_url} alt="" className="h-full w-full object-cover" />
                         ) : (
@@ -154,7 +154,7 @@ export default function MemberManagement({
                         )}
                       </div>
                       {p?.is_verified && (
-                        <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-white border-2 border-white dark:border-nex-bg shadow-sm" title="Verified Member">
+                        <span className="bg-nex-primary dark:border-nex-bg absolute -right-0.5 -bottom-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white text-white shadow-sm" title="Verified Member">
                           <Check className="h-2 w-2 stroke-[4]" />
                         </span>
                       )}
@@ -179,18 +179,18 @@ export default function MemberManagement({
                       )}
                       {p?.emergency_contact_no && (
                         <span
-                          className="h-1.5 w-1.5 rounded-full bg-red-500"
+                          className="h-1.5 w-1.5 rounded-full bg-rose-600 dark:bg-rose-400"
                           title={t('settings.memberSection.emergencyNo')}
                         />
                       )}
                       {p?.verification_doc_type && (
                         <span
-                          className="h-1.5 w-1.5 rounded-full bg-emerald-500"
+                          className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"
                           title={t('settings.memberSection.verificationDoc')}
                         />
                       )}
                     </div>
-                    <span className="text-nex-primary bg-nex-primary/10 hover:bg-nex-primary/20 flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors">
+                    <span className="text-nex-primary-ink bg-nex-primary-light hover:opacity-90 flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-opacity">
                       {isExpanded ? (
                         <>
                           {t('settings.memberSection.hide')} <ChevronUp className="h-3.5 w-3.5" />
@@ -222,12 +222,12 @@ export default function MemberManagement({
                             </span>
                           </div>
 
-                          <div className="flex items-center justify-between rounded-xl border border-red-500/10 bg-red-500/5 p-3">
-                            <span className="flex items-center gap-1.5 text-xs font-medium text-red-500">
-                              <ShieldAlert className="h-3.5 w-3.5 text-red-500" />
+                          <div className="border-nex-danger/15 bg-nex-danger-light/60 flex items-center justify-between rounded-xl border p-3">
+                            <span className="text-nex-danger flex items-center gap-1.5 text-xs font-medium">
+                              <ShieldAlert className="text-nex-danger h-3.5 w-3.5" />
                               {t('settings.memberSection.emergencyNo')}
                             </span>
-                            <span className="font-mono text-xs font-semibold text-red-600 dark:text-red-400">
+                            <span className="text-nex-danger font-mono text-xs font-semibold">
                               {p?.emergency_contact_no || t('settings.memberSection.notSet')}
                             </span>
                           </div>
@@ -266,7 +266,7 @@ export default function MemberManagement({
                                 <button
                                   type="button"
                                   onClick={() => handleViewDoc(p.verification_doc_url)}
-                                  className="text-nex-primary bg-nex-primary-light flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition-colors hover:text-blue-500"
+                                  className="text-nex-primary-ink bg-nex-primary-light flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition-opacity hover:opacity-80"
                                 >
                                   {t('settings.memberSection.viewCopy')}
                                 </button>
@@ -286,14 +286,14 @@ export default function MemberManagement({
                         {p?.is_verified ? (
                           <button
                             onClick={() => onToggleVerify(member.user_id, false)}
-                            className="rounded-xl bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-500 hover:text-white"
+                            className="bg-nex-danger-light text-nex-danger rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 hover:bg-rose-600 hover:text-white"
                           >
                             {isBangla ? 'আনভেরিফাই করুন' : 'Unverify Profile'}
                           </button>
                         ) : (
                           <button
                             onClick={() => onToggleVerify(member.user_id, true)}
-                            className="rounded-xl bg-emerald-500/10 px-3.5 py-2 text-xs font-semibold text-emerald-500 transition-all duration-200 hover:bg-emerald-500 hover:text-white"
+                            className="bg-nex-success-light text-nex-success rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 hover:bg-emerald-700 hover:text-white"
                           >
                             {isBangla ? 'ভেরিফাই করুন' : 'Verify Profile'}
                           </button>
@@ -302,14 +302,14 @@ export default function MemberManagement({
                         {member.role === 'member' ? (
                           <button
                             onClick={() => onMakeManager(member.user_id)}
-                            className="text-nex-primary bg-nex-primary-light rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 hover:bg-blue-500/10 hover:text-blue-700"
+                            className="text-nex-primary-ink bg-nex-primary-light hover:bg-nex-primary rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 hover:text-white"
                           >
                             {t('settings.memberSection.makeManager')}
                           </button>
                         ) : (
                           <button
                             onClick={() => onDemoteManager(member.user_id)}
-                            className="rounded-xl bg-amber-500/10 px-3.5 py-2 text-xs font-semibold text-amber-500 transition-all duration-200 hover:bg-amber-500/20 hover:text-amber-400"
+                            className="bg-nex-warning-light text-nex-warning rounded-xl px-3.5 py-2 text-xs font-semibold transition-opacity duration-200 hover:opacity-85"
                           >
                             {t('settings.memberSection.demoteManager')}
                           </button>
@@ -318,7 +318,7 @@ export default function MemberManagement({
                         {member.user_id !== currentUserId && (
                           <button
                             onClick={() => onRemove(member.user_id)}
-                            className="rounded-xl bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-500 transition-all duration-200 hover:bg-red-500 hover:text-white"
+                            className="bg-nex-danger-light text-nex-danger rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 hover:bg-rose-600 hover:text-white"
                           >
                             {t('settings.memberSection.removeMember')}
                           </button>

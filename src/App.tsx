@@ -187,8 +187,8 @@ function App() {
             fontSize: '14px',
             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.06)',
           },
-          success: { iconTheme: { primary: '#10B981', secondary: 'var(--nex-surface)' } },
-          error: { iconTheme: { primary: '#F43F5E', secondary: 'var(--nex-surface)' } },
+          success: { iconTheme: { primary: 'var(--nex-success)', secondary: 'var(--nex-surface)' } },
+          error: { iconTheme: { primary: 'var(--nex-danger)', secondary: 'var(--nex-surface)' } },
         }}
       />
     </BrowserRouter>

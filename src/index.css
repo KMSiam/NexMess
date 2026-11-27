@@ -65,15 +65,19 @@
   --color-nex-surface: var(--nex-surface);
   --color-nex-primary: var(--nex-primary);
   --color-nex-primary-dark: var(--nex-primary-dark);
+  --color-nex-primary-ink: var(--nex-primary-ink);
   --color-nex-primary-light: var(--nex-primary-light);
+  --color-nex-secondary: var(--nex-secondary);
+  --color-nex-secondary-light: var(--nex-secondary-light);
   --color-nex-text: var(--nex-text);
   --color-nex-muted: var(--nex-muted);
   --color-nex-border: var(--nex-border);
-  --color-nex-success: #10b981;
+  --color-nex-success: var(--nex-success);
   --color-nex-success-light: var(--nex-success-light);
-  --color-nex-danger: #f43f5e;
+  --color-nex-danger: var(--nex-danger);
   --color-nex-danger-light: var(--nex-danger-light);
-  --color-nex-warning: #f59e0b;
+  --color-nex-warning: var(--nex-warning);
+  --color-nex-warning-light: var(--nex-warning-light);
   --color-nex-hover: var(--nex-hover);
   --color-nex-elevated: var(--nex-elevated);
 
@@ -130,37 +134,51 @@
 :root {
   --nex-primary: #4a6d56;
   --nex-primary-dark: #3a5643;
+  --nex-primary-ink: #3a5643;
   --nex-primary-light: #edf2ee;
+  --nex-secondary: #2e5e54;
+  --nex-secondary-light: #e8f1ee;
   --nex-bg: #faf5f0;
   --nex-surface: #ffffff;
   --nex-glass-bg: rgba(255, 255, 255, 0.92);
   --nex-text: #221e1a;
-  --nex-muted: #70675d;
-  --nex-border: #f2ece4;
+  --nex-muted: #6b6258;
+  --nex-border: #e7dfd3;
+  --nex-success: #16794c;
   --nex-success-light: #ecfdf5;
+  --nex-warning: #b45309;
+  --nex-warning-light: #fef3c7;
+  --nex-danger: #e11d48;
   --nex-danger-light: #fff1f2;
-  --nex-hover: #f7f2eb;
-  --nex-elevated: #faf5f0;
-  --nex-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
-  --nex-shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --nex-hover: #efe8de;
+  --nex-elevated: #f5efe7;
+  --nex-shadow-card: 0 1px 3px 0 rgb(34 30 26 / 0.04), 0 1px 2px -1px rgb(34 30 26 / 0.04);
+  --nex-shadow-card-hover: 0 4px 6px -1px rgb(34 30 26 / 0.06), 0 2px 4px -2px rgb(34 30 26 / 0.04);
 }
 
 .dark {
   --nex-primary: #4a6d56;
   --nex-primary-dark: #3a5643;
-  --nex-primary-light: rgba(74, 109, 86, 0.12);
+  --nex-primary-ink: #7bb991;
+  --nex-primary-light: rgba(110, 158, 127, 0.14);
+  --nex-secondary: #62ab99;
+  --nex-secondary-light: rgba(98, 171, 153, 0.14);
   --nex-bg: #0c0c0d;
   --nex-surface: #161618;
-  --nex-glass-bg: rgba(18, 18, 21, 0.92);
-  --nex-text: #f4f4f5;
-  --nex-muted: #8f8f92;
-  --nex-border: #2b2b2f;
-  --nex-success-light: rgba(16, 185, 129, 0.12);
-  --nex-danger-light: rgba(244, 63, 94, 0.12);
-  --nex-hover: #222225;
-  --nex-elevated: #222225;
-  --nex-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
-  --nex-shadow-card-hover: 0 4px 12px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --nex-glass-bg: rgba(18, 18, 20, 0.92);
+  --nex-text: #f4f3f0;
+  --nex-muted: #9d9790;
+  --nex-border: #2c2b2e;
+  --nex-success: #34d399;
+  --nex-success-light: rgba(52, 211, 153, 0.14);
+  --nex-warning: #fbbf24;
+  --nex-warning-light: rgba(251, 191, 36, 0.14);
+  --nex-danger: #fb7185;
+  --nex-danger-light: rgba(251, 113, 133, 0.14);
+  --nex-hover: #27272c;
+  --nex-elevated: #202023;
+  --nex-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+  --nex-shadow-card-hover: 0 4px 12px -1px rgb(0 0 0 / 0.35), 0 2px 4px -2px rgb(0 0 0 / 0.25);
 }
 
 /* ── Base Styles ───────────────────────── */
@@ -353,13 +371,13 @@
     font-weight: 500;
     font-size: 0.875rem;
     color: white;
-    background-color: var(--color-nex-danger);
+    background-color: #e11d48;
     border: none;
     cursor: pointer;
     transition: all 0.15s ease-out;
   }
   .nex-btn-danger:hover {
-    background-color: #e11d48;
+    background-color: #be123c;
   }
 
   /* Input */
@@ -402,14 +420,25 @@
   }
   .nex-badge-primary {
     background-color: var(--color-nex-primary-light);
-    color: var(--color-nex-primary);
+    color: var(--color-nex-primary-ink);
+  }
+
+  /* Avatar Gradients */
+  .nex-avatar {
+    background: linear-gradient(135deg, #3a5643, #5f886e);
+  }
+  .nex-avatar-mess {
+    background: linear-gradient(135deg, #2b4032, #4a6d56);
+  }
+  .nex-avatar-muted {
+    background: linear-gradient(135deg, #70675d, #94897d);
   }
 
   /* Nav States */
   .nex-nav-active {
     background-color: var(--color-nex-primary-light);
     border-left: 4px solid var(--color-nex-primary);
-    color: var(--color-nex-primary);
+    color: var(--color-nex-primary-ink);
     font-weight: 500;
   }
   .nex-nav-inactive {
@@ -430,7 +459,7 @@
     background-color: var(--color-nex-border);
   }
   .dark .nex-toggle-off {
-    background-color: #334155;
+    background-color: #353439;
   }
 
   /* Verified Badge */

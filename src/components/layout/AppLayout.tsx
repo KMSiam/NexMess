@@ -170,7 +170,7 @@ export default function AppLayout() {
           <div className="border-nex-border/50 shrink-0 border-t py-3">
             <div className="flex items-center gap-3 px-[18px]">
               <div className="relative shrink-0" title={profile?.username || 'User'}>
-                <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-semibold text-white">
+                <div className="nex-avatar flex h-9 w-9 items-center justify-center overflow-hidden rounded-full text-sm font-semibold text-white">
                   {profile?.avatar_url ? (
                     <img
                       src={profile.avatar_url}
@@ -183,7 +183,7 @@ export default function AppLayout() {
                   )}
                 </div>
                 {profile?.is_verified && (
-                  <span className="border-white dark:border-nex-bg absolute -right-0.5 -bottom-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 bg-blue-500 text-white shadow-sm" title="Verified Member">
+                  <span className="border-white dark:border-nex-bg bg-nex-primary absolute -right-0.5 -bottom-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 text-white shadow-sm" title="Verified Member">
                     <Check className="h-1.5 w-1.5 stroke-[4]" />
                   </span>
                 )}
@@ -239,7 +239,7 @@ export default function AppLayout() {
                     aria-expanded={messes.length > 1 ? showMessDropdown : undefined}
                     className="bg-nex-elevated hover:bg-nex-hover border-nex-border/50 flex items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left transition-colors"
                   >
-                    <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 text-xs font-bold text-white">
+                    <div className="nex-avatar-mess flex h-6.5 w-6.5 shrink-0 items-center justify-center overflow-hidden rounded-lg text-xs font-bold text-white">
                       {currentMess.avatar_url ? (
                         <img src={currentMess.avatar_url} alt="" decoding="async" className="h-full w-full object-cover" />
                       ) : (
@@ -443,7 +443,7 @@ function MobileBottomNav({
                 to="/settings"
                 onClick={() => setShowMore(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary font-medium' : 'text-nex-text hover:bg-nex-hover'}`
+                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${isActive ? 'bg-nex-primary-light text-nex-primary-ink font-medium' : 'text-nex-text hover:bg-nex-hover'}`
                 }
               >
                 <Settings className="h-5 w-5" /> {t('nav.settings')}
@@ -452,7 +452,7 @@ function MobileBottomNav({
               <button
                 onClick={handleSignOut}
                 disabled={signingOut}
-                className="hover:bg-nex-danger-light flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-red-600 transition-colors disabled:opacity-50"
+                className="hover:bg-nex-danger-light text-nex-danger flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors disabled:opacity-50"
               >
                 <LogOut className="h-5 w-5" /> {signingOut ? t('common.signingOut') : t('common.signOut')}
               </button>
@@ -472,7 +472,7 @@ function MobileBottomNav({
               to={to}
               className={({ isActive }) =>
                 `flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors ${
-                  isActive ? 'text-nex-primary' : 'text-nex-muted'
+                  isActive ? 'text-nex-primary-ink' : 'text-nex-muted'
                 }`
               }
             >
@@ -483,7 +483,7 @@ function MobileBottomNav({
           {hasMess && (
             <button
               onClick={() => setShowMore(!showMore)}
-              className={`flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors ${showMore ? 'text-nex-primary' : 'text-nex-muted'}`}
+              className={`flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors ${showMore ? 'text-nex-primary-ink' : 'text-nex-muted'}`}
             >
               {showMore ? <X className="h-5 w-5" /> : <MoreHorizontal className="h-5 w-5" />}
               <span className="text-[10px] font-medium">{t('common.more')}</span>
@@ -494,7 +494,7 @@ function MobileBottomNav({
             <button
               onClick={handleSignOut}
               disabled={signingOut}
-              className="text-nex-muted flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors hover:text-red-500 disabled:opacity-50"
+              className="text-nex-muted hover:text-nex-danger flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
             >
               <LogOut className="h-5 w-5" />
               <span className="text-[10px] font-medium">

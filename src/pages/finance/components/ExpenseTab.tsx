@@ -222,7 +222,7 @@ export default function ExpenseTab({
                         target="_blank"
                         rel="noreferrer"
                         title="View Receipt"
-                        className="text-nex-primary transition-colors hover:text-blue-700"
+                        className="text-nex-primary-ink transition-colors hover:underline"
                       >
                         <Receipt className="h-3.5 w-3.5" />
                       </a>

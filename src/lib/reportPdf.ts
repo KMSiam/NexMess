@@ -28,12 +28,12 @@ const SAGE_MINT_TEXT: RgbColor = [214, 232, 219]
 const CREAM_BG: RgbColor = [250, 245, 240] // #FAF5F0
 const ZEBRA_BG: RgbColor = [252, 250, 247]
 const CHARCOAL: RgbColor = [34, 30, 26] // #221E1A
-const MUTED: RgbColor = [112, 103, 93] // #70675D
-const SLATE_ACCENT: RgbColor = [71, 85, 105] // #475569
-const BORDER: RgbColor = [228, 222, 214]
-const EMERALD: RgbColor = [16, 150, 104]
+const MUTED: RgbColor = [107, 98, 88] // #6B6258
+const SLATE_ACCENT: RgbColor = [68, 62, 56] // #443E38 Warm Espresso Charcoal
+const BORDER: RgbColor = [231, 223, 211] // #E7DFD3
+const EMERALD: RgbColor = [22, 121, 76] // #16794C
 const EMERALD_BG: RgbColor = [236, 253, 245]
-const ROSE: RgbColor = [215, 38, 72]
+const ROSE: RgbColor = [225, 29, 72] // #E11D48
 const ROSE_BG: RgbColor = [255, 241, 242]
 const WHITE: RgbColor = [255, 255, 255]
 

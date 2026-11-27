@@ -389,7 +389,7 @@ export default function BazaarSchedule() {
                           const assignee = ds.profiles as any
                           return (
                             <div key={ds.id} className="flex flex-col items-center gap-0.5">
-                              <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-xs font-semibold text-white">
+                              <div className="nex-avatar mx-auto flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold text-white">
                                 {assignee?.avatar_url ? (
                                   <img
                                     src={assignee.avatar_url}
@@ -481,7 +481,7 @@ export default function BazaarSchedule() {
                           const assignee = ds.profiles as any
                           return (
                             <div key={ds.id} className="flex items-center gap-3">
-                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-xs font-semibold text-white">
+                              <div className="nex-avatar flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white">
                                 {assignee?.avatar_url ? (
                                   <img
                                     src={assignee.avatar_url}
@@ -539,7 +539,7 @@ export default function BazaarSchedule() {
                 className="hover:bg-nex-hover flex items-center justify-between rounded-lg p-2"
               >
                 <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-xs font-semibold text-white">
+                  <div className="nex-avatar flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold text-white">
                     {getInitials(p?.username || '?')}
                   </div>
                   <span className="text-nex-text text-sm">{p?.username || t('common.member')}</span>

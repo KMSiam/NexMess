@@ -16,7 +16,7 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
     <div className="nex-card flex flex-col justify-between gap-4 p-6 sm:flex-row sm:items-center">
       <div className="flex items-center gap-4">
         {/* User Avatar Circle */}
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 text-lg font-bold text-white shadow-inner ring-2 ring-indigo-500/10">
+        <div className="nex-avatar ring-nex-primary/15 flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white shadow-inner ring-2">
           {profile?.avatar_url ? (
             <img
               src={profile.avatar_url}
@@ -42,8 +42,8 @@ export default function WelcomeCard({ username, isManager }: WelcomeCardProps) {
             <span
               className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${
                 isManager
-                  ? 'bg-nex-primary-light text-nex-primary border-nex-primary/10 dark:bg-nex-primary/10 dark:text-nex-primary dark:border-nex-primary/20'
-                  : 'bg-nex-success-light border-nex-success/10 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400'
+                  ? 'bg-nex-primary-light text-nex-primary-ink border-nex-primary/15 dark:border-nex-primary/25'
+                  : 'bg-nex-success-light border-nex-success/15 text-nex-success dark:border-nex-success/25'
               }`}
             >
               {isManager ? (

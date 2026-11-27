@@ -157,8 +157,8 @@ export default function ForgotPasswordPage() {
 
           {sent ? (
             <div className="mt-4 space-y-4">
-              <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
-                <p className="text-sm text-green-800 dark:text-green-300">
+              <div className="border-nex-success/25 bg-nex-success-light rounded-xl border p-4">
+                <p className="text-nex-success text-sm font-medium">
                   ✅ {t('auth.forgotPassword.sentDesc')} ({email})
                 </p>
               </div>

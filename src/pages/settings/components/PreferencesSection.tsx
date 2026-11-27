@@ -96,7 +96,7 @@ export default function PreferencesSection() {
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800 text-zinc-300">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#202023] text-stone-200">
                 <Moon className="h-5 w-5" />
               </div>
               <div>

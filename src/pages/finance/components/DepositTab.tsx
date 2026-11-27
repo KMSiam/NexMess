@@ -280,8 +280,8 @@ export default function DepositTab({
               className="hover:bg-nex-hover flex items-center justify-between px-5 py-3 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10">
-                  <PiggyBank className="h-4 w-4 text-emerald-600" />
+                <div className="bg-nex-success-light flex h-9 w-9 items-center justify-center rounded-lg">
+                  <PiggyBank className="text-nex-success h-4 w-4" />
                 </div>
                 <div>
                   <p className="text-nex-text text-sm font-medium">
@@ -301,7 +301,7 @@ export default function DepositTab({
                     <button
                       type="button"
                       onClick={() => onDeleteDeposit(dep.id)}
-                      className="p-1 text-red-500 transition-colors hover:text-red-700"
+                      className="text-nex-muted hover:text-nex-danger p-1 transition-colors"
                       title={t('common.delete')}
                       aria-label={t('common.delete')}
                     >
@@ -316,14 +316,14 @@ export default function DepositTab({
                   </span>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-0.5 text-xs text-amber-500">
+                    <span className="text-nex-warning flex items-center gap-0.5 text-xs">
                       <Clock className="h-3 w-3" />
                       {t('finance.depositModal.pending')}
                     </span>
                     {dep.user_id === currentUserId && (
                       <button
                         onClick={() => onConfirmDeposit(dep.id)}
-                        className="bg-nex-primary rounded px-2 py-0.5 text-xs font-medium text-white transition-colors hover:bg-blue-700"
+                        className="bg-nex-primary hover:bg-nex-primary-dark rounded px-2 py-0.5 text-xs font-medium text-white transition-colors"
                       >
                         {t('finance.depositModal.confirmDeposit')}
                       </button>

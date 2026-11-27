@@ -43,13 +43,13 @@ export default function SummaryTab({ financeMembers, balances, totalFixed }: Sum
             {/* Desktop Row */}
             <div className="hidden grid-cols-7 items-center gap-2 sm:grid">
               <div className="col-span-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-xs font-semibold text-white">
+                <div className="nex-avatar flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold text-white">
                   {getInitials(p?.username || '?')}
                 </div>
                 <span className="text-nex-text truncate text-sm font-medium">
                   {p?.username || t('common.member')}
                   {member.status === 'left' && (
-                    <span className="ml-2 rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-red-500 uppercase">
+                    <span className="bg-nex-danger-light text-nex-danger ml-2 rounded px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase">
                       {t('finance.summaryTable.leftBadge')}
                     </span>
                   )}
@@ -70,14 +70,14 @@ export default function SummaryTab({ financeMembers, balances, totalFixed }: Sum
             {/* Mobile Card */}
             <div className="sm:hidden">
               <div className="mb-2 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-xs font-semibold text-white">
+                <div className="nex-avatar flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold text-white">
                   {getInitials(p?.username || '?')}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-nex-text flex items-center gap-2 truncate text-sm font-medium">
                     {p?.username || t('common.member')}
                     {member.status === 'left' && (
-                      <span className="rounded bg-red-500/10 px-1.5 py-0.5 text-xs font-bold tracking-wider text-red-500 uppercase">
+                      <span className="bg-nex-danger-light text-nex-danger rounded px-1.5 py-0.5 text-xs font-bold tracking-wider uppercase">
                         {t('finance.summaryTable.leftBadge')}
                       </span>
                     )}
