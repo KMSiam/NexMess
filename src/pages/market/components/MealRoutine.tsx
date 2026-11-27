@@ -279,12 +279,12 @@ export default function MealRoutine() {
             <span className="inline-flex items-center gap-1 font-semibold">
               {activeEditCell.type === 'lunch' ? (
                 <>
-                  <Sun className="h-3.5 w-3.5 text-amber-500" />
+                  <Sun className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />
                   {t('dashboard.lunch')}
                 </>
               ) : (
                 <>
-                  <Moon className="h-3.5 w-3.5 text-indigo-500" />
+                  <Moon className="text-nex-primary h-3.5 w-3.5 dark:text-emerald-400" />
                   {t('dashboard.dinner')}
                 </>
               )}
@@ -319,16 +319,22 @@ export default function MealRoutine() {
             return (
               <div
                 key={r.day_of_week}
-                className={`nex-card flex flex-col justify-between p-4 transition-all ${
+                className={`nex-card overflow-hidden transition-all ${
                   isToday
-                    ? 'border-nex-primary/60 bg-nex-primary-light/30 ring-nex-primary/15 ring-1'
+                    ? 'border-nex-primary/70 ring-nex-primary/15 ring-1'
                     : ''
                 }`}
               >
-                <div className="mb-3 flex items-center justify-between gap-2">
+                <div
+                  className={`border-nex-border/80 flex items-center justify-between gap-2 border-b px-4 py-3 ${
+                    isToday
+                      ? 'bg-nex-primary-light/70 dark:bg-nex-primary/15'
+                      : 'bg-nex-elevated/55 dark:bg-white/[0.02]'
+                  }`}
+                >
                   <h3
                     className={`text-sm font-bold tracking-tight ${
-                      isToday ? 'text-nex-primary' : 'text-nex-text'
+                      isToday ? 'text-nex-primary dark:text-emerald-400' : 'text-nex-text'
                     }`}
                   >
                     {DAYS[r.day_of_week]}
@@ -340,7 +346,7 @@ export default function MealRoutine() {
                   )}
                 </div>
 
-                <div className="space-y-2.5">
+                <div className="divide-nex-border/70 divide-y">
                   {(['lunch', 'dinner'] as const).map((type) => {
                     const value = r[type]
                     const isLunch = type === 'lunch'
@@ -351,29 +357,19 @@ export default function MealRoutine() {
                     return (
                       <div
                         key={type}
-                        className={`rounded-xl border p-3 transition-colors ${
-                          isActive
-                            ? 'border-nex-primary bg-nex-primary-light/50 ring-nex-primary/20 ring-1'
-                            : isLunch
-                              ? 'border-amber-500/15 bg-amber-500/[0.05] dark:bg-amber-500/[0.07]'
-                              : 'border-indigo-500/15 bg-indigo-500/[0.05] dark:bg-indigo-500/[0.07]'
+                        className={`px-4 py-3.5 transition-colors ${
+                          isActive ? 'bg-nex-primary-light/40' : ''
                         }`}
                       >
                         <div className="mb-2 flex items-center gap-1.5">
                           <SlotIcon
                             className={`h-3.5 w-3.5 shrink-0 ${
                               isLunch
-                                ? 'text-amber-600 dark:text-amber-400'
-                                : 'text-indigo-600 dark:text-indigo-400'
+                                ? 'text-amber-700 dark:text-amber-400'
+                                : 'text-nex-muted dark:text-stone-400'
                             }`}
                           />
-                          <span
-                            className={`text-[11px] font-semibold tracking-wider uppercase ${
-                              isLunch
-                                ? 'text-amber-700 dark:text-amber-400'
-                                : 'text-indigo-700 dark:text-indigo-400'
-                            }`}
-                          >
+                          <span className="text-nex-muted text-[11px] font-semibold tracking-wider uppercase">
                             {isLunch ? t('dashboard.lunch') : t('dashboard.dinner')}
                           </span>
                         </div>
@@ -384,7 +380,9 @@ export default function MealRoutine() {
                             value={value}
                             onChange={(e) => updateEditCell(r.day_of_week, type, e.target.value)}
                             onFocus={() => setActiveEditCell({ day: r.day_of_week, type })}
-                            className="bg-nex-surface border-nex-border text-nex-text focus:border-nex-primary w-full rounded-lg border px-2.5 py-1.5 text-sm transition-colors focus:outline-none"
+                            className={`bg-nex-elevated/60 text-nex-text focus:border-nex-primary w-full rounded-lg border px-2.5 py-1.5 text-sm transition-colors focus:outline-none ${
+                              isActive ? 'border-nex-primary' : 'border-nex-border'
+                            }`}
                             placeholder={t('market.routine.placeholder')}
                           />
                         ) : value ? (

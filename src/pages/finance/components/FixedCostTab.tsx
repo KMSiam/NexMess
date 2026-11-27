@@ -325,7 +325,7 @@ export default function FixedCostTab({
                       <div className="mt-1 flex gap-2">
                         <button
                           onClick={() => startEdit(fc)}
-                          className="text-nex-primary text-xs font-medium transition-colors hover:text-blue-700"
+                          className="text-nex-primary hover:text-nex-primary-dark text-xs font-medium transition-colors"
                         >
                           {t('common.edit')}
                         </button>

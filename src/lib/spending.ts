@@ -52,16 +52,16 @@ const CATEGORY_ALIAS: Record<string, SpendingCategoryKey> = {
 }
 
 const CATEGORY_STYLES: Record<SpendingCategoryKey, { colorClass: string; dotClass: string }> = {
-  bazaar: { colorClass: 'bg-emerald-500', dotClass: 'bg-emerald-500' },
-  rent: { colorClass: 'bg-blue-500', dotClass: 'bg-blue-500' },
-  utilities: { colorClass: 'bg-amber-500', dotClass: 'bg-amber-500' },
-  electricity: { colorClass: 'bg-yellow-500', dotClass: 'bg-yellow-500' },
-  water: { colorClass: 'bg-sky-500', dotClass: 'bg-sky-500' },
-  gas: { colorClass: 'bg-orange-500', dotClass: 'bg-orange-500' },
-  internet: { colorClass: 'bg-cyan-500', dotClass: 'bg-cyan-500' },
-  maid: { colorClass: 'bg-violet-500', dotClass: 'bg-violet-500' },
-  waste: { colorClass: 'bg-teal-500', dotClass: 'bg-teal-500' },
-  other: { colorClass: 'bg-slate-400 dark:bg-slate-500', dotClass: 'bg-slate-400 dark:bg-slate-500' },
+  bazaar: { colorClass: 'bg-[#4a6d56]', dotClass: 'bg-[#4a6d56]' },
+  rent: { colorClass: 'bg-stone-700 dark:bg-stone-400', dotClass: 'bg-stone-700 dark:bg-stone-400' },
+  utilities: { colorClass: 'bg-amber-600', dotClass: 'bg-amber-600' },
+  electricity: { colorClass: 'bg-amber-500', dotClass: 'bg-amber-500' },
+  water: { colorClass: 'bg-teal-700', dotClass: 'bg-teal-700' },
+  gas: { colorClass: 'bg-orange-700', dotClass: 'bg-orange-700' },
+  internet: { colorClass: 'bg-emerald-700', dotClass: 'bg-emerald-700' },
+  maid: { colorClass: 'bg-rose-700', dotClass: 'bg-rose-700' },
+  waste: { colorClass: 'bg-stone-500', dotClass: 'bg-stone-500' },
+  other: { colorClass: 'bg-stone-400 dark:bg-stone-500', dotClass: 'bg-stone-400 dark:bg-stone-500' },
 }
 
 export function normalizeSpendingCategory(raw: string | null | undefined): SpendingCategoryKey {
