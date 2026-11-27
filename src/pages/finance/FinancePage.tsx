@@ -17,6 +17,8 @@ import { isApprovedManager, isSafeHttpUrl } from '../../lib/utils'
 
 import { useFinanceData } from '../../hooks/useFinanceData'
 import { usePageTitle } from '../../hooks/usePageTitle'
+import { motion } from 'framer-motion'
+import SlidingTabs from '../../components/SlidingTabs'
 
 import FinanceOverview from './components/FinanceOverview'
 import ExpenseTab from './components/ExpenseTab'
@@ -574,74 +576,75 @@ export default function FinancePage() {
         messBalance={messBalance}
       />
 
-      <div className="bg-nex-elevated rounded-btn scrollbar-none flex w-full max-w-full gap-1 overflow-x-auto p-1 sm:justify-between">
-        {tabs.map(({ key, label, icon: Icon }) => (
-          <button
-            key={key}
-            onClick={() => setActiveTab(key)}
-            className={`flex shrink-0 items-center justify-center gap-1.5 rounded-md px-2.5 py-2 text-xs font-medium whitespace-nowrap transition-colors sm:flex-1 sm:px-3 ${
-              activeTab === key ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'
-            }`}
-          >
-            <Icon className="h-3.5 w-3.5 shrink-0" /> {label}
-          </button>
-        ))}
-      </div>
+      <SlidingTabs
+        layoutId="finance-tabs"
+        tabs={tabs}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        fullWidth
+      />
 
-      {activeTab === 'expenses' && (
-        <ExpenseTab
-          expenses={expenses}
-          isManager={isManager}
-          onAddExpense={handleAddExpense}
-          onUpdateExpense={handleUpdateExpense}
-          onDeleteExpense={handleDeleteExpense}
-        />
-      )}
-
-      {activeTab === 'deposits' && (
-        <DepositTab
-          deposits={deposits}
-          approvedMembers={approvedMembers}
-          isManager={isManager}
-          currentUserId={user?.id || ''}
-          onAddDeposit={handleAddDeposit}
-          onConfirmDeposit={handleConfirmDeposit}
-          onDeleteDeposit={(id) => {
-            setDeleteDepositId(id)
-            return Promise.resolve()
-          }}
-        />
-      )}
-
-      {activeTab === 'fixed' && (
-        <FixedCostTab
-          fixedCosts={fixedCosts}
-          isManager={isManager}
-          onAddFixedCost={handleAddFixedCost}
-          onMarkPaid={(id) => {
-            setPaidFixedCostId(id)
-            return Promise.resolve()
-          }}
-          onDeleteFixedCost={(id) => {
-            setDeleteFixedCostId(id)
-            return Promise.resolve()
-          }}
-        />
-      )}
-
-      {activeTab === 'summary' && (
-        <div className="space-y-4">
-          <SpendingBreakdown
-            expenses={expenses.filter((e) => e.date.startsWith(currentMonth))}
-            fixedCosts={fixedCosts}
-            totalDeposits={totalDeposits}
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+      >
+        {activeTab === 'expenses' && (
+          <ExpenseTab
+            expenses={expenses}
+            isManager={isManager}
+            onAddExpense={handleAddExpense}
+            onUpdateExpense={handleUpdateExpense}
+            onDeleteExpense={handleDeleteExpense}
           />
-          <SummaryTab financeMembers={financeMembers} balances={balances} totalFixed={totalFixed} />
-          <SettleUpSheet settlements={settlements} />
-        </div>
-      )}
+        )}
 
-      {activeTab === 'history' && <HistoryTab />}
+        {activeTab === 'deposits' && (
+          <DepositTab
+            deposits={deposits}
+            approvedMembers={approvedMembers}
+            isManager={isManager}
+            currentUserId={user?.id || ''}
+            onAddDeposit={handleAddDeposit}
+            onConfirmDeposit={handleConfirmDeposit}
+            onDeleteDeposit={(id) => {
+              setDeleteDepositId(id)
+              return Promise.resolve()
+            }}
+          />
+        )}
+
+        {activeTab === 'fixed' && (
+          <FixedCostTab
+            fixedCosts={fixedCosts}
+            isManager={isManager}
+            onAddFixedCost={handleAddFixedCost}
+            onMarkPaid={(id) => {
+              setPaidFixedCostId(id)
+              return Promise.resolve()
+            }}
+            onDeleteFixedCost={(id) => {
+              setDeleteFixedCostId(id)
+              return Promise.resolve()
+            }}
+          />
+        )}
+
+        {activeTab === 'summary' && (
+          <div className="space-y-4">
+            <SpendingBreakdown
+              expenses={expenses.filter((e) => e.date.startsWith(currentMonth))}
+              fixedCosts={fixedCosts}
+              totalDeposits={totalDeposits}
+            />
+            <SummaryTab financeMembers={financeMembers} balances={balances} totalFixed={totalFixed} />
+            <SettleUpSheet settlements={settlements} />
+          </div>
+        )}
+
+        {activeTab === 'history' && <HistoryTab />}
+      </motion.div>
 
       <ConfirmDialog
         open={paidFixedCostId !== null}

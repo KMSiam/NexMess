@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { useMessStore } from '../../stores/messStore'
@@ -13,9 +13,9 @@ import {
   AlertTriangle,
   MessageCircle,
   Languages,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import SlidingTabs from '../../components/SlidingTabs'
 import { isSubscribed, subscribeToPush, unsubscribeFromPush } from '../../lib/push'
 import toast from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
@@ -33,7 +33,7 @@ import PreferencesSection from './components/PreferencesSection'
 import DangerZone from './components/DangerZone'
 
 export default function SettingsPage() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   usePageTitle(t('settings.title'))
   const navigate = useNavigate()
   const { profile, user, updateProfile } = useAuthStore()
@@ -46,8 +46,6 @@ export default function SettingsPage() {
     'profile' | 'members' | 'mess' | 'notifications' | 'preferences' | 'danger'
   >('profile')
   const [isSupportOpen, setIsSupportOpen] = useState(false)
-  const tabSliderRef = useRef<HTMLDivElement>(null)
-  const [tabScrollState, setTabScrollState] = useState({ left: false, right: false })
 
   const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
@@ -63,37 +61,6 @@ export default function SettingsPage() {
   useEffect(() => {
     isSubscribed().then(setPushEnabled)
   }, [])
-
-  const updateTabScrollState = useCallback(() => {
-    const el = tabSliderRef.current
-    if (!el) return
-    const { scrollLeft, scrollWidth, clientWidth } = el
-    setTabScrollState({
-      left: scrollLeft > 4,
-      right: scrollLeft + clientWidth < scrollWidth - 4,
-    })
-  }, [])
-
-  useEffect(() => {
-    const el = tabSliderRef.current
-    if (!el) return
-    updateTabScrollState()
-    const observer =
-      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateTabScrollState) : null
-    observer?.observe(el)
-    window.addEventListener('resize', updateTabScrollState)
-    return () => {
-      observer?.disconnect()
-      window.removeEventListener('resize', updateTabScrollState)
-    }
-  }, [updateTabScrollState, i18n.language, pendingMembers.length])
-
-  const scrollTabs = (direction: 'left' | 'right') => {
-    tabSliderRef.current?.scrollBy({
-      left: direction === 'left' ? -180 : 180,
-      behavior: 'smooth',
-    })
-  }
 
   const settingsTabs = [
     { key: 'profile' as const, label: t('settings.tabs.profile'), icon: User },
@@ -400,126 +367,67 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      <div className="bg-nex-elevated border-nex-border/80 relative overflow-hidden rounded-xl border p-1.5">
-        {tabScrollState.left && (
-          <div className="from-nex-elevated via-nex-elevated/90 pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center bg-gradient-to-r to-transparent pr-4 pl-1.5">
-            <button
-              type="button"
-              onClick={() => scrollTabs('left')}
-              aria-label="Scroll settings sections left"
-              className="bg-nex-surface border-nex-border/80 text-nex-muted hover:text-nex-text pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full border shadow-sm transition-all active:scale-95"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-
-        <div
-          ref={tabSliderRef}
-          role="tablist"
-          onScroll={updateTabScrollState}
-          className="scrollbar-none flex w-full flex-nowrap items-center gap-1.5 overflow-x-auto scroll-smooth whitespace-nowrap sm:justify-between"
-        >
-          {settingsTabs.map(({ key, label, icon: Icon, badge, danger }) => {
-            const isActive = activeTab === key
-            return (
-              <button
-                key={key}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                onClick={(e) => {
-                  setActiveTab(key)
-                  e.currentTarget.scrollIntoView({
-                    behavior: 'smooth',
-                    inline: 'nearest',
-                    block: 'nearest',
-                  })
-                }}
-                className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 sm:text-sm ${
-                  danger
-                    ? isActive
-                      ? 'bg-rose-600 text-white shadow-md'
-                      : 'text-nex-muted hover:bg-nex-danger-light hover:text-nex-danger'
-                    : isActive
-                      ? 'bg-nex-primary text-white shadow-md'
-                      : 'text-nex-muted hover:text-nex-text hover:bg-nex-hover/50'
-                }`}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span>{label}</span>
-                {badge !== undefined && (
-                  <span
-                    className={`inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-[10px] font-bold ${
-                      isActive ? 'text-nex-danger bg-white' : 'bg-nex-danger animate-pulse text-white'
-                    }`}
-                  >
-                    {formatNumber(badge)}
-                  </span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-
-        {tabScrollState.right && (
-          <div className="from-nex-elevated via-nex-elevated/90 pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center bg-gradient-to-l to-transparent pr-1.5 pl-4">
-            <button
-              type="button"
-              onClick={() => scrollTabs('right')}
-              aria-label="Scroll settings sections right"
-              className="bg-nex-surface border-nex-border/80 text-nex-muted hover:text-nex-text pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full border shadow-sm transition-all active:scale-95"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-      </div>
+      <SlidingTabs
+        layoutId="settings-tabs"
+        ariaLabel={t('settings.title')}
+        tabs={settingsTabs}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        fullWidth
+        showScrollArrows
+      />
 
       <div className="mt-4 min-h-[300px]">
-        {activeTab === 'profile' && (
-          <ProfileSection profile={profile} email={user?.email} onUpdate={handleProfileUpdate} />
-        )}
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+        >
+          {activeTab === 'profile' && (
+            <ProfileSection profile={profile} email={user?.email} onUpdate={handleProfileUpdate} />
+          )}
 
-        {activeTab === 'members' && (
-          <MemberManagement
-            pendingMembers={pendingMembers}
-            approvedMembers={approvedMembers}
-            isManager={isManager}
-            currentUserId={user?.id}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            onRemove={setRemoveMemberId}
-            onMakeManager={setPromoteMemberId}
-            onDemoteManager={setDemoteMemberId}
-            onToggleVerify={handleToggleVerify}
-          />
-        )}
+          {activeTab === 'members' && (
+            <MemberManagement
+              pendingMembers={pendingMembers}
+              approvedMembers={approvedMembers}
+              isManager={isManager}
+              currentUserId={user?.id}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onRemove={setRemoveMemberId}
+              onMakeManager={setPromoteMemberId}
+              onDemoteManager={setDemoteMemberId}
+              onToggleVerify={handleToggleVerify}
+            />
+          )}
 
-        {activeTab === 'mess' && (
-          <MessDetailsSection currentMess={currentMess} isManager={isManager} />
-        )}
+          {activeTab === 'mess' && (
+            <MessDetailsSection currentMess={currentMess} isManager={isManager} />
+          )}
 
-        {activeTab === 'notifications' && (
-          <PushNotificationSection
-            pushEnabled={pushEnabled}
-            pushLoading={pushLoading}
-            onToggle={handlePushToggle}
-          />
-        )}
+          {activeTab === 'notifications' && (
+            <PushNotificationSection
+              pushEnabled={pushEnabled}
+              pushLoading={pushLoading}
+              onToggle={handlePushToggle}
+            />
+          )}
 
-        {activeTab === 'preferences' && <PreferencesSection />}
+          {activeTab === 'preferences' && <PreferencesSection />}
 
-        {activeTab === 'danger' && (
-          <DangerZone
-            hasMess={!!currentMess}
-            isManager={isManager}
-            messName={currentMess?.name}
-            onLeave={() => setConfirmLeaveOpen(true)}
-            onDelete={() => setConfirmDeleteOpen(true)}
-            onDeleteAccount={() => setConfirmDeleteAccountOpen(true)}
-          />
-        )}
+          {activeTab === 'danger' && (
+            <DangerZone
+              hasMess={!!currentMess}
+              isManager={isManager}
+              messName={currentMess?.name}
+              onLeave={() => setConfirmLeaveOpen(true)}
+              onDelete={() => setConfirmDeleteOpen(true)}
+              onDeleteAccount={() => setConfirmDeleteAccountOpen(true)}
+            />
+          )}
+        </motion.div>
       </div>
 
       <div className="text-nex-muted border-nex-border/30 border-t py-4 text-center text-xs">

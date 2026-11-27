@@ -5,6 +5,7 @@ import { useMessStore } from '../../stores/messStore'
 import { supabase } from '../../lib/supabase'
 import { Meal } from '../../types/database'
 import { Utensils, ChevronLeft, ChevronRight, Sun, Moon, ShieldCheck, X, Clock } from 'lucide-react'
+import SlidingTabs from '../../components/SlidingTabs'
 import {
   format,
   startOfMonth,
@@ -277,28 +278,17 @@ export default function MealsPage() {
             </button>
           )}
 
-          <div className="bg-nex-elevated rounded-btn flex shrink-0 gap-1 p-1 shadow-sm">
-            <button
-              onClick={() => setViewMode('personal')}
-              className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-                viewMode === 'personal'
-                  ? 'bg-nex-surface text-nex-text shadow-sm'
-                  : 'text-nex-muted hover:text-nex-text'
-              }`}
-            >
-              {t('meals.myMeals')}
-            </button>
-            <button
-              onClick={() => setViewMode('all')}
-              className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-                viewMode === 'all'
-                  ? 'bg-nex-surface text-nex-text shadow-sm'
-                  : 'text-nex-muted hover:text-nex-text'
-              }`}
-            >
-              {t('meals.allMembers')}
-            </button>
-          </div>
+          <SlidingTabs
+            layoutId="meals-view-tabs"
+            size="sm"
+            tabs={[
+              { key: 'personal', label: t('meals.myMeals') },
+              { key: 'all', label: t('meals.allMembers') },
+            ]}
+            activeTab={viewMode}
+            onChange={setViewMode}
+            className="shadow-sm"
+          />
         </div>
       </div>
 

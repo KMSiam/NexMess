@@ -13,6 +13,7 @@ import {
   dhakaTomorrow,
 } from '../../../lib/utils'
 import type { DashboardMeals, DashboardRoutines } from '../../../hooks/useDashboardData'
+import SlidingTabs from '../../../components/SlidingTabs'
 
 interface MealSelectorProps {
   mealsData: DashboardMeals
@@ -49,22 +50,16 @@ export default function MealSelector({
           <h2 className="text-nex-text shrink-0 text-xs font-bold tracking-wider whitespace-nowrap uppercase sm:text-sm sm:font-semibold">
             {t('dashboard.myMealsTitle')}
           </h2>
-          <div className="bg-nex-elevated rounded-btn flex shrink-0 gap-1 p-1">
-            <button
-              type="button"
-              onClick={() => setMealTab('today')}
-              className={`rounded px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors ${mealTab === 'today' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'}`}
-            >
-              {t('common.today')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setMealTab('tomorrow')}
-              className={`rounded px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors ${mealTab === 'tomorrow' ? 'bg-nex-surface text-nex-text shadow-sm' : 'text-nex-muted hover:text-nex-text'}`}
-            >
-              {t('common.tomorrow')}
-            </button>
-          </div>
+          <SlidingTabs
+            layoutId="meal-selector-tabs"
+            size="sm"
+            tabs={[
+              { key: 'today', label: t('common.today') },
+              { key: 'tomorrow', label: t('common.tomorrow') },
+            ]}
+            activeTab={mealTab}
+            onChange={setMealTab}
+          />
         </div>
         {(routines[mealTab].lunch || routines[mealTab].dinner) && (
           <div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1">
